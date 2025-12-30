@@ -1632,113 +1632,206 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                 </div>
                             </div>
                         </div>
+                        {/* MODERN FOOTER BAR */}
                         <div style={{
-                            padding: '12px 24px',
-                            background: 'white',
-                            borderTop: '1px solid #e2e8f0',
-                            display: 'grid',
-                            gridTemplateColumns: '1fr auto 1fr',
+                            padding: '10px 20px',
+                            background: 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.98) 100%)',
+                            borderTop: '1px solid rgba(226,232,240,0.8)',
+                            display: 'flex',
                             alignItems: 'center',
-                            boxShadow: '0 -4px 6px -1px rgba(0,0,0,0.05)',
+                            justifyContent: 'space-between',
+                            backdropFilter: 'blur(12px)',
+                            boxShadow: '0 -2px 10px rgba(0,0,0,0.03)',
                             zIndex: 10
                         }}>
-                            <div style={{ display: 'flex', gap: '12px' }}>
-                                <ProfessionalFontControl level={rightFontSize} setLevel={setRightFontSize} />
+                            {/* LEFT: Font Controls (Compact) */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <button
+                                    onClick={() => setRightFontSize(Math.max(0.8, rightFontSize - 0.1))}
+                                    style={{
+                                        width: 32, height: 32, borderRadius: 6,
+                                        border: '1px solid #e2e8f0', background: 'white',
+                                        color: '#64748b', fontWeight: 700, fontSize: '0.75rem',
+                                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                    }}
+                                >A-</button>
+                                <div style={{
+                                    padding: '4px 8px',
+                                    fontSize: '0.7rem',
+                                    fontWeight: 600,
+                                    color: '#475569',
+                                    background: '#f1f5f9',
+                                    borderRadius: 4,
+                                    minWidth: 40,
+                                    textAlign: 'center'
+                                }}>
+                                    {Math.round(rightFontSize * 100)}%
+                                </div>
+                                <button
+                                    onClick={() => setRightFontSize(Math.min(1.5, rightFontSize + 0.1))}
+                                    style={{
+                                        width: 32, height: 32, borderRadius: 6,
+                                        border: '1px solid #e2e8f0', background: 'white',
+                                        color: '#64748b', fontWeight: 700, fontSize: '0.75rem',
+                                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                    }}
+                                >A+</button>
                             </div>
 
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '24px' }}>
-                                <FloatingControls
-                                    onPrev={handlePrev}
-                                    onNext={isLastScreen ? onClose : handleNext}
-                                    onSubmit={handleSubmit}
-                                    canPrev={currentScreenIndex > 0}
-                                    canNext={isCurrentSubmitted}
-                                    canSubmit={!!currentQ && !isCurrentSubmitted}
-                                    isSubmitted={isCurrentSubmitted}
-                                    isLast={isLastScreen}
-                                    style={{ boxShadow: 'none', background: 'transparent', border: 'none', padding: 0 }}
-                                />
-                                {isCurrentSubmitted && mode !== 'exam' && (
-                                    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        <style>{`
-                                            @keyframes ripple-glow {
-                                                0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
-                                                70% { box-shadow: 0 0 0 15px rgba(245, 158, 11, 0); }
-                                                100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
-                                            }
-                                        `}</style>
+                            {/* CENTER: Navigation & Submit */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                {/* Prev */}
+                                <button
+                                    onClick={handlePrev}
+                                    disabled={currentScreenIndex <= 0}
+                                    style={{
+                                        width: 36, height: 36, borderRadius: 8,
+                                        border: 'none',
+                                        background: currentScreenIndex > 0 ? '#f1f5f9' : '#f8fafc',
+                                        color: currentScreenIndex > 0 ? '#475569' : '#cbd5e1',
+                                        cursor: currentScreenIndex > 0 ? 'pointer' : 'not-allowed',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        fontSize: '1rem'
+                                    }}
+                                >
+                                    ‹
+                                </button>
 
-                                        <button
-                                            onClick={() => setIsRationaleOpen(true)}
-                                            style={{
-                                                width: '52px',
-                                                height: '52px',
-                                                borderRadius: '50%',
-                                                background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
-                                                border: '3px solid #F59E0B',
-                                                color: '#92400E',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                cursor: 'pointer',
-                                                boxShadow: '0 10px 15px -3px rgba(245, 158, 11, 0.4)',
-                                                transition: 'all 0.3s ease',
-                                                animation: 'ripple-glow 2s infinite'
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                e.currentTarget.style.transform = 'scale(1.1)';
-                                                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(245, 158, 11, 0.5)';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.currentTarget.style.transform = 'scale(1)';
-                                                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(245, 158, 11, 0.4)';
-                                            }}
-                                            title="View Clinical Reasoning"
-                                        >
-                                            <span style={{
-                                                fontFamily: 'Georgia, serif',
-                                                fontSize: '28px',
-                                                fontWeight: 700,
-                                                fontStyle: 'italic'
-                                            }}>
-                                                i
-                                            </span>
-                                        </button>
+                                {/* Submit/Status */}
+                                {isCurrentSubmitted ? (
+                                    <div style={{
+                                        padding: '8px 20px',
+                                        borderRadius: 24,
+                                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                        color: 'white',
+                                        fontWeight: 600,
+                                        fontSize: '0.85rem',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 6,
+                                        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+                                    }}>
+                                        <span>✓</span> Answer Saved
                                     </div>
+                                ) : (
+                                    <button
+                                        onClick={handleSubmit}
+                                        disabled={!currentQ}
+                                        style={{
+                                            padding: '10px 28px',
+                                            borderRadius: 24,
+                                            background: currentQ ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' : '#e2e8f0',
+                                            border: 'none',
+                                            color: currentQ ? 'white' : '#94a3b8',
+                                            fontWeight: 700,
+                                            fontSize: '0.9rem',
+                                            cursor: currentQ ? 'pointer' : 'not-allowed',
+                                            boxShadow: currentQ ? '0 4px 12px rgba(59, 130, 246, 0.4)' : 'none',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        Submit
+                                    </button>
+                                )}
+
+                                {/* Next */}
+                                <button
+                                    onClick={isLastScreen ? onClose : handleNext}
+                                    disabled={!isCurrentSubmitted}
+                                    style={{
+                                        width: 36, height: 36, borderRadius: 8,
+                                        border: 'none',
+                                        background: isCurrentSubmitted ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' : '#f8fafc',
+                                        color: isCurrentSubmitted ? 'white' : '#cbd5e1',
+                                        cursor: isCurrentSubmitted ? 'pointer' : 'not-allowed',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        fontSize: '1rem',
+                                        boxShadow: isCurrentSubmitted ? '0 2px 8px rgba(59, 130, 246, 0.3)' : 'none'
+                                    }}
+                                >
+                                    ›
+                                </button>
+
+                                {/* Rationale Button (after submit) */}
+                                {isCurrentSubmitted && mode !== 'exam' && (
+                                    <button
+                                        onClick={() => setIsRationaleOpen(true)}
+                                        style={{
+                                            width: 40, height: 40, borderRadius: '50%',
+                                            background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                                            border: '2px solid #f59e0b',
+                                            color: '#92400e',
+                                            cursor: 'pointer',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            fontSize: '1.2rem',
+                                            fontWeight: 700,
+                                            fontStyle: 'italic',
+                                            fontFamily: 'Georgia, serif',
+                                            boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)'
+                                        }}
+                                        title="View Clinical Reasoning"
+                                    >
+                                        i
+                                    </button>
                                 )}
                             </div>
 
-                            {/* Pause / Exit Button - Moved Here */}
-                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                <button
-                                    onClick={onClose}
-                                    style={{
-                                        padding: '8px 16px',
-                                        background: 'linear-gradient(135deg, #475569, #334155)',
-                                        border: '1px solid #64748b',
-                                        borderRadius: '8px',
-                                        cursor: 'pointer',
-                                        fontWeight: 600,
-                                        color: 'white',
-                                        fontSize: '0.8rem',
-                                        transition: 'all 0.2s',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '6px'
-                                    }}
-                                >
-                                    ⏸️ Pause / Exit
-                                </button>
-                            </div>
+                            {/* RIGHT: Exit Button */}
+                            <button
+                                onClick={onClose}
+                                style={{
+                                    padding: '8px 16px',
+                                    borderRadius: 8,
+                                    background: 'transparent',
+                                    border: '1px solid #e2e8f0',
+                                    color: '#64748b',
+                                    fontWeight: 600,
+                                    fontSize: '0.8rem',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 6,
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = '#f8fafc';
+                                    e.currentTarget.style.color = '#334155';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = 'transparent';
+                                    e.currentTarget.style.color = '#64748b';
+                                }}
+                            >
+                                ⏸️ Exit
+                            </button>
                         </div>
                     </div>
 
                     {!isMobile && (
-                        <div className="bg-slate-900 border-l border-slate-700 flex flex-col shadow-2xl z-20" style={{ width: '300px', height: '100%' }}>
+                        <div className="bg-slate-900 border-l border-slate-700 flex flex-col shadow-2xl z-20" style={{
+                            width: '320px',
+                            minWidth: '320px',
+                            height: '100%',
+                            position: 'relative'
+                        }}>
                             {/* Bio-statistical Background Pattern */}
                             <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#94a3b8 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
 
-                            <div className="flex-1 overflow-y-auto p-2 custom-scrollbar relative z-10">
+                            {/* Custom Scrollbar Styles */}
+                            <style>{`
+                                .expert-scroll::-webkit-scrollbar { width: 6px; }
+                                .expert-scroll::-webkit-scrollbar-track { background: rgba(30, 41, 59, 0.5); border-radius: 3px; }
+                                .expert-scroll::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.6); border-radius: 3px; }
+                                .expert-scroll::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.8); }
+                            `}</style>
+
+                            <div className="expert-scroll" style={{
+                                flex: 1,
+                                overflowY: 'auto',
+                                padding: '8px',
+                                position: 'relative',
+                                zIndex: 10
+                            }}>
                                 <ExpertDashboard
                                     passProbability={sessionAnalytics.passProbability}
                                     clientNeeds={sessionAnalytics.clientNeeds}

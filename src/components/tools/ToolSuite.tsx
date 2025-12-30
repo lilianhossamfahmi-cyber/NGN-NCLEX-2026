@@ -64,74 +64,80 @@ export const ToolSuite: React.FC = () => {
             </div>
 
             <div style={{ pointerEvents: 'auto' }}>
+                {/* Calculator - Top Left, compact */}
                 <DraggableWindow
                     title="Pro Calculator"
                     isOpen={activeTools.includes('calc')}
                     onClose={() => closeTool('calc')}
                     zIndex={zIndices['calc']}
                     onFocus={() => bringToFront('calc')}
-                    width={280}
-                    defaultPosition={{ x: 100, y: 100 }}
+                    width={260}
+                    defaultPosition={{ x: 20, y: 80 }}
                 >
                     <ProCalculator />
                 </DraggableWindow>
 
+                {/* Notepad - Below Calculator */}
                 <DraggableWindow
                     title="Smart Notepad"
                     isOpen={activeTools.includes('notes')}
                     onClose={() => closeTool('notes')}
                     zIndex={zIndices['notes']}
                     onFocus={() => bringToFront('notes')}
-                    width={320}
-                    defaultPosition={{ x: 400, y: 100 }}
+                    width={300}
+                    defaultPosition={{ x: 20, y: 350 }}
                 >
                     <SmartNotepad />
                 </DraggableWindow>
 
+                {/* Timer - Top Center-Left */}
                 <DraggableWindow
                     title="Exam Timer"
                     isOpen={activeTools.includes('timer')}
                     onClose={() => closeTool('timer')}
                     zIndex={zIndices['timer']}
                     onFocus={() => bringToFront('timer')}
-                    width={250}
-                    defaultPosition={{ x: 750, y: 50 }}
+                    width={220}
+                    defaultPosition={{ x: 300, y: 80 }}
                 >
                     <ExamTimer />
                 </DraggableWindow>
 
+                {/* Reference Labs - Center, wider */}
                 <DraggableWindow
                     title="Reference Labs"
                     isOpen={activeTools.includes('labs')}
                     onClose={() => closeTool('labs')}
                     zIndex={zIndices['labs']}
                     onFocus={() => bringToFront('labs')}
-                    width={400}
-                    defaultPosition={{ x: 150, y: 300 }}
+                    width={380}
+                    defaultPosition={{ x: 350, y: 200 }}
                 >
                     <ReferenceLabs />
                 </DraggableWindow>
 
+                {/* Text Size - Middle Left */}
                 <DraggableWindow
                     title="Text Size Control"
                     isOpen={activeTools.includes('access')}
                     onClose={() => closeTool('access')}
                     zIndex={zIndices['access']}
                     onFocus={() => bringToFront('access')}
-                    width={300}
-                    defaultPosition={{ x: 600, y: 300 }}
+                    width={280}
+                    defaultPosition={{ x: 20, y: 200 }}
                 >
                     <AccessibilityTools />
                 </DraggableWindow>
 
+                {/* Highlighter - Top Right of left area */}
                 <DraggableWindow
                     title="Smart Highlighter"
                     isOpen={activeTools.includes('highlighter')}
                     onClose={() => closeTool('highlighter')}
                     zIndex={zIndices['highlighter']}
                     onFocus={() => bringToFront('highlighter')}
-                    width={250}
-                    defaultPosition={{ x: 500, y: 200 }}
+                    width={240}
+                    defaultPosition={{ x: 550, y: 80 }}
                 >
                     <SmartHighlighter />
                 </DraggableWindow>
