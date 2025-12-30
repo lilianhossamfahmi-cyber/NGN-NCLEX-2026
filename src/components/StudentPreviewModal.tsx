@@ -10,7 +10,7 @@ import ExpertDashboard from './ExpertDashboard';
 import { CognitiveAnalyticsEngine, SessionHistoryItem } from '../utils/scoringEngine';
 import { InteractionData } from '../utils/stressEngine';
 import { FloatingPatientHeader } from './FloatingPatientHeader';
-import { FloatingControls } from './FloatingControls';
+// FloatingControls removed - using custom footer controls
 
 interface StudentPreviewModalProps {
     item: MasterQuestionItem;
@@ -1419,9 +1419,11 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                     </div>
                                 )}
                                 {activeTab === 'orders' && (
-                                    <div className="p-6 bg-slate-50">
-                                        <h3 className="text-xl font-bold text-slate-800 mb-6">Medical Orders</h3>
-                                        {renderOrders(item.content.clinicalData?.orders)}
+                                    <div className="p-4 bg-slate-50" style={{ minHeight: '100%' }}>
+                                        <h3 className="text-xl font-bold text-slate-800 mb-4">Medical Orders</h3>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                            {renderOrders(item.content.clinicalData?.orders)}
+                                        </div>
                                     </div>
                                 )}
                                 {activeTab === 'rad' && (
@@ -1718,16 +1720,29 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                         onClick={handleSubmit}
                                         disabled={!currentQ}
                                         style={{
-                                            padding: '10px 28px',
+                                            padding: '10px 32px',
                                             borderRadius: 24,
-                                            background: currentQ ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' : '#e2e8f0',
+                                            background: currentQ
+                                                ? 'linear-gradient(135deg, #06b6d4 0%, #0891b2 50%, #0e7490 100%)'
+                                                : '#e2e8f0',
                                             border: 'none',
                                             color: currentQ ? 'white' : '#94a3b8',
                                             fontWeight: 700,
                                             fontSize: '0.9rem',
                                             cursor: currentQ ? 'pointer' : 'not-allowed',
-                                            boxShadow: currentQ ? '0 4px 12px rgba(59, 130, 246, 0.4)' : 'none',
-                                            transition: 'all 0.2s'
+                                            boxShadow: currentQ ? '0 4px 15px rgba(6, 182, 212, 0.4), 0 2px 4px rgba(0,0,0,0.1)' : 'none',
+                                            transition: 'all 0.2s',
+                                            letterSpacing: '0.02em'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (currentQ) {
+                                                e.currentTarget.style.transform = 'translateY(-1px)';
+                                                e.currentTarget.style.boxShadow = '0 6px 20px rgba(6, 182, 212, 0.5), 0 3px 6px rgba(0,0,0,0.15)';
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(0)';
+                                            e.currentTarget.style.boxShadow = currentQ ? '0 4px 15px rgba(6, 182, 212, 0.4), 0 2px 4px rgba(0,0,0,0.1)' : 'none';
                                         }}
                                     >
                                         Submit
