@@ -1539,8 +1539,24 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                     undefined,
                                     currentAnswer,
                                     (ans) => {
-                                        setAnswers(prev => ({ ...prev, [qKey]: ans }));
-                                        setStressMetrics(prev => ({ ...prev, changeCount: prev.changeCount + 1 }));
+                                        // Smart Indecision Tracking
+                                        // 1. Single Select: Changing an existing answer = Indecision (+1)
+                                        // 2. Multi Select (SATA): UN-checking an option = Indecision (+1). Adding is valid.
+                                        let isIndecision = false;
+                                        const prev = currentAnswer;
+
+                                        if (Array.isArray(ans) && Array.isArray(prev)) {
+                                            // SATA: If count dropped, they removed an answer (Second guessing)
+                                            if (ans.length < prev.length) isIndecision = true;
+                                        } else if (prev && prev !== ans && !Array.isArray(ans)) {
+                                            // Single: Changed mind
+                                            isIndecision = true;
+                                        }
+
+                                        setAnswers(p => ({ ...p, [qKey]: ans }));
+                                        if (isIndecision) {
+                                            setStressMetrics(s => ({ ...s, changeCount: s.changeCount + 1 }));
+                                        }
                                     },
                                     isCurrentSubmitted,
                                     true,
