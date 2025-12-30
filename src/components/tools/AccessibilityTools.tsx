@@ -71,23 +71,15 @@ export const AccessibilityTools: React.FC = () => {
         }
 
         const handleMagnifyClick = (e: MouseEvent) => {
-            // Check if clicking inside EHR or Question panels
             const target = e.target as HTMLElement;
             if (target.closest('.ehr-panel') || target.closest('.question-section')) {
-                // Prevent default interaction if we are just toggling zoom
-                // But maybe we want to allow selecting text? 
-                // "Act as magnifier" usually implies tool mode.
-                // e.preventDefault(); // Optional, might block buttons
-
-                // Toggle Zoom: If > 100, reset to 100. If 100, go to 125.
                 setZoomLevel(prev => prev > 100 ? 100 : 125);
             }
         };
 
-        // Set cursor for feedback
         panels.forEach(p => (p as HTMLElement).style.cursor = 'zoom-in');
 
-        document.addEventListener('click', handleMagnifyClick, true); // Capture phase to detect click
+        document.addEventListener('click', handleMagnifyClick, true);
         return () => {
             document.removeEventListener('click', handleMagnifyClick, true);
             panels.forEach(p => (p as HTMLElement).style.cursor = '');
@@ -100,41 +92,150 @@ export const AccessibilityTools: React.FC = () => {
     };
 
     return (
-        <div className="access-panel">
-            <div className="access-row">
-                <span style={{ fontWeight: 500 }}>Text Size</span>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <button className="font-btn" onClick={() => adjustZoom(-10)}>A-</button>
-                    <span style={{ width: '40px', textAlign: 'center', fontWeight: 'bold' }}>{zoomLevel}%</span>
-                    <button className="font-btn" onClick={() => adjustZoom(10)}>A+</button>
-                    <button className="font-btn" onClick={() => setZoomLevel(100)} style={{ width: 'auto', padding: '0 8px' }}>Reset</button>
+        <div style={{
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            padding: '20px'
+        }}>
+            {/* Zoom Level Display */}
+            <div style={{
+                textAlign: 'center',
+                marginBottom: 20,
+                padding: '16px',
+                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(30, 41, 59, 0.6) 100%)',
+                borderRadius: 12,
+                border: '1px solid rgba(99, 102, 241, 0.2)'
+            }}>
+                <div style={{
+                    fontSize: '2.5rem',
+                    fontWeight: 800,
+                    color: '#f8fafc',
+                    fontFamily: '"JetBrains Mono", monospace'
+                }}>
+                    {zoomLevel}%
+                </div>
+                <div style={{
+                    fontSize: '0.7rem',
+                    color: '#94a3b8',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    marginTop: 4
+                }}>
+                    Current Zoom Level
                 </div>
             </div>
 
-            <div className="access-row" style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e2e8f0' }}>
+            {/* Zoom Controls */}
+            <div style={{
+                display: 'flex',
+                gap: 8,
+                justifyContent: 'center',
+                marginBottom: 16
+            }}>
+                <button
+                    onClick={() => adjustZoom(-10)}
+                    style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 10,
+                        border: 'none',
+                        background: 'linear-gradient(135deg, #334155, #1e293b)',
+                        color: '#f8fafc',
+                        fontSize: '1.2rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
+                >
+                    A-
+                </button>
+                <button
+                    onClick={() => adjustZoom(10)}
+                    style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 10,
+                        border: 'none',
+                        background: 'linear-gradient(135deg, #334155, #1e293b)',
+                        color: '#f8fafc',
+                        fontSize: '1.2rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
+                >
+                    A+
+                </button>
+                <button
+                    onClick={() => setZoomLevel(100)}
+                    style={{
+                        padding: '0 20px',
+                        height: 48,
+                        borderRadius: 10,
+                        border: 'none',
+                        background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                        color: 'white',
+                        fontSize: '0.85rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.2)'
+                    }}
+                >
+                    Reset
+                </button>
+            </div>
+
+            {/* Magnifier Toggle */}
+            <div style={{
+                borderTop: '1px solid rgba(255,255,255,0.1)',
+                paddingTop: 16
+            }}>
                 <button
                     onClick={() => setIsMagnifierActive(!isMagnifierActive)}
                     style={{
                         width: '100%',
-                        padding: '8px',
-                        background: isMagnifierActive ? '#dbeafe' : '#f8fafc',
-                        border: isMagnifierActive ? '1px solid #3b82f6' : '1px solid #cbd5e1',
-                        borderRadius: '6px',
-                        color: isMagnifierActive ? '#1e40af' : '#475569',
+                        padding: '14px',
+                        background: isMagnifierActive
+                            ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2))'
+                            : 'rgba(255,255,255,0.05)',
+                        border: isMagnifierActive
+                            ? '1px solid rgba(16, 185, 129, 0.4)'
+                            : '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: 10,
+                        color: isMagnifierActive ? '#34d399' : '#94a3b8',
                         fontWeight: 600,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '8px'
+                        gap: 10,
+                        fontSize: '0.9rem',
+                        transition: 'all 0.2s'
                     }}
                 >
-                    <span>{isMagnifierActive ? '🔍 Magnifier ON' : '🔍 Enable Magnifier'}</span>
+                    <span style={{ fontSize: '1.2rem' }}>🔍</span>
+                    {isMagnifierActive ? 'Magnifier Active' : 'Enable Magnifier'}
                 </button>
             </div>
 
-            <div style={{ marginTop: '12px', fontSize: '11px', color: '#94a3b8', textAlign: 'center' }}>
-                {isMagnifierActive ? 'Click any area to Zoom In/Out' : 'Applies to EHR and Question panels'}
+            {/* Help Text */}
+            <div style={{
+                marginTop: 12,
+                fontSize: '0.65rem',
+                color: '#64748b',
+                textAlign: 'center',
+                padding: '8px 12px',
+                background: 'rgba(255,255,255,0.03)',
+                borderRadius: 8
+            }}>
+                {isMagnifierActive
+                    ? '👆 Click any area to toggle Zoom In/Out'
+                    : '📝 Applies to EHR and Question panels'}
             </div>
         </div>
     );
