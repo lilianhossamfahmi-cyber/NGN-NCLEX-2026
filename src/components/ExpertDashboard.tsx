@@ -16,6 +16,7 @@ interface ExpertDashboardProps {
     pace?: PaceMetric;
     stress?: InteractionData;
     mode?: 'tutor' | 'exam';
+    interactionBase?: number; // Denominator (Total Options)
 }
 
 export interface PaceMetric {
@@ -30,7 +31,8 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
     currentItemResult,
     pace,
     stress,
-    mode = 'tutor'
+    mode = 'tutor',
+    interactionBase = 4
 }) => {
     const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
     const [activeDetail, setActiveDetail] = useState<string | null>(null);
@@ -326,22 +328,33 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
 
     // --- Widgets ---
 
-    const ExamVitalsWidget = ({ data }: { data?: InteractionData }) => {
-        let state = 'Focused';
-        let animDuration = '2s';
-        let color = '#34d399'; // Green
-
-        // Indecision Logic (Answer Reversals)
+    const ExamVitalsWidget = ({ data, base }: { data?: InteractionData, base: number }) => {
+        // Ratio Logic: Reversals / Option Count
         const changes = data?.changeCount || 0;
+        const ratio = base > 0 ? (changes / base) : 0;
 
-        if (changes > 5) {
-            state = 'Scattered';
-            animDuration = '0.5s';
+        let state = 'Decisive';
+        let animDuration = '2s';
+        let color = '#34d399'; // Green (Decisive <= 1.0x)
+
+        if (changes === 0) {
+            state = 'Focused';
+        } else if (ratio > 4.0) {
+            state = 'Panic';
             color = '#f43f5e'; // Red
-        } else if (changes > 2) {
+            animDuration = '0.3s';
+        } else if (ratio > 3.0) {
+            state = 'Scattered';
+            color = '#f97316'; // Orange
+            animDuration = '0.5s';
+        } else if (ratio > 2.0) {
             state = 'Hesitant';
-            animDuration = '1.0s';
-            color = '#fbbf24'; // Orange
+            color = '#eab308'; // Yellow
+            animDuration = '0.8s';
+        } else if (ratio > 1.0) {
+            state = 'Deliberate';
+            color = '#2dd4bf'; // Teal
+            animDuration = '1.2s';
         }
 
         return (
@@ -770,7 +783,7 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
             {!isCollapsed && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, overflowY: 'auto', paddingRight: 4 }}>
                     {/* Exam Vitals Wrapper (Replaces StressMonitor) */}
-                    <ExamVitalsWidget data={stress} />
+                    <ExamVitalsWidget data={stress} base={interactionBase} />
 
                     {/* Score Card Widget */}
                     <ScoreCardWidget />
