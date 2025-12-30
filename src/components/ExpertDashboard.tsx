@@ -14,9 +14,9 @@ interface ExpertDashboardProps {
     cjmmGrid: CJMMMetric[];
     currentItemResult?: ScoreRuleResult | null;
     pace?: PaceMetric;
-    pace?: PaceMetric;
     stress?: InteractionData;
     mode?: 'tutor' | 'exam';
+    liveVelocity?: number; // px/ms
 }
 
 export interface PaceMetric {
@@ -30,9 +30,9 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
     cjmmGrid,
     currentItemResult,
     pace,
-    pace,
     stress,
-    mode = 'tutor' // Default to tutor
+    mode = 'tutor',
+    liveVelocity = 0
 }) => {
     const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
     const [activeDetail, setActiveDetail] = useState<string | null>(null);
@@ -330,15 +330,30 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
 
     // --- Widgets ---
 
-    const ExamVitalsWidget = ({ data }: { data?: InteractionData }) => {
+    const ExamVitalsWidget = ({ data, velocity }: { data?: InteractionData, velocity: number }) => {
         // Logic to determine state
-        // Default to Calm
         let state = 'Calm';
-        // Simple logic map
-        if (data) {
+        let bpm = 60;
+        let animDuration = '2s';
+
+        // 1. Velocity-Based Reactivity (Real-time)
+        if (velocity > 2.0) {
+            state = 'PANIC';
+            bpm = 140;
+            animDuration = '0.4s';
+        } else if (velocity > 0.8) {
+            state = 'Elevated';
+            bpm = 100;
+            animDuration = '0.8s';
+        }
+
+        // 2. Fallback to Historical Data if idle
+        if (velocity < 0.1 && data) {
             if (data.changeCount > 5) state = 'Rushed';
             if (data.timeSpent > 120) state = 'Stalled';
         }
+
+        const color = state === 'PANIC' ? '#f43f5e' : (state === 'Elevated' ? '#fbbf24' : '#34d399');
 
         return (
             <div
@@ -358,10 +373,10 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
                         <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8' }}>Exam Vitals</p>
                         <div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ position: 'relative', display: 'flex', width: '12px', height: '12px' }}>
-                                <span style={{ position: 'absolute', display: 'inline-flex', width: '100%', height: '100%', borderRadius: '50%', background: '#34d399', opacity: 0.75, animation: 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite' }}></span>
-                                <span style={{ position: 'relative', display: 'inline-flex', borderRadius: '50%', width: '12px', height: '12px', background: '#10b981' }}></span>
+                                <span style={{ position: 'absolute', display: 'inline-flex', width: '100%', height: '100%', borderRadius: '50%', background: color, opacity: 0.75, animation: 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite' }}></span>
+                                <span style={{ position: 'relative', display: 'inline-flex', borderRadius: '50%', width: '12px', height: '12px', background: color }}></span>
                             </span>
-                            <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'white' }}>{state}</span>
+                            <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'white' }}>{state} <span style={{ fontSize: '0.6rem', opacity: 0.5 }}>({bpm} BPM)</span></span>
                         </div>
                     </div>
 
@@ -370,24 +385,24 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
                         {/* Two identical paths sliding left to create seamless loop */}
                         <div className="ekg-slider" style={{ display: 'flex', width: '200%', height: '100%', position: 'absolute', left: 0, top: 0 }}>
                             <svg width="50%" height="100%" viewBox="0 0 100 40" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-                                <path d="M0 20 H10 L15 5 L20 35 L25 20 H40 L45 10 L50 30 L55 20 H80 L85 0 L90 40 L95 20 H100" stroke="#34d399" strokeWidth="2" fill="none" vectorEffect="non-scaling-stroke" />
+                                <path d="M0 20 H10 L15 5 L20 35 L25 20 H40 L45 10 L50 30 L55 20 H80 L85 0 L90 40 L95 20 H100" stroke={color} strokeWidth="2" fill="none" vectorEffect="non-scaling-stroke" />
                             </svg>
                             <svg width="50%" height="100%" viewBox="0 0 100 40" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-                                <path d="M0 20 H10 L15 5 L20 35 L25 20 H40 L45 10 L50 30 L55 20 H80 L85 0 L90 40 L95 20 H100" stroke="#34d399" strokeWidth="2" fill="none" vectorEffect="non-scaling-stroke" />
+                                <path d="M0 20 H10 L15 5 L20 35 L25 20 H40 L45 10 L50 30 L55 20 H80 L85 0 L90 40 L95 20 H100" stroke={color} strokeWidth="2" fill="none" vectorEffect="non-scaling-stroke" />
                             </svg>
                         </div>
 
                         {/* Scanline overlay */}
                         <div style={{
                             position: 'absolute', top: 0, bottom: 0, width: '20px',
-                            background: 'linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.3), transparent)',
+                            background: `linear-gradient(90deg, transparent, ${color}40, transparent)`,
                             animation: 'slideIn 1.5s linear infinite',
                             left: '-20px'
                         }} />
 
                         <style>{`
                             @keyframes slideLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-                            .ekg-slider { animation: slideLeft 2s linear infinite; }
+                            .ekg-slider { animation: slideLeft ${animDuration} linear infinite; }
                             @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
                         `}</style>
                     </div>
@@ -765,10 +780,10 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
             {!isCollapsed && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, overflowY: 'auto', paddingRight: 4 }}>
                     {/* Exam Vitals Wrapper (Replaces StressMonitor) */}
-                    <ExamVitalsWidget data={stress} />
+                    <ExamVitalsWidget data={stress} velocity={liveVelocity} />
 
                     {/* Score Card Widget */}
-                    <ScoreCardWidget isExam={isExam} />
+                    <ScoreCardWidget />
 
                     {/* Logic: Hide detailed stats in Exam mode, but preserve Vitals + JCI alerts if critical */}
                     {!isExam && (

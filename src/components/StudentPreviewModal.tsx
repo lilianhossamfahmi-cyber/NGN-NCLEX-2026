@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { MasterQuestionItem } from '../types/master-schema';
 import { renderQuestion } from './item-types/ItemRenderer';
 import { useMediaQuery } from '../hooks/useMediaQuery';
@@ -1014,6 +1014,34 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
     const isMobile = useMediaQuery('(max-width: 768px)');
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+    // --- STRESS ENGINE: LIVE MOUSE TRACKER ---
+    const [mouseVelocity, setMouseVelocity] = useState(0);
+    const lastMousePos = useRef({ x: 0, y: 0, time: 0 });
+
+    const handleStressMouseMove = useCallback((e: React.MouseEvent) => {
+        const now = Date.now();
+        const dt = now - lastMousePos.current.time;
+        if (dt > 100) { // Throttle: 10Hz updates for performance
+            const dx = e.clientX - lastMousePos.current.x;
+            const dy = e.clientY - lastMousePos.current.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const v = dist / dt; // px/ms. Normal ~0.5-1.0. Panic > 2.0.
+            setMouseVelocity(v);
+            lastMousePos.current = { x: e.clientX, y: e.clientY, time: now };
+        }
+    }, []);
+
+    // --- EXAM MODE: COUNTDOWN TIMER ---
+    const [timeLeft, setTimeLeft] = useState(300); // 5 Minutes
+    useEffect(() => {
+        if (mode === 'exam' && !isCurrentSubmitted && timeLeft > 0) {
+            const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+            return () => clearInterval(timer);
+        } else if (mode === 'tutor') {
+            setTimeLeft(300); // Reset for Tutor
+        }
+    }, [mode, isCurrentSubmitted, timeLeft]);
+
     const getFontSize = (baseRem: number, level: number) => {
         return `${baseRem + (level * 0.1)}rem`;
     };
@@ -1294,11 +1322,17 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                     border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
                 }
             `}</style>
-            <div style={{ position: 'fixed', inset: 0, background: '#F3F4F6', backgroundImage: 'radial-gradient(circle at 50% 0%, #F9FAFB, #F3F4F6)', zIndex: 9999, display: 'flex', flexDirection: 'column', fontFamily: '"Inter", sans-serif' }}>
+            <div onMouseMove={handleStressMouseMove} style={{ position: 'fixed', inset: 0, background: '#F3F4F6', backgroundImage: 'radial-gradient(circle at 50% 0%, #F9FAFB, #F3F4F6)', zIndex: 9999, display: 'flex', flexDirection: 'column', fontFamily: '"Inter", sans-serif' }}>
                 <div className="glass-header" style={{ height: '64px', background: 'white', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', zIndex: 50 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div style={{ fontWeight: 700, fontSize: '1.25rem', color: '#1e3a8a', letterSpacing: '-0.02em' }}>NCLEX-RN Simulator</div>
                         <div style={{ fontSize: '0.9rem', color: '#64748b', background: '#f1f5f9', padding: '6px 10px', borderRadius: '6px' }}>Item ID: {item.id ? item.id.slice(0, 8) : '-----'}</div>
+                        {mode === 'exam' && (
+                            <div style={{ marginLeft: 16, fontSize: '1rem', fontWeight: 800, color: timeLeft < 60 ? '#f43f5e' : '#334155', display: 'flex', alignItems: 'center', gap: 6, background: timeLeft < 60 ? '#fecdd3' : 'transparent', padding: '4px 12px', borderRadius: 8 }}>
+                                <span>⏱</span>
+                                {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                            </div>
+                        )}
                     </div>
                     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
 
@@ -1659,6 +1693,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                     }}
                                     stress={stressMetrics}
                                     mode={mode}
+                                    liveVelocity={mouseVelocity}
                                 />
                             </div>
                         </div>
