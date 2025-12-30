@@ -357,56 +357,229 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
             animDuration = '1.2s';
         }
 
-        return (
-            <div
-                onClick={() => setActiveDetail('stress')}
-                style={{
-                    position: 'relative', overflow: 'hidden', borderRadius: '12px',
-                    background: '#0F172A', padding: '16px',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-                    cursor: 'pointer', marginBottom: '12px', border: '1px solid rgba(255,255,255,0.1)'
-                }}
-            >
-                {/* Background Glow Effect */}
-                <div style={{ position: 'absolute', top: '-10px', right: '-10px', width: '128px', height: '128px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.2)', filter: 'blur(40px)', pointerEvents: 'none' }}></div>
+        // Coaching Matrix Data
+        const getCoaching = () => {
+            if (ratio > 4.0) return {
+                icon: '💥',
+                level: 'Panic',
+                cogState: 'Cognitive Overload',
+                desc: 'Freezing, blanking out, high anxiety.',
+                exercise: 'The Physiological Sigh + Walk Away',
+                steps: ['Double inhale (nose), long exhale (mouth)', 'Repeat 3x', 'Walk away from screen for 2 min'],
+                why: 'Fastest biological way to offload CO2 and reduce acute stress.',
+                duration: '2-5 min',
+                color: '#f43f5e',
+                urgency: 'critical'
+            };
+            if (ratio > 3.0) return {
+                icon: '🔴',
+                level: 'Scattered',
+                cogState: 'Fragmented Focus',
+                desc: 'Guessing, jumping around, losing the thread.',
+                exercise: '5-4-3-2-1 Grounding Technique',
+                steps: ['Name 5 things you see', 'Name 4 things you feel', 'Name 3 things you hear'],
+                why: 'Forces brain to switch from panic mode to sensory mode.',
+                duration: '1 min',
+                color: '#f97316',
+                urgency: 'high'
+            };
+            if (ratio > 2.0) return {
+                icon: '🟠',
+                level: 'Hesitant',
+                cogState: 'Cognitive Friction',
+                desc: 'Doubt creeping in, overthinking options.',
+                exercise: 'Box Breathing (4-4-4-4)',
+                steps: ['Inhale 4s', 'Hold 4s', 'Exhale 4s', 'Hold 4s'],
+                why: 'Physically slows heart rate to stop fight-or-flight.',
+                duration: '30 sec',
+                color: '#eab308',
+                urgency: 'medium'
+            };
+            if (ratio > 1.0) return {
+                icon: '🟡',
+                level: 'Deliberate',
+                cogState: 'Cautious Focus',
+                desc: 'Double-checking, careful but efficient.',
+                exercise: 'The 3-Second Reset',
+                steps: ['Close eyes for 3 seconds', 'Exhale slowly'],
+                why: 'Releases tension of double-checking before it builds.',
+                duration: '3-5 sec',
+                color: '#2dd4bf',
+                urgency: 'low'
+            };
+            return {
+                icon: '✅',
+                level: 'Decisive',
+                cogState: 'Flow State',
+                desc: 'Confident, focused, executing well.',
+                exercise: 'The Confidence Anchor',
+                steps: ['Take 1 deep breath', 'Think: "I know this. Next."'],
+                why: 'Anchors success feeling without breaking momentum.',
+                duration: '5 sec',
+                color: '#34d399',
+                urgency: 'none'
+            };
+        };
 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div>
-                        <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8' }}>Focus Monitor</p>
-                        <div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ position: 'relative', display: 'flex', width: '12px', height: '12px' }}>
-                                <span style={{ position: 'absolute', display: 'inline-flex', width: '100%', height: '100%', borderRadius: '50%', background: color, opacity: 0.75, animation: 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite' }}></span>
-                                <span style={{ position: 'relative', display: 'inline-flex', borderRadius: '50%', width: '12px', height: '12px', background: color }}></span>
-                            </span>
-                            <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'white' }}>{state}</span>
+        const coaching = getCoaching();
+
+        return (
+            <div style={{ marginBottom: '12px' }}>
+                {/* Focus Monitor */}
+                <div
+                    onClick={() => setActiveDetail('stress')}
+                    style={{
+                        position: 'relative', overflow: 'hidden', borderRadius: '12px 12px 0 0',
+                        background: '#0F172A', padding: '16px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                        cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', borderBottom: 'none'
+                    }}
+                >
+                    {/* Background Glow Effect */}
+                    <div style={{ position: 'absolute', top: '-10px', right: '-10px', width: '128px', height: '128px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.2)', filter: 'blur(40px)', pointerEvents: 'none' }}></div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div>
+                            <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8' }}>Focus Monitor</p>
+                            <div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ position: 'relative', display: 'flex', width: '12px', height: '12px' }}>
+                                    <span style={{ position: 'absolute', display: 'inline-flex', width: '100%', height: '100%', borderRadius: '50%', background: color, opacity: 0.75, animation: 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite' }}></span>
+                                    <span style={{ position: 'relative', display: 'inline-flex', borderRadius: '50%', width: '12px', height: '12px', background: color }}></span>
+                                </span>
+                                <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'white' }}>{state}</span>
+                            </div>
+                        </div>
+
+                        {/* Animated EKG Graph - Sliding Ticker */}
+                        <div style={{ height: '40px', width: '120px', borderRadius: '4px', background: 'rgba(30, 41, 59, 0.5)', padding: '0', position: 'relative', overflow: 'hidden', backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
+                            {/* Two identical paths sliding left to create seamless loop */}
+                            <div className="ekg-slider" style={{ display: 'flex', width: '200%', height: '100%', position: 'absolute', left: 0, top: 0 }}>
+                                <svg width="50%" height="100%" viewBox="0 0 100 40" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+                                    <path d="M0 20 H10 L15 5 L20 35 L25 20 H40 L45 10 L50 30 L55 20 H80 L85 0 L90 40 L95 20 H100" stroke={color} strokeWidth="2" fill="none" vectorEffect="non-scaling-stroke" />
+                                </svg>
+                                <svg width="50%" height="100%" viewBox="0 0 100 40" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+                                    <path d="M0 20 H10 L15 5 L20 35 L25 20 H40 L45 10 L50 30 L55 20 H80 L85 0 L90 40 L95 20 H100" stroke={color} strokeWidth="2" fill="none" vectorEffect="non-scaling-stroke" />
+                                </svg>
+                            </div>
+
+                            {/* Scanline overlay */}
+                            <div style={{
+                                position: 'absolute', top: 0, bottom: 0, width: '20px',
+                                background: `linear-gradient(90deg, transparent, ${color}40, transparent)`,
+                                animation: 'slideIn 1.5s linear infinite',
+                                left: '-20px'
+                            }} />
+
+                            <style>{`
+                                @keyframes slideLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+                                .ekg-slider { animation: slideLeft ${animDuration} linear infinite; }
+                                @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+                            `}</style>
                         </div>
                     </div>
+                </div>
 
-                    {/* Animated EKG Graph - Sliding Ticker */}
-                    <div style={{ height: '40px', width: '120px', borderRadius: '4px', background: 'rgba(30, 41, 59, 0.5)', padding: '0', position: 'relative', overflow: 'hidden', backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
-                        {/* Two identical paths sliding left to create seamless loop */}
-                        <div className="ekg-slider" style={{ display: 'flex', width: '200%', height: '100%', position: 'absolute', left: 0, top: 0 }}>
-                            <svg width="50%" height="100%" viewBox="0 0 100 40" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-                                <path d="M0 20 H10 L15 5 L20 35 L25 20 H40 L45 10 L50 30 L55 20 H80 L85 0 L90 40 L95 20 H100" stroke={color} strokeWidth="2" fill="none" vectorEffect="non-scaling-stroke" />
-                            </svg>
-                            <svg width="50%" height="100%" viewBox="0 0 100 40" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-                                <path d="M0 20 H10 L15 5 L20 35 L25 20 H40 L45 10 L50 30 L55 20 H80 L85 0 L90 40 L95 20 H100" stroke={color} strokeWidth="2" fill="none" vectorEffect="non-scaling-stroke" />
-                            </svg>
+                {/* Stress Relief & Coaching Matrix */}
+                <div style={{
+                    background: `linear-gradient(135deg, ${coaching.color}15 0%, rgba(15, 23, 42, 0.95) 100%)`,
+                    borderRadius: '0 0 12px 12px',
+                    border: `1px solid ${coaching.color}30`,
+                    borderTop: `2px solid ${coaching.color}50`,
+                    overflow: 'hidden'
+                }}>
+                    {/* Header */}
+                    <div style={{
+                        padding: '10px 14px',
+                        background: 'rgba(0,0,0,0.2)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: '0.9rem' }}>{coaching.icon}</span>
+                            <span style={{ fontSize: '0.6rem', fontWeight: 700, color: coaching.color, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                                Stress Relief Coach
+                            </span>
+                        </div>
+                        <span style={{
+                            fontSize: '0.55rem',
+                            color: '#94a3b8',
+                            background: 'rgba(255,255,255,0.05)',
+                            padding: '2px 8px',
+                            borderRadius: 4
+                        }}>
+                            {coaching.cogState}
+                        </span>
+                    </div>
+
+                    {/* Content */}
+                    <div style={{ padding: '12px 14px' }}>
+                        {/* Exercise Name */}
+                        <div style={{
+                            fontSize: '0.8rem',
+                            fontWeight: 700,
+                            color: '#f8fafc',
+                            marginBottom: 8,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8
+                        }}>
+                            <span style={{
+                                background: coaching.color,
+                                color: 'white',
+                                padding: '2px 6px',
+                                borderRadius: 4,
+                                fontSize: '0.6rem',
+                                fontWeight: 800
+                            }}>
+                                {coaching.duration}
+                            </span>
+                            {coaching.exercise}
                         </div>
 
-                        {/* Scanline overlay */}
+                        {/* Steps */}
                         <div style={{
-                            position: 'absolute', top: 0, bottom: 0, width: '20px',
-                            background: `linear-gradient(90deg, transparent, ${color}40, transparent)`,
-                            animation: 'slideIn 1.5s linear infinite',
-                            left: '-20px'
-                        }} />
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 4,
+                            marginBottom: 8,
+                            padding: '8px 10px',
+                            background: 'rgba(255,255,255,0.03)',
+                            borderRadius: 6,
+                            borderLeft: `3px solid ${coaching.color}`
+                        }}>
+                            {coaching.steps.map((step, i) => (
+                                <div key={i} style={{
+                                    fontSize: '0.65rem',
+                                    color: '#cbd5e1',
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: 6
+                                }}>
+                                    <span style={{
+                                        color: coaching.color,
+                                        fontWeight: 700,
+                                        minWidth: '14px'
+                                    }}>
+                                        {i + 1}.
+                                    </span>
+                                    {step}
+                                </div>
+                            ))}
+                        </div>
 
-                        <style>{`
-                            @keyframes slideLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-                            .ekg-slider { animation: slideLeft ${animDuration} linear infinite; }
-                            @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
-                        `}</style>
+                        {/* Why It Works */}
+                        <div style={{
+                            fontSize: '0.55rem',
+                            color: '#64748b',
+                            fontStyle: 'italic',
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: 4
+                        }}>
+                            <span style={{ color: '#818cf8' }}>💡</span>
+                            {coaching.why}
+                        </div>
                     </div>
                 </div>
             </div>
