@@ -1,7 +1,9 @@
 import React from 'react';
 import { GenericRendererProps } from './types';
+import { Calculator } from 'lucide-react';
 
-// PART 12: CALCULATION RENDERER (Numeric Entry)
+// PART 12: CALCULATION RENDERER – GOLD STANDARD UPGRADE
+// Features: Embedded Unit Labels, Large Typography, Calculator Hint
 export const CalculationRenderer: React.FC<GenericRendererProps> = ({ config, answers, setAnswers, isSubmitted }) => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,81 +42,121 @@ export const CalculationRenderer: React.FC<GenericRendererProps> = ({ config, an
         }
     }
 
+    const units = config.inputLabel || config.units || '';
+
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', margin: '1rem 0' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', margin: '1rem 0', maxWidth: '400px' }}>
             <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
                 background: 'white',
-                padding: '16px',
-                borderRadius: '12px',
+                padding: '24px',
+                borderRadius: '16px',
                 border: '1px solid #e2e8f0',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px'
             }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    <label style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748b' }}>
-                        {config.label || "Answer"}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.05em' }}>
+                        {config.label || "Numeric Entry"}
                     </label>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <input
-                            type="number"
-                            step="any"
-                            value={answers || ''}
-                            onChange={handleChange}
-                            disabled={isSubmitted}
-                            placeholder="0"
+                    {!isSubmitted && (
+                        <div
+                            onClick={() => window.dispatchEvent(new CustomEvent('open-tool', { detail: 'calc' }))}
                             style={{
-                                padding: '10px 16px',
-                                borderRadius: '8px',
-                                border: isSubmitted
-                                    ? (isCorrect ? '2px solid #10b981' : '2px solid #f43f5e')
-                                    : '2px solid #cbd5e1',
-                                fontSize: '1.2rem',
-                                fontWeight: 600,
-                                width: '120px',
-                                outline: 'none',
-                                background: isSubmitted ? '#f8fafc' : 'white',
-                                color: '#1e293b',
-                                transition: 'all 0.2s ease'
+                                display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem',
+                                color: '#3b82f6', background: '#eff6ff', padding: '4px 8px', borderRadius: '4px',
+                                cursor: 'pointer', userSelect: 'none', transition: 'all 0.2s',
+                                border: '1px solid transparent'
                             }}
-                            onFocus={(e) => !isSubmitted && (e.target.style.borderColor = '#2563eb')}
-                            onBlur={(e) => !isSubmitted && (e.target.style.borderColor = '#cbd5e1')}
-                        />
-                        <span style={{ fontSize: '1rem', fontWeight: 600, color: '#475569' }}>
-                            {config.inputLabel || config.units || ''}
-                        </span>
-                    </div>
+                            onMouseEnter={(e) => { e.currentTarget.style.background = '#dbeafe'; e.currentTarget.style.borderColor = '#bfdbfe'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.borderColor = 'transparent'; }}
+                        >
+                            <Calculator size={14} /> Open Calculator
+                        </div>
+                    )}
+                </div>
+
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <input
+                        type="number"
+                        step="any"
+                        value={answers || ''}
+                        onChange={handleChange}
+                        disabled={isSubmitted}
+                        placeholder="0"
+                        style={{
+                            width: '100%',
+                            padding: '16px',
+                            paddingRight: units ? `${units.length * 10 + 20}px` : '16px', // Dynamic padding for units
+                            borderRadius: '12px',
+                            border: isSubmitted
+                                ? (isCorrect ? '2px solid #10b981' : '2px solid #f43f5e')
+                                : '2px solid #cbd5e1',
+                            fontSize: '1.5rem',
+                            fontWeight: 700,
+                            outline: 'none',
+                            background: isSubmitted ? '#f8fafc' : 'white',
+                            color: '#1e293b',
+                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            textAlign: 'right'
+                        }}
+                        onFocus={(e) => !isSubmitted && (e.target.style.borderColor = '#3b82f6', e.target.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.1)')}
+                        onBlur={(e) => !isSubmitted && (e.target.style.borderColor = '#cbd5e1', e.target.style.boxShadow = 'none')}
+                    />
+
+                    {units && (
+                        <div style={{
+                            position: 'absolute',
+                            right: '16px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            fontWeight: 600,
+                            color: '#94a3b8',
+                            fontSize: '1rem',
+                            pointerEvents: 'none', // Allow clicking through to input
+                            userSelect: 'none'
+                        }}>
+                            {units}
+                        </div>
+                    )}
                 </div>
 
                 {isSubmitted && (
                     <div style={{
-                        marginLeft: 'auto',
-                        padding: '8px 16px',
+                        marginTop: '8px',
+                        padding: '12px',
                         borderRadius: '8px',
                         background: isCorrect ? '#ecfdf5' : '#fff1f2',
                         border: isCorrect ? '1px solid #d1fae5' : '1px solid #fecdd3',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 12
+                        justifyContent: 'space-between'
                     }}>
                         {isCorrect ? (
-                            <div style={{ color: '#059669', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <span style={{ fontSize: '1.2em' }}>✓</span> Correct
+                            <div style={{ color: '#059669', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <span style={{ fontSize: '1.2em' }}>✓</span> Answer is Correct
                             </div>
                         ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <div style={{ color: '#e11d48', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <div style={{ width: '100%' }}>
+                                <div style={{ color: '#e11d48', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6, marginBottom: '4px' }}>
                                     <span style={{ fontSize: '1.2em' }}>✗</span> Incorrect
                                 </div>
-                                <div style={{ fontSize: '0.8rem', color: '#be123c', marginTop: 2 }}>
-                                    Correct Answer: <strong>{correctVal} {config.inputLabel || config.units}</strong>
+                                <div style={{ fontSize: '0.9rem', color: '#be123c', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span>Correct Value:</span>
+                                    <span style={{ fontWeight: 800 }}>{correctVal} {units}</span>
                                 </div>
                             </div>
                         )}
                     </div>
                 )}
             </div>
+
+            {!isSubmitted && (
+                <div style={{ padding: '0 8px', fontSize: '0.85rem', color: '#64748b' }}>
+                    💡 Enter the numeric value only. {units ? ` The unit (${units}) is already included.` : ''}
+                </div>
+            )}
         </div>
     );
 };

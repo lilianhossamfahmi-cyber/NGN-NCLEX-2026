@@ -181,6 +181,19 @@ Critical if < 65 mmHg
 2. **Timeline**: Moved closer to content (88px → 72px offset)
 3. **Shift Separators**: More compact design
 
+### Recent Updates (2025-12-30)
+
+#### 1. Accessibility & Layout
+*   **Split-Screen Zoom**: Implemented robust zoom functionality targeting both EHR and Question panels simultaneously without breaking flex layout.
+*   **Scroll Area Isolation**: Scrollbars are correctly managed within zoomed areas.
+
+#### 2. Clinical Data Sanitization
+*   **Temperature Parsing**: Smartly extracts Fahrenheit values from dual-label strings (e.g., "99.1°F (37.3°C)" → "99.1").
+*   **H&P Extraction**: Enhanced parser to specifically identify and extract "Review of Systems", ignoring "see attached" placeholders.
+*   **Order Parsing**: Broader key support for `holdReason` and `indication` to ensure all fields display correctly.
+*   **See Attached Filter**: Automatically removes "see attached" text from all clinical sections to maintain professionalism.
+
+
 ---
 
 ## Usage
@@ -188,3 +201,83 @@ Critical if < 65 mmHg
 The enhancements are **automatic** - no configuration required. The clinical data is processed through `DataSanitizer.stabilizeItem()` which calls the appropriate sanitizers, and then rendered through the enhanced helper functions.
 
 All functions from `ClinicalHelpers.ts` are imported into `StudentPreviewModal.tsx` and used contextually based on the data being displayed.
+
+---
+
+## Integration (2025-12-29)
+
+### Files Updated for Gold Standard Integration:
+
+#### 1. DataSanitizer.ts - Complete Rewrite
+The `src/utils/DataSanitizer.ts` file has been completely rewritten with:
+
+| Feature | Description |
+|---------|-------------|
+| **StructuredVital Interface** | Enforces all 7 fields: time, tempF, hr, rr, bp, o2, o2_device, pain |
+| **StructuredLab Interface** | Enforces test, value, ref, flag, category |
+| **StructuredOrder Interface** | Enforces drug, dose, route, freq, status, indication |
+| **Auto Lab Flagging** | `detectLabFlag()` auto-detects H/L/H!/L! based on CAP critical values |
+| **Lab Category Detection** | `detectLabCategory()` auto-groups labs (CBC, CMP, ABG, etc.) |
+| **Radiology Validation** | Returns null for empty/placeholder reports |
+| **Time Normalization** | Converts any time format to consistent HH:MM |
+| **Initial Normalization** | Ensures proper credential format (JD123.RN) |
+
+#### 2. Prompt Templates - All Updated
+All 14 prompt files in `docs/external_prompts/` now include the **Clinical Data Gold Standard** section:
+
+| Prompt File | Section Added |
+|-------------|--------------|
+| `01_CASE_STUDY.md` | Full vitals/labs/orders/radiology schema with examples |
+| `02_BOW_TIE.md` | Section 2b: Clinical Data Gold Standard |
+| `03_TREND.md` | Section 3b: Clinical Data Gold Standard |
+| `04_CLOZE.md` | Section 2b: Clinical Data Gold Standard |
+| `05_HIGHLIGHT.md` | Section 2b: Clinical Data Gold Standard |
+| `06_MATRIX.md` | Section 2b: Clinical Data Gold Standard |
+| `07_ORDERED_RESPONSE.md` | Section 2b: Clinical Data Gold Standard |
+| `08_MULTIPLE_RESPONSE.md` | Section 2b: Clinical Data Gold Standard |
+| `09_DROP_CLOZE.md` | Section 2b: Clinical Data Gold Standard |
+| `10_HOT_SPOT.md` | Section 2b: Clinical Data Gold Standard |
+| `11_SINGLE_RESPONSE.md` | Section 2b: Clinical Data Gold Standard |
+| `12_CALCULATION.md` | Section 3b: Clinical Data Gold Standard |
+| `new_SINGLE_RESPONSE.md` | Section 2b: Clinical Data Gold Standard |
+
+#### 3. New Schema Reference File
+Created `docs/external_prompts/_CLINICAL_DATA_SCHEMA.md` - A comprehensive reference document containing:
+- Complete JSON schema for all clinical data types
+- Required fields for vitals (7 fields)
+- Lab flag definitions (H/L/H!/L!)
+- Critical value thresholds
+- Order status options
+- SBAR format requirements
+- Radiology report structure
+- Common errors to avoid
+
+### Key Standards Enforced:
+
+| Standard | Requirement |
+|----------|-------------|
+| **Vitals** | ALL 7 fields required: time, tempF, hr, rr, bp, o2, o2_device, pain |
+| **Labs** | MUST have test, value, ref; MUST have flag for abnormal values |
+| **Orders** | MUST have drug, dose, route, freq, status, indication |
+| **Notes** | MUST use SBAR format with JD123.RN initials |
+| **Radiology** | ONLY if relevant; MUST have FINDINGS and IMPRESSION sections |
+
+### Backward Compatibility:
+
+- **Existing items**: DataSanitizer auto-fills missing fields with defaults
+- **Missing pain score**: Shows "--" in vitals grid
+- **Missing o2_device**: Defaults to "RA" (Room Air)
+- **Missing lab flags**: Auto-detected based on CAP critical values
+- **Empty radiology**: Shows proper empty state instead of phantom data
+
+---
+
+## Verification Checklist
+
+- [x] Build passes without TypeScript errors
+- [x] All 14 prompt files updated with Clinical Data Gold Standard section
+- [x] DataSanitizer enhanced with auto-flagging and category detection
+- [x] _CLINICAL_DATA_SCHEMA.md created as reference document
+- [x] Backward compatible with existing data
+- [x] Empty states for all sections implemented
+- [x] Radiology no longer shows phantom impressions

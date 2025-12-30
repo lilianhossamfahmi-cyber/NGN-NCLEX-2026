@@ -21,6 +21,12 @@ Generate **[QUANTITY]** **Highlight Text** items with a Clinical Focus of **[FOC
 2. **NO DUPLICATES:** Each item MUST cover a completely different clinical topic.
 3. Follow the strict schema below.
 
+## 🏆 Gold Standard Content Constraints (MANDATORY)
+1. **Stem Length**: Keep the prompting question concise (Under 20 words).
+2. **Text Length**: The highlightable paragraph should be 50-80 words.
+3. **Segmentation**: Ensure the text contains 4-8 distinct, highlightable phrases tagged with `<span id='hX'>`.
+4. **Distractor Quality**: Wrong answers must be clinically plausible 'near-misses', not random irrelevant terms.
+
 ## 🛑 1. JSON Integrity Protocol (CRITICAL)
 1.  **NO Trailing Commas**: Never leave a comma after the last item in `[]` or `{}`.
 2.  **HTML Attributes**: Use **single quotes** inside HTML (e.g., `style='width:100%'`).
@@ -39,6 +45,12 @@ Generate **[QUANTITY]** **Highlight Text** items with a Clinical Focus of **[FOC
 2. **Plausible Distractors**: Distractors must be realistic "near-miss" options relevant to the context. Do NOT use random medical terms that visually fit but have no clinical relation.
 3. **Logical Consistency**: The correct answer must be indisputably correct based on the provided Case/EHR data.
 4. **Specific for Cloze/Dropdowns**: The options in a dropdown must be logically grouped (e.g. all are potential diagnoses, or all are potential drugs). Do not mix categories.
+
+## ⚕️ 2b. CLINICAL DATA GOLD STANDARD (MANDATORY)
+**All vitals MUST include 7 fields:** `time`, `tempF`, `hr`, `rr`, `bp`, `o2`, `o2_device`, `pain`
+**All labs MUST include:** `test`, `value`, `ref`, and `flag` (H/L/H!/L!) for abnormal values
+**Nurses notes MUST use SBAR format** with initials like "JD123.RN"
+**Clinical data MUST be consistent with the case** (e.g., sepsis = fever + tachycardia)
 
 ## ⚠️ 3. RATIONALE REQUIREMENTS (MANDATORY ULTIMATE OBJECT STYLE)
 You are a "Super-Teacher"—empathetic, strategic, and crystal clear. The **MAIN Screen-Level** `rationale` field MUST be a JSON OBJECT (not a string) containing the fields below.
@@ -154,7 +166,12 @@ Before outputting, you MUST internally verify:
   "type": "highlight",
   "content": {
     "clinicalData": {
-      "patientInfo": { "name": "G. Rivera", "age": 62, "gender": "M", "codeStatus": "Full Code", "admissionDate": "Today", "room": "302", "allergies": "NKDA", "isolation": "None" }
+      "patientInfo": { "name": "G. Rivera", "age": 62, "gender": "M", "codeStatus": "Full Code", "admissionDate": "Today", "room": "302", "allergies": "NKDA", "isolation": "None" },
+      "vitals": [{ "time": "0800", "tempF": "101.5", "hr": 110, "rr": 22, "bp": "80/50", "o2": "94%", "o2_device": "RA", "pain": "0/10" }],
+      "labs": "...",
+      "orders": "...",
+      "history": "...",
+      "nursesNotes": "..."
     },
     "metadata": {
       "clientNeeds": "Physiological Integrity",
@@ -194,12 +211,6 @@ Before outputting, you MUST internally verify:
         "physiology": "Systemic vasodilation reduces systemic vascular resistance (SVR), leading to hypotension despite high cardiac output (early).",
         "pharm": "Norepinephrine (Levophed) is the first-line vasopressor if fluids fail to restore MAP > 65."
       }
-    },
-    "clinicalData": {
-      "patientInfo": { "name": "Ti...Ro...", "age": "70", "sex": "Male" },
-      "history": "...",
-      "vitals": [],
-      "labs": ""
     },
     "structure": {
       "type": "highlight",

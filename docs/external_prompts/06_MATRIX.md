@@ -22,6 +22,12 @@ Generate **[QUANTITY]** **Matrix** items with a Clinical Focus of **[FOCUS]** at
 3. Follow the strict schema below.
 4. **CRITICAL - NOT A CASE STUDY:** Matrix items are STANDALONE, single-screen items. Do NOT include a `"screens"` array. All rows MUST be inside `content.structure.rows`. A Matrix item has ONE prompt and MULTIPLE rows.
 
+## 🏆 Gold Standard Content Constraints (MANDATORY)
+1. **Row Count**: Provide **4-6 rows** of data to evaluate.
+2. **Column Clarity**: Column headers must be mutually exclusive and clear (e.g., "Indicated" vs "Contraindicated", or "Assessment" vs "Intervention").
+3. **Zebra Striping Logic**: Ensure rows are ordered logically (e.g., most critical first, or alphabetical) as the UI will strip them.
+4. **Cognitive Load**: Do not exceed 3 columns unless absolutely necessary for the NGN item type (e.g. Trend).
+
 ## 🛑 1. JSON Integrity Protocol (CRITICAL)
 1.  **NO Trailing Commas**: Never leave a comma after the last item in `[]` or `{}`.
 2.  **HTML Attributes**: Use **single quotes** inside HTML (e.g., `style='width:100%'`).
@@ -40,6 +46,12 @@ Generate **[QUANTITY]** **Matrix** items with a Clinical Focus of **[FOCUS]** at
 2. **Plausible Distractors**: Distractors must be realistic "near-miss" options relevant to the context. Do NOT use random medical terms that visually fit but have no clinical relation.
 3. **Logical Consistency**: The correct answer must be indisputably correct based on the provided Case/EHR data.
 4. **Specific for Cloze/Dropdowns**: The options in a dropdown must be logically grouped (e.g. all are potential diagnoses, or all are potential drugs). Do not mix categories.
+
+## ⚕️ 2b. CLINICAL DATA GOLD STANDARD (MANDATORY)
+**All vitals MUST include 7 fields:** `time`, `tempF`, `hr`, `rr`, `bp`, `o2`, `o2_device`, `pain`
+**All labs MUST include:** `test`, `value`, `ref`, and `flag` (H/L/H!/L!) for abnormal values
+**Nurses notes MUST use SBAR format** with initials like "JD123.RN"
+**Clinical data MUST be consistent with the case**
 
 ## ⚠️ 3. RATIONALE REQUIREMENTS (MANDATORY ULTIMATE OBJECT STYLE)
 You are a "Super-Teacher"—empathetic, strategic, and crystal clear. The **MAIN Screen-Level** `rationale` field MUST be a JSON OBJECT (not a string) containing the fields below.
@@ -125,7 +137,7 @@ You are a "Super-Teacher"—empathetic, strategic, and crystal clear. The **MAIN
 ```
 
 ## 4. METADATA REQUIREMENTS
-**CRITICAL:** Classify the question accurately. The `cjmmStep` field MUST be set correctly.
+**CRITICAL:** You MUST classify the generated question accurately. The `cjmmStep` field MUST be set correctly.
 
 **Required Metadata Block (Inside `content`):**
 ```json
@@ -155,7 +167,11 @@ Before outputting, you MUST internally verify:
   "type": "matrix",
   "content": {
     "clinicalData": {
-      "patientInfo": { "name": "G. Rivera", "age": 62, "gender": "M", "codeStatus": "Full Code", "admissionDate": "Today", "room": "302", "allergies": "NKDA", "isolation": "None" }
+      "patientInfo": { "name": "G. Rivera", "age": 62, "gender": "M", "codeStatus": "Full Code", "admissionDate": "Today", "room": "302", "allergies": "NKDA", "isolation": "None" },
+      "vitals": "...",
+      "labs": "...",
+      "orders": "...",
+      "history": "..."
     },
     "metadata": {
       "clientNeeds": "Safe and Effective Care Environment",
@@ -167,48 +183,22 @@ Before outputting, you MUST internally verify:
     },
     "rationale": {
       "coreConcept": "START Triage Protocol",
-      "caseSummary": "Triage is about 'The Greatest Good for the Greatest Number'. In a Mass Casualty Incident (MCI), resources are scarce. We prioritize salvageable life over tragic loss.",
-      "answerAnalysis": "The Black Tag (Expectant) is reserved for those who are deceased or have injuries incompatible with life (like agonal breathing despite airway opening). The Red Tag (Immediate) is for life-threatening but treatable conditions (like arterial bleeding or tension pneumothorax). Confusing the two wastes critical minutes.",
-      "trap": "The 'Hero' Trap: Trying to save everyone. In an MCI, stopping to do CPR on a pulseless victim means three others might die from untreated bleeding.",
-      "goldenRule": "Do the most good for the most people. CPR is not performed in the field during MCI triage.",
-      "steps": [
-        { "tag": "Recognize", "description": "Assess RPM: Respirations, Perfusion, Mental Status." },
-        { "tag": "Analyze", "description": "Categorize based on START criteria (Walking = Green, No Pulse/Resp = Black)." },
-        { "tag": "Take Action", "description": "Tag and Move On immediately." }
-      ],
-      "mnemonic": {
-        "title": "RPM (30-2-Can Do)",
-        "content": "R-espirations (<30), P-erfusion (<2s cap refill), M-ental Status (Can Follow Commands)",
-        "explanation": "If any are failed, the patient is RED (Immediate). If all passed, they are YELLOW (Delayed)."
-      },
-      "cheatSheet": {
-        "title": "START Triage Categories",
-        "points": [
-          "Green (Minor): 'Walking Wounded'",
-          "Yellow (Delayed): Can wait 1-2 hours",
-          "Red (Immediate): Treatable life-threats",
-          "Black (Expectant): Dead or unsalvageable"
-        ]
-      },
-      "referenceInfo": {
-        "anatomy": "Vital organs (Brain, Heart, Lungs) have limited ischemic time.",
-        "physiology": "Shock progresses from compensated to decompensated rapidly; identifying early signs (Perfusion issues) saves lives.",
-        "pharm": "Typically no meds are given during the initial Triage sort phase."
-      }
-    },
-    "clinicalData": {
-      "patientInfo": { "name": "Ma...Ca...", "age": "Unknown", "sex": "Unknown" },
-      "history": "...",
-      "vitals": [],
-      "labs": ""
+      "caseSummary": "...",
+      "answerAnalysis": "...",
+      "trap": "...",
+      "goldenRule": "...",
+      "steps": [],
+      "mnemonic": {},
+      "cheatSheet": {},
+      "referenceInfo": {}
     },
     "structure": {
       "type": "matrix",
       "prompt": "For each client, determine the appropriate triage tag.",
       "columns": [{"id":"c1", "label":"Red Tag"}, {"id":"c2", "label":"Black Tag"}],
       "rows": [
-         {"id":"r1", "text":"Agonal breathing after airway opening", "correctColumnId":"c2", "rationale":"[Hook] Not compatible with life. [Breakdown] Correct: Agonal = Death imminent. [Trap] Hero trap. [Steps] 1. Open Airway. 2. Still Apneic? 3. Black Tag. [Future] Save the salvageable."},
-         {"id":"r2", "text":"Active arterial bleed from leg", "correctColumnId":"c1", "rationale":"[Hook] Minutes away from death. [Breakdown] Correct: Hemorrhage control saves lives. [Trap] Ignored bleed. [Steps] 1. Find Bleed. 2. Tourniquet. 3. Red Tag. [Future] Stop the bleed."}
+         {"id":"r1", "text":"Agonal breathing after airway opening", "correctColumnId":"c2", "rationale":"..."},
+         {"id":"r2", "text":"Active arterial bleed from leg", "correctColumnId":"c1", "rationale":"..."}
       ]
     }
   }

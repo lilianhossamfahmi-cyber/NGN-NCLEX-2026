@@ -1,10 +1,11 @@
 /* ToolSuite.css */
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 
 /* --- Glassmorphism & Animations --- */
 .glass-panel {
-    background: rgba(15, 23, 42, 0.9);
-    /* slate-900 with opacity */
-    backdrop-filter: blur(12px);
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     color: white;
@@ -16,42 +17,32 @@
     cursor: move;
 }
 
-/* --- Floating Dock (Updated to Match Reference) --- */
+/* --- Floating Dock (Gold Standard) --- */
 .tool-dock {
     display: flex;
     flex-direction: row;
-    /* Horizontal */
-    gap: 0;
-    /* Connected buttons */
-    padding: 0;
-    background: #f1f5f9;
-    /* Light gray background */
-    border: 1px solid #94a3b8;
-    /* Border to match reference */
-    border-radius: 4px;
-    /* Slight rounding for container */
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    gap: 8px;
+    /* Separated buttons */
+    padding: 8px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     z-index: 50;
-    /* Removed fixed positioning to allow flexible placement */
 }
 
 .dock-btn {
-    /* Dimensions handled by inline styles now, or create a modifier class */
-    border-radius: 4px;
-    /* Slightly grounded */
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: transparent;
-    border: none;
-    border-right: 1px solid #e2e8f0;
-    /* Divider */
-    color: #475569;
-    /* Dark gray icon color */
+    border: 1px solid transparent;
+    color: #64748b;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-    /* Font size handled by icon */
+    /* Removed border-right */
 }
 
 .dock-btn:last-child {
@@ -59,59 +50,61 @@
 }
 
 .dock-btn:hover {
-    background: #e2e8f0;
-    /* Hover state */
+    background: #f1f5f9;
     color: #0f172a;
-    transform: none;
-    /* No scaling */
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .dock-btn.active {
-    background: #cbd5e1;
-    /* Active state - darker gray */
-    color: #0f172a;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: #0f172a;
+    /* Gold Standard Inverted */
+    color: white;
+    border-color: #0f172a;
+    box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.3);
+    transform: translateY(-2px);
 }
 
 .dock-btn svg {
-    stroke-width: 2.5;
-    /* Thicker strokes like reference */
+    stroke-width: 2;
 }
 
 /* Tooltip Adjustments */
 .dock-tooltip {
     position: absolute;
-    bottom: 45px;
-    /* Tooltip above */
+    bottom: -35px;
+    /* Below */
     left: 50%;
     transform: translateX(-50%);
-    right: auto;
-    background: #1e293b;
+    background: #0f172a;
     color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .dock-btn:hover .dock-tooltip {
     opacity: 1;
+    bottom: -40px;
+    /* Slide down slightly */
 }
 
 /* --- Draggable Window --- */
 .drag-window-container {
     position: fixed;
-    /* react-draggable will manage top/left */
     top: 0;
     left: 0;
     border-radius: 12px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    /* width/height defined by component */
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .window-controls button {
@@ -119,12 +112,13 @@
     border: none;
     color: #94a3b8;
     cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
+    padding: 6px;
+    border-radius: 6px;
+    transition: all 0.2s;
 }
 
 .window-controls button:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.15);
     color: white;
 }
 
@@ -142,48 +136,55 @@
 
 .calc-display {
     grid-column: 1 / -1;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.4);
     border-radius: 8px;
-    padding: 12px;
+    padding: 16px;
     text-align: right;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .calc-tape {
-    font-size: 11px;
+    font-size: 12px;
     color: #94a3b8;
     height: 16px;
     overflow: hidden;
+    margin-bottom: 4px;
 }
 
 .calc-main {
-    font-size: 24px;
-    font-weight: 600;
+    font-size: 32px;
+    font-weight: 500;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: -1px;
 }
 
 .calc-btn {
     height: 48px;
-    border-radius: 24px;
-    /* Circular/Pill */
+    border-radius: 12px;
     border: none;
     font-size: 18px;
     cursor: pointer;
-    transition: filter 0.2s;
+    transition: all 0.1s;
+    font-weight: 500;
 }
 
 .calc-btn.num {
     background: #334155;
     color: white;
+    box-shadow: 0 2px 0 #1e293b;
 }
 
 .calc-btn.op {
-    background: #F59E0B;
+    background: #f59e0b;
     color: white;
+    box-shadow: 0 2px 0 #b45309;
 }
 
 .calc-btn.func {
-    background: #94a3b8;
+    background: #cbd5e1;
     color: #0f172a;
+    box-shadow: 0 2px 0 #94a3b8;
 }
 
 .calc-btn.zero {
@@ -191,57 +192,84 @@
 }
 
 .calc-btn:active {
-    filter: brightness(1.2);
+    transform: translateY(2px);
+    box-shadow: none;
 }
 
-/* --- Notepad --- */
+/* --- Notepad (Sticky Note) --- */
 .notepad-body {
-    background: #fef9c3;
-    /* Yellow-50/100ish */
-    color: #1e293b;
+    background: #fef08a;
+    /* Yellow-200 */
+    color: #1e3a8a;
+    /* Blue Ink */
     height: 100%;
     display: flex;
     flex-direction: column;
+    /* Paper Texture effect */
+    background-image: linear-gradient(#fde047 1px, transparent 1px);
+    background-size: 100% 2px;
+    /* Top border */
+    position: relative;
+}
+
+.notepad-body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.02);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    z-index: 0;
 }
 
 .notepad-toolbar {
-    padding: 8px;
-    border-bottom: 1px solid #eab308;
+    padding: 8px 12px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
 }
 
 .notepad-textarea {
     flex: 1;
     background: transparent;
     border: none;
-    padding: 12px;
+    padding: 16px 24px;
     outline: none;
     resize: none;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
+    font-family: 'Caveat', cursive;
+    /* Handwriting */
+    font-size: 1.5rem;
+    font-weight: 700;
     line-height: 1.6;
-    background-image: linear-gradient(#e5e7eb 1px, transparent 1px);
-    background-size: 100% 28px;
-    /* Lined paper effect */
+    background-image: linear-gradient(#e2e8f0 1px, transparent 1px);
+    background-size: 100% 32px;
+    background-attachment: local;
+    margin-top: 8px;
 }
 
 /* --- Timer --- */
 .timer-face {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 32px;
+    font-size: 40px;
     font-weight: 700;
     text-align: center;
-    padding: 16px;
+    padding: 24px;
     background: #0f172a;
-    border-radius: 8px;
+    border-radius: 12px;
     margin: 16px;
-    border: 2px solid #334155;
+    border: 4px solid #1e293b;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+    color: #f8fafc;
 }
 
 .timer-face.warning {
     color: #ef4444;
-    border-color: #ef4444;
+    border-color: #7f1d1d;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
     animation: pulse 1s infinite;
 }
 
@@ -263,44 +291,61 @@
 .labs-search {
     padding: 12px;
     border-bottom: 1px solid #e2e8f0;
+    background: white;
 }
 
 .labs-search input {
     width: 100%;
-    padding: 8px;
+    padding: 10px 14px;
     border: 1px solid #cbd5e1;
-    border-radius: 4px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.labs-search input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    outline: none;
 }
 
 .labs-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     font-size: 13px;
 }
 
 .labs-table th {
-    background: #f1f5f9;
-    padding: 8px;
+    background: #f8fafc;
+    padding: 12px;
     text-align: left;
     position: sticky;
     top: 0;
+    font-weight: 700;
+    color: #475569;
+    border-bottom: 1px solid #e2e8f0;
+    z-index: 10;
 }
 
 .labs-table td {
-    padding: 8px;
+    padding: 12px;
     border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    background: white;
 }
 
-.labs-row:hover {
-    background: #f8fafc;
+.labs-row:hover td {
+    background: #f1f5f9;
 }
 
 /* --- Access Tools --- */
 .access-panel {
-    padding: 20px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
+    background: white;
+    height: 100%;
 }
 
 .access-row {
@@ -310,25 +355,36 @@
 }
 
 .font-btn {
-    background: #334155;
-    border: 1px solid #475569;
-    color: white;
-    width: 36px;
-    height: 36px;
-    border-radius: 4px;
+    background: white;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
     cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s;
+    font-weight: 700;
 }
 
 .font-btn:hover {
-    background: #475569;
+    background: #f8fafc;
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+}
+
+.font-btn.active {
+    background: #0f172a;
+    color: white;
+    border-color: #0f172a;
 }
 
 /* Toggle Switch */
 .toggle-switch {
-    width: 48px;
-    height: 24px;
-    background: #475569;
-    border-radius: 12px;
+    width: 52px;
+    height: 28px;
+    background: #cbd5e1;
+    border-radius: 14px;
     position: relative;
     cursor: pointer;
     transition: background 0.3s;
@@ -339,14 +395,15 @@
 }
 
 .toggle-knob {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     background: white;
     border-radius: 50%;
     position: absolute;
-    top: 3px;
-    left: 3px;
-    transition: transform 0.3s;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .toggle-switch.active .toggle-knob {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface FloatingControlsProps {
     onPrev?: () => void;
@@ -23,6 +23,17 @@ export const FloatingControls: React.FC<FloatingControlsProps> = ({
     isLast = false,
     style = {}
 }) => {
+    const [isSpinning, setIsSpinning] = useState(false);
+
+    const handleSubmitClick = () => {
+        if (!canSubmit) return;
+        setIsSpinning(true);
+        // Micro-interaction: Spin for 600ms, then trigger submit
+        setTimeout(() => {
+            setIsSpinning(false);
+            if (onSubmit) onSubmit();
+        }, 600);
+    };
 
     // Icons
     const ChevronLeft = () => (
@@ -43,6 +54,13 @@ export const FloatingControls: React.FC<FloatingControlsProps> = ({
         </svg>
     );
 
+    const Spinner = () => (
+        <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+    );
+
     return (
         <div style={{
             height: '64px',
@@ -58,6 +76,11 @@ export const FloatingControls: React.FC<FloatingControlsProps> = ({
             fontFamily: '"Inter", sans-serif',
             ...style
         }}>
+            <style>{`
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                .animate-spin { animation: spin 1s linear infinite; }
+            `}</style>
+
             {/* Prev Button: Square Ghost */}
             <button
                 onClick={onPrev}
@@ -85,8 +108,8 @@ export const FloatingControls: React.FC<FloatingControlsProps> = ({
             {/* Submit Button: Solid Green Pill */}
             {!isSubmitted ? (
                 <button
-                    onClick={onSubmit}
-                    disabled={!canSubmit}
+                    onClick={handleSubmitClick}
+                    disabled={!canSubmit || isSpinning}
                     style={{
                         backgroundColor: canSubmit ? '#10b981' : '#f1f5f9',
                         color: canSubmit ? 'white' : '#cbd5e1',
@@ -97,17 +120,26 @@ export const FloatingControls: React.FC<FloatingControlsProps> = ({
                         fontSize: '1rem',
                         border: 'none',
                         boxShadow: canSubmit ? '0 4px 6px -1px rgba(16, 185, 129, 0.4)' : 'none',
-                        cursor: canSubmit ? 'pointer' : 'not-allowed',
+                        cursor: (canSubmit && !isSpinning) ? 'pointer' : 'not-allowed',
                         transition: 'all 0.2s ease',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        letterSpacing: '0.025em'
+                        letterSpacing: '0.025em',
+                        gap: '8px',
+                        minWidth: '200px' // Prevent width jump when text changes
                     }}
-                    onMouseOver={(e) => canSubmit && (e.currentTarget.style.transform = 'translateY(-1px)')}
+                    onMouseOver={(e) => (canSubmit && !isSpinning) && (e.currentTarget.style.transform = 'translateY(-1px)')}
                     onMouseOut={(e) => (e.currentTarget.style.transform = 'none')}
                 >
-                    SUBMIT ANSWER
+                    {isSpinning ? (
+                        <>
+                            <Spinner />
+                            <span>PROCESSING...</span>
+                        </>
+                    ) : (
+                        "SUBMIT ANSWER"
+                    )}
                 </button>
             ) : (
                 <div style={{
@@ -125,7 +157,7 @@ export const FloatingControls: React.FC<FloatingControlsProps> = ({
                     border: '1px solid rgba(226, 232, 240, 0.8)', // Slate 200 (Grey border)
                     boxShadow: 'inset 0 1px 1px rgba(255, 255, 255, 0.6)' // Subtle inner gloss
                 }}>
-                    <span style={{ color: '#10b981' }}><Check /></span> {/* Keep check green for semantic success */}
+                    <span style={{ color: '#10b981' }}><Check /></span>
                     <span>Answer Saved</span>
                 </div>
             )}

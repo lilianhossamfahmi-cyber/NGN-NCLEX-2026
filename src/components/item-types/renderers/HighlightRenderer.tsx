@@ -2,13 +2,13 @@ import React, { useMemo } from 'react';
 import { GenericRendererProps } from './types';
 
 /**
- * HIGHLIGHT RENDERER - Professional Implementation
+ * HIGHLIGHT RENDERER - Gold Standard Upgrade
  * 
- * DESIGN PRINCIPLES:
- * 1. Extract all highlightable items upfront for consistent processing
- * 2. Use a unified correctness check that works with multiple data formats
- * 3. Clear visual feedback with proper color coding
- * 4. Comprehensive rationale display grouped by result type
+ * Features:
+ * - "Highlighter Pen" visual metaphor
+ * - Custom cursor support
+ * - Accessible contrast ratios
+ * - Clean CSS-based interaction states
  */
 
 interface HighlightItem {
@@ -20,59 +20,113 @@ interface HighlightItem {
 
 export const HighlightRenderer: React.FC<GenericRendererProps> = ({ config, answers, setAnswers, isSubmitted }) => {
 
-    // Normalize answers to always be an array
+    // CSS Styles for the Gold Standard Highlighter
+    // In production, these should move to a CSS file, but for portability we inject them here.
+    const styles = `
+        .highlight-renderer {
+            font-family: 'Inter', system-ui, sans-serif;
+            color: #334155;
+            line-height: 2.0;
+        }
+
+        .highlight-token {
+            transition: all 0.15s ease-out;
+            padding: 2px 1px;
+            margin: 0 1px;
+            border-radius: 2px;
+            position: relative;
+            box-decoration-break: clone;
+            -webkit-box-decoration-break: clone;
+        }
+
+        /* Interaction Phase States */
+        .highlight-renderer:not(.submitted) .highlight-token.selectable:hover {
+            background-color: #FEFCE8; /* bg-yellow-50 */
+            cursor: text; /* Fallback */
+            cursor: url('data:image/svg+xml;utf8,<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 3.5L20.5 7.5L8 20H4V16L16.5 3.5Z" fill="%23FACC15" stroke="%23A16207" stroke-width="1.5"/><path d="M14 18L5 21" stroke="%23A16207" stroke-width="1.5"/></svg>') 0 24, pointer;
+            border-bottom: 2px solid #FEF08A;
+        }
+
+        .highlight-renderer:not(.submitted) .highlight-token.selected {
+            background-color: #FEF08A; /* bg-yellow-200 */
+            border-bottom: 3px solid #EAB308; /* border-yellow-500 */
+            color: #1F2937; /* Grey 800 for contrast */
+            font-weight: 500;
+        }
+
+        .highlight-renderer:not(.submitted) .highlight-token.selectable {
+            cursor: text;
+             cursor: url('data:image/svg+xml;utf8,<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.5 3.5L20.5 7.5L8 20H4V16L16.5 3.5Z" fill="%23FEF9C3" stroke="%23CA8A04" stroke-width="1.5"/><path d="M14 18L5 21" stroke="%23CA8A04" stroke-width="1.5"/></svg>') 0 24, pointer;
+        }
+
+        /* Feedback Phase States */
+        /* Correct Selection (Green Marker) */
+        .highlight-token.correct-selection {
+            background-color: #BBF7D0; /* green-200 */
+            border-bottom: 3px solid #16A34A; /* green-600 */
+            color: #064E3B; /* green-900 */
+            font-weight: 600;
+        }
+
+        /* Incorrect Selection (Red Marker) */
+        .highlight-token.incorrect-selection {
+            background-color: #FECACA; /* red-200 */
+            border-bottom: 3px solid #DC2626; /* red-600 */
+            color: #7F1D1D; /* red-900 */
+            text-decoration: line-through;
+            opacity: 0.9;
+        }
+
+        /* Missed Correct (Dotted Green) */
+        .highlight-token.missed-correct {
+            background: linear-gradient(to right, #DCFCE7 30%, transparent 30%);
+            background-size: 8px 100%;
+            border-bottom: 2px dotted #16A34A;
+            color: #166534;
+        }
+    `;
+
+    // Normalize answers array
     const userSelections: string[] = useMemo(() => {
         if (!answers) return [];
-        if (Array.isArray(answers)) return answers;
-        return [];
+        return Array.isArray(answers) ? answers : [];
     }, [answers]);
 
-    // Helper: Normalize text for fuzzy matching (remove punctuation, lower case, trim)
+    // Text Normalization Helper
     const normalizeText = (text: string) => {
         return text.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "").replace(/\s+/g, " ").trim();
     };
 
-    // Extract all highlightable items from the text
-    // Extract all highlightable items from the text
+    // Extract highlight items - Same logic as before to ensure compatibility
     const highlightItems: HighlightItem[] = useMemo(() => {
         const items: HighlightItem[] = [];
         const html = config.text || '';
-
-        // Build a correctness lookup from various possible sources
         const correctSet = new Set<string>();
 
-        // Helper to add to set safely
         const addToCorrect = (val: any) => {
             if (val === undefined || val === null) return;
             correctSet.add(String(val));
-            correctSet.add(normalizeText(String(val))); // Also add normalized version
+            correctSet.add(normalizeText(String(val)));
         };
 
-        // Source 1: config.correct array
         if (config.correct && Array.isArray(config.correct)) config.correct.forEach(addToCorrect);
-        // Source 2: config.correctAnswers array
         if (config.correctAnswers && Array.isArray(config.correctAnswers)) config.correctAnswers.forEach(addToCorrect);
-        // Source 3: config.correctIds array
         if (config.correctIds && Array.isArray(config.correctIds)) config.correctIds.forEach(addToCorrect);
-        // Source 4: config.key array
         if (config.key && Array.isArray(config.key)) config.key.forEach(addToCorrect);
 
-        // Source 5: Derive from rationales
-        const rationaleMap = new Map<string, any>(); // Map normalized key -> rationale object
-
+        const rationaleMap = new Map<string, any>();
         if (config.rationales && typeof config.rationales === 'object') {
             Object.entries(config.rationales).forEach(([key, rat]: [string, any]) => {
                 const normKey = normalizeText(key);
                 rationaleMap.set(normKey, rat);
-                rationaleMap.set(key, rat); // Keep original too
-
+                rationaleMap.set(key, rat);
                 if (typeof rat === 'object' && (rat.isCorrect === true || rat.isCorrect === 'true' || rat.correct === true)) {
                     addToCorrect(key);
                 }
             });
         }
 
-        // Regex to find all <span id="X">text</span> patterns
+        // Parse HTML for spans
         const regex = /<span[^>]*id=["']([^"']+)["'][^>]*>(.*?)<\/span>/gi;
         let match;
         let spanIndex = 0;
@@ -83,30 +137,16 @@ export const HighlightRenderer: React.FC<GenericRendererProps> = ({ config, answ
             const cleanText = text.trim();
             const normText = normalizeText(cleanText);
 
-            // Check correctness with FUZZY fallbacks
-            let isCorrect =
-                correctSet.has(id) ||
-                correctSet.has(cleanText) ||
-                correctSet.has(normText) ||
-                correctSet.has(String(spanIndex));
+            let isCorrect = correctSet.has(id) || correctSet.has(cleanText) || correctSet.has(normText) || correctSet.has(String(spanIndex));
 
-            // Get rationale text using fuzzy lookup
-            let rationale = '';
-            // Try explicit ID match
-            let ratObj = config.rationales?.[id] || config.rationales?.[cleanText] || config.rationales?.[spanIndex];
+            // Rationale lookup logic (preserved)
+            let ratObj = config.rationales?.[id] || config.rationales?.[cleanText] || config.rationales?.[spanIndex] || rationaleMap.get(normText);
 
-            // Try fuzzy match if exact failed
-            if (!ratObj) {
-                ratObj = rationaleMap.get(normText);
-            }
-
-            // FALLBACK: Aggressive Partial Text Match for Rationales
-            if (!ratObj && config.rationales && typeof config.rationales === 'object') {
+            if (!ratObj && config.rationales) {
                 const keys = Object.keys(config.rationales);
                 for (const key of keys) {
                     const k = normalizeText(key);
                     const t = normText;
-                    // Check if key contains text OR text contains key (length > 5 to avoid short noise like "BP")
                     if ((k.includes(t) || t.includes(k)) && k.length > 5 && t.length > 5) {
                         ratObj = config.rationales[key];
                         break;
@@ -115,170 +155,85 @@ export const HighlightRenderer: React.FC<GenericRendererProps> = ({ config, answ
             }
 
             if (ratObj) {
-                rationale = typeof ratObj === 'string' ? ratObj : (ratObj.text || ratObj.detailedReason || ratObj.rationale || '');
-                // Double check correctness from the rationale object itself if we found one
                 if (!isCorrect && typeof ratObj === 'object' && (ratObj.isCorrect === true || ratObj.isCorrect === 'true')) {
                     isCorrect = true;
                 }
             }
 
-            items.push({
-                id,
-                text: cleanText,
-                isCorrect,
-                rationale
-            });
+            items.push({ id, text: cleanText, isCorrect, rationale: '' }); // Rationale text logic omitted for highlight-inline speed, can be re-added if needed
             spanIndex++;
         }
 
         return items;
     }, [config]);
 
-    // Compute results after submission
-    const results = useMemo(() => {
-        if (!isSubmitted) return { correct: [], incorrect: [], missed: [] };
-
-        const correct: HighlightItem[] = [];
-        const incorrect: HighlightItem[] = [];
-        const missed: HighlightItem[] = [];
-
-        highlightItems.forEach(item => {
-            const isSelected = userSelections.includes(item.id);
-
-            if (isSelected && item.isCorrect) {
-                correct.push(item);
-            } else if (isSelected && !item.isCorrect) {
-                incorrect.push(item);
-            } else if (!isSelected && item.isCorrect) {
-                missed.push(item);
-            }
-        });
-
-        return { correct, incorrect, missed };
-    }, [isSubmitted, highlightItems, userSelections]);
-
-    // Handle click on highlightable text
+    // Handle Click
     const handleClick = (e: React.MouseEvent) => {
         if (isSubmitted) return;
         const target = e.target as HTMLElement;
 
-        if (target.tagName === 'SPAN' && target.id) {
-            const id = target.id;
-            if (userSelections.includes(id)) {
-                setAnswers(userSelections.filter(x => x !== id));
-            } else {
-                setAnswers([...userSelections, id]);
+        // Handle clicks on the span or internal text
+        const span = target.closest('span');
+        if (span && span.id) {
+            const id = span.id;
+            // Ensure this ID is actually part of our highlightable set
+            if (highlightItems.some(i => i.id === id)) {
+                if (userSelections.includes(id)) {
+                    setAnswers(userSelections.filter(x => x !== id));
+                } else {
+                    setAnswers([...userSelections, id]);
+                }
             }
         }
     };
 
-    // Generate styled HTML for display
+    // Render HTML
     const getProcessedHtml = () => {
         let html = config.text || '';
 
         html = html.replace(/<span\s+([^>]*?)id=["']([^"']+)["']([^>]*?)>(.*?)<\/span>/gi,
             (_match: string, preAttrs: string, id: string, postAttrs: string, content: string) => {
                 const item = highlightItems.find(i => i.id === id);
-                const isSelected = userSelections.includes(id);
-                const isCorrect = item?.isCorrect || false;
+                if (!item) return `<span ${preAttrs} id="${id}" ${postAttrs}>${content}</span>`;
 
-                let className = '';
-                let style = 'cursor: pointer; padding: 3px 6px; border-radius: 4px; transition: all 0.2s; display: inline;';
+                const isSelected = userSelections.includes(id);
+                const isCorrect = item.isCorrect;
+
+                let classes = 'highlight-token';
 
                 if (!isSubmitted) {
-                    // INTERACTION PHASE
-                    if (isSelected) {
-                        style += ' background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%); border: 2px solid #eab308; color: #713f12; font-weight: 600;';
-                        className = 'highlight-selected';
-                    } else {
-                        style += ' background: rgba(148, 163, 184, 0.1); border-bottom: 2px dotted #94a3b8;';
-                        className = 'highlight-selectable';
-                    }
+                    classes += ' selectable';
+                    if (isSelected) classes += ' selected';
                 } else {
-                    // FEEDBACK PHASE
-                    if (isSelected && isCorrect) {
-                        // ✓ CORRECT SELECTION - Green solid
-                        style += ' background: linear-gradient(135deg, #bbf7d0 0%, #86efac 100%); border: 2px solid #16a34a; color: #052e16; font-weight: 700;';
-                        className = 'highlight-correct';
-                    } else if (isSelected && !isCorrect) {
-                        // ✗ INCORRECT SELECTION - Red solid with strikethrough
-                        style += ' background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%); border: 2px solid #dc2626; color: #450a0a; font-weight: 600; text-decoration: line-through;';
-                        className = 'highlight-incorrect';
-                    } else if (!isSelected && isCorrect) {
-                        // ⚠ MISSED CORRECT - Quarter Green, Rest Yellow, Dotted
-                        style += ' background: linear-gradient(to right, #dcfce7 25%, #fef9c3 25%); border: 2px dotted #16a34a; color: #166534; font-weight: 500;';
-                        className = 'highlight-missed';
-                    } else {
-                        // Neutral - not selected, not correct
-                        style += ' background: transparent; color: #94a3b8; opacity: 0.6;';
-                        className = 'highlight-neutral';
-                    }
+                    if (isSelected && isCorrect) classes += ' correct-selection';
+                    else if (isSelected && !isCorrect) classes += ' incorrect-selection';
+                    else if (!isSelected && isCorrect) classes += ' missed-correct';
+                    else classes += ' neutral';
                 }
 
-                return `<span ${preAttrs} id="${id}" ${postAttrs} class="${className}" style="${style}">${content}</span>`;
+                // Clean existing inline styles from the span if any (user content might have them)
+                // We append our class
+                return `<span ${preAttrs} id="${id}" ${postAttrs} class="${classes}">${content}</span>`;
             }
         );
         return html;
     };
 
-    // Render a result category
-    {/*
-    const renderResultCategory = (
-        title: string,
-        items: HighlightItem[],
-        icon: string,
-        bgColor: string,
-        borderColor: string,
-        textColor: string
-    ) => {
-        if (items.length === 0) return null;
-
-        return (
-            <div style={{ marginBottom: '1.5rem', background: 'white', borderRadius: '8px', border: `1px solid ${borderColor}40`, overflow: 'hidden' }}>
-                <div style={{
-                    padding: '10px 16px',
-                    background: bgColor,
-                    borderBottom: `1px solid ${borderColor}40`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between'
-                }}>
-                    <strong style={{ color: textColor, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span>{icon}</span> {title} ({items.length})
-                    </strong>
-                </div>
-                <div style={{ padding: '0' }}>
-                    {items.map(item => (
-                        <div key={item.id} style={{
-                            padding: '12px 16px',
-                            borderBottom: '1px solid #f1f5f9',
-                            fontSize: '0.9rem',
-                            display: 'flex', flexDirection: 'column', gap: '4px'
-                        }}>
-                            <div style={{ fontWeight: 500, color: '#334155' }}>
-                                "{item.text}"
-                            </div>
-                            {(item.rationale) && (
-                                <div style={{ fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic', paddingLeft: '8px', borderLeft: `2px solid ${borderColor}60` }}>
-                                    {item.rationale}
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
-    };
-    */}
-
-    // Calculate score
+    // Results Calculation
     const totalCorrect = highlightItems.filter(i => i.isCorrect).length;
-    const userCorrect = results.correct.length;
-    const userIncorrect = results.incorrect.length;
-    // NGN Scoring Algorithm: Net Score = Correct - Incorrect (Min 0)
-    const netScore = Math.max(0, userCorrect - userIncorrect);
+    const userCorrectCount = userSelections.filter(id => highlightItems.find(i => i.id === id)?.isCorrect).length;
+    const userIncorrectCount = userSelections.filter(id => {
+        const item = highlightItems.find(i => i.id === id);
+        return item && !item.isCorrect;
+    }).length;
+    const netScore = Math.max(0, userCorrectCount - userIncorrectCount);
     const scorePercent = totalCorrect > 0 ? Math.round((netScore / totalCorrect) * 100) : 0;
+    const missedCount = totalCorrect - userCorrectCount;
 
     return (
-        <div className="highlight-renderer">
+        <div className={`highlight-renderer ${isSubmitted ? 'submitted' : ''}`}>
+            <style>{styles}</style>
+
             {/* Main Text Area */}
             <div
                 onClick={handleClick}
@@ -287,159 +242,63 @@ export const HighlightRenderer: React.FC<GenericRendererProps> = ({ config, answ
                     background: 'white',
                     border: '1px solid #e2e8f0',
                     borderRadius: '8px',
-                    lineHeight: '2.0',
                     fontSize: '1.05rem',
-                    color: '#334155',
-                    cursor: isSubmitted ? 'default' : 'text'
                 }}
                 dangerouslySetInnerHTML={{ __html: getProcessedHtml() }}
             />
 
-            {/* Legend - Show during interaction */}
+            {/* Legacy Instruction/Legend */}
             {!isSubmitted && (
-                <div style={{ marginTop: '1rem', padding: '12px', background: '#f8fafc', borderRadius: '6px', fontSize: '0.85rem', color: '#64748b' }}>
-                    <strong>Instructions:</strong> Click on the highlighted text segments to select your answers.
-                    Selected items appear with a <span style={{ background: '#fef08a', padding: '2px 6px', borderRadius: '3px', fontWeight: 600 }}>yellow highlight</span>.
+                <div style={{ marginTop: '1rem', padding: '12px', background: '#f8fafc', borderRadius: '6px', fontSize: '0.85rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '1.2rem' }}>🖊️</span>
+                    <span><strong>Click text to highlight</strong> key findings. Deselect by clicking again.</span>
                 </div>
             )}
 
-            {/* Results Section - After Submission */}
+            {/* Results Section */}
             {isSubmitted && (
                 <div style={{ marginTop: '1.5rem' }}>
-                    {/* Score Summary */}
+                    {/* Score Ribbon */}
                     <div style={{
                         display: 'flex',
-                        gap: '16px',
-                        marginBottom: '1.5rem',
-                        padding: '16px',
-                        background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                        background: '#F0FDF4',
+                        border: '1px solid #BBF7D0',
                         borderRadius: '8px',
-                        border: '1px solid #bbf7d0',
-                        flexWrap: 'wrap'
+                        padding: '16px',
+                        justifyContent: 'space-around',
+                        marginBottom: '1.5rem'
                     }}>
-                        <div style={{ flex: '1', minWidth: '120px', textAlign: 'center' }}>
-                            <div style={{ fontSize: '2rem', fontWeight: 700, color: '#166534' }}>{scorePercent}%</div>
-                            <div style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase' }}>NGN Score</div>
+                        <div style={{ textAlign: 'center' }}>
+                            <div style={{ fontSize: '1.8rem', fontWeight: 700, color: '#15803D' }}>{scorePercent}%</div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>SCORE</div>
                         </div>
-                        <div style={{ flex: '1', minWidth: '80px', textAlign: 'center' }}>
-                            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#16a34a' }}>{userCorrect}</div>
-                            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Correct</div>
+                        <div style={{ width: '1px', background: '#BBF7D0' }}></div>
+                        <div style={{ textAlign: 'center' }}>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 600, color: '#166534' }}>{userCorrectCount}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>CORRECT</div>
                         </div>
-                        <div style={{ flex: '1', minWidth: '80px', textAlign: 'center' }}>
-                            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#dc2626' }}>{userIncorrect}</div>
-                            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Incorrect</div>
+                        <div style={{ textAlign: 'center' }}>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 600, color: '#DC2626' }}>{userIncorrectCount}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>INCORRECT</div>
                         </div>
-                        <div style={{ flex: '1', minWidth: '80px', textAlign: 'center' }}>
-                            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#ca8a04' }}>{results.missed.length}</div>
-                            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Missed</div>
+                        <div style={{ textAlign: 'center' }}>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 600, color: '#CA8A04' }}>{missedCount}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>MISSED</div>
                         </div>
                     </div>
 
-                    {/* Legend */}
-                    <div style={{
-                        display: 'flex',
-                        gap: '20px',
-                        marginBottom: '1.5rem',
-                        padding: '10px 16px',
-                        background: '#f8fafc',
-                        borderRadius: '6px',
-                        fontSize: '0.85rem',
-                        flexWrap: 'wrap'
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ width: '14px', height: '14px', background: 'linear-gradient(135deg, #bbf7d0, #86efac)', border: '2px solid #16a34a', borderRadius: '3px' }}></span>
-                            <span>Correct Selection</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ width: '20px', height: '14px', background: 'linear-gradient(to right, #dcfce7 25%, #fef9c3 25%)', border: '2px dotted #16a34a', borderRadius: '3px' }}></span>
-                            <span>Missed Correct</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ width: '14px', height: '14px', background: 'linear-gradient(135deg, #fecaca, #fca5a5)', border: '2px solid #dc2626', borderRadius: '3px' }}></span>
-                            <span>Incorrect Selection</span>
-                        </div>
-                    </div>
-
-                    {/* Global Rationale / Explanation */}
+                    {/* Rationale Section */}
                     {(config.rationale || config.explanation) && (
-                        <div style={{ marginBottom: '1.5rem', background: '#f0f9ff', padding: '16px', borderRadius: '8px', borderLeft: '4px solid #0ea5e9' }}>
-                            <h4 style={{ margin: '0 0 8px 0', color: '#0369a1', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span>💡</span> Clinical Explanation
-                            </h4>
-                            <div style={{ color: '#334155', lineHeight: '1.6', fontSize: '0.95rem' }}>
+                        <div style={{ background: '#F0F9FF', padding: '16px', borderRadius: '8px', borderLeft: '4px solid #0EA5E9' }}>
+                            <div style={{ fontWeight: 600, color: '#0369A1', marginBottom: '8px' }}>Clinical Explanation</div>
+                            <div style={{ color: '#334155', lineHeight: '1.6' }}>
                                 {typeof config.rationale === 'object' ?
-                                    (config.rationale.answerAnalysis || config.rationale.caseSummary || "Please verify the Rationale tab for detailed analysis.") :
+                                    (config.rationale.answerAnalysis || config.rationale.caseSummary || "Refer to rationale for details.") :
                                     (config.rationale || config.explanation)
                                 }
                             </div>
                         </div>
                     )}
-
-                    {/* Grouped Results with Rationales */}
-                    {/* Grouped Results with Rationales - HIDDEN PER REQUEST */}
-                    {/*
-                    <div style={{ background: '#fafafa', padding: '16px', borderRadius: '8px' }}>
-                        <h4 style={{ margin: '0 0 1rem 0', color: '#334155', fontSize: '1rem' }}>Detailed Analysis</h4>
-
-                        {renderResultCategory(
-                            'Correct Selections',
-                            results.correct,
-                            '✓',
-                            '#dcfce7',
-                            '#16a34a',
-                            '#166534'
-                        )}
-
-                        {renderResultCategory(
-                            'Incorrect Selections',
-                            results.incorrect,
-                            '✗',
-                            '#fee2e2',
-                            '#dc2626',
-                            '#991b1b'
-                        )}
-
-                        {renderResultCategory(
-                            'Missed Correct Answers',
-                            results.missed,
-                            '⚠',
-                            '#fef9c3',
-                            '#ca8a04',
-                            '#854d0e'
-                        )}
-
-                        {results.correct.length === 0 && results.incorrect.length === 0 && results.missed.length === 0 && (
-                            <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>
-                                No highlightable items found in this question.
-                            </div>
-                        )}
-
-                        <div style={{ marginTop: '2rem', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
-                            <details>
-                                <summary style={{ cursor: 'pointer', color: '#94a3b8', fontSize: '0.8rem', fontWeight: 600 }}>
-                                    Show Debug Data (Troubleshooting)
-                                </summary>
-                                <div style={{ marginTop: '0.5rem', padding: '10px', background: '#f1f5f9', borderRadius: '4px', fontSize: '0.7rem', fontFamily: 'monospace', overflowX: 'auto' }}>
-                                    <div><strong>Correct Arrays Found:</strong></div>
-                                    <div>config.correct: {JSON.stringify(config.correct)}</div>
-                                    <div>config.correctAnswers: {JSON.stringify(config.correctAnswers)}</div>
-                                    <div>config.correctIds: {JSON.stringify(config.correctIds)}</div>
-                                    <div>config.key: {JSON.stringify(config.key)}</div>
-                                    <div style={{ marginTop: '6px' }}><strong>Rationale Keys:</strong></div>
-                                    <div>{JSON.stringify(config.rationales ? Object.keys(config.rationales) : 'None')}</div>
-                                    <div style={{ marginTop: '6px' }}><strong>Detected Highlight Items (Total {highlightItems.length}):</strong></div>
-                                    <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                                        {highlightItems.map(i => (
-                                            <div key={i.id} style={{ borderBottom: '1px solid #e2e8f0', padding: '2px 0' }}>
-                                                [{i.id}] IsCorrect: {String(i.isCorrect)} | Text: "{i.text.substring(0, 30)}..."
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </details>
-                        </div>
-                    </div>
-                    */}
                 </div>
             )}
         </div>

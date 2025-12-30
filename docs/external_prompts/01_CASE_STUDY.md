@@ -29,6 +29,25 @@ Generate **[QUANTITY]** **Case Study (6-Screen)** items with a Clinical Focus of
 4. Follow the strict schema below.
 5. **RANDOMIZE ORDER:** For all inner questions (Screen 1-6), randomize the order of answer choices, rows, and dropdown options to prevent predictable patterns (e.g. Option A is always correct). Do not group correct answers together.
 
+## 🏆 Gold Standard Content Constraints (MANDATORY)
+3. **Highlight Screens**: Text paragraph must be concise (50-80 words).
+4. **Bow-Tie Screens**: Must have exactly **2 Correct Actions**, **1 Correct Condition**, **2 Correct Parameters**. Pool sizes: Actions (5), Conditions (4), Parameters (5).
+5. **Matrix Screens**: Must have **4-6 rows**.
+6. **Cloze Screens**: Dropdowns must have **3-5 options** of homogenous content.
+
+## 📊 3. Metadata Gold Standards (MANDATORY)
+Every Item/Screen MUST include these fields for the Expert Dashboard:
+1. **clientNeeds**: Must be one of the 8 NCLEX Categories (e.g., "Safe and Effective Care Environment: Safety and Infection Control").
+2. **cjmmStep**: Must be explicitly mapped:
+   - Screen 1: "Recognize Cues"
+   - Screen 2: "Analyze Cues"
+   - Screen 3: "Prioritize Hypotheses"
+   - Screen 4: "Generate Solutions"
+   - Screen 5: "Take Action"
+   - Screen 6: "Evaluate Outcomes"
+3. **scoringRule**: Must be explicit (e.g., "0/1", "+/-", "Rationale").
+4. **difficulty**: "Easy", "Medium", or "Hard".
+
 ## 🛑 1. JSON Integrity Protocol (CRITICAL)
 1.  **NO Trailing Commas**: Never leave a comma after the last item in `[]` or `{}`.
 2.  **HTML Attributes**: Use **single quotes** inside HTML (e.g., `style='width:100%'`).
@@ -41,13 +60,74 @@ Generate **[QUANTITY]** **Case Study (6-Screen)** items with a Clinical Focus of
 - **Formatting**: Expand H&P headings (e.g. "History of Present Illness"). Use initials format: 2 letters + 3 numbers + .RN (e.g. JD123.RN).
 - **Abbreviations**: Include "Approved Abbreviations List" at bottom of H&P using small font (approx 0.75em) and a separator line.
 - **Radiology & Orders**: Format with Date/Time first (e.g. "10/24 0800"), then Test/Order Name. For Radiology, put results on a new line in **monospace** font.
-- **Vitals**: For "o2", include delivery method (e.g. "94% 2L NC" or "98% RA").
+- **Vitals**: MUST include ALL 7 fields: time, tempF, hr, rr, bp, o2, o2_device, pain.
 
 ## 🏥 2a. Clinical Logic Rules (CRITICAL)
 1. **Zero Hallucination Policy**: All clinical data, symptoms, and associations MUST be medically accurate. (e.g. Do NOT list 'Hyperglycemia' as a symptom of 'Hyponatremia').
 2. **Plausible Distractors**: Distractors must be realistic "near-miss" options relevant to the context. Do NOT use random medical terms that visually fit but have no clinical relation.
 3. **Logical Consistency**: The correct answer must be indisputably correct based on the provided Case/EHR data.
 4. **Specific for Cloze/Dropdowns**: The options in a dropdown must be logically grouped (e.g. all are potential diagnoses, or all are potential drugs). Do not mix categories.
+
+## ⚕️ 2b. CLINICAL DATA GOLD STANDARD (MANDATORY)
+
+### Vital Signs (COMPLETE SET - ALL 7 FIELDS REQUIRED):
+```json
+"vitals": [
+  { 
+    "time": "0800", 
+    "tempF": "101.2", 
+    "hr": 110, 
+    "rr": 24, 
+    "bp": "88/52", 
+    "o2": "92", 
+    "o2_device": "4L NC", 
+    "pain": 7 
+  }
+]
+```
+- **Clinical Accuracy**: If sepsis case → show fever + tachycardia. If shock → show hypotension. If pain case → show pain score.
+- **O2 Device Options**: "RA" (Room Air), "2L NC" (Nasal Cannula), "Hi-Flow", "Non-Rebreather", "Vent"
+
+### Laboratory Results:
+```json
+"labs": [
+  { "test": "Potassium", "value": "6.8", "ref": "3.5-5.0 mEq/L", "flag": "H!" }
+]
+```
+- **Flag Options**: "H" (High), "L" (Low), "H!" (Critical High), "L!" (Critical Low)
+- **Critical Values (Auto-Flag)**: K+ <2.5 or >6.5, Na+ <120 or >160, Glucose <50 or >400, pH <7.25 or >7.55
+
+### Medication Orders:
+```json
+"orders": [
+  { "drug": "Metoprolol", "dose": "25 mg", "route": "PO", "freq": "BID", "status": "active", "indication": "HTN management" }
+]
+```
+- **Status Options**: "active", "hold", "discontinued", "stat"
+- **High-Alert Meds**: Insulin, Heparin, Opioids, Chemo, Vasopressors, Paralytics (system auto-badges these)
+
+### Nurses Notes (SBAR Format):
+```json
+"history": [
+  { "time": "0800", "note": "Situation: Patient complaining of chest pain 8/10.\nBackground: PMH of CAD, s/p stent 2020.\nAssessment: ECG obtained, showing ST elevation V2-V4.\nRecommendation: Notified physician, preparing for possible cath lab.", "initial": "JD123.RN" }
+]
+```
+
+### Radiology Reports (ONLY if clinically relevant):
+```
+EXAM: Chest X-Ray PA/Lateral
+INDICATION: Shortness of breath
+
+FINDINGS:
+Cardiomegaly with bilateral pulmonary vascular congestion. 
+Small bilateral pleural effusions.
+
+IMPRESSION:
+1. Pulmonary edema consistent with heart failure
+2. Cardiomegaly
+```
+- **DO NOT generate radiology if not relevant to the case**
+- **DO NOT use placeholder text like "Clinical correlation recommended" without real findings**
 
 
 ## ⚠️ 3. RATIONALE REQUIREMENTS (MANDATORY ULTIMATE OBJECT STYLE)

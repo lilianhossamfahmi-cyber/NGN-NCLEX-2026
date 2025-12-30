@@ -2,8 +2,8 @@ import React from 'react';
 import { GenericRendererProps } from './types';
 import { useMediaQuery } from '../../../hooks/useMediaQuery';
 
-// PART 4: MATRIX MULTIPLE RESPONSE – COMPLETE AUDIT & FIX
-// Also handles Screen 4 (Indicated/Not) and Screen 6 (Status)
+// PART 4: MATRIX MULTIPLE RESPONSE – GOLD STANDARD UPGRADE
+// Features: Sticky Headers, Row Completion Feedback, Full-Cell Clickability, Premium Aesthetics
 export const MatrixRenderer: React.FC<GenericRendererProps> = ({ config, answers, setAnswers, isSubmitted }) => {
     const isMobile = useMediaQuery('(max-width: 640px)');
 
@@ -42,6 +42,17 @@ export const MatrixRenderer: React.FC<GenericRendererProps> = ({ config, answers
         }
     };
 
+    const isRowAnswered = (rowId: string) => {
+        if (!answers) return false;
+        if (isMultipleResponse) {
+            const rowAns = answers[rowId];
+            return rowAns && Object.keys(rowAns).length > 0;
+        } else {
+            return answers[rowId] !== undefined;
+        }
+    };
+
+    // Determine status for feedback phase
     const getCellStatus = (rowId: string, colId: string) => {
         if (!isSubmitted) return 'normal';
         const row = config.rows.find((r: any) => r.id === rowId);
@@ -83,7 +94,7 @@ export const MatrixRenderer: React.FC<GenericRendererProps> = ({ config, answers
         </svg>
     );
 
-    // Custom Checkbox/Radio Visuals
+    // Custom Input Visuals
     const InputVisual = ({ type, checked, correct, incorrect }: { type: 'checkbox' | 'radio', checked: boolean, correct?: boolean, incorrect?: boolean }) => {
         const baseStyle: React.CSSProperties = {
             width: '24px',
@@ -123,6 +134,7 @@ export const MatrixRenderer: React.FC<GenericRendererProps> = ({ config, answers
 
     // Mobile View
     if (isMobile) {
+        // Keeps the card stack layout for mobile but updates colors
         return (
             <div className="matrix-mobile-stack" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <style>{`
@@ -131,21 +143,19 @@ export const MatrixRenderer: React.FC<GenericRendererProps> = ({ config, answers
                         border-radius: 12px;
                         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
                         overflow: hidden;
-                        border: 1px solid var(--border-color);
+                        border: 1px solid #e2e8f0;
                     }
                     .mobile-header {
                         padding: 16px;
                         background: #f8fafc;
-                        border-bottom: 1px solid var(--border-color);
+                        border-bottom: 1px solid #e2e8f0;
                         font-weight: 600;
-                        color: var(--clinical-navy);
+                        color: #1e293b;
                         display: flex;
                         align-items: center;
                         gap: 8px;
                     }
-                    .mobile-body {
-                        padding: 16px;
-                    }
+                    .mobile-body { padding: 16px; }
                     .mobile-option {
                         display: flex;
                         align-items: center;
@@ -156,44 +166,29 @@ export const MatrixRenderer: React.FC<GenericRendererProps> = ({ config, answers
                         transition: all 0.2s;
                         cursor: pointer;
                     }
-                    .mobile-option:active {
-                        background-color: var(--pearson-blue-light);
-                    }
                     .mobile-option.selected {
-                        background-color: var(--pearson-blue-light);
-                        border-color: var(--pearson-blue);
+                        background-color: #eff6ff; /* blue-50 */
+                        border-color: #3b82f6; /* blue-500 */
                     }
                 `}</style>
                 {config.rows?.map((row: any) => (
                     <div key={row.id} className="mobile-card">
                         <div className="mobile-header">
-                            <div style={{ width: 4, height: 16, background: 'var(--pearson-blue)', borderRadius: 2 }}></div>
+                            <div style={{ width: 4, height: 16, background: '#3b82f6', borderRadius: 2 }}></div>
                             {row.text || row.label}
                         </div>
                         <div className="mobile-body">
                             {config.columns?.map((col: any) => {
                                 const status = getCellStatus(row.id, col.id);
                                 const selected = isSelected(row.id, col.id);
-
-                                let bg = 'transparent';
-                                if (status === 'correct') bg = 'var(--color-success-bg)';
-                                if (status === 'incorrect') bg = 'var(--color-danger-bg)';
-                                if (status === 'missed') bg = 'var(--color-warning-bg)';
-
                                 return (
                                     <div
                                         key={col.id}
                                         className={`mobile-option ${selected ? 'selected' : ''}`}
-                                        style={{ background: bg }}
                                         onClick={() => !isSubmitted && handleCellClick(row.id, col.id)}
                                     >
                                         <div style={{ marginRight: 12 }}>
-                                            <InputVisual
-                                                type={isMultipleResponse ? 'checkbox' : 'radio'}
-                                                checked={selected}
-                                                correct={status === 'correct'}
-                                                incorrect={status === 'incorrect'}
-                                            />
+                                            <InputVisual type={isMultipleResponse ? 'checkbox' : 'radio'} checked={selected} correct={status === 'correct'} incorrect={status === 'incorrect'} />
                                         </div>
                                         <div style={{ flex: 1, fontSize: '0.95rem', fontWeight: 500 }}>{col.label}</div>
                                         {isSubmitted && (
@@ -220,80 +215,84 @@ export const MatrixRenderer: React.FC<GenericRendererProps> = ({ config, answers
                 .matrix-container {
                     background: white;
                     border-radius: 12px;
-                    overflow: hidden;
+                    overflow: hidden; /* Contains the scrollbar corners */
                     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
                     border: 1px solid #e2e8f0;
+                    overflow-x: auto; /* Enable horizontal scroll if needed */
                 }
                 .matrix-table {
                     width: 100%;
                     border-collapse: separate; 
                     border-spacing: 0;
+                    min-width: 600px; /* Force scroll on small desktop */
                 }
                 .matrix-th {
-                    background: #1e3a8a; /* Deep Navy Blue - Professional & Clean */
+                    position: sticky;
+                    top: 0;
+                    z-index: 20; /* Ensure it stays above content */
+                    background: #1e293b; /* Gold Standard Navy (slate-800) */
                     color: white;
                     padding: 16px 24px;
                     text-align: center;
-                    font-weight: 800;
+                    font-weight: 700;
                     font-size: 0.85em;
                     text-transform: uppercase;
                     letter-spacing: 0.05em;
-                    border-bottom: 1px solid #172554;
+                    border-bottom: 2px solid #0f172a;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                 }
-                .matrix-th:last-child {
-                    border-top-right-radius: 12px;
-                }
-                .matrix-th-first {
+                .matrix-th:first-child {
                     text-align: left;
                     width: 40%;
-                    background: #0f172a; /* Dark Slate - High Contrast */
-                    border-top-left-radius: 12px;
-                    border-bottom: 1px solid #020617;
+                    background: #0f172a; /* Darker Slate for Row Label Header */
+                    left: 0; /* Sticky Horizontal? Optional, but complex */
+                    z-index: 30; /* Higher than other headers if we made it sticky-left */
                 }
                 .matrix-row {
-                    transition: background 0.1s ease;
+                    transition: background 0.15s ease;
                 }
                 .matrix-row:not(:last-child) {
                     border-bottom: 1px solid #e2e8f0;
                 }
-                /* Defined Zebra Striping */
+                
+                /* Zebra Striping */
                 .matrix-row:nth-child(even) {
-                    background-color: #f8fafc; /* Very light slate */
+                    background-color: #f8fafc; /* slate-50 */
                 }
+                
+                /* Interaction: Row Answered State */
+                .matrix-row.answered {
+                    background-color: #ffffff; /* Reset zebra? Or blend? */
+                    background-image: linear-gradient(to right, #eff6ff, transparent); /* blue-50 fade */
+                    border-left: 3px solid #3b82f6;
+                }
+                .matrix-row.answered:nth-child(even) {
+                   background-image: linear-gradient(to right, #eff6ff, #f8fafc);
+                }
+
+                /* Hover Effect */
                 .matrix-row:hover:not(.submitted) {
-                    background-color: #e0f2fe !important; /* Sky 100 on hover */
+                    background-color: #e0f2fe !important; /* sky-100 */
                 }
+
                 .matrix-td {
-                    padding: 12px 16px; /* Compact vertical padding */
+                    padding: 12px 16px;
                     text-align: center;
                     position: relative;
                     vertical-align: middle;
                     border-bottom: 1px solid #e2e8f0;
+                    cursor: pointer; /* Makes entire cell feel actionable */
                 }
                 .matrix-row-label {
                     text-align: left;
                     font-weight: 600;
                     color: #1e293b;
                     font-size: 1em;
-                    padding: 12px 24px; /* Compact padding */
+                    padding: 12px 24px;
                     border-right: 1px solid #f1f5f9;
-                    border-bottom: 1px solid #e2e8f0;
-                }
-                .interaction-area {
-                    display: inline-flex;
-                    padding: 8px; /* Compact hit area */
-                    border-radius: 50%;
-                    cursor: pointer;
-                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-                    border: 1px solid transparent; /* Prevent layout shift */
-                }
-                .interaction-area:hover:not(.disabled) {
-                    background-color: #dbeafe; /* Blue 100 */
-                    transform: scale(1.05);
-                    border-color: #bfdbfe;
                 }
                 
-                /* Feedback Animations */
+                /* Feedback Pill Animation */
                 .feedback-pill {
                     position: absolute;
                     bottom: 4px;
@@ -303,28 +302,22 @@ export const MatrixRenderer: React.FC<GenericRendererProps> = ({ config, answers
                     font-weight: 700;
                     opacity: 0;
                     animation: fadeInUp 0.3s forwards;
-                    white-space: nowrap;
-                    display: flex;
-                    align-items: center;
-                    gap: 4px;
                     background: white;
                     padding: 2px 8px;
                     border-radius: 12px;
-                    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-                    z-index: 10;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    z-index: 5;
+                    white-space: nowrap;
                 }
-                @keyframes fadeInUp {
-                    from { opacity: 0; transform: translate(-50%, 8px); }
-                    to { opacity: 1; transform: translate(-50%, 0); }
-                }
+                @keyframes fadeInUp { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
             `}</style>
 
             <div className="matrix-container">
                 <table className="matrix-table">
                     <thead>
                         <tr>
-                            <th className="matrix-th matrix-th-first">
-                                {config.rowLabel || "Assessment Finding"}
+                            <th className="matrix-th">
+                                {config.rowLabel || "Assessment Findings"}
                             </th>
                             {config.columns?.map((col: any) => (
                                 <th key={col.id} className="matrix-th">
@@ -334,81 +327,62 @@ export const MatrixRenderer: React.FC<GenericRendererProps> = ({ config, answers
                         </tr>
                     </thead>
                     <tbody>
-                        {config.rows?.map((row: any) => (
-                            <tr key={row.id} className={`matrix-row ${isSubmitted ? 'submitted' : ''}`}>
-                                <td className="matrix-row-label">{row.text || row.label}</td>
-                                {config.columns?.map((col: any) => {
-                                    const status = getCellStatus(row.id, col.id);
-                                    let cellBg = 'transparent';
+                        {config.rows?.map((row: any) => {
+                            const answered = isRowAnswered(row.id);
+                            return (
+                                <tr key={row.id} className={`matrix-row ${isSubmitted ? 'submitted' : ''} ${answered && !isSubmitted ? 'answered' : ''}`}>
+                                    <td className="matrix-row-label">{row.text || row.label}</td>
+                                    {config.columns?.map((col: any) => {
+                                        const status = getCellStatus(row.id, col.id);
+                                        let cellBg = 'transparent';
+                                        if (status === 'correct') cellBg = 'rgba(16, 185, 129, 0.08)';
+                                        if (status === 'incorrect') cellBg = 'rgba(225, 29, 72, 0.08)';
+                                        if (status === 'missed') cellBg = 'rgba(245, 158, 11, 0.08)';
+                                        if (cellBg === 'transparent' && answered && !isSubmitted) cellBg = 'inherit'; // Inherit row gradient
 
-                                    // Subtle full-cell background for feedback
-                                    if (status === 'correct') cellBg = 'rgba(16, 185, 129, 0.08)';
-                                    if (status === 'incorrect') cellBg = 'rgba(225, 29, 72, 0.08)';
-                                    if (status === 'missed') cellBg = 'rgba(245, 158, 11, 0.08)';
-
-                                    return (
-                                        <td
-                                            key={col.id}
-                                            className="matrix-td"
-                                            style={{ backgroundColor: cellBg }}
-                                            onClick={() => !isSubmitted && handleCellClick(row.id, col.id)}
-                                        >
-                                            <div className={`interaction-area ${isSubmitted ? 'disabled' : ''}`}>
-                                                <InputVisual
-                                                    type={isMultipleResponse ? 'checkbox' : 'radio'}
-                                                    checked={isSelected(row.id, col.id)}
-                                                    correct={status === 'correct'}
-                                                    incorrect={status === 'incorrect'}
-                                                />
-                                            </div>
-
-                                            {isSubmitted && (
-                                                <>
-                                                    {status === 'correct' && (
-                                                        <div className="feedback-pill" style={{ color: 'var(--color-success)' }}>
-                                                            <SuccessIcon />
-                                                        </div>
-                                                    )}
-                                                    {status === 'incorrect' && (
-                                                        <div className="feedback-pill" style={{ color: 'var(--color-danger)' }}>
-                                                            <ErrorIcon />
-                                                        </div>
-                                                    )}
-                                                    {status === 'missed' && (
-                                                        <div className="feedback-pill" style={{ color: 'var(--color-warning)' }}>
-                                                            <MissedIcon />
-                                                        </div>
-                                                    )}
-                                                </>
-                                            )}
-                                        </td>
-                                    );
-                                })}
-                            </tr>
-                        ))}
+                                        return (
+                                            <td
+                                                key={col.id}
+                                                className="matrix-td"
+                                                style={{ backgroundColor: cellBg }}
+                                                onClick={() => !isSubmitted && handleCellClick(row.id, col.id)}
+                                            >
+                                                <div style={{ display: 'inline-flex' }}>
+                                                    <InputVisual
+                                                        type={isMultipleResponse ? 'checkbox' : 'radio'}
+                                                        checked={isSelected(row.id, col.id)}
+                                                        correct={status === 'correct'}
+                                                        incorrect={status === 'incorrect'}
+                                                    />
+                                                </div>
+                                                {isSubmitted && (
+                                                    <>
+                                                        {status === 'correct' && <div className="feedback-pill" style={{ color: '#16a34a' }}>Correct</div>}
+                                                        {status === 'incorrect' && <div className="feedback-pill" style={{ color: '#dc2626' }}>Incorrect</div>}
+                                                        {status === 'missed' && <div className="feedback-pill" style={{ color: '#ca8a04' }}>Missed</div>}
+                                                    </>
+                                                )}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>
 
-            {config.constraint && (
-                <div style={{
-                    marginTop: '12px',
-                    padding: '8px 12px',
-                    background: '#f1f5f9',
-                    borderRadius: '6px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    fontSize: '0.85rem',
-                    color: '#64748b',
-                    borderLeft: '3px solid var(--pearson-blue)'
-                }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
-                    {config.constraint === 'each-column-at-least-one'
-                        ? 'Select at least one option for each column.'
-                        : 'Select an option for each row.'}
-                </div>
-            )}
+            {/* Legend / Constraint Helper */}
+            <div style={{ marginTop: '12px', color: '#64748b', fontSize: '0.85rem', display: 'flex', gap: '16px' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: 12, height: 12, border: '2px solid #cbd5e1', borderRadius: '50%' }}></div>
+                    Click any cell to select
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: 12, height: 12, background: '#eff6ff', border: '1px solid #bfdbfe' }}></div>
+                    Blue highlight = Answered
+                </span>
+            </div>
         </div>
     );
 };

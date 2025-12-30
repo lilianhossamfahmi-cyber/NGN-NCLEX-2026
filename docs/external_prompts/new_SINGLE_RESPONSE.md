@@ -43,10 +43,23 @@ Generate **[QUANTITY]** **Single Response (Multiple Choice)** items with a Clini
 - **Correct Answers**: EXACTLY ONE (1).
 - **Difficulty**: Higher cognitive level (Analysis/Application).
 
+## 📊 3. Metadata Gold Standards (MANDATORY)
+Every Item MUST include these fields for the Expert Dashboard:
+1. **clientNeeds**: Must be one of the 8 NCLEX Categories.
+2. **cjmmStep**: Choose the most relevant step (e.g., "Analyze Cues" or "Generate Solutions").
+3. **scoringRule**: Must be "0/1".
+4. **difficulty**: "Easy", "Medium", or "Hard".
+
 ## 🏥 2a. Clinical Logic Rules (CRITICAL)
 1. **Zero Hallucination Policy**: All clinical data, symptoms, and associations MUST be medically accurate.
 2. **Plausible Distractors**: Distractors must be realistic "near-miss" options relevant to the context.
 3. **Logical Consistency**: The correct answer must be indisputably correct.
+
+## ⚕️ 2b. CLINICAL DATA GOLD STANDARD (MANDATORY)
+**All vitals MUST include 7 fields:** `time`, `tempF`, `hr`, `rr`, `bp`, `o2`, `o2_device`, `pain`
+**All labs MUST include:** `test`, `value`, `ref`, and `flag` (H/L/H!/L!) for abnormal values
+**Nurses notes MUST use SBAR format** with initials like "JD123.RN"
+**Clinical data MUST be consistent with the case**
 
 ## ⚡ ZERO ERROR SYSTEM (SELF-CORRECTION PROTOCOL)
 Before outputting, you MUST internally verify:

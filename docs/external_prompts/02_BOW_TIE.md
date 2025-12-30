@@ -27,6 +27,18 @@ Generate **[QUANTITY]** **Standalone Bow-Tie** items with a Clinical Focus of **
 4. Follow the strict schema below.
 5. **RANDOMIZE ORDER:** Randomize the order of objects in the `actions` (5 items), `conditions` (4 items), and `parameters` (5 items) lists. Do NOT group correct answers together.
 
+## 🏆 Gold Standard Content Constraints (MANDATORY)
+1. **Logic Balance**: Ensure exactly **2 Actions** (Correct), **1 Condition** (Correct), and **2 Parameters** (Correct) are set in the logic.
+2. **Pool Size**: You MUST provide exactly **5 Action choices**, **4 Condition choices**, and **5 Parameter choices** total in the respective arrays.
+3. **Distractor Quality**: Wrong types must be clinically relevant 'near-misses' (e.g., related conditions or contraindicated meds), NOT random fillers.
+
+## 📊 3. Metadata Gold Standards (MANDATORY)
+Every Item MUST include these fields for the Expert Dashboard:
+1. **clientNeeds**: Must be one of the 8 NCLEX Categories.
+2. **cjmmStep**: Choose the DOMINANT step (e.g., "Prioritize Hypotheses" if focusing on the Condition, or "Take Action" if focusing on Interventions).
+3. **scoringRule**: Must be "0/1" (technically Bow-Tie is 0/1 per match, but just label it "0/1" or "BowTie").
+4. **difficulty**: "Easy", "Medium", or "Hard".
+
 ## 🛑 1. JSON Integrity Protocol (CRITICAL)
 1.  **NO Trailing Commas**: Never leave a comma after the last item in `[]` or `{}`.
 2.  **HTML Attributes**: Use **single quotes** inside HTML (e.g., `style='width:100%'`).
@@ -47,6 +59,13 @@ Generate **[QUANTITY]** **Standalone Bow-Tie** items with a Clinical Focus of **
 2. **Plausible Distractors**: Distractors must be realistic "near-miss" options relevant to the context. Do NOT use random medical terms that visually fit but have no clinical relation.
 3. **Logical Consistency**: The correct answer must be indisputably correct based on the provided Case/EHR data.
 4. **Specific for Cloze/Dropdowns**: The options in a dropdown must be logically grouped (e.g. all are potential diagnoses, or all are potential drugs). Do not mix categories.
+
+## ⚕️ 2b. CLINICAL DATA GOLD STANDARD (MANDATORY)
+**All vitals MUST include 7 fields:** `time`, `tempF`, `hr`, `rr`, `bp`, `o2`, `o2_device`, `pain`
+**All labs MUST include:** `test`, `value`, `ref`, and `flag` (H/L/H!/L!) for abnormal values
+**All orders MUST include:** `drug`, `dose`, `route`, `freq`, `status`, `indication`
+**Nurses notes MUST use SBAR format** with initials like "JD123.RN"
+**Radiology only if relevant** - DO NOT generate placeholder impressions
 
 ## 🔑 3. STRUCTURE REQUIREMENTS (CRITICAL)
 | Category | Count | Correct | Distractors |
@@ -169,7 +188,12 @@ Before outputting, you MUST internally verify:
   "type": "bow-tie",
   "content": {
     "clinicalData": {
-      "patientInfo": { "name": "G. Rivera", "age": 62, "gender": "M", "codeStatus": "Full Code", "admissionDate": "Today", "room": "302", "allergies": "NKDA", "isolation": "None" }
+      "patientInfo": { "name": "G. Rivera", "age": 62, "gender": "M", "codeStatus": "Full Code", "admissionDate": "Today", "room": "302", "allergies": "NKDA", "isolation": "None" },
+      "history": "...",
+      "vitals": "...",
+      "labs": "...",
+      "orders": "...",
+      "radiology": "..."
     },
     "metadata": {
       "clientNeeds": "Physiological Integrity",
@@ -180,150 +204,38 @@ Before outputting, you MUST internally verify:
       "peerAverageTime": "90"
     },
     "rationale": {
-      "coreConcept": "Subarachnoid Hemorrhage (SAH)",
-      "caseSummary": "Think of a Subarachnoid Hemorrhage like a balloon popping in the brain—pressure spikes instantly. This patient presents with a classic 'thunderclap' headache and severe hypertension.",
-      "answerAnalysis": "The primary goals in SAH are to prevent rebleeding and manage intracranial pressure. Rapid blood pressure control (e.g., with labetalol) reduces the risk of rebleeding. Emergent CT is crucial to confirm the diagnosis and differentiate from ischemic stroke, guiding further management. Anticoagulants like tPA are contraindicated and would worsen a bleed.",
-      "trap": "The 'Stroke Protocol' Trap: Don't give tPA until you rule out a bleed! Always confirm the type of stroke with imaging before administering thrombolytics.",
-      "goldenRule": "Worst headache of life = Bleed until proven otherwise. Always prioritize imaging.",
-      "steps": [
-        { "tag": "Recognize", "description": "Identify sudden, severe 'thunderclap' headache and neurological changes." },
-        { "tag": "Scan", "description": "Perform emergent CT scan to confirm or rule out hemorrhage." },
-        { "tag": "Control", "description": "Aggressively manage blood pressure to prevent rebleeding and reduce ICP." }
-      ],
-      "mnemonic": {
-        "title": "SAH Symptoms (SUDDEN)",
-        "content": "S-evere headache, U-nconsciousness, D-iplopia, D-izziness, E-mesis, N-uchal rigidity",
-        "explanation": "These are common signs and symptoms of a subarachnoid hemorrhage, often presenting suddenly."
-      },
-      "cheatSheet": {
-        "title": "SAH Management Essentials",
-        "points": [
-          "BP Control: Target SBP <160-180 mmHg (e.g., Labetalol, Nicardipine)",
-          "Nimodipine: Prevents vasospasm (oral or NGT)",
-          "Monitor for Hydrocephalus: External ventricular drain (EVD) if needed",
-          "Seizure Prophylaxis: Consider for high-risk patients"
-        ]
-      },
-      "referenceInfo": {
-        "anatomy": "SAH involves bleeding into the subarachnoid space, the area between the arachnoid membrane and the pia mater surrounding the brain.",
-        "physiology": "Aneurysm rupture is the most common cause, leading to sudden increase in intracranial pressure and irritation of meninges. Blood in the subarachnoid space can lead to vasospasm.",
-        "pharm": "Labetalol is a beta-blocker with alpha-blocking properties, effective for rapid BP reduction. Nimodipine is a calcium channel blocker specifically used to prevent cerebral vasospasm in SAH."
-      }
-    },
-    "clinicalData": {
-      "patientInfo": { 
-        "name": "Jo...Sm...", 
-        "age": "55", 
-        "sex": "Male", 
-        "mrn": "555555555", 
-        "codeStatus": "Full Code", 
-        "allergies": "None", 
-        "provider": "Dr. B", 
-        "ward": "ED", 
-        "bed": "1" 
-      },
-      "history": [
-        { "time": "1200", "note": "Situation: 55yo male presents with sudden severe headache.\nObjective: BP 220/120, GCS 14, photophobia present.\nActions: IV access obtained, CT ordered.", "initial": "RN.B294" },
-        { "time": "1215", "note": "Patient complains of nausea. 4mg Zofran IVP given.", "initial": "RN.B294" }
-      ],
-      "historyPhysical": "<b>Chief Complaint:</b> Worst headache of my life.<br><b>History of Present Illness:</b> Sudden onset 1 hour ago, associated with nausea and neck stiffness.<br><br><hr style='margin-top:1em; border-top:1px solid #ccc'><div style='font-size:0.75em'><b>Approved Abbreviations List:</b><br>BP: Blood Pressure<br>GCS: Glasgow Coma Scale</div>",
-      "vitals": [{ "time": "1200", "tempF": "98.6°F (37.0°C)", "hr": "88", "rr": "18", "bp": "220/120", "o2": "98%" }],
-      "labs": "<table style='width:100%; border-collapse: collapse; font-family: monospace; font-size: 0.9em'><thead><tr style='border-bottom: 2px solid #ccc'><th style='text-align:left; padding: 4px'>Test</th><th style='text-align:left; padding: 4px'>Result</th><th style='text-align:left; padding: 4px'>Reference</th></tr></thead><tbody><tr><td style='padding: 4px'>WBC</td><td style='padding: 4px'>9.0</td><td style='padding: 4px'>4.5-11</td></tr><tr><td style='padding: 4px'>Glucose</td><td style='padding: 4px'><b>110</b></td><td style='padding: 4px'>70-100 mg/dL</td></tr></tbody></table>",
-      "orders": "1. CT Head without contrast STAT\n2. CBC, BMP, Coags\n3. Maintain SBP <180",
-      "radiology": "<b>CT Head:</b><br><div style='font-family:monospace'>Pending</div>"
+       "coreConcept": "Subarachnoid Hemorrhage (SAH)",
+       "caseSummary": "...",
+       "answerAnalysis": "...",
+       "trap": "...",
+       "goldenRule": "...",
+       "steps": [],
+       "mnemonic": {},
+       "cheatSheet": {},
+       "referenceInfo": {}
     },
     "structure": {
       "type": "bow-tie",
       "prompt": "The patient presents with sudden severe headache and BP 220/120. Select 2 priority actions, the most likely condition, and 2 parameters to monitor for improvement.",
       "actions": [
-        { 
-          "id": "a1", 
-          "text": "Administer IV labetalol", 
-          "isCorrect": true, 
-          "rationale": "[Hook] BP limits rebleeding risk. [Breakdown] Correct: Labetalol lowers BP acutely. [Trap] Caution trap: Don't lower BP too fast, but <180 is goal. [Steps] 1. Check BP, 2. Administer Antihypertensive. [Future] Prevent hematoma expansion." 
-        },
-        { 
-          "id": "a2", 
-          "text": "Prepare for emergent CT", 
-          "isCorrect": true, 
-          "rationale": "[Hook] Diagnostic Gold Standard. [Breakdown] Correct: CT differentiates bleed vs clot. [Trap] Procedure trap: Don't do LP first. [Steps] 1. Order CT, 2. Transport patient. [Future] Time is brain." 
-        },
-        { 
-          "id": "a3", 
-          "text": "Administer tPA bolus", 
-          "isCorrect": false, 
-          "rationale": "[Hook] Contraindications. [Breakdown] Incorrect: tPA is fatal in hemorrhagic stroke. [Trap] Ischemic bias trap. [Steps] 1. Rule out bleed. [Future] Never give tPA without CT."
-        },
-        { 
-          "id": "a4", 
-          "text": "Encourage oral hydration", 
-          "isCorrect": false, 
-          "rationale": "[Hook] Aspiration precautions. [Breakdown] Incorrect: Patient has altered status/nausea. [Trap] Basic care trap. [Steps] 1. Maintain NPO. [Future] Airway protection first." 
-        },
-        { 
-          "id": "a5", 
-          "text": "Perform lumbar puncture", 
-          "isCorrect": false, 
-          "rationale": "[Hook] Herniation risk. [Breakdown] Incorrect: LP checks for xanthochromia but CT is first. LP risks herniation if ICP high. [Trap] Sequencing trap. [Steps] 1. CT first, 2. LP only if CT negative. [Future] Safety first." 
-        }
+        { "id": "a1", "text": "Administer IV labetalol", "isCorrect": true, "rationale": "..." },
+        { "id": "a2", "text": "Prepare for emergent CT", "isCorrect": true, "rationale": "..." },
+        { "id": "a3", "text": "Administer tPA bolus", "isCorrect": false, "rationale": "..." },
+        { "id": "a4", "text": "Encourage oral hydration", "isCorrect": false, "rationale": "..." },
+        { "id": "a5", "text": "Perform lumbar puncture", "isCorrect": false, "rationale": "..." }
       ],
       "conditions": [
-        { 
-          "id": "c1", 
-          "text": "Subarachnoid hemorrhage", 
-          "isCorrect": true, 
-          "rationale": "[Hook] Classic presentation. [Breakdown] Correct: 'Thunderclap' headache implies SAH. [Trap] None. [Steps] 1. Pattern recognition. [Future] Sudden onset = Vascular." 
-        },
-        { 
-          "id": "c2", 
-          "text": "Migraine headache", 
-          "isCorrect": false, 
-          "rationale": "[Hook] Headache types. [Breakdown] Incorrect: Migraine is usually gradual, unilateral. [Trap] Commonality trap. [Steps] 1. Assess onset speed. [Future] Migraine is a diagnosis of exclusion in ED." 
-        },
-        { 
-          "id": "c3", 
-          "text": "Tension headache", 
-          "isCorrect": false, 
-          "rationale": "[Hook] Severity assessment. [Breakdown] Incorrect: Tension is mild-moderate, band-like. [Trap] Minimization trap. [Steps] 1. Assess severity. [Future] Tension HA is rare cause of ED visit." 
-        },
-        { 
-          "id": "c4", 
-          "text": "Sinusitis", 
-          "isCorrect": false, 
-          "rationale": "[Hook] Infectious etiology. [Breakdown] Incorrect: No fever/discharge. [Trap] Facial pain trap. [Steps] 1. Check signs of infection. [Future] Sinusitis is localized." 
-        }
+        { "id": "c1", "text": "Subarachnoid hemorrhage", "isCorrect": true, "rationale": "..." },
+        { "id": "c2", "text": "Migraine headache", "isCorrect": false, "rationale": "..." },
+        { "id": "c3", "text": "Tension headache", "isCorrect": false, "rationale": "..." },
+        { "id": "c4", "text": "Sinusitis", "isCorrect": false, "rationale": "..." }
       ],
       "parameters": [
-        { 
-          "id": "p1", 
-          "text": "Blood pressure decreases to <180 systolic", 
-          "isCorrect": true, 
-          "rationale": "[Hook] Therapeutic goals. [Breakdown] Correct: Reduces rebleed risk. [Trap] None. [Steps] 1. Monitor BP. [Future] Strict parameters required." 
-        },
-        { 
-          "id": "p2", 
-          "text": "GCS remains stable or improves", 
-          "isCorrect": true, 
-          "rationale": "[Hook] Neuro monitoring. [Breakdown] Correct: Decline indicates ICP rise/rebleed. [Trap] None. [Steps] 1. Serial Neuro Checks. [Future] LOC is sensitive indicator." 
-        },
-        { 
-          "id": "p3", 
-          "text": "Patient reports improved appetite", 
-          "isCorrect": false, 
-          "rationale": "[Hook] Irrelevant outcome. [Breakdown] Incorrect: Not a priority in neuro emergency. [Trap] Wellness trap. [Steps] 1. Focus on critical systems. [Future] Appetite returns late." 
-        },
-        { 
-          "id": "p4", 
-          "text": "Urine output >30mL/hr", 
-          "isCorrect": false, 
-          "rationale": "[Hook] Kidney function. [Breakdown] Incorrect: Important generally, but neuro status is the specific SAH goal. [Trap] Standard care trap. [Steps] 1. Prioritize Brain. [Future] Brain > Kidney in SAH." 
-        },
-        { 
-          "id": "p5", 
-          "text": "Patient ambulates independently", 
-          "isCorrect": false, 
-          "rationale": "[Hook] Safety. [Breakdown] Incorrect: Bed rest required to prevent ICP spike. [Trap] Mobility trap. [Steps] 1. Maintain Bedrest. [Future] Minimize stimulation." 
-        }
+        { "id": "p1", "text": "Blood pressure decreases to <180 systolic", "isCorrect": true, "rationale": "..." },
+        { "id": "p2", "text": "GCS remains stable or improves", "isCorrect": true, "rationale": "..." },
+        { "id": "p3", "text": "Patient reports improved appetite", "isCorrect": false, "rationale": "..." },
+        { "id": "p4", "text": "Urine output >30mL/hr", "isCorrect": false, "rationale": "..." },
+        { "id": "p5", "text": "Patient ambulates independently", "isCorrect": false, "rationale": "..." }
       ]
     }
   }

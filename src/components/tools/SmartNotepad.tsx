@@ -21,25 +21,25 @@ export const SmartNotepad: React.FC = () => {
     };
 
     const handleClear = () => {
-        if (window.confirm('Clear notes?')) {
+        if (window.confirm('Clear your messy notes?')) {
             setNote('');
             localStorage.setItem(STORAGE_KEY, '');
         }
     };
 
     return (
-        <div className="notepad-body" style={{ minHeight: '300px' }}>
+        <div className="notepad-body" style={{ minHeight: '320px' }}>
             <div className="notepad-toolbar">
                 <button
                     onClick={handleClear}
-                    style={{ background: 'transparent', border: 'none', color: '#b45309', cursor: 'pointer', fontWeight: 600, fontSize: '12px' }}
+                    style={{ background: 'transparent', border: 'none', color: '#1e3a8a', cursor: 'pointer', fontWeight: 800, fontSize: '12px', fontFamily: '"JetBrains Mono", monospace' }}
                 >
                     CLEAR
                 </button>
-                <div style={{ color: '#b45309', fontWeight: 700, fontSize: '12px', letterSpacing: '1px' }}>NOTES</div>
+                <div style={{ color: '#1e3a8a', fontWeight: 800, fontSize: '12px', letterSpacing: '1px', fontFamily: '"JetBrains Mono", monospace', opacity: 0.5 }}>STICKY NOTE</div>
                 <button
                     onClick={handleCopy}
-                    style={{ background: 'transparent', border: 'none', color: '#b45309', cursor: 'pointer', fontWeight: 600, fontSize: '12px' }}
+                    style={{ background: 'transparent', border: 'none', color: '#1e3a8a', cursor: 'pointer', fontWeight: 800, fontSize: '12px', fontFamily: '"JetBrains Mono", monospace' }}
                 >
                     COPY
                 </button>
@@ -48,7 +48,8 @@ export const SmartNotepad: React.FC = () => {
                 className="notepad-textarea"
                 value={note}
                 onChange={handleChange}
-                placeholder="Type your notes here... (Auto-saved)"
+                placeholder="Write your clinical notes here..."
+                spellCheck={false}
             />
         </div>
     );

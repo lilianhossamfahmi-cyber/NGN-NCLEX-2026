@@ -45,6 +45,12 @@ Generate **[QUANTITY]** **Single Response (Multiple Choice)** items with a Clini
 2. **Plausible Distractors**: Distractors must be realistic "near-miss" options relevant to the context. Do NOT use random medical terms that visually fit but have no clinical relation.
 3. **Logical Consistency**: The correct answer must be indisputably correct based on the provided Case/EHR data.
 
+## ⚕️ 2b. CLINICAL DATA GOLD STANDARD (MANDATORY)
+**All vitals MUST include 7 fields:** `time`, `tempF`, `hr`, `rr`, `bp`, `o2`, `o2_device`, `pain`
+**All labs MUST include:** `test`, `value`, `ref`, and `flag` (H/L/H!/L!) for abnormal values
+**Nurses notes MUST use SBAR format** with initials like "JD123.RN"
+**Clinical data MUST be consistent with the case**
+
 ## ⚠️ 3. RATIONALE REQUIREMENTS (MANDATORY ULTIMATE OBJECT STYLE)
 The **MAIN Screen-Level** `rationale` field MUST be a JSON OBJECT (not a string).
 **IMPORTANT**: For individual **options**, the `rationale` MUST be a simple **STRING**.

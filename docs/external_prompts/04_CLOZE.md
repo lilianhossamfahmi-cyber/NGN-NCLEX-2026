@@ -22,6 +22,11 @@ Generate **[QUANTITY]** **Cloze (Dropdown)** items with a Clinical Focus of **[F
 3. Follow the strict schema below.
 4. **CRITICAL - NOT A CASE STUDY:** Cloze items are STANDALONE, single-screen items. Do NOT include a `"screens"` array. All sentences/dropdowns MUST be inside `content.structure.sentences`.
 
+## 🏆 Gold Standard Content Constraints (MANDATORY)
+1. **Option Count**: Each dropdown must have between **3 and 5 options**. Fewer is too easy; more is overwhelming.
+2. **Homogeneity**: Options within a single dropdown must be of the same category (e.g., all beta-blockers, or all respiratory diagnoses). Do not mix unrelated terms.
+3. **Sentence Flow**: The sentence must read naturally when the correct option is inserted.
+
 ## 🛑 1. JSON Integrity Protocol (CRITICAL)
 1.  **NO Trailing Commas**: Never leave a comma after the last item in `[]` or `{}`.
 2.  **HTML Attributes**: Use **single quotes** inside HTML (e.g., `style='width:100%'`).
@@ -34,15 +39,18 @@ Generate **[QUANTITY]** **Cloze (Dropdown)** items with a Clinical Focus of **[F
 - **Structure**: 1 or 2 Sentences with 1-3 Dropdowns total.
 - **Dropdowns**: Each should have 2-4 options.
 - **Context**: Ensure the sentence makes grammatical sense when options are inserted.
-- **Clinical Data Formatting**:
-  - **History (Nurses Notes)**: Use HTML `<p>` for paragraphs and `<ul>/<li>` for bullet points.
-  - **Labs**: Use HTML `<table>` with `<tr>`, `<th>`, and `<td>` for structured results. Bold abnormalities (e.g. `<strong>7.2</strong>`).
 
 ## 🏥 2a. Clinical Logic Rules (CRITICAL)
 1. **Zero Hallucination Policy**: All clinical data, symptoms, and associations MUST be medically accurate. (e.g. Do NOT list 'Hyperglycemia' as a symptom of 'Hyponatremia').
 2. **Plausible Distractors**: Distractors must be realistic "near-miss" options relevant to the context. Do NOT use random medical terms that visually fit but have no clinical relation.
 3. **Logical Consistency**: The correct answer must be indisputably correct based on the provided Case/EHR data.
 4. **Specific for Cloze/Dropdowns**: The options in a dropdown must be logically grouped (e.g. all are potential diagnoses, or all are potential drugs). Do not mix categories.
+
+## ⚕️ 2b. CLINICAL DATA GOLD STANDARD (MANDATORY)
+**All vitals MUST include 7 fields:** `time`, `tempF`, `hr`, `rr`, `bp`, `o2`, `o2_device`, `pain`
+**All labs MUST include:** `test`, `value`, `ref`, and `flag` (H/L/H!/L!) for abnormal values
+**All orders MUST include:** `drug`, `dose`, `route`, `freq`, `status`, `indication`
+**Nurses notes MUST use SBAR format** with initials like "JD123.RN"
 
 ## ⚠️ 3. RATIONALE REQUIREMENTS (MANDATORY ULTIMATE OBJECT STYLE)
 You are a "Super-Teacher"—empathetic, strategic, and crystal clear. The **MAIN Screen-Level** `rationale` field MUST be a JSON OBJECT (not a string) containing the fields below.
@@ -128,7 +136,7 @@ You are a "Super-Teacher"—empathetic, strategic, and crystal clear. The **MAIN
 ```
 
 ## 4. METADATA REQUIREMENTS
-**CRITICAL:** Classify the question accurately. The `cjmmStep` field MUST be set correctly.
+**CRITICAL:** You MUST classify the generated question accurately. The `cjmmStep` field MUST be set correctly.
 
 **Required Metadata Block (Inside `content`):**
 ```json
@@ -158,7 +166,10 @@ Before outputting, you MUST internally verify:
   "type": "cloze",
   "content": {
     "clinicalData": {
-      "patientInfo": { "name": "G. Rivera", "age": 62, "gender": "M", "codeStatus": "Full Code", "admissionDate": "Today", "room": "302", "allergies": "NKDA", "isolation": "None" }
+      "patientInfo": { "name": "G. Rivera", "age": 62, "gender": "M", "codeStatus": "Full Code", "admissionDate": "Today", "room": "302", "allergies": "NKDA", "isolation": "None" },
+      "vitals": "...",
+      "labs": "...",
+      "history": "..."
     },
     "metadata": {
       "clientNeeds": "Physiological Integrity",
@@ -170,39 +181,14 @@ Before outputting, you MUST internally verify:
     },
     "rationale": {
       "coreConcept": "Severe Hypoglycemia",
-      "caseSummary": "Hypoglycemia kills faster than Hyperglycemia. The brain needs constant fuel. This patient is unconscious with low blood sugar (45 mg/dL), requiring immediate IV replacement.",
-      "answerAnalysis": "The priority is to restore blood glucose levels to prevent seizure and coma. Interventions depend on consciousness: Awake = Juice/Snack; Unconscious = IV Dextrose (D50) or IM Glucagon. Since this patient is unconscious, D50 is the gold standard.",
-      "trap": "The 'Food First' Trap: Never try to feed an unconscious patient (Aspiration Risk). Use IV or IM routes.",
-      "goldenRule": "Cold and Clammy = Needs some Candy; Hot and Dry = Sugar High.",
-      "steps": [
-        { "tag": "Recognize", "description": "Identify signs: Diaphoresis, Confusion, Coma." },
-        { "tag": "Analyze", "description": "Check Bedside Glucose (Result < 70)." },
-        { "tag": "Take Action", "description": "Administer simple carb (if awake) or D50 (if comatose)." }
-      ],
-      "mnemonic": {
-        "title": "TIRED",
-        "content": "T-achycardia, I-rritability, R-estlessness, E-xcessive Hunger, D-iaphoresis (Sweating)",
-        "explanation": "Classic hypoglycemia signs driven by sympathetic surge."
-      },
-      "cheatSheet": {
-        "title": "Hypoglycemia Protocol",
-        "points": [
-          "Glucose < 70: 15g Fast Carb",
-          "Glucose < 50: D50 IV Push",
-          "Check q15min until stable"
-        ]
-      },
-      "referenceInfo": {
-        "anatomy": "Neurons rely exclusively on glucose for energy and cannot store it.",
-        "physiology": "Sympathetic system activates (Adrenaline) to convert glycogen to glucose, causing sweating/shaking.",
-        "pharm": "Dextrose 50% is a hypertonic glucose solution. Glucagon mobilizes liver glycogen (slower)."
-      }
-    },
-    "clinicalData": {
-      "patientInfo": { "name": "Sa...Mo...", "age": "30", "sex": "Male" },
-      "history": "<p>Client loaded to ED via EMS...</p><ul><li>Reported: Dizziness</li><li>Observed: Diaphoresis</li></ul>",
-      "vitals": [ { "time": "0800", "tempF": 98.6, "hr": 110, "rr": 22, "bp": "100/60", "o2": "94%" } ],
-      "labs": "<table style='width:100%'><tr><td><strong>Glucose</strong></td><td>45 mg/dL</td></tr><tr><td><strong>K+</strong></td><td>3.8 mEq/L</td></tr></table>"
+      "caseSummary": "...",
+      "answerAnalysis": "...",
+      "trap": "...",
+      "goldenRule": "...",
+      "steps": [],
+      "mnemonic": {},
+      "cheatSheet": {},
+      "referenceInfo": {}
     },
     "structure": {
       "type": "cloze",
@@ -214,16 +200,16 @@ Before outputting, you MUST internally verify:
              { 
                "id": "intervention", 
                "options": [
-                 {"id":"o1", "text":"IV Dextrose 50%", "isCorrect":true, "rationale":"[Hook] Immediate Fuel. [Breakdown] Correct: Raises BG instantly. [Trap] Food delay trap. [Steps] 1. Assess LOC. 2. Push D50. [Future] IV if unconscious."},
-                 {"id":"o2", "text":"Humalog Insulin", "isCorrect":false, "rationale":"[Hook] Wrong Direction. [Breakdown] Incorrect: Lowers BG further. [Trap] Routine med trap. [Steps] 1. Hold Insulin. [Future] Never give insulin for low BG."} 
+                 {"id":"o1", "text":"IV Dextrose 50%", "isCorrect":true, "rationale":"..."},
+                 {"id":"o2", "text":"Humalog Insulin", "isCorrect":false, "rationale":"..."} 
                ],
                "correctOptionId": "o1"
              },
              { 
                "id": "condition", 
                "options": [
-                 {"id":"o3", "text":"Hypoglycemia", "isCorrect":true, "rationale":"[Hook] Low fuel tank. [Breakdown] Correct: BG < 70 requires action. [Trap] False high trap. [Steps] 1. Recheck if doubtful. [Future] Treat symptoms first."},
-                 {"id":"o4", "text":"Hyperglycemia", "isCorrect":false, "rationale":"[Hook] High sugar. [Breakdown] Incorrect: BG is 45. [Trap] Diabetic assumption. [Steps] 1. Read the number. [Future] Don't guess."} 
+                 {"id":"o3", "text":"Hypoglycemia", "isCorrect":true, "rationale":"..."},
+                 {"id":"o4", "text":"Hyperglycemia", "isCorrect":false, "rationale":"..."} 
                ],
                "correctOptionId": "o3"
              }

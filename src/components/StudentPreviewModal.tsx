@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { MasterQuestionItem } from '../types/master-schema';
 import { renderQuestion } from './item-types/ItemRenderer';
 import { useMediaQuery } from '../hooks/useMediaQuery';
@@ -947,6 +947,46 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
     const isLastScreen = isCaseStudy ? currentScreenIndex === screens.length - 1 : true;
 
     const [activeTab, setActiveTab] = useState('notes');
+    const [leftPanelWidth, setLeftPanelWidth] = useState(35);
+    const [isResizing, setIsResizing] = useState(false);
+
+    const handleMouseMove = useCallback((e: MouseEvent) => {
+        if (!isResizing) return;
+        const newWidth = (e.clientX / window.innerWidth) * 100;
+        if (newWidth > 20 && newWidth < 70) {
+            setLeftPanelWidth(newWidth);
+        }
+    }, [isResizing]);
+
+    const handleMouseUp = useCallback(() => {
+        setIsResizing(false);
+    }, []);
+
+    useEffect(() => {
+        if (isResizing) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+            // Disable text selection/iframe pointer events while dragging if needed
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+        } else {
+            document.body.style.cursor = 'default';
+            document.body.style.userSelect = 'auto';
+        }
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isResizing, handleMouseMove, handleMouseUp]);
+    const [flaggedIndices, setFlaggedIndices] = useState<number[]>([]); // Track flagged questions
+
+    const toggleFlag = (index: number) => {
+        setFlaggedIndices(prev =>
+            prev.includes(index)
+                ? prev.filter(i => i !== index)
+                : [...prev, index]
+        );
+    };
     const [isRationaleOpen, setIsRationaleOpen] = useState(false);
     const [answers, setAnswers] = useState<Record<string, any>>({});
     const [submissionState, setSubmissionState] = useState<Record<string, boolean>>({});
@@ -980,6 +1020,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
     const leftContentStyle = {
         padding: '24px 32px',
         fontSize: getFontSize(1.0, leftFontSize),
+        zoom: leftFontSize as any, // Fix: Ensure zoom affects Tailwind components
         lineHeight: 1.7,
         color: '#334155',
         background: 'white',
@@ -1225,9 +1266,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
         }
     };
 
-    const progressPercentage = isCaseStudy
-        ? ((currentScreenIndex + 1) / screens.length) * 100
-        : 100;
+    // const progressPercentage removed
 
 
 
@@ -1239,8 +1278,23 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
 
     return (
         <>
-            <div style={{ position: 'fixed', inset: 0, background: '#f8fafc', zIndex: 9999, display: 'flex', flexDirection: 'column', fontFamily: '"Inter", sans-serif' }}>
-                <div style={{ height: '64px', background: 'white', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+            <style>{`
+                @keyframes fadeInSlide {
+                    from { opacity: 0; transform: translateX(8px); }
+                    to { opacity: 1; transform: translateX(0); }
+                }
+                .tab-animate {
+                    animation: fadeInSlide 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+                    height: 100%; /* Ensure it fills container */
+                }
+                .glass-header {
+                    background: rgba(255, 255, 255, 0.95) !important;
+                    backdrop-filter: blur(12px);
+                    border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
+                }
+            `}</style>
+            <div style={{ position: 'fixed', inset: 0, background: '#F3F4F6', backgroundImage: 'radial-gradient(circle at 50% 0%, #F9FAFB, #F3F4F6)', zIndex: 9999, display: 'flex', flexDirection: 'column', fontFamily: '"Inter", sans-serif' }}>
+                <div className="glass-header" style={{ height: '64px', background: 'white', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', zIndex: 50 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div style={{ fontWeight: 700, fontSize: '1.25rem', color: '#1e3a8a', letterSpacing: '-0.02em' }}>NCLEX-RN Simulator</div>
                         <div style={{ fontSize: '0.9rem', color: '#64748b', background: '#f1f5f9', padding: '6px 10px', borderRadius: '6px' }}>Item ID: {item.id ? item.id.slice(0, 8) : '-----'}</div>
@@ -1252,13 +1306,17 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                     </div>
                 </div>
 
-                <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-                    <div style={{
-                        width: isMobile ? '0px' : '35%',
+                <div className="split-layout-container" style={{ flex: 1, display: 'flex', overflow: 'hidden', padding: isMobile ? '0' : '16px', gap: isMobile ? '0' : '16px' }}>
+                    <div className="ehr-panel" style={{
+                        width: isMobile ? '0px' : `${leftPanelWidth}%`,
                         display: isMobile ? 'none' : 'flex',
                         flexDirection: 'column',
-                        borderRight: '1px solid #cbd5e1',
-                        background: '#f8fafc'
+                        // borderRight: '1px solid #cbd5e1', // REMOVED for Card Look
+                        background: 'white', // Gold Standard Check: Main Panels White
+                        borderRadius: isMobile ? '0' : '16px',
+                        boxShadow: isMobile ? 'none' : '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                        border: isMobile ? 'none' : '1px solid rgba(255,255,255,0.5)',
+                        overflow: 'hidden'
                     }}>
                         <div style={{ padding: '12px 0 12px 0', textAlign: 'center' }}>
                             <FloatingPatientHeader
@@ -1271,7 +1329,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                         <PatientHeader data={item.content.clinicalData?.patientInfo} />
                         <CaseTabSystem activeTab={activeTab} onTabChange={setActiveTab} />
                         <div style={{ flex: 1, overflowY: 'auto', background: 'white' }}>
-                            <div style={leftContentStyle}>
+                            <div style={leftContentStyle} className="tab-animate">
                                 {activeTab === 'notes' && (
                                     <div className="p-4 bg-slate-50 min-h-full">
                                         <div className="flex justify-between items-center mb-6 border-b border-slate-200 pb-2">
@@ -1323,15 +1381,57 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                         </div>
                     </div>
 
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white', overflow: 'hidden' }}>
+                    {/* Resizer Handle */}
+                    {!isMobile && (
+                        <div
+                            onMouseDown={() => setIsResizing(true)}
+                            style={{
+                                width: '12px',
+                                margin: '0 -6px', // Negative margin to overlap slightly or center
+                                cursor: 'col-resize',
+                                zIndex: 100,
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                background: 'transparent' // Invisible hit area
+                            }}
+                        >
+                            <div style={{
+                                width: '2px', // Visible line
+                                height: '100%',
+                                background: isResizing ? '#3b82f6' : '#e2e8f0', // Blue when resizing, Grey usually
+                                transition: 'background 0.2s, width 0.2s',
+                                boxShadow: isResizing ? '0 0 0 1px rgba(59, 130, 246, 0.5)' : 'none'
+                            }} />
+                        </div>
+                    )}
+
+                    <div className="question-section" style={{
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        background: 'white',
+                        overflow: 'hidden',
+                        borderRadius: isMobile ? '0' : '16px',
+                        boxShadow: isMobile ? 'none' : '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                        border: isMobile ? 'none' : '1px solid rgba(255,255,255,0.5)'
+                    }}>
                         {isCaseStudy && (
-                            <div style={{ width: '100%', height: '6px', background: '#f1f5f9' }}>
-                                <div style={{
-                                    height: '100%',
-                                    width: `${progressPercentage}%`,
-                                    background: 'linear-gradient(90deg, #2563eb, #3b82f6)',
-                                    transition: 'width 0.3s ease-in-out'
-                                }} />
+                            <div style={{ width: '100%', height: '8px', display: 'flex', gap: '2px', background: '#f1f5f9' }}>
+                                {screens.map((_: any, idx: number) => {
+                                    let bg = '#cbd5e1'; // Unseen
+                                    if (idx < currentScreenIndex) bg = '#10b981'; // Completed (Green)
+                                    if (idx === currentScreenIndex) bg = '#3b82f6'; // Current (Blue)
+                                    if (flaggedIndices.includes(idx)) bg = '#f97316'; // Flagged (Orange)
+                                    return (
+                                        <div key={idx} style={{
+                                            flex: 1,
+                                            background: bg,
+                                            transition: 'all 0.3s ease',
+                                            borderRadius: '1px'
+                                        }} />
+                                    );
+                                })}
                             </div>
                         )}
                         <div style={{
@@ -1344,8 +1444,25 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                             <div style={{ maxWidth: '850px', margin: '0 auto' }}>
                                 <div>
                                     {isCaseStudy && (
-                                        <div style={{ marginBottom: '16px', fontSize: '0.85rem', fontWeight: 700, color: '#0ea5e9', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                                            Question {currentScreenIndex + 1} of {screens.length}
+                                        <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0ea5e9', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                                Question {currentScreenIndex + 1} of {screens.length}
+                                            </div>
+                                            <button
+                                                onClick={() => toggleFlag(currentScreenIndex)}
+                                                style={{
+                                                    display: 'flex', alignItems: 'center', gap: '6px',
+                                                    background: 'transparent', border: 'none', cursor: 'pointer',
+                                                    color: flaggedIndices.includes(currentScreenIndex) ? '#f97316' : '#94a3b8',
+                                                    fontWeight: 600, fontSize: '0.85rem'
+                                                }}
+                                            >
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill={flaggedIndices.includes(currentScreenIndex) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                                                    <line x1="4" y1="22" x2="4" y2="15"></line>
+                                                </svg>
+                                                {flaggedIndices.includes(currentScreenIndex) ? "Marked" : "Mark for Review"}
+                                            </button>
                                         </div>
                                     )}
                                     <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
@@ -1508,8 +1625,11 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                     </div>
 
                     {!isMobile && (
-                        <div className="w-[380px] bg-slate-50 border-l border-slate-200 flex flex-col">
-                            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                        <div className="w-[300px] bg-slate-900 border-l border-slate-700 flex flex-col shadow-2xl z-20">
+                            {/* Bio-statistical Background Pattern */}
+                            <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#94a3b8 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+
+                            <div className="flex-1 overflow-y-auto p-2 custom-scrollbar relative z-10">
                                 <ExpertDashboard
                                     passProbability={sessionAnalytics.passProbability}
                                     clientNeeds={sessionAnalytics.clientNeeds}

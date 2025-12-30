@@ -7,6 +7,7 @@ export interface ScoreRuleResult {
     incorrectCount?: number;
     matches?: number;
     isCorrect: boolean; // 100% correct
+    rule?: string; // e.g. "0/1", "+/-", "Rationale"
 }
 
 export type ErrorTag =
@@ -124,7 +125,8 @@ export const CognitiveAnalyticsEngine = {
             return {
                 score,
                 maxScore,
-                isCorrect: score === 1
+                isCorrect: score === 1,
+                rule: '0/1 (Exact Match)'
             };
         }
 
@@ -193,7 +195,8 @@ export const CognitiveAnalyticsEngine = {
                 maxScore,
                 correctCount,
                 incorrectCount,
-                isCorrect: score === maxScore
+                isCorrect: score === maxScore,
+                rule: '+/- (Polytomous)'
             };
         }
 
@@ -236,7 +239,8 @@ export const CognitiveAnalyticsEngine = {
                 score,
                 maxScore,
                 matches,
-                isCorrect: score === maxScore && maxScore > 0
+                isCorrect: score === maxScore && maxScore > 0,
+                rule: 'Rationale (Linked)'
             };
         }
 
@@ -262,7 +266,8 @@ export const CognitiveAnalyticsEngine = {
                 score,
                 maxScore,
                 matches: score,
-                isCorrect: isExact
+                isCorrect: isExact,
+                rule: '0/1 (Sequence)'
             };
         }
 
@@ -303,7 +308,8 @@ export const CognitiveAnalyticsEngine = {
                 score,
                 maxScore,
                 matches,
-                isCorrect: score === maxScore
+                isCorrect: score === maxScore,
+                rule: '0/1 (Component)'
             };
         }
     },
@@ -443,7 +449,14 @@ export const CognitiveAnalyticsEngine = {
         const map: Record<string, { score: number, max: number }> = {};
 
         history.forEach(h => {
-            const cat = h.metadata?.clientNeeds || 'General';
+            let cat = h.metadata?.clientNeeds || 'General';
+            // Sanitization: If 'General' but has safety keywords, upgrade it
+            if (cat === 'General') {
+                const content = JSON.stringify(h).toLowerCase();
+                if (content.includes('safety') || content.includes('infection') || content.includes('precaution') || content.includes('wash hands')) {
+                    cat = 'Safe and Effective Care Environment: Safety and Infection Control';
+                }
+            }
             if (!map[cat]) map[cat] = { score: 0, max: 0 };
 
             // Add scores

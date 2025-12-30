@@ -25,6 +25,11 @@ CONSTRAINTS:
 4. **ROUNDING RULE**: The question text (prompt) MUST explicitly state the rounding rule.
 5. **SCORING**: 0/1 (All or nothing). No partial credit.
 
+## 🏆 Gold Standard Content Constraints (MANDATORY)
+1. **Unit Label**: The `inputLabel` field is **MANDATORY**. You must provide the exact unit string (e.g. 'mL/hr', 'mg', 'capsules') for the UI to display inside the input box.
+2. **Realism**: Values must be clinically realistic (e.g., Use standard pharmacy concentrations).
+3. **Zero Ambiguity**: Ensure the rounding rule is mathematically possible and clear (e.g., "Round to nearest tenth").
+
 ## 🛑 1. JSON Integrity Protocol (CRITICAL)
 1. **NO Trailing Commas**: Never leave a comma after the last item.
 2. **HTML Attributes**: Use single quotes inside HTML.
@@ -52,6 +57,12 @@ Populate metadata with:
 - **Patient Data & Header**:
   - You MUST populate `clinicalData.patientInfo` with a valid **Age** (e.g., 5) and **Allergies** (e.g., "NKA" or "Penicillin").
   - **Narrative redundancy**: The `historyPhysical` MUST explicitly state the age and allergies in text format (e.g., "Pt is a 5-year-old male... Allergies: NKA") to ensure easy parsing.
+
+## ⚕️ 3b. CLINICAL DATA GOLD STANDARD (MANDATORY)
+**All vitals MUST include 7 fields:** `time`, `tempF`, `hr`, `rr`, `bp`, `o2`, `o2_device`, `pain`
+**All labs MUST include:** `test`, `value`, `ref`, and `flag` (H/L/H!/L!) for abnormal values
+**All orders MUST include:** `drug`, `dose`, `route`, `freq`, `status`, `indication`
+**Nurses notes MUST use SBAR format** with initials like "JD123.RN"
 
 ## ⚠️ 4. Rationale & Feedback (Zero Error Safety Fill)
 - **Step-by-Step Methodology (Engaging & Dual-Method)**:
@@ -136,12 +147,12 @@ Before outputting, you MUST internally verify:
     "type": "calculation",
     "clinicalData": {
       "patientInfo": { "name": "T. Tiny", "age": 4, "gender": "M", "codeStatus": "Full Code", "admissionDate": "Today", "room": "Peds-04", "allergies": "NKA", "isolation": "None" },
-      "history": "<p><strong>08:00:</strong> Child admitted with high fever and ear pain. Diagnosed with Acute Otitis Media.</p>",
-      "historyPhysical": "<p><strong>HPI:</strong> Mother reports child feels hot and is crying. \n<strong>Weight:</strong> 66 lbs (30 kg).</p>",
+      "history": "<p><strong>08:00:</strong> Child admitted...</p>",
+      "historyPhysical": "...",
       "vitals": [ { "time": "08:15", "tempF": "102.4", "hr": 110, "rr": 24, "bp": "90/58", "o2": "99% RA" } ],
-      "labs": "<table style='width:100%'><tr><td><strong>WBC</strong></td><td>14.5</td></tr></table>",
-      "orders": "<ul><li>Acetaminophen 15 mg/kg PO q4h PRN for Temp > 101.5 F</li></ul>",
-      "radiology": "<p>None.</p>"
+      "labs": "...",
+      "orders": "...",
+      "radiology": "..."
     },
     "metadata": {
       "clientNeeds": "Physiological Integrity",
@@ -157,35 +168,24 @@ Before outputting, you MUST internally verify:
     },
     "rationale": {
       "coreConcept": "Pediatric Weight-Based Dosage Calculation",
-      "caseSummary": "Calculating a safe pediatric dose based on body weight and available concentration.",
-      "answerAnalysis": "<h3>⚠️ Safety Check</h3><table class='calc-table'><tr><th>Check</th><th>Case Finding</th><th>Action</th></tr><tr><td>Weight</td><td>66 lbs</td><td>Convert to <strong>30 kg</strong></td></tr><tr><td>Order Units</td><td>mg/kg</td><td>Matches Supply (mg)</td></tr></table><hr><h3>Method 1: Formula Method</h3><table class='calc-table'><tr><th>Variable</th><th>Case Finding</th></tr><tr><td><strong>D</strong> (Desired)</td><td>450 mg (15 * 30)</td></tr><tr><td><strong>H</strong> (Have)</td><td>160 mg</td></tr><tr><td><strong>Q</strong> (Quantity)</td><td>5 mL</td></tr></table><p class='equation-box'><strong>Equation:</strong> (450 &#247; 160) x 5 = <strong>14.06 mL</strong> (Round to 14.1)</p><hr><h3>Method 2: Dimensional Analysis</h3><p class='equation-box'>$$ \\frac{5 mL}{160 mg} \\times \\frac{15 mg}{1 kg} \\times \\frac{1 kg}{2.2 lbs} \\times \\frac{66 lbs}{1} = \\mathbf{14.1 mL} $$</p><hr><h3>⛔ Common Error</h3><p>Using weight in pounds (66) results in a <strong>2.2x overdose</strong>.</p>",
-      "trap": "Failing to convert lbs to kg first, or calculating the daily dose limit instead of the single dose volume.",
-      "goldenRule": "Dose = (Desired / Have) x Quantity. Always convert weight to kg first (divide by 2.2).",
-      "steps": [
-        { "tag": "Convert", "description": "66 lbs / 2.2 = 30 kg" },
-        { "tag": "Dose", "description": "15 * 30 = 450 mg" },
-        { "tag": "Volume", "description": "(450/160)*5 = 14.1 mL" }
-      ],
+      "caseSummary": "...",
+      "answerAnalysis": "...",
+      "trap": "...",
+      "goldenRule": "...",
+      "steps": [],
       "mnemonic": {},
-      "cheatSheet": {
-        "title": "Pediatric Safety Pearls",
-        "points": ["Always convert lbs to kg (divide by 2.2)", "Check 'Safe Dose Range' per 24h", "Use oral syringe for volumes < 5 mL"]
-      },
-      "referenceInfo": {
-        "anatomy": "Pediatric body surface area (BSA) and weight are critical for accurate dosing due to immature organ systems.",
-        "physiology": "Renal and hepatic function in children affects drug metabolism and excretion, increasing toxicity risk.",
-        "pharm": "Safe dosage is proportional to weight (mg/kg). Always verify the 'safe range' before administration."
-      }
+      "cheatSheet": {},
+      "referenceInfo": {}
     },
     "structure": {
-      "prompt": "The provider prescribes Acetaminophen 15 mg/kg PO q4h PRN for fever > 101.5°F. The child weighs 66 lbs (30 kg). The pharmacy supplies Acetaminophen 160 mg/5 mL. Calculate the volume to administer in mL. (Round to the nearest tenth).",
+      "prompt": "The provider prescribes Acetaminophen... Calculate the volume. (Round to the nearest tenth).",
       "units": "mL",
-      "label": "mL",
+      "label": "Answer",
       "inputLabel": "mL",
       "answer": 14.1,
       "correctValue": 14.1,
       "acceptableRange": [14.1, 14.1],
-      "explanation": "Step 1: Convert lbs to kg: 66 / 2.2 = 30 kg. \nStep 2: Calculate Dose: 15 mg/kg * 30 kg = 450 mg. \nStep 3: Calculate Volume: (450 mg / 160 mg) * 5 mL = 14.06 mL. \nStep 4: Round to nearest tenth: 14.1 mL."
+      "explanation": "Step 1: ..."
     }
   }
 }

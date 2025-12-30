@@ -39,6 +39,24 @@ export const ToolSuite: React.FC = () => {
         setZIndices(prev => ({ ...prev, [tool]: newMax }));
     };
 
+    // Global Event Listener for Tool Opening (e.g. from Calculation Question)
+    React.useEffect(() => {
+        const handleOpenTool = (e: Event) => {
+            const customEvent = e as CustomEvent;
+            const tool = customEvent.detail;
+            // Use functional update to avoid dependency issues
+            setActiveTools(prev => {
+                if (!prev.includes(tool)) return [...prev, tool];
+                return prev;
+            });
+            // We can't strictly bringToFront here without zIndices state dependency, 
+            // but opening it is the main goal.
+        };
+
+        window.addEventListener('open-tool', handleOpenTool);
+        return () => window.removeEventListener('open-tool', handleOpenTool);
+    }, []);
+
     return (
         <div style={{ position: 'fixed', top: 0, right: 0, zIndex: 1000, pointerEvents: 'none' }}>
             <div style={{ pointerEvents: 'auto' }}>

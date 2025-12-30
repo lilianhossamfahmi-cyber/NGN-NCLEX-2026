@@ -33,3 +33,30 @@ This document tracks ongoing fixes, root cause analyses, and resolutions for the
 **Fix:** 
 - Enhanced `formatClinicalHtml` validation.
 - Added a fallback parser that detects raw text notes (Pattern: Time... Note...) and renders them in a clean, readable container if the structured table data is unavailable.
+
+## 7. Temperature Format Dual Display ✅ [RESOLVED]
+**Issue:** Temperature always showing dual format (e.g., "99.1°F (37.3°C)") which is redundant/cluttered.
+**Fix:**
+- Updated `DataSanitizer.sanitizeVitals` to intelligently extract just the Fahrenheit value from dual-format strings.
+- Ensures display consistency across the vitals grid.
+
+## 8. Review of Systems Missing Content ✅ [RESOLVED]
+**Issue:** Review of Systems often showing "see attached" or being empty.
+**Fix:**
+- Enhanced `DataSanitizer.sanitizeHistoryPhysical` with a robust regex-based parser.
+- Specifically detects "Review of Systems" sections even if formatted non-standardly.
+- Filters out placeholder text like "see attached" and "N/A" to ensure only actual content is displayed.
+
+## 9. Zoom Functionality ✅ [RESOLVED]
+**Issue:** Zoom in/out not functioning for both sides (EHR and Question) and tool zoom not working.
+**Fix:**
+- Rewrote `AccessibilityTools.tsx` to use robust CSS `zoom` property (with transform fallback).
+- Explicitly target `.ehr-panel` and `.question-section` to ensure both sides scale correctly without breaking the flex layout.
+- Added `split-layout-container` classes to `StudentPreviewModal` for better targeting.
+
+## 10. Medical Orders Display ✅ [RESOLVED]
+**Issue:** Some parts of medical orders not appearing (e.g., Hold Reason).
+**Fix:**
+- Updated `DataSanitizer.sanitizeOrders` to handle broader range of input keys (e.g., `holdReason`, `hold_reason`).
+- Verified `StudentPreviewModal` renders strict indication and hold reasons when present.
+

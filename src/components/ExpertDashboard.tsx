@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 import {
     PassProbabilityMetric,
     ClientNeedStat,
@@ -7,8 +7,6 @@ import {
     ScoreRuleResult,
 } from '../utils/scoringEngine';
 import { InteractionData } from '../utils/stressEngine';
-import { ItemScoreWidget } from './ItemScoreWidget';
-import { StressMonitorWidget } from './StressMonitorWidget';
 
 interface ExpertDashboardProps {
     passProbability: PassProbabilityMetric;
@@ -324,122 +322,244 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
 
     // --- Widgets ---
 
-    const GaugeWidget = () => {
-        const val = passProbability?.value;
-        const safeVal = (typeof val === 'number' && !isNaN(val)) ? val : 0;
-        const hasData = safeVal > 0;
+    // --- Widgets ---
 
-        let bgColor = '#10b981';
-        if (safeVal < 50) bgColor = '#f43f5e';
-        else if (safeVal < 75) bgColor = '#f59e0b';
-
-        // Return placeholder if no data (avoids NaN charts)
-        if (!hasData) {
-            return (
-                <div style={{ background: '#f1f5f9', borderRadius: 12, padding: '12px 16px', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', height: 80 }}>
-                    <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Insufficient Data</div>
-                </div>
-            );
+    const ExamVitalsWidget = ({ data }: { data?: InteractionData }) => {
+        // Logic to determine state
+        // Default to Calm
+        let state = 'Calm';
+        // Simple logic map
+        if (data) {
+            if (data.changeCount > 5) state = 'Rushed';
+            if (data.timeSpent > 120) state = 'Stalled';
         }
-
-        const data = [{ name: 'Score', value: safeVal }, { name: 'Remaining', value: 100 - safeVal }];
 
         return (
             <div
-                onClick={() => setActiveDetail('gauge')}
-                onMouseEnter={() => setActiveTooltip('gauge')} onMouseLeave={() => setActiveTooltip(null)}
-                style={{ background: bgColor, borderRadius: 12, padding: '12px 16px', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', overflow: 'hidden', cursor: 'pointer', height: 80 }}>
-                {renderHoverOverlay('gauge')}
-                <div style={{ zIndex: 10 }}>
-                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#fff', opacity: 0.9 }}>PROBABILITY</div>
-                    <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'white', lineHeight: 1 }}>{safeVal}%</div>
-                    <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'white', opacity: 0.8 }}>{passProbability.label}</div>
+                onClick={() => setActiveDetail('stress')}
+                style={{
+                    position: 'relative', overflow: 'hidden', borderRadius: '12px',
+                    background: '#0F172A', padding: '16px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                    cursor: 'pointer', marginBottom: '12px', border: '1px solid rgba(255,255,255,0.1)'
+                }}
+            >
+                {/* Background Glow Effect */}
+                <div style={{ position: 'absolute', top: '-10px', right: '-10px', width: '128px', height: '128px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.2)', filter: 'blur(40px)', pointerEvents: 'none' }}></div>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                        <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8' }}>Exam Vitals</p>
+                        <div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ position: 'relative', display: 'flex', width: '12px', height: '12px' }}>
+                                <span style={{ position: 'absolute', display: 'inline-flex', width: '100%', height: '100%', borderRadius: '50%', background: '#34d399', opacity: 0.75, animation: 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite' }}></span>
+                                <span style={{ position: 'relative', display: 'inline-flex', borderRadius: '50%', width: '12px', height: '12px', background: '#10b981' }}></span>
+                            </span>
+                            <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'white' }}>{state}</span>
+                        </div>
+                    </div>
+
+                    {/* Animated EKG Graph - Sliding Ticker */}
+                    <div style={{ height: '40px', width: '120px', borderRadius: '4px', background: 'rgba(30, 41, 59, 0.5)', padding: '0', position: 'relative', overflow: 'hidden' }}>
+                        {/* Two identical paths sliding left to create seamless loop */}
+                        <div className="ekg-slider" style={{ display: 'flex', width: '200%', height: '100%', position: 'absolute', left: 0, top: 0 }}>
+                            <svg width="50%" height="100%" viewBox="0 0 100 40" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+                                <path d="M0 20 H10 L15 5 L20 35 L25 20 H40 L45 10 L50 30 L55 20 H80 L85 0 L90 40 L95 20 H100" stroke="#34d399" strokeWidth="2" fill="none" vectorEffect="non-scaling-stroke" />
+                            </svg>
+                            <svg width="50%" height="100%" viewBox="0 0 100 40" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+                                <path d="M0 20 H10 L15 5 L20 35 L25 20 H40 L45 10 L50 30 L55 20 H80 L85 0 L90 40 L95 20 H100" stroke="#34d399" strokeWidth="2" fill="none" vectorEffect="non-scaling-stroke" />
+                            </svg>
+                        </div>
+
+                        {/* Scanline overlay */}
+                        <div style={{
+                            position: 'absolute', top: 0, bottom: 0, width: '20px',
+                            background: 'linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.3), transparent)',
+                            animation: 'slideIn 1.5s linear infinite',
+                            left: '-20px'
+                        }} />
+
+                        <style>{`
+                            @keyframes slideLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+                            .ekg-slider { animation: slideLeft 2s linear infinite; }
+                            @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+                        `}</style>
+                    </div>
                 </div>
-                <div style={{ width: 80, height: 80, marginRight: -8 }}><ResponsiveContainer><PieChart><Pie data={data} cx="50%" cy="50%" innerRadius={25} outerRadius={35} dataKey="value" stroke="none"><Cell fill="rgba(255,255,255,0.9)" /> <Cell fill="rgba(255,255,255,0.2)" /></Pie></PieChart></ResponsiveContainer></div>
             </div>
         );
     };
 
-    const PaceMakerWidget = () => {
-        // Use props or default to "Optimal" if no data (Zero Error approach: don't show "Slower" without evidence)
-        const uTime = pace ? pace.userTime : 60;
-        const pTime = pace ? pace.peerTime : 60;
-        const diff = uTime - pTime;
+    // --- Phase 2: Score Card Widget (Split Layout) ---
+    const ScoreCardWidget = () => {
+        const result = currentItemResult;
 
-        let isSlower = diff > 10;
-        let isFaster = diff < -10;
-        let paceId = 'pace_optimal';
-        let bgGradient = 'linear-gradient(135deg, #10b981 0%, #059669 100%)'; // Emerald
-        let label = 'Optimal';
-        let subLabel = 'Perfect Rhythm';
-        let icon = '⏱️';
+        // Count Up Logic
+        const [displayScore, setDisplayScore] = React.useState(0);
 
-        if (isSlower) {
-            paceId = 'pace_slow';
-            bgGradient = 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)'; // Rose
-            label = `+${Math.round(diff)}s Slower`;
-            subLabel = 'Hesitation Detected';
-            icon = '🐢';
-        } else if (isFaster) {
-            paceId = 'pace_fast';
-            bgGradient = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'; // Amber
-            label = `${Math.round(Math.abs(diff))}s Faster`;
-            subLabel = 'Rushing Risk';
-            icon = '🐇';
+        React.useEffect(() => {
+            if (result) {
+                let start = 0;
+                const end = result.score;
+                const duration = 1000;
+                const startTime = performance.now();
+
+                const animate = (currentTime: number) => {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    // Ease out quart
+                    const ease = 1 - Math.pow(1 - progress, 4);
+
+                    const current = start + (end - start) * ease;
+                    setDisplayScore(Number(current.toFixed(2)));
+
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                };
+                requestAnimationFrame(animate);
+            } else {
+                setDisplayScore(0);
+            }
+        }, [result]);
+
+        if (!result) {
+            return (
+                <div style={{
+                    background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
+                    borderRadius: 16, padding: '20px', marginBottom: 12, minHeight: '100px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem', fontWeight: 500,
+                    border: '1px solid rgba(255,255,255,0.1)'
+                }}>
+                    Waiting for Submission...
+                </div>
+            );
         }
 
-        // Calculate Position: Center 50%, 40% range either side
-        const range = 40;
-        const rawPos = 50 + ((diff / range) * 40);
-        const dotPosition = Math.max(10, Math.min(90, rawPos));
+        const isPerfect = result.score === result.maxScore;
 
         return (
             <div
-                onClick={() => setActiveDetail(paceId)}
-                onMouseEnter={() => setActiveTooltip('pace')} onMouseLeave={() => setActiveTooltip(null)}
+                onClick={() => setActiveDetail('scoring')}
                 style={{
-                    background: bgGradient,
-                    borderRadius: 16,
-                    padding: '16px 20px',
-                    marginBottom: 12,
-                    position: 'relative',
-                    cursor: 'pointer',
-                    overflow: 'hidden',
-                    minHeight: 110,
-                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)'
-                }}>
-                {renderHoverOverlay(paceId, getContent(paceId).title)}
+                    background: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
+                    borderRadius: 12, padding: '0', marginBottom: 8,
+                    position: 'relative', overflow: 'hidden', cursor: 'pointer',
+                    boxShadow: '0 4px 6px -1px rgba(79, 70, 229, 0.3)',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                }}
+            >
+                {/* Glass Gloss */}
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(to bottom, rgba(255,255,255,0.1), transparent)', pointerEvents: 'none' }}></div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', zIndex: 10, position: 'relative' }}>
-                    <div>
-                        <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(255,255,255,0.9)', letterSpacing: '0.05em' }}>PACE ANALYSIS</div>
-                        <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'white', lineHeight: 1.1, marginTop: 4, textShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>{label}</div>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 500, color: 'rgba(255,255,255,0.9)', marginTop: 2 }}>{subLabel}</div>
+                <div style={{ display: 'flex', height: '70px' }}>
+                    {/* Left: Score */}
+                    <div style={{ flex: 1, padding: '0 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <div style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.8)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>ITEM SCORE</div>
+                        <div style={{ fontSize: '2rem', fontWeight: 800, color: 'white', lineHeight: 1, marginTop: 0, display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                            {displayScore > 0 ? '+' : ''}{displayScore}
+                            <span style={{ fontSize: '0.8rem', opacity: 0.6, fontWeight: 600 }}>/ {result.maxScore}</span>
+                        </div>
                     </div>
-                    <div style={{ fontSize: '1.5rem', opacity: 0.8, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}>{icon}</div>
+
+                    {/* Right: Rule Pill & Impact */}
+                    <div style={{ flex: 0.8, background: 'rgba(0,0,0,0.2)', padding: '0 16px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-end', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
+                        <div style={{
+                            background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '999px',
+                            fontSize: '0.6rem', color: 'white', fontWeight: 600, marginBottom: 4,
+                            backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.1)'
+                        }}>
+                            {result.rule} Rule
+                        </div>
+                        <div style={{ fontSize: '0.7rem', color: isPerfect ? '#4ade80' : 'rgba(255,255,255,0.6)', fontWeight: 600, textAlign: 'right' }}>
+                            {isPerfect ? '🎉 Perfect!' : 'Analysis Ready'}
+                        </div>
+                    </div>
                 </div>
 
-                {/* Timeline Visualizer */}
-                <div style={{ marginTop: 20, position: 'relative', height: 24, display: 'flex', alignItems: 'center' }}>
-                    {/* Track */}
-                    <div style={{ position: 'absolute', left: 0, right: 0, height: 2, background: 'rgba(255,255,255,0.3)', borderRadius: 1 }}></div>
+                {renderHoverOverlay('scoring')}
+            </div>
+        );
+    };
 
-                    {/* Center Mark */}
-                    <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 2, height: 8, background: 'rgba(255,255,255,0.6)' }}></div>
-                    <div style={{ position: 'absolute', left: '50%', top: 20, transform: 'translateX(-50%)', fontSize: '0.55rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>PEER AVG</div>
+    // --- Phase 2: Performance Grid Widget (2x1 Layout) ---
+    const PerformanceGridWidget = () => {
+        const prob = passProbability?.value || 0;
+        const paceVal = pace?.userTime || 0;
+        const peerPace = pace?.peerTime || 60;
 
-                    {/* User Dot */}
-                    <div style={{
-                        position: 'absolute',
-                        left: `${dotPosition}%`,
-                        top: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: 12, height: 12,
-                        background: 'white',
-                        borderRadius: '50%',
-                        boxShadow: '0 0 0 4px rgba(255,255,255,0.2), 0 2px 4px rgba(0,0,0,0.2)',
-                        transition: 'left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)'
-                    }}></div>
+        // Peer Rank Logic (Mock calculation based on probability for demo)
+        const rank = Math.min(99, Math.floor(prob * 0.95));
+
+        // Pace Logic
+        const diff = paceVal - peerPace;
+        const isOptimal = Math.abs(diff) < 15;
+        const paceColor = isOptimal ? '#10b981' : (diff > 0 ? '#f43f5e' : '#f59e0b');
+
+        return (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: 8 }}>
+                {/* Card 1: Peer Rank (Probability) */}
+                <div
+                    onClick={() => setActiveDetail('gauge')}
+                    style={{
+                        background: 'rgba(30, 41, 59, 0.4)', borderRadius: 12, padding: '12px',
+                        border: '1px solid rgba(255,255,255,0.05)', boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        cursor: 'pointer', position: 'relative', overflow: 'hidden', minHeight: '90px',
+                        display: 'flex', flexDirection: 'column', justifyContent: 'space-between'
+                    }}
+                >
+                    <div style={{ fontSize: '0.55rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase' }}>Peer Rank</div>
+                    <div>
+                        <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f8fafc' }}>
+                            Top {100 - rank}%
+                        </div>
+                        <div style={{ fontSize: '0.55rem', color: '#64748b' }}>of Students</div>
+                    </div>
+                    {/* Mini Sparkline Visualization */}
+                    <div style={{ height: '24px', width: '100%', opacity: 0.5, marginTop: 8 }}>
+                        <svg width="100%" height="100%" viewBox="0 0 100 24" preserveAspectRatio="none">
+                            <path d="M0 20 L20 15 L40 18 L60 5 L80 12 L100 2" fill="none" stroke="#6366f1" strokeWidth="2" />
+                            <defs>
+                                <linearGradient id="sparkGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#6366f1" stopOpacity="0.2" />
+                                    <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M0 20 L20 15 L40 18 L60 5 L80 12 L100 2 V24 H0 Z" fill="url(#sparkGradient)" stroke="none" />
+                        </svg>
+                    </div>
+                </div>
+
+                {/* Card 2: Pace Analysis */}
+                <div
+                    onClick={() => setActiveDetail(diff > 10 ? 'pace_slow' : (diff < -10 ? 'pace_fast' : 'pace_optimal'))}
+                    style={{
+                        background: 'rgba(30, 41, 59, 0.4)', borderRadius: 12, padding: '12px',
+                        border: '1px solid rgba(255,255,255,0.05)', boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        cursor: 'pointer', position: 'relative', overflow: 'hidden', minHeight: '90px',
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
+                    }}
+                >
+                    <div style={{ position: 'relative', width: '40px', height: '40px', marginBottom: 4 }}>
+                        <svg width="40" height="40" transform="rotate(-90 20 20)" style={{ transformOrigin: 'center' }}>
+                            <circle cx="20" cy="20" r="16" stroke="rgba(255,255,255,0.1)" strokeWidth="3" fill="none" />
+                            <circle
+                                cx="20" cy="20" r="16"
+                                stroke={paceColor} strokeWidth="3" fill="none"
+                                strokeDasharray="100"
+                                strokeDashoffset={100 - (Math.min(100, (paceVal / 120) * 100) / 100) * 100}
+                                strokeLinecap="round"
+                                style={{ transition: 'stroke-dashoffset 1s ease' }}
+                            />
+                        </svg>
+                        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+                            {isOptimal ? '⚡' : (diff > 0 ? '🐢' : '🐇')}
+                        </div>
+                    </div>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: paceColor }}>
+                        {isOptimal ? 'Optimal' : (diff > 0 ? 'Too Slow' : 'Too Fast')}
+                    </div>
                 </div>
             </div>
         );
@@ -447,73 +567,165 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
 
     const ClientNeedsWidget = () => {
         return (
-            <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden', marginBottom: 12 }}>
-                <div style={{ padding: '8px 16px', background: '#f8fafc', fontSize: '0.7rem', fontWeight: 700, color: '#64748b' }}>CLIENT NEEDS</div>
+            <div style={{ background: 'rgba(30, 41, 59, 0.4)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 12, overflow: 'hidden', marginBottom: 8 }}>
+                <div style={{ padding: '6px 12px', background: 'rgba(0,0,0,0.2)', fontSize: '0.6rem', fontWeight: 700, color: '#94a3b8' }}>CLIENT NEEDS</div>
                 {clientNeeds.length > 0 ? clientNeeds.map((item, idx) => (
                     <div key={idx}
                         onClick={() => setActiveDetail(item.category)}
-                        onMouseEnter={() => setActiveTooltip(`cn_${idx}`)} onMouseLeave={() => setActiveTooltip(null)}
-                        style={{ padding: '8px 16px', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #f1f5f9', position: 'relative', cursor: 'pointer' }}>
+                        onMouseEnter={(e) => { setActiveTooltip(`cn_${idx}`); e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+                        onMouseLeave={(e) => { setActiveTooltip(null); e.currentTarget.style.background = 'transparent'; }}
+                        style={{ padding: '6px 12px', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.02)', position: 'relative', cursor: 'pointer', transition: 'background 0.2s' }}
+                    >
                         {renderHoverOverlay(`cn_${idx}`, item.category)}
-                        <span style={{ fontSize: '0.75rem', color: '#334155', maxWidth: '65%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.category}</span>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: item.score >= 60 ? '#6366f1' : '#f43f5e' }}>{item.score}%</span>
+                        <span style={{ fontSize: '0.65rem', color: '#cbd5e1', maxWidth: '70%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.category}</span>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: item.score >= 60 ? '#818cf8' : '#fb7185' }}>{item.score}%</span>
                     </div>
-                )) : <div style={{ padding: 12, textAlign: 'center', fontSize: '0.7rem', color: '#cbd5e1' }}>No Data</div>}
+                )) : <div style={{ padding: 12, textAlign: 'center', fontSize: '0.6rem', color: '#64748b' }}>No Data</div>}
             </div>
         );
     };
 
-    const CognitiveGridWidget = () => (
-        <div>
-            <h3 style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', marginBottom: 8, marginLeft: 2 }}>CLINICAL JUDGMENT</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-                {cjmmGrid.map((step, idx) => (
-                    <div key={idx}
-                        onClick={() => setActiveDetail(step.step)}
-                        onMouseEnter={() => setActiveTooltip(`cjmm_${idx}`)} onMouseLeave={() => setActiveTooltip(null)}
-                        style={{ background: step.score < 50 ? '#fff1f2' : 'white', border: `1px solid ${step.score < 50 ? '#fecdd3' : '#e2e8f0'}`, borderRadius: 8, padding: '8px 4px', textAlign: 'center', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}>
-                        {renderHoverOverlay(`cjmm_${idx}`, step.step)}
-                        <div style={{ fontSize: '0.6rem', fontWeight: 700, color: '#94a3b8' }}>{step.step.split(' ')[0]}</div>
-                        <div style={{ fontSize: '1.2rem', fontWeight: 800, color: step.score < 50 ? '#e11d48' : '#334155' }}>{step.score}%</div>
-                    </div>
-                ))}
+    // --- Phase 3: CJMM Hex Radar Widget ---
+    const CJMMHexWidget = () => {
+        // Transform CJMM Grid Data into Radar Format
+        // cjmmGrid: [{ step: 'Recognize Cues', score: 80, isWeakness: false }, ...]
+
+        // Shorten Labels for Radar
+        const data = cjmmGrid.map(item => ({
+            label: item.step.split(' ')[0], // "Recognize", "Analyze"
+            fullLabel: item.step,
+            value: item.score,
+            fullMark: 100
+        }));
+
+        if (data.length === 0) return null;
+
+        return (
+            <div
+                style={{
+                    background: 'rgba(30, 41, 59, 0.4)', borderRadius: 12, padding: '12px', marginBottom: 8,
+                    border: '1px solid rgba(255,255,255,0.05)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+                    position: 'relative'
+                }}
+            >
+                <div style={{ fontSize: '0.6rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4, display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Clinical Reasoning</span>
+                    <span style={{ fontSize: '0.6rem', color: '#818cf8' }}>Avg: {Math.round(data.reduce((a, b) => a + b.value, 0) / data.length)}%</span>
+                </div>
+
+                <div style={{ height: '150px', width: '100%', marginLeft: '-5px' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <RadarChart cx="50%" cy="50%" outerRadius="65%" data={data}>
+                            <PolarGrid stroke="rgba(255,255,255,0.1)" />
+                            <PolarAngleAxis
+                                dataKey="label"
+                                tick={{ fill: '#cbd5e1', fontSize: 9, fontWeight: 500 }}
+                            />
+                            <Radar
+                                name="Performance"
+                                dataKey="value"
+                                stroke="#6366f1"
+                                strokeWidth={2}
+                                fill="#6366f1"
+                                fillOpacity={0.3}
+                            />
+                        </RadarChart>
+                    </ResponsiveContainer>
+                </div>
+                {/* Hit Area Tooltips */}
+                <div style={{ position: 'absolute', bottom: 8, right: 12, fontSize: '0.5rem', color: '#64748b', fontStyle: 'italic', textAlign: 'right' }}>
+                    *Biometric Signature
+                </div>
             </div>
-        </div>
-    );
+        );
+    };
+
+    // --- Phase 4: JCI Safety Alert Widget ---
+    const SafetyAlertWidget = () => {
+        // Find if Safety category is Critical
+        const safety = clientNeeds.find(c => c.category.includes('Safety') || c.category.includes('Infection'));
+        const isCritical = safety && safety.score < 60;
+
+        if (!isCritical && safety) return null; // Only show if there's a risk? Or always show JCI status?
+        // Gold Standard says "Flashes RED if critical safety error". 
+        // We'll show it if critical, otherwise show "JCI Compliant" badge maybe?
+
+        if (!safety) return null;
+
+        return (
+            <div style={{
+                marginTop: 4, padding: '8px 12px', borderRadius: 8,
+                background: isCritical ? 'rgba(225, 29, 72, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                border: isCritical ? '1px solid rgba(225, 29, 72, 0.3)' : '1px solid rgba(16, 185, 129, 0.2)',
+                display: 'flex', alignItems: 'center', gap: 8
+            }}>
+                <div style={{ fontSize: '1.2rem' }}>{isCritical ? '🚨' : '🛡️'}</div>
+                <div>
+                    <div style={{ fontSize: '0.6rem', fontWeight: 800, color: isCritical ? '#fda4af' : '#34d399', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        {isCritical ? 'SAFETY ALERT' : 'JCI COMPLIANT'}
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     return (
-        <div style={{ fontFamily: '"Inter", sans-serif', padding: '12px', background: '#f8fafc', height: '100%', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ fontFamily: '"Inter", sans-serif', padding: '0', background: 'transparent', height: '100%', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
             <style>{`
             @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
             @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); } 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); } }
             @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
             @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+            @keyframes pulse-fast { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+            @keyframes EKG { 0% { stroke-dashoffset: 200; } 100% { stroke-dashoffset: 0; } }
+            .animate-ekg { animation: EKG 2s linear infinite; stroke-dasharray: 200; stroke-dashoffset: 200; }
+            .glass-sticky-header {
+                position: sticky; top: 0; z-index: 20;
+                background: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(8px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            }
         `}</style>
 
-            {/* Header Panel - ANIMATED & PULSATING */}
+            {/* Header Panel - Sticky Glass Upgrade */}
             <div
-                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="glass-sticky-header"
                 style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, cursor: 'pointer',
-                    padding: '8px 12px', background: 'white', borderRadius: '8px', border: '1px solid #e2e8f0',
-                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)',
-                    animation: 'pulse-ring 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite'
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8,
+                    padding: '8px 12px', borderRadius: '8px',
+                    background: 'rgba(30, 41, 59, 0.6)', // Dark Glass
+                    border: '1px solid rgba(255,255,255,0.05)',
+                    backdropFilter: 'blur(12px)',
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
+                    transition: 'all 0.3s ease'
                 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: '1.4rem', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>🎓</span>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{
-                            fontSize: '0.95rem', fontWeight: 900, color: 'transparent',
-                            backgroundImage: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899)',
-                            backgroundSize: '200% auto', backgroundClip: 'text', WebkitBackgroundClip: 'text',
-                            animation: 'shimmer 3s linear infinite', letterSpacing: '-0.02em', textTransform: 'uppercase'
-                        }}>
-                            Expert Analytics
-                        </span>
-                        <span style={{ fontSize: '0.6rem', color: '#64748b', fontWeight: 600 }}>Click to Toggle</span>
+                <div
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', flex: 1 }}>
+                    <div style={{
+                        width: '28px', height: '28px', borderRadius: '6px',
+                        background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', color: 'white',
+                        boxShadow: '0 0 10px rgba(59, 130, 246, 0.5)' // Neon Glow
+                    }}>
+                        🧠
+                    </div>
+                    <div>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f8fafc', letterSpacing: '0.05em' }}>EXPERT HUD</div>
+                        <div style={{ fontSize: '0.55rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase' }}>Biometric Analytics</div>
                     </div>
                 </div>
-                <span style={{ fontSize: '0.8rem', color: '#94a3b8', transform: isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>▼</span>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <button style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: 4, cursor: 'pointer', padding: 4, color: '#94a3b8' }} title="Share">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    </button>
+                    <button
+                        onClick={() => setIsCollapsed(!isCollapsed)}
+                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, color: '#64748b' }}>
+                        <span style={{ fontSize: '0.7rem', display: 'block', transform: isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }}>▼</span>
+                    </button>
+                </div>
             </div>
 
             {/* Global Detail Overlay (covers widgets when active) */}
@@ -522,20 +734,23 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
             {/* Content Area */}
             {!isCollapsed && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, overflowY: 'auto', paddingRight: 4 }}>
-                    {/* Stress Monitor Wrapper */}
-                    <div onClick={() => setActiveDetail('stress')} style={{ cursor: 'pointer' }}>
-                        <StressMonitorWidget data={stress || { changeCount: 0, timeSpent: 45, peerAvg: 60 }} />
-                    </div>
+                    {/* Exam Vitals Wrapper (Replaces StressMonitor) */}
+                    <ExamVitalsWidget data={stress} />
 
-                    {/* Item Score Wrapper */}
-                    <div onClick={() => setActiveDetail('scoring')} style={{ cursor: 'pointer' }}>
-                        <ItemScoreWidget score={currentItemResult?.score || 0} maxScore={currentItemResult?.maxScore || 0} correctCount={currentItemResult?.correctCount || 0} incorrectCount={currentItemResult?.incorrectCount || 0} isVisible={!!currentItemResult} />
-                    </div>
+                    {/* Score Card Widget */}
+                    <ScoreCardWidget />
 
-                    <GaugeWidget />
-                    <PaceMakerWidget />
+                    {/* Performance Grid (Peer Rank & Pace) */}
+                    <PerformanceGridWidget />
+
+                    {/* Clinical Judgment Radar (Hex Chart) */}
+                    <CJMMHexWidget />
+
+                    {/* Client Needs List */}
                     <ClientNeedsWidget />
-                    <CognitiveGridWidget />
+
+                    {/* Phase 4: JCI Quality & Safety Alerts */}
+                    <SafetyAlertWidget />
                 </div>
             )}
         </div>
