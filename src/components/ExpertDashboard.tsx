@@ -479,108 +479,250 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
                     </div>
                 </div>
 
-                {/* Stress Relief & Coaching Matrix */}
+                {/* Stress Relief & Coaching Matrix - PREMIUM */}
                 <div style={{
-                    background: `linear-gradient(135deg, ${coaching.color}15 0%, rgba(15, 23, 42, 0.95) 100%)`,
+                    background: `linear-gradient(135deg, ${coaching.color}10 0%, rgba(15, 23, 42, 0.98) 100%)`,
                     borderRadius: '0 0 12px 12px',
-                    border: `1px solid ${coaching.color}30`,
-                    borderTop: `2px solid ${coaching.color}50`,
-                    overflow: 'hidden'
+                    border: `1px solid ${coaching.color}25`,
+                    borderTop: `2px solid ${coaching.color}40`,
+                    overflow: 'hidden',
+                    position: 'relative'
                 }}>
-                    {/* Header */}
+                    {/* Animated Background Particles */}
                     <div style={{
-                        padding: '10px 14px',
-                        background: 'rgba(0,0,0,0.2)',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
+                        position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none'
                     }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ fontSize: '0.9rem' }}>{coaching.icon}</span>
-                            <span style={{ fontSize: '0.6rem', fontWeight: 700, color: coaching.color, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                                Stress Relief Coach
-                            </span>
-                        </div>
-                        <span style={{
-                            fontSize: '0.55rem',
-                            color: '#94a3b8',
-                            background: 'rgba(255,255,255,0.05)',
-                            padding: '2px 8px',
-                            borderRadius: 4
-                        }}>
-                            {coaching.cogState}
-                        </span>
+                        <div className="breath-particle" style={{
+                            position: 'absolute', width: 60, height: 60, borderRadius: '50%',
+                            background: `radial-gradient(circle, ${coaching.color}20 0%, transparent 70%)`,
+                            top: '20%', left: '10%'
+                        }} />
+                        <div className="breath-particle-delay" style={{
+                            position: 'absolute', width: 80, height: 80, borderRadius: '50%',
+                            background: `radial-gradient(circle, ${coaching.color}15 0%, transparent 70%)`,
+                            bottom: '10%', right: '5%'
+                        }} />
                     </div>
 
-                    {/* Content */}
-                    <div style={{ padding: '12px 14px' }}>
-                        {/* Exercise Name */}
-                        <div style={{
-                            fontSize: '0.8rem',
-                            fontWeight: 700,
-                            color: '#f8fafc',
-                            marginBottom: 8,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 8
-                        }}>
-                            <span style={{
-                                background: coaching.color,
-                                color: 'white',
-                                padding: '2px 6px',
-                                borderRadius: 4,
-                                fontSize: '0.6rem',
-                                fontWeight: 800
-                            }}>
-                                {coaching.duration}
-                            </span>
-                            {coaching.exercise}
-                        </div>
+                    {/* Main Content */}
+                    <div style={{ display: 'flex', gap: 12, padding: '14px', position: 'relative', zIndex: 1 }}>
 
-                        {/* Steps */}
+                        {/* Left: Animated Lungs/Breathing Visualization */}
                         <div style={{
+                            width: 80,
+                            minHeight: 90,
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: 4,
-                            marginBottom: 8,
-                            padding: '8px 10px',
-                            background: 'rgba(255,255,255,0.03)',
-                            borderRadius: 6,
-                            borderLeft: `3px solid ${coaching.color}`
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: 'rgba(0,0,0,0.3)',
+                            borderRadius: 10,
+                            padding: 8,
+                            position: 'relative'
                         }}>
-                            {coaching.steps.map((step, i) => (
-                                <div key={i} style={{
-                                    fontSize: '0.65rem',
-                                    color: '#cbd5e1',
-                                    display: 'flex',
-                                    alignItems: 'flex-start',
-                                    gap: 6
-                                }}>
-                                    <span style={{
-                                        color: coaching.color,
-                                        fontWeight: 700,
-                                        minWidth: '14px'
-                                    }}>
-                                        {i + 1}.
-                                    </span>
-                                    {step}
-                                </div>
-                            ))}
+                            {/* Breathing Animation Container */}
+                            <div className="breath-container" style={{
+                                position: 'relative',
+                                width: 50,
+                                height: 50,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
+                                {/* Pulsing Ring 1 */}
+                                <div className="breath-ring-1" style={{
+                                    position: 'absolute',
+                                    width: '100%',
+                                    height: '100%',
+                                    borderRadius: '50%',
+                                    border: `2px solid ${coaching.color}40`
+                                }} />
+                                {/* Pulsing Ring 2 */}
+                                <div className="breath-ring-2" style={{
+                                    position: 'absolute',
+                                    width: '70%',
+                                    height: '70%',
+                                    borderRadius: '50%',
+                                    border: `2px solid ${coaching.color}60`
+                                }} />
+                                {/* Center Lung Icon (SVG) */}
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="lung-breathe">
+                                    <path
+                                        d="M8.5 5C7.67 5 7 5.67 7 6.5V9.5C7 11.43 5.43 13 3.5 13C2.67 13 2 13.67 2 14.5V17.5C2 18.33 2.67 19 3.5 19H8.5C9.33 19 10 18.33 10 17.5V6.5C10 5.67 9.33 5 8.5 5Z"
+                                        fill={coaching.color}
+                                        opacity="0.8"
+                                    />
+                                    <path
+                                        d="M15.5 5C16.33 5 17 5.67 17 6.5V9.5C17 11.43 18.57 13 20.5 13C21.33 13 22 13.67 22 14.5V17.5C22 18.33 21.33 19 20.5 19H15.5C14.67 19 14 18.33 14 17.5V6.5C14 5.67 14.67 5 15.5 5Z"
+                                        fill={coaching.color}
+                                        opacity="0.8"
+                                    />
+                                    <path d="M12 3V8" stroke={coaching.color} strokeWidth="2" strokeLinecap="round" />
+                                </svg>
+                            </div>
+
+                            {/* Status Label */}
+                            <div style={{
+                                marginTop: 6,
+                                fontSize: '0.5rem',
+                                fontWeight: 700,
+                                color: coaching.color,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em',
+                                textAlign: 'center'
+                            }}>
+                                {coaching.level === 'Decisive' || coaching.level === 'Deliberate' ? 'Calm' : 'Breathe'}
+                            </div>
                         </div>
 
-                        {/* Why It Works */}
-                        <div style={{
-                            fontSize: '0.55rem',
-                            color: '#64748b',
-                            fontStyle: 'italic',
-                            display: 'flex',
-                            alignItems: 'flex-start',
-                            gap: 4
-                        }}>
-                            <span style={{ color: '#818cf8' }}>💡</span>
-                            {coaching.why}
+                        {/* Right: Content */}
+                        <div style={{ flex: 1 }}>
+                            {/* Header Row */}
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'flex-start',
+                                marginBottom: 8
+                            }}>
+                                <div>
+                                    <div style={{
+                                        fontSize: '0.5rem',
+                                        fontWeight: 700,
+                                        color: '#64748b',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.1em',
+                                        marginBottom: 2
+                                    }}>
+                                        🧘 Stress Coach
+                                    </div>
+                                    <div style={{
+                                        fontSize: '0.85rem',
+                                        fontWeight: 800,
+                                        color: '#f8fafc',
+                                        lineHeight: 1.2
+                                    }}>
+                                        {coaching.exercise}
+                                    </div>
+                                </div>
+                                <div style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'flex-end',
+                                    gap: 4
+                                }}>
+                                    <span style={{
+                                        background: `linear-gradient(135deg, ${coaching.color}, ${coaching.color}cc)`,
+                                        color: 'white',
+                                        padding: '3px 8px',
+                                        borderRadius: 6,
+                                        fontSize: '0.6rem',
+                                        fontWeight: 800,
+                                        boxShadow: `0 2px 8px ${coaching.color}40`
+                                    }}>
+                                        ⏱️ {coaching.duration}
+                                    </span>
+                                    <span style={{
+                                        fontSize: '0.45rem',
+                                        color: '#64748b'
+                                    }}>
+                                        {coaching.cogState}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Quick Steps - Horizontal Pills */}
+                            <div style={{
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                gap: 4,
+                                marginBottom: 8
+                            }}>
+                                {coaching.steps.map((step, i) => (
+                                    <div key={i} style={{
+                                        background: `${coaching.color}15`,
+                                        border: `1px solid ${coaching.color}30`,
+                                        borderRadius: 20,
+                                        padding: '4px 10px',
+                                        fontSize: '0.55rem',
+                                        color: '#e2e8f0',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 4
+                                    }}>
+                                        <span style={{
+                                            width: 14,
+                                            height: 14,
+                                            borderRadius: '50%',
+                                            background: coaching.color,
+                                            color: 'white',
+                                            fontSize: '0.5rem',
+                                            fontWeight: 800,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}>
+                                            {i + 1}
+                                        </span>
+                                        {step}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Science Insight */}
+                            <div style={{
+                                background: 'rgba(99, 102, 241, 0.08)',
+                                borderRadius: 6,
+                                padding: '6px 10px',
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                gap: 6
+                            }}>
+                                <span style={{ fontSize: '0.7rem' }}>🧠</span>
+                                <span style={{
+                                    fontSize: '0.5rem',
+                                    color: '#94a3b8',
+                                    lineHeight: 1.4
+                                }}>
+                                    <strong style={{ color: '#a5b4fc' }}>Why it works:</strong> {coaching.why}
+                                </span>
+                            </div>
                         </div>
                     </div>
+
+                    {/* CSS Animations */}
+                    <style>{`
+                        @keyframes breatheIn {
+                            0%, 100% { transform: scale(1); opacity: 0.8; }
+                            50% { transform: scale(1.15); opacity: 1; }
+                        }
+                        @keyframes breatheRing {
+                            0%, 100% { transform: scale(1); opacity: 0.4; }
+                            50% { transform: scale(1.3); opacity: 0.8; }
+                        }
+                        @keyframes breatheRing2 {
+                            0%, 100% { transform: scale(1); opacity: 0.6; }
+                            50% { transform: scale(1.2); opacity: 1; }
+                        }
+                        @keyframes float {
+                            0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
+                            50% { transform: translateY(-10px) scale(1.1); opacity: 0.5; }
+                        }
+                        .lung-breathe {
+                            animation: breatheIn 4s ease-in-out infinite;
+                        }
+                        .breath-ring-1 {
+                            animation: breatheRing 4s ease-in-out infinite;
+                        }
+                        .breath-ring-2 {
+                            animation: breatheRing2 4s ease-in-out infinite 0.5s;
+                        }
+                        .breath-particle {
+                            animation: float 6s ease-in-out infinite;
+                        }
+                        .breath-particle-delay {
+                            animation: float 6s ease-in-out infinite 2s;
+                        }
+                    `}</style>
                 </div>
             </div>
         );
