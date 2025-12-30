@@ -1009,6 +1009,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
 
     const [leftFontSize, setLeftFontSize] = useState(1);
     const [rightFontSize, setRightFontSize] = useState(1);
+    const [mode, setMode] = useState<'tutor' | 'exam'>('tutor');
 
     const isMobile = useMediaQuery('(max-width: 768px)');
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -1377,7 +1378,24 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                             </div>
                         </div>
                         <div style={{ padding: '12px 16px', background: 'white', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <ProfessionalFontControl level={leftFontSize} setLevel={setLeftFontSize} />
+                            <div className="flex items-center gap-4">
+                                <ProfessionalFontControl level={leftFontSize} setLevel={setLeftFontSize} />
+                                {/* Mode Toggle */}
+                                <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+                                    <button
+                                        onClick={() => setMode('tutor')}
+                                        className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${mode === 'tutor' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                    >
+                                        TUTOR
+                                    </button>
+                                    <button
+                                        onClick={() => setMode('exam')}
+                                        className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${mode === 'exam' ? 'bg-white text-rose-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                    >
+                                        EXAM
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1570,7 +1588,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                     isLast={isLastScreen}
                                     style={{ boxShadow: 'none', background: 'transparent', border: 'none', padding: 0 }}
                                 />
-                                {isCurrentSubmitted && (
+                                {isCurrentSubmitted && mode !== 'exam' && (
                                     <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                         <style>{`
                                             @keyframes ripple-glow {
@@ -1640,6 +1658,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                         peerTime: item.peerAverageTime || 60
                                     }}
                                     stress={stressMetrics}
+                                    mode={mode}
                                 />
                             </div>
                         </div>

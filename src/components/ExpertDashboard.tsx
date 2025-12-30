@@ -14,7 +14,9 @@ interface ExpertDashboardProps {
     cjmmGrid: CJMMMetric[];
     currentItemResult?: ScoreRuleResult | null;
     pace?: PaceMetric;
+    pace?: PaceMetric;
     stress?: InteractionData;
+    mode?: 'tutor' | 'exam';
 }
 
 export interface PaceMetric {
@@ -28,11 +30,15 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
     cjmmGrid,
     currentItemResult,
     pace,
-    stress
+    pace,
+    stress,
+    mode = 'tutor' // Default to tutor
 }) => {
     const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
     const [activeDetail, setActiveDetail] = useState<string | null>(null);
     const [isCollapsed, setIsCollapsed] = useState(false);
+
+    const isExam = mode === 'exam';
 
     // --- Content Dictionary (Updated with User's CLSI Info) ---
     const getContent = (id: string) => {
@@ -450,33 +456,57 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
                     border: '1px solid rgba(255,255,255,0.1)'
                 }}
             >
-                {/* Glass Gloss */}
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(to bottom, rgba(255,255,255,0.1), transparent)', pointerEvents: 'none' }}></div>
+                {/* HEADER */}
+                {/* Score Card - Hidden in Exam Mode */}
+                {!isExam ? (
+                    <div className="relative mb-2 overflow-hidden rounded-lg bg-gradient-to-br from-indigo-600 to-indigo-700 shadow-lg"
+                        style={{ minHeight: '70px', display: 'flex', flexDirection: 'column' }}>
+                        {/* Glass Gloss */}
+                        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(to bottom, rgba(255,255,255,0.1), transparent)', pointerEvents: 'none' }}></div>
 
-                <div style={{ display: 'flex', height: '70px' }}>
-                    {/* Left: Score */}
-                    <div style={{ flex: 1, padding: '0 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                        <div style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.8)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>ITEM SCORE</div>
-                        <div style={{ fontSize: '2rem', fontWeight: 800, color: 'white', lineHeight: 1, marginTop: 0, display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                            {displayScore > 0 ? '+' : ''}{displayScore}
-                            <span style={{ fontSize: '0.8rem', opacity: 0.6, fontWeight: 600 }}>/ {result.maxScore}</span>
+                        <div style={{ display: 'flex', height: '70px' }}>
+                            {/* Left: Score */}
+                            <div style={{ flex: 1, padding: '0 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                <div style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.8)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>ITEM SCORE</div>
+                                <div style={{ fontSize: '2rem', fontWeight: 800, color: 'white', lineHeight: 1, marginTop: 0, display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                                    {displayScore > 0 ? '+' : ''}{displayScore}
+                                    <span style={{ fontSize: '0.8rem', opacity: 0.6, fontWeight: 600 }}>/ {result.maxScore}</span>
+                                </div>
+                            </div>
+
+                            {/* Divider with ZigZag */}
+                            <div style={{ position: 'relative', width: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <div style={{ position: 'absolute', top: 10, bottom: 10, width: '1px', background: 'rgba(255,255,255,0.2)' }}></div>
+                                <div style={{ width: '6px', height: '6px', background: 'white', borderRadius: '50%', zIndex: 2 }}></div>
+                            </div>
+
+                            {/* Right: Rule Pill */}
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 12px', alignItems: 'flex-end' }}>
+                                <div
+                                    onMouseEnter={() => setActiveTooltip('scoring')} onMouseLeave={() => setActiveTooltip(null)}
+                                    style={{
+                                        background: 'rgba(255,255,255,0.2)', padding: '4px 8px', borderRadius: '12px',
+                                        fontSize: '0.55rem', fontWeight: 600, color: 'white', letterSpacing: '0.05em', cursor: 'help',
+                                        border: '1px solid rgba(255,255,255,0.2)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4
+                                    }}>
+                                    <span>{result.rule || '0/1 RULE'}</span>
+                                    <span style={{ fontSize: '0.6rem', opacity: 0.8 }}>ⓘ</span>
+                                </div>
+                                {renderHoverOverlay('scoring', 'Scoring & Difficulty Engine')}
+                                <div style={{ fontSize: '0.55rem', color: 'rgba(255,255,255,0.7)', textAlign: 'right' }}>Scoring Logic</div>
+                            </div>
                         </div>
                     </div>
-
-                    {/* Right: Rule Pill & Impact */}
-                    <div style={{ flex: 0.8, background: 'rgba(0,0,0,0.2)', padding: '0 16px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-end', borderLeft: '1px solid rgba(255,255,255,0.1)' }}>
-                        <div style={{
-                            background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '999px',
-                            fontSize: '0.6rem', color: 'white', fontWeight: 600, marginBottom: 4,
-                            backdropFilter: 'blur(4px)', border: '1px solid rgba(255,255,255,0.1)'
-                        }}>
-                            {result.rule} Rule
-                        </div>
-                        <div style={{ fontSize: '0.7rem', color: isPerfect ? '#4ade80' : 'rgba(255,255,255,0.6)', fontWeight: 600, textAlign: 'right' }}>
-                            {isPerfect ? '🎉 Perfect!' : 'Analysis Ready'}
-                        </div>
+                ) : (
+                    <div style={{
+                        marginBottom: 8, padding: '12px', borderRadius: 8,
+                        background: 'rgba(30, 41, 59, 0.4)', border: '1px solid rgba(255,255,255,0.05)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
+                    }}>
+                        <span className="animate-pulse" style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }}></span>
+                        <span style={{ fontSize: '0.65rem', color: '#cbd5e1', fontWeight: 600, letterSpacing: '0.05em' }}>EXAM IN PROGRESS • DATA RECORDING</span>
                     </div>
-                </div>
+                )}
 
                 {renderHoverOverlay('scoring')}
             </div>
@@ -646,7 +676,7 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
         const safety = clientNeeds.find(c => c.category.includes('Safety') || c.category.includes('Infection'));
         const isCritical = safety && safety.score < 60;
 
-        if (!isCritical && safety) return null; // Only show if there's a risk? Or always show JCI status?
+        if (!isCritical && safety) return null; // Only show if there's a risk? Or always show "JCI Compliant" badge maybe?
         // Gold Standard says "Flashes RED if critical safety error". 
         // We'll show it if critical, otherwise show "JCI Compliant" badge maybe?
 
@@ -738,19 +768,37 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
                     <ExamVitalsWidget data={stress} />
 
                     {/* Score Card Widget */}
-                    <ScoreCardWidget />
+                    <ScoreCardWidget isExam={isExam} />
 
-                    {/* Performance Grid (Peer Rank & Pace) */}
-                    <PerformanceGridWidget />
+                    {/* Logic: Hide detailed stats in Exam mode, but preserve Vitals + JCI alerts if critical */}
+                    {!isExam && (
+                        <>
+                            {/* 2x1 Grid: Peer Rank & Pace */}
+                            <PerformanceGridWidget />
 
-                    {/* Clinical Judgment Radar (Hex Chart) */}
-                    <CJMMHexWidget />
+                            {/* Client Needs Breakdown */}
+                            <ClientNeedsWidget />
 
-                    {/* Client Needs List */}
-                    <ClientNeedsWidget />
+                            {/* CJMM Hex Radar */}
+                            <CJMMHexWidget />
+                        </>
+                    )}
 
-                    {/* Phase 4: JCI Quality & Safety Alerts */}
-                    <SafetyAlertWidget />
+                    {/* Always show JCI Alerts if Critical (Safety First), or hide if Exam mode is strict? 
+                       Usually exam doesn't show alerts. But for 'Simulator', maybe show minimal? 
+                       User asked for Simulator Logic. Real exam shows NOTHING.
+                       Let's hide JCI in Exam Mode too unless it's a critical safety falter? 
+                       No, complete blind is safer for realism. 
+                    */}
+                    {!isExam && <SafetyAlertWidget />}
+
+                    {/* Exam Mode Placeholder for Hidden Stats */}
+                    {isExam && (
+                        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', opacity: 0.3 }}>
+                            <div style={{ fontSize: '2rem', filter: 'grayscale(1)' }}>📊</div>
+                            <div style={{ fontSize: '0.6rem', color: '#94a3b8', marginTop: 8 }}>Metrics Hidden During Exam</div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
