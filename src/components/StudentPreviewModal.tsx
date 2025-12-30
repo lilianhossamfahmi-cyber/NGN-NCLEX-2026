@@ -999,6 +999,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
         if (isCurrentSubmitted) return;
 
         setElapsedTime(0);
+        setStressMetrics({ changeCount: 0, timeSpent: 0, peerAvg: 0 }); // Reset Focus Monitor per item
         const start = Date.now();
         const timer = setInterval(() => {
             const seconds = Math.round((Date.now() - start) / 1000);
