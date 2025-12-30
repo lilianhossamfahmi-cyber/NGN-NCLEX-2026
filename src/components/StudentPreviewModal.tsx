@@ -1011,22 +1011,8 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
     const [rightFontSize, setRightFontSize] = useState(1);
     const [mode, setMode] = useState<'tutor' | 'exam'>('tutor');
 
-    // Helper to calculate Interaction Base (Denominator)
-    const interactionBase = useMemo(() => {
-        const q = finalConfig;
-        if (!q) return 4; // Default
-        if (q.options) return q.options.length;
-        if (q.type === 'bow-tie') {
-            return (q.actions?.pool?.length || 0) + (q.conditions?.pool?.length || 0) + (q.parameters?.pool?.length || 0);
-        }
-        if (q.rows && q.columns) return q.rows.length * q.columns.length; // Matrix
-        if (q.dropdowns) return q.dropdowns.reduce((acc: number, d: any) => acc + (d.options?.length || 0), 0);
-        // Sentences/Cloze
-        if (q.sentences) {
-            return q.sentences.reduce((acc: number, s: any) => acc + (s.dropdowns?.reduce((dAcc: number, d: any) => dAcc + (d.options?.length || 0), 0) || 0), 0);
-        }
-        return 4;
-    }, [finalConfig]);
+    const isMobile = useMediaQuery('(max-width: 768px)');
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     // Split Screen Resizer State
 
@@ -1307,6 +1293,22 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
         if (currentQ.type === item.type) return currentQ;
         return { ...currentQ, type: currentQ.type || item.type };
     }, [currentQ, item.type]);
+
+    // Ratio Logic: Calculate Base Item Options Count
+    const interactionBase = useMemo(() => {
+        const q = finalConfig;
+        if (!q) return 4; // Default
+        if (q.options) return q.options.length;
+        if (q.type === 'bow-tie') {
+            return (q.actions?.pool?.length || 0) + (q.conditions?.pool?.length || 0) + (q.parameters?.pool?.length || 0);
+        }
+        if (q.rows && q.columns) return q.rows.length * q.columns.length; // Matrix
+        if (q.dropdowns) return q.dropdowns.reduce((acc: number, d: any) => acc + (d.options?.length || 0), 0);
+        if (q.sentences) {
+            return q.sentences.reduce((acc: number, s: any) => acc + (s.dropdowns?.reduce((dAcc: number, d: any) => dAcc + (d.options?.length || 0), 0) || 0), 0);
+        }
+        return 4;
+    }, [finalConfig]);
 
     return (
         <>
