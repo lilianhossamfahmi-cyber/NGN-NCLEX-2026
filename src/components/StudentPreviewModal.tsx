@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { MasterQuestionItem } from '../types/master-schema';
 import { renderQuestion } from './item-types/ItemRenderer';
 import { useMediaQuery } from '../hooks/useMediaQuery';
@@ -1014,23 +1014,9 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
     const isMobile = useMediaQuery('(max-width: 768px)');
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-    // --- STRESS ENGINE: CLICK RHYTHM TRACKER (Simpler) ---
-    const [cpm, setCpm] = useState(0); // Clicks Per Minute (estimated)
-    const clickTimestamps = useRef<number[]>([]);
-
-    const handleGlobalClick = useCallback(() => {
-        const now = Date.now();
-        // Add timestamp
-        clickTimestamps.current.push(now);
-        // Keep only clicks from last 3 seconds
-        const windowStart = now - 3000;
-        clickTimestamps.current = clickTimestamps.current.filter(t => t > windowStart);
-
-        // Calculate CPM (Count * 20 to extrapolate to minute)
-        // e.g. 3 clicks in 3s = 1 click/sec = 60 CPM
-        const val = clickTimestamps.current.length * 20;
-        setCpm(val);
-    }, []);
+    // --- STRESS ENGINE: FOCUS TRACKER ---
+    // We rely mostly on 'changeCount' (Answer Reversals) which is updated in setAnswers callback.
+    // Logic: Frequent changing = Indecision.
 
     // --- EXAM MODE: COUNTDOWN TIMER ---
     const [timeLeft, setTimeLeft] = useState(300); // 5 Minutes
@@ -1323,7 +1309,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                     border-bottom: 1px solid rgba(226, 232, 240, 0.8) !important;
                 }
             `}</style>
-            <div onClick={handleGlobalClick} style={{ position: 'fixed', inset: 0, background: '#F3F4F6', backgroundImage: 'radial-gradient(circle at 50% 0%, #F9FAFB, #F3F4F6)', zIndex: 9999, display: 'flex', flexDirection: 'column', fontFamily: '"Inter", sans-serif' }}>
+            <div style={{ position: 'fixed', inset: 0, background: '#F3F4F6', backgroundImage: 'radial-gradient(circle at 50% 0%, #F9FAFB, #F3F4F6)', zIndex: 9999, display: 'flex', flexDirection: 'column', fontFamily: '"Inter", sans-serif' }}>
                 <div className="glass-header" style={{ height: '64px', background: 'white', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)', zIndex: 50 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div style={{ fontWeight: 700, fontSize: '1.25rem', color: '#1e3a8a', letterSpacing: '-0.02em' }}>NCLEX-RN Simulator</div>
@@ -1694,7 +1680,6 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                     }}
                                     stress={stressMetrics}
                                     mode={mode}
-                                    liveCpm={cpm}
                                 />
                             </div>
                         </div>

@@ -16,7 +16,6 @@ interface ExpertDashboardProps {
     pace?: PaceMetric;
     stress?: InteractionData;
     mode?: 'tutor' | 'exam';
-    liveCpm?: number; // Clicks Per Minute
 }
 
 export interface PaceMetric {
@@ -31,8 +30,7 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
     currentItemResult,
     pace,
     stress,
-    mode = 'tutor',
-    liveCpm = 0
+    mode = 'tutor'
 }) => {
     const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
     const [activeDetail, setActiveDetail] = useState<string | null>(null);
@@ -328,34 +326,22 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
 
     // --- Widgets ---
 
-    // --- Widgets ---
+    const ExamVitalsWidget = ({ data }: { data?: InteractionData }) => {
+        let state = 'Focused';
+        let animDuration = '2s';
+        let color = '#34d399'; // Green
 
-    const ExamVitalsWidget = ({ data, cpm }: { data?: InteractionData, cpm: number }) => {
-        let state = 'Calm';
-        let bpm = 60;
-        let animDuration = '1.5s';
-        let color = '#34d399';
+        // Indecision Logic (Answer Reversals)
+        const changes = data?.changeCount || 0;
 
-        // 1. Click Rhythm (CPM) - "Number of clicks per time"
-        if (cpm > 50) {
-            state = 'PANIC';
-            bpm = 120 + Math.floor(cpm);
-            animDuration = '0.3s';
+        if (changes > 5) {
+            state = 'Scattered';
+            animDuration = '0.5s';
             color = '#f43f5e'; // Red
-        } else if (cpm > 25) {
-            state = 'Rushed';
-            bpm = 90;
-            animDuration = '0.8s';
+        } else if (changes > 2) {
+            state = 'Hesitant';
+            animDuration = '1.0s';
             color = '#fbbf24'; // Orange
-        }
-
-        // 2. Indecision (Answer Changes) - "Number of change answer attempts"
-        // Overrides 'Calm' but not 'Panic'
-        if (state === 'Calm' && data && data.changeCount > 2) {
-            state = 'Indecisive';
-            bpm = 75;
-            animDuration = '1.2s';
-            color = '#facc15'; // Yellow
         }
 
         return (
@@ -373,13 +359,13 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div>
-                        <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8' }}>Exam Vitals</p>
+                        <p style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8' }}>Focus Monitor</p>
                         <div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ position: 'relative', display: 'flex', width: '12px', height: '12px' }}>
                                 <span style={{ position: 'absolute', display: 'inline-flex', width: '100%', height: '100%', borderRadius: '50%', background: color, opacity: 0.75, animation: 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite' }}></span>
                                 <span style={{ position: 'relative', display: 'inline-flex', borderRadius: '50%', width: '12px', height: '12px', background: color }}></span>
                             </span>
-                            <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'white' }}>{state} <span style={{ fontSize: '0.6rem', opacity: 0.5 }}>({bpm} BPM)</span></span>
+                            <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'white' }}>{state}</span>
                         </div>
                     </div>
 
@@ -784,7 +770,7 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
             {!isCollapsed && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, overflowY: 'auto', paddingRight: 4 }}>
                     {/* Exam Vitals Wrapper (Replaces StressMonitor) */}
-                    <ExamVitalsWidget data={stress} cpm={liveCpm} />
+                    <ExamVitalsWidget data={stress} />
 
                     {/* Score Card Widget */}
                     <ScoreCardWidget />
