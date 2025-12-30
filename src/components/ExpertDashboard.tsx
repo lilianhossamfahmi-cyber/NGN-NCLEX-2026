@@ -1095,41 +1095,73 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
 
         if (data.length === 0) return null;
 
+        const avgScore = Math.round(data.reduce((a, b) => a + b.value, 0) / data.length);
+
         return (
             <div
                 style={{
-                    background: 'rgba(30, 41, 59, 0.4)', borderRadius: 12, padding: '12px', marginBottom: 8,
-                    border: '1px solid rgba(255,255,255,0.05)', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+                    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.8) 100%)',
+                    borderRadius: 10,
+                    padding: '10px 8px 6px 8px',
+                    marginBottom: 8,
+                    border: '1px solid rgba(99, 102, 241, 0.15)',
                     position: 'relative'
                 }}
             >
-                <div style={{ fontSize: '0.6rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4, display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Clinical Reasoning</span>
-                    <span style={{ fontSize: '0.6rem', color: '#818cf8' }}>Avg: {Math.round(data.reduce((a, b) => a + b.value, 0) / data.length)}%</span>
+                {/* Header */}
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 4,
+                    padding: '0 4px'
+                }}>
+                    <span style={{
+                        fontSize: '0.55rem',
+                        fontWeight: 700,
+                        color: '#94a3b8',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em'
+                    }}>
+                        CLINICAL REASONING
+                    </span>
+                    <span style={{
+                        fontSize: '0.6rem',
+                        fontWeight: 700,
+                        color: avgScore >= 70 ? '#10b981' : (avgScore >= 50 ? '#f59e0b' : '#ef4444'),
+                        background: avgScore >= 70 ? 'rgba(16, 185, 129, 0.15)' : (avgScore >= 50 ? 'rgba(245, 158, 11, 0.15)' : 'rgba(239, 68, 68, 0.15)'),
+                        padding: '2px 6px',
+                        borderRadius: 4
+                    }}>
+                        AVG: {avgScore}%
+                    </span>
                 </div>
 
-                <div style={{ height: '150px', width: '100%', marginLeft: '-5px' }}>
+                {/* Compact Radar */}
+                <div style={{ height: '110px', width: '100%', margin: '0 auto' }}>
                     <ResponsiveContainer width="100%" height="100%">
-                        <RadarChart cx="50%" cy="50%" outerRadius="65%" data={data}>
-                            <PolarGrid stroke="rgba(255,255,255,0.1)" />
+                        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
+                            <PolarGrid stroke="rgba(99, 102, 241, 0.15)" />
                             <PolarAngleAxis
                                 dataKey="label"
-                                tick={{ fill: '#cbd5e1', fontSize: 9, fontWeight: 500 }}
+                                tick={{ fill: '#94a3b8', fontSize: 8, fontWeight: 600 }}
                             />
                             <Radar
                                 name="Performance"
                                 dataKey="value"
-                                stroke="#6366f1"
+                                stroke="#818cf8"
                                 strokeWidth={2}
-                                fill="#6366f1"
-                                fillOpacity={0.3}
+                                fill="url(#radarGradient)"
+                                fillOpacity={0.5}
                             />
+                            <defs>
+                                <linearGradient id="radarGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#818cf8" stopOpacity="0.6" />
+                                    <stop offset="100%" stopColor="#6366f1" stopOpacity="0.2" />
+                                </linearGradient>
+                            </defs>
                         </RadarChart>
                     </ResponsiveContainer>
-                </div>
-                {/* Hit Area Tooltips */}
-                <div style={{ position: 'absolute', bottom: 8, right: 12, fontSize: '0.5rem', color: '#64748b', fontStyle: 'italic', textAlign: 'right' }}>
-                    *Biometric Signature
                 </div>
             </div>
         );
@@ -1165,7 +1197,7 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
     };
 
     return (
-        <div style={{ fontFamily: '"Inter", sans-serif', padding: '0', background: 'transparent', height: '100%', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+        <div className="expert-dashboard" style={{ fontFamily: '"Inter", sans-serif', padding: '0', background: 'transparent', height: '100%', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
             <style>{`
             @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
             @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); } 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); } }

@@ -21,7 +21,7 @@ export const AccessibilityTools: React.FC = () => {
         const scale = level / 100;
 
         // Target specific scrollable panels to preserve layout structure
-        const panels = document.querySelectorAll('.ehr-panel, .question-section');
+        const panels = document.querySelectorAll('.ehr-panel, .question-section, .expert-dashboard');
 
         panels.forEach(el => {
             const hEl = el as HTMLElement;
@@ -63,7 +63,7 @@ export const AccessibilityTools: React.FC = () => {
 
     // Magnifier Tool Logic
     useEffect(() => {
-        const panels = document.querySelectorAll('.ehr-panel, .question-section');
+        const panels = document.querySelectorAll('.ehr-panel, .question-section, .expert-dashboard');
 
         if (!isMagnifierActive) {
             panels.forEach(p => (p as HTMLElement).style.cursor = '');
@@ -72,7 +72,7 @@ export const AccessibilityTools: React.FC = () => {
 
         const handleMagnifyClick = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
-            if (target.closest('.ehr-panel') || target.closest('.question-section')) {
+            if (target.closest('.ehr-panel') || target.closest('.question-section') || target.closest('.expert-dashboard')) {
                 setZoomLevel(prev => prev > 100 ? 100 : 125);
             }
         };
