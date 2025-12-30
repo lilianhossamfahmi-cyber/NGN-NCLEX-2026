@@ -16,7 +16,7 @@ interface ExpertDashboardProps {
     pace?: PaceMetric;
     stress?: InteractionData;
     mode?: 'tutor' | 'exam';
-    liveVelocity?: number; // px/ms
+    liveCpm?: number; // Clicks Per Minute
 }
 
 export interface PaceMetric {
@@ -32,7 +32,7 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
     pace,
     stress,
     mode = 'tutor',
-    liveVelocity = 0
+    liveCpm = 0
 }) => {
     const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
     const [activeDetail, setActiveDetail] = useState<string | null>(null);
@@ -330,30 +330,33 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
 
     // --- Widgets ---
 
-    const ExamVitalsWidget = ({ data, velocity }: { data?: InteractionData, velocity: number }) => {
-        // Logic to determine state
+    const ExamVitalsWidget = ({ data, cpm }: { data?: InteractionData, cpm: number }) => {
         let state = 'Calm';
         let bpm = 60;
-        let animDuration = '2s';
+        let animDuration = '1.5s';
+        let color = '#34d399';
 
-        // 1. Velocity-Based Reactivity (Real-time)
-        if (velocity > 2.0) {
+        // 1. Click Rhythm (CPM) - "Number of clicks per time"
+        if (cpm > 50) {
             state = 'PANIC';
-            bpm = 140;
-            animDuration = '0.4s';
-        } else if (velocity > 0.8) {
-            state = 'Elevated';
-            bpm = 100;
+            bpm = 120 + Math.floor(cpm);
+            animDuration = '0.3s';
+            color = '#f43f5e'; // Red
+        } else if (cpm > 25) {
+            state = 'Rushed';
+            bpm = 90;
             animDuration = '0.8s';
+            color = '#fbbf24'; // Orange
         }
 
-        // 2. Fallback to Historical Data if idle
-        if (velocity < 0.1 && data) {
-            if (data.changeCount > 5) state = 'Rushed';
-            if (data.timeSpent > 120) state = 'Stalled';
+        // 2. Indecision (Answer Changes) - "Number of change answer attempts"
+        // Overrides 'Calm' but not 'Panic'
+        if (state === 'Calm' && data && data.changeCount > 2) {
+            state = 'Indecisive';
+            bpm = 75;
+            animDuration = '1.2s';
+            color = '#facc15'; // Yellow
         }
-
-        const color = state === 'PANIC' ? '#f43f5e' : (state === 'Elevated' ? '#fbbf24' : '#34d399');
 
         return (
             <div
@@ -781,7 +784,7 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
             {!isCollapsed && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, overflowY: 'auto', paddingRight: 4 }}>
                     {/* Exam Vitals Wrapper (Replaces StressMonitor) */}
-                    <ExamVitalsWidget data={stress} velocity={liveVelocity} />
+                    <ExamVitalsWidget data={stress} cpm={liveCpm} />
 
                     {/* Score Card Widget */}
                     <ScoreCardWidget />
