@@ -381,7 +381,7 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
                     </div>
 
                     {/* Animated EKG Graph - Sliding Ticker */}
-                    <div style={{ height: '40px', width: '120px', borderRadius: '4px', background: 'rgba(30, 41, 59, 0.5)', padding: '0', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ height: '40px', width: '120px', borderRadius: '4px', background: 'rgba(30, 41, 59, 0.5)', padding: '0', position: 'relative', overflow: 'hidden', backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
                         {/* Two identical paths sliding left to create seamless loop */}
                         <div className="ekg-slider" style={{ display: 'flex', width: '200%', height: '100%', position: 'absolute', left: 0, top: 0 }}>
                             <svg width="50%" height="100%" viewBox="0 0 100 40" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
@@ -486,6 +486,7 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
                                 <div style={{ fontSize: '2rem', fontWeight: 800, color: 'white', lineHeight: 1, marginTop: 0, display: 'flex', alignItems: 'baseline', gap: 4 }}>
                                     {displayScore > 0 ? '+' : ''}{displayScore}
                                     <span style={{ fontSize: '0.8rem', opacity: 0.6, fontWeight: 600 }}>/ {result.maxScore}</span>
+                                    {isPerfect && <span className="animate-bounce" style={{ fontSize: '1rem', filter: 'drop-shadow(0 0 4px gold)' }}>🏆</span>}
                                 </div>
                             </div>
 
