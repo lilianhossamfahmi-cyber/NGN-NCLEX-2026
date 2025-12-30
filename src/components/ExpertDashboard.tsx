@@ -547,66 +547,98 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
 
         return (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: 8 }}>
-                {/* Card 1: Peer Rank (Probability) */}
+                {/* Card 1: Peer Rank (Premium Redesign) */}
                 <div
                     onClick={() => setActiveDetail('gauge')}
                     style={{
-                        background: 'rgba(30, 41, 59, 0.4)', borderRadius: 12, padding: '12px',
-                        border: '1px solid rgba(255,255,255,0.05)', boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                        cursor: 'pointer', position: 'relative', overflow: 'hidden', minHeight: '90px',
+                        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(30, 41, 59, 0.6) 100%)',
+                        borderRadius: 12, padding: '14px',
+                        border: '1px solid rgba(99, 102, 241, 0.2)', boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                        cursor: 'pointer', position: 'relative', overflow: 'hidden', minHeight: '100px',
                         display: 'flex', flexDirection: 'column', justifyContent: 'space-between'
                     }}
                 >
-                    <div style={{ fontSize: '0.55rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase' }}>Peer Rank</div>
-                    <div>
-                        <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f8fafc' }}>
+                    {/* Background Glow */}
+                    <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '80px', height: '80px', background: 'radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%)', borderRadius: '50%' }} />
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 1 }}>
+                        <div style={{ fontSize: '0.55rem', fontWeight: 700, color: '#a5b4fc', textTransform: 'uppercase', letterSpacing: '0.1em' }}>📊 PEER RANK</div>
+                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#818cf8', animation: 'pulse 2s infinite' }} />
+                    </div>
+                    <div style={{ zIndex: 1 }}>
+                        <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'white', lineHeight: 1, background: 'linear-gradient(90deg, #f8fafc, #a5b4fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                             Top {100 - rank}%
                         </div>
-                        <div style={{ fontSize: '0.55rem', color: '#64748b' }}>of Students</div>
+                        <div style={{ fontSize: '0.6rem', color: '#94a3b8', marginTop: 4 }}>of {(rank * 15 + 200).toLocaleString()} Students</div>
                     </div>
-                    {/* Mini Sparkline Visualization */}
-                    <div style={{ height: '24px', width: '100%', opacity: 0.5, marginTop: 8 }}>
-                        <svg width="100%" height="100%" viewBox="0 0 100 24" preserveAspectRatio="none">
-                            <path d="M0 20 L20 15 L40 18 L60 5 L80 12 L100 2" fill="none" stroke="#6366f1" strokeWidth="2" />
+                    {/* Animated Sparkline */}
+                    <div style={{ height: '28px', width: '100%', marginTop: 8, zIndex: 1 }}>
+                        <svg width="100%" height="100%" viewBox="0 0 100 28" preserveAspectRatio="none">
                             <defs>
-                                <linearGradient id="sparkGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#6366f1" stopOpacity="0.2" />
-                                    <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+                                <linearGradient id="rankGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#818cf8" stopOpacity="0.4" />
+                                    <stop offset="100%" stopColor="#818cf8" stopOpacity="0" />
                                 </linearGradient>
                             </defs>
-                            <path d="M0 20 L20 15 L40 18 L60 5 L80 12 L100 2 V24 H0 Z" fill="url(#sparkGradient)" stroke="none" />
+                            <path d="M0 24 Q10 20, 20 18 T40 14 T60 8 T80 10 T100 4" fill="none" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" />
+                            <path d="M0 24 Q10 20, 20 18 T40 14 T60 8 T80 10 T100 4 V28 H0 Z" fill="url(#rankGradient)" />
+                            <circle cx="100" cy="4" r="3" fill="#818cf8" className="animate-pulse" />
                         </svg>
                     </div>
                 </div>
 
-                {/* Card 2: Pace Analysis */}
+                {/* Card 2: Pace Analysis (Premium Redesign) */}
                 <div
                     onClick={() => setActiveDetail(diff > 10 ? 'pace_slow' : (diff < -10 ? 'pace_fast' : 'pace_optimal'))}
                     style={{
-                        background: 'rgba(30, 41, 59, 0.4)', borderRadius: 12, padding: '12px',
-                        border: '1px solid rgba(255,255,255,0.05)', boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                        cursor: 'pointer', position: 'relative', overflow: 'hidden', minHeight: '90px',
+                        background: isOptimal
+                            ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(30, 41, 59, 0.6) 100%)'
+                            : (diff > 0
+                                ? 'linear-gradient(135deg, rgba(244, 63, 94, 0.15) 0%, rgba(30, 41, 59, 0.6) 100%)'
+                                : 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(30, 41, 59, 0.6) 100%)'),
+                        borderRadius: 12, padding: '14px',
+                        border: `1px solid ${isOptimal ? 'rgba(16, 185, 129, 0.2)' : (diff > 0 ? 'rgba(244, 63, 94, 0.2)' : 'rgba(245, 158, 11, 0.2)')}`,
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                        cursor: 'pointer', position: 'relative', overflow: 'hidden', minHeight: '100px',
                         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
                     }}
                 >
-                    <div style={{ position: 'relative', width: '40px', height: '40px', marginBottom: 4 }}>
-                        <svg width="40" height="40" transform="rotate(-90 20 20)" style={{ transformOrigin: 'center' }}>
-                            <circle cx="20" cy="20" r="16" stroke="rgba(255,255,255,0.1)" strokeWidth="3" fill="none" />
+                    {/* Animated Background Ring */}
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.1 }}>
+                        <div style={{ width: '120px', height: '120px', borderRadius: '50%', border: `3px solid ${paceColor}`, animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite' }} />
+                    </div>
+
+                    {/* Main Icon & Ring */}
+                    <div style={{ position: 'relative', width: '56px', height: '56px', marginBottom: 8 }}>
+                        <svg width="56" height="56" style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}>
+                            <circle cx="28" cy="28" r="24" stroke="rgba(255,255,255,0.1)" strokeWidth="4" fill="none" />
                             <circle
-                                cx="20" cy="20" r="16"
-                                stroke={paceColor} strokeWidth="3" fill="none"
-                                strokeDasharray="100"
-                                strokeDashoffset={100 - (Math.min(100, (paceVal / 120) * 100) / 100) * 100}
+                                cx="28" cy="28" r="24"
+                                stroke={paceColor} strokeWidth="4" fill="none"
+                                strokeDasharray="151"
+                                strokeDashoffset={151 - (Math.min(120, paceVal) / 120) * 151}
                                 strokeLinecap="round"
-                                style={{ transition: 'stroke-dashoffset 1s ease' }}
+                                style={{ transition: 'stroke-dashoffset 1s ease, stroke 0.5s ease' }}
                             />
                         </svg>
-                        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+                        <div style={{
+                            position: 'absolute', inset: 0,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '1.5rem',
+                            filter: `drop-shadow(0 0 8px ${paceColor})`
+                        }}>
                             {isOptimal ? '⚡' : (diff > 0 ? '🐢' : '🐇')}
                         </div>
                     </div>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: paceColor }}>
-                        {isOptimal ? 'Optimal' : (diff > 0 ? 'Too Slow' : 'Too Fast')}
+                    <div style={{
+                        fontSize: '0.85rem', fontWeight: 700, color: paceColor,
+                        textShadow: `0 0 12px ${paceColor}40`,
+                        zIndex: 1
+                    }}>
+                        {isOptimal ? 'Optimal Pace' : (diff > 0 ? 'Too Slow' : 'Too Fast')}
+                    </div>
+                    <div style={{ fontSize: '0.55rem', color: '#94a3b8', marginTop: 4 }}>
+                        {paceVal}s / {peerPace}s avg
                     </div>
                 </div>
             </div>
@@ -614,21 +646,121 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
     };
 
     const ClientNeedsWidget = () => {
+        const hasData = clientNeeds.length > 0;
+
         return (
-            <div style={{ background: 'rgba(30, 41, 59, 0.4)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 12, overflow: 'hidden', marginBottom: 8 }}>
-                <div style={{ padding: '6px 12px', background: 'rgba(0,0,0,0.2)', fontSize: '0.6rem', fontWeight: 700, color: '#94a3b8' }}>CLIENT NEEDS</div>
-                {clientNeeds.length > 0 ? clientNeeds.map((item, idx) => (
-                    <div key={idx}
-                        onClick={() => setActiveDetail(item.category)}
-                        onMouseEnter={(e) => { setActiveTooltip(`cn_${idx}`); e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
-                        onMouseLeave={(e) => { setActiveTooltip(null); e.currentTarget.style.background = 'transparent'; }}
-                        style={{ padding: '6px 12px', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.02)', position: 'relative', cursor: 'pointer', transition: 'background 0.2s' }}
-                    >
-                        {renderHoverOverlay(`cn_${idx}`, item.category)}
-                        <span style={{ fontSize: '0.65rem', color: '#cbd5e1', maxWidth: '70%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.category}</span>
-                        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: item.score >= 60 ? '#818cf8' : '#fb7185' }}>{item.score}%</span>
+            <div style={{
+                background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 12,
+                overflow: 'hidden',
+                marginBottom: 8
+            }}>
+                {/* Header */}
+                <div style={{
+                    padding: '10px 14px',
+                    background: 'linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, rgba(30, 41, 59, 0.4) 100%)',
+                    borderBottom: '1px solid rgba(255,255,255,0.05)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: '0.7rem' }}>📋</span>
+                        <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#a5b4fc', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Client Needs</span>
                     </div>
-                )) : <div style={{ padding: 12, textAlign: 'center', fontSize: '0.6rem', color: '#64748b' }}>No Data</div>}
+                    {hasData && (
+                        <span style={{ fontSize: '0.5rem', color: '#64748b', background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: 4 }}>
+                            {clientNeeds.length} Categories
+                        </span>
+                    )}
+                </div>
+
+                {/* Content */}
+                {hasData ? (
+                    <div style={{ maxHeight: '120px', overflowY: 'auto' }}>
+                        {clientNeeds.map((item, idx) => {
+                            const isGood = item.score >= 70;
+                            const isWarning = item.score >= 50 && item.score < 70;
+                            const statusColor = isGood ? '#10b981' : (isWarning ? '#f59e0b' : '#ef4444');
+
+                            return (
+                                <div key={idx}
+                                    onClick={() => setActiveDetail(item.category)}
+                                    onMouseEnter={(e) => { setActiveTooltip(`cn_${idx}`); e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)'; }}
+                                    onMouseLeave={(e) => { setActiveTooltip(null); e.currentTarget.style.background = 'transparent'; }}
+                                    style={{
+                                        padding: '8px 14px',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        borderTop: idx > 0 ? '1px solid rgba(255,255,255,0.03)' : 'none',
+                                        position: 'relative',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s ease'
+                                    }}
+                                >
+                                    {renderHoverOverlay(`cn_${idx}`, item.category)}
+                                    <span style={{
+                                        fontSize: '0.65rem',
+                                        color: '#e2e8f0',
+                                        maxWidth: '65%',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis'
+                                    }}>
+                                        {item.category}
+                                    </span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                        {/* Mini Progress Bar */}
+                                        <div style={{ width: '40px', height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: 2, overflow: 'hidden' }}>
+                                            <div style={{
+                                                width: `${item.score}%`,
+                                                height: '100%',
+                                                background: statusColor,
+                                                borderRadius: 2,
+                                                transition: 'width 0.5s ease'
+                                            }} />
+                                        </div>
+                                        <span style={{
+                                            fontSize: '0.65rem',
+                                            fontWeight: 700,
+                                            color: statusColor,
+                                            minWidth: '28px',
+                                            textAlign: 'right'
+                                        }}>
+                                            {item.score}%
+                                        </span>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div style={{
+                        padding: '24px 16px',
+                        textAlign: 'center',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: 8
+                    }}>
+                        <div style={{
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '50%',
+                            background: 'rgba(99, 102, 241, 0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '1.2rem'
+                        }}>
+                            📊
+                        </div>
+                        <div style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 500 }}>No Data Yet</div>
+                        <div style={{ fontSize: '0.55rem', color: '#64748b' }}>Complete questions to see your performance</div>
+                    </div>
+                )}
             </div>
         );
     };
