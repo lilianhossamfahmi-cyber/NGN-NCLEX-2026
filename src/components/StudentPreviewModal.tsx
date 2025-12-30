@@ -1299,15 +1299,31 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
     const interactionBase = useMemo(() => {
         const q = finalConfig;
         if (!q) return 4; // Default
+
+        // 1. Standard Options (Single/Multi/Ordered)
         if (q.options) return q.options.length;
+        if (q.orderedOptions) return q.orderedOptions.length;
+
+        // 2. Bow Tie
         if (q.type === 'bow-tie') {
             return (q.actions?.pool?.length || 0) + (q.conditions?.pool?.length || 0) + (q.parameters?.pool?.length || 0);
         }
-        if (q.rows && q.columns) return q.rows.length * q.columns.length; // Matrix
+
+        // 3. Matrix
+        if (q.rows && q.columns) return q.rows.length * q.columns.length;
+
+        // 4. Dropdowns / Cloze
         if (q.dropdowns) return q.dropdowns.reduce((acc: number, d: any) => acc + (d.options?.length || 0), 0);
         if (q.sentences) {
             return q.sentences.reduce((acc: number, s: any) => acc + (s.dropdowns?.reduce((dAcc: number, d: any) => dAcc + (d.options?.length || 0), 0) || 0), 0);
         }
+
+        // 5. Highlight (Count highlightable tokens)
+        if (q.type === 'highlight' && typeof q.text === 'string') {
+            const matches = q.text.match(/id=['"]h/g);
+            return matches ? matches.length : 6;
+        }
+
         return 4;
     }, [finalConfig]);
 
