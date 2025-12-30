@@ -1357,8 +1357,6 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                         )}
                     </div>
                     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-
-                        <button onClick={onClose} style={{ padding: '8px 20px', background: 'white', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, color: '#475569', fontSize: '0.9rem', transition: 'all 0.2s' }}>Pause / Exit</button>
                         <ToolSuite />
                     </div>
                 </div>
@@ -1710,12 +1708,33 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                 )}
                             </div>
 
-                            <div></div> {/* Right spacer */}
+                            {/* Pause / Exit Button - Moved Here */}
+                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <button
+                                    onClick={onClose}
+                                    style={{
+                                        padding: '8px 16px',
+                                        background: 'linear-gradient(135deg, #475569, #334155)',
+                                        border: '1px solid #64748b',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        fontWeight: 600,
+                                        color: 'white',
+                                        fontSize: '0.8rem',
+                                        transition: 'all 0.2s',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px'
+                                    }}
+                                >
+                                    ⏸️ Pause / Exit
+                                </button>
+                            </div>
                         </div>
                     </div>
 
                     {!isMobile && (
-                        <div className="w-[300px] bg-slate-900 border-l border-slate-700 flex flex-col shadow-2xl z-20">
+                        <div className="bg-slate-900 border-l border-slate-700 flex flex-col shadow-2xl z-20" style={{ width: '300px', height: '100%' }}>
                             {/* Bio-statistical Background Pattern */}
                             <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#94a3b8 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
 
