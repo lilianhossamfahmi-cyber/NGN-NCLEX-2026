@@ -1,10 +1,21 @@
 // src/services/itemDbService.ts
-import { supabase } from '../../server/supabaseClient.ts';
+import { createClient } from '@supabase/supabase-js';
 import { MasterQuestionItem } from '../types/master-schema.ts';
 import { enrichItemWithQuality } from '../utils/autoQuality.ts';
 
+// Create Supabase client inline for Railway compatibility
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+
+if (!supabaseUrl || !supabaseKey) {
+    console.error('WARNING: Missing Supabase credentials. SUPABASE_URL or SUPABASE_KEY not set.');
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
 // No initDb needed for Supabase as client is stateless
 export async function initDb() {
+    console.log('Supabase Client Initialized. URL:', supabaseUrl ? 'SET' : 'MISSING');
     return supabase;
 }
 
