@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { MasterQuestionItem } from '../../types/master-schema';
-import { Wand2, X, Check, Loader2, AlertCircle, User, FileText, Gauge, Image as ImageIcon, ChevronDown, ChevronRight, Sparkles } from 'lucide-react';
+import { API_BASE } from '../../services/itemApiService';
+import { Wand2, X, Check, Loader2, AlertCircle, User, FileText, Gauge, Image as ImageIcon, ChevronDown, ChevronRight, Sparkles, CheckCircle, Brain, RefreshCw, PenTool, ClipboardCheck, Activity, Stethoscope } from 'lucide-react';
 import { updateItem } from '../../services/itemApiService';
 import { syncItemToSupabase } from '../../services/itemSyncService';
 
@@ -134,7 +135,7 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
         const fullInstruction = [
             instruction.trim(),
             selectedList.length > 0 ? "\nAPPLY THE FOLLOWING MODIFICATIONS:" : "",
-            ...selectedList.map(opt => `- ${opt}`)
+            ...selectedList.map(opt => `- ${opt} `)
         ].filter(Boolean).join('\n');
 
         setLoading(true);
@@ -142,7 +143,7 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
 
         try {
             // Call Backend API
-            const response = await fetch('http://localhost:4000/api/ai/magic-fix', {
+            const response = await fetch(`${API_BASE} /ai/magic - fix`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ item, instruction: fullInstruction })
@@ -249,11 +250,11 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
                                         <div key={group.title} className="bg-white rounded-lg border shadow-sm overflow-hidden">
                                             <button
                                                 onClick={() => toggleGroup(group.title)}
-                                                className={`w-full flex items-center justify-between p-3 ${group.bg} hover:bg-opacity-80 transition-colors`}
+                                                className={`w - full flex items - center justify - between p - 3 ${group.bg} hover: bg - opacity - 80 transition - colors`}
                                             >
                                                 <div className="flex items-center gap-2">
                                                     <group.icon size={18} className={group.color} />
-                                                    <span className={`font-bold text-sm ${group.color}`}>{group.title}</span>
+                                                    <span className={`font - bold text - sm ${group.color} `}>{group.title}</span>
                                                 </div>
                                                 {isExpanded ? <ChevronDown size={16} className={group.color} /> : <ChevronRight size={16} className={group.color} />}
                                             </button>

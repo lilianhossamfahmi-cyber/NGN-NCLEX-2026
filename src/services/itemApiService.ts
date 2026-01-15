@@ -22,7 +22,7 @@ const getApiBase = () => {
     return 'http://localhost:4000/api';
 };
 
-const API_BASE = getApiBase();
+export const API_BASE = getApiBase();
 
 export interface ItemQueryOptions {
     page?: number;     // 1-based

@@ -13,7 +13,7 @@ import { FloatingPatientHeader } from './FloatingPatientHeader';
 // FloatingControls removed - using custom footer controls
 import * as RationalePipeline from '../services/RationalePipeline';
 import { Wand2, X, Loader2 } from 'lucide-react';
-import { updateItem } from '../services/itemApiService';
+import { updateItem, API_BASE } from '../services/itemApiService';
 import { syncItemToSupabase } from '../services/itemSyncService';
 
 interface StudentPreviewModalProps {
@@ -318,7 +318,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
         try {
             const prompt = `CONTEXT: The user selected this text segment from the item content: "${selectedText}".\nINSTRUCTION: ${instruction}.\n\nTASK: Locate the selected context in the item JSON and modify ONLY that section to satisfy the instruction. Ensure the item validation status remains valid (lowercase). Return the FULL updated item JSON.`;
 
-            const response = await fetch('http://localhost:4000/api/ai/magic-fix', {
+            const response = await fetch(`${API_BASE}/ai/magic-fix`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ item: internalItem, instruction: prompt })
