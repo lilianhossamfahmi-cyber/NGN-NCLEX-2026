@@ -7,7 +7,7 @@
         "dev:api": "tsx watch server/index.ts",
         "bulk:gen": "node -r dotenv/config --loader ts-node/esm --experimental-specifier-resolution=node scripts/bulkGenerator.ts",
         "dev": "vite",
-        "build": "npx tsc && vite build",
+        "build": "vite build",
         "preview": "vite preview",
         "start": "tsx server/index.ts"
     },
