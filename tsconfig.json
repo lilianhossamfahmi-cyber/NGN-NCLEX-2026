@@ -29,6 +29,8 @@
     },
     "include": [
         "src",
-        "test_models.ts"
+        "test_models.ts",
+        "server",
+        "scripts"
     ]
 }

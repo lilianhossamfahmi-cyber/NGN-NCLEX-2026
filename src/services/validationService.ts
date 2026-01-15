@@ -1,4 +1,4 @@
-import { GenerationSettings, MasterQuestionItem } from '../types/master-schema';
+import { GenerationSettings, MasterQuestionItem } from '../types/master-schema.ts';
 
 /**
  * Validation Service
@@ -129,6 +129,29 @@ export const validateItemContent = (item: MasterQuestionItem): ContentValidation
     if (structure.options) {
         const missingRat = structure.options.some((Opt: any) => !Opt.rationale || Opt.rationale.length < 5);
         if (missingRat) warnings.push("Some options are missing detailed rationales.");
+    }
+
+    // 4. Gold Standard Rationale Check
+    const rationale = item.content.rationale as any;
+    if (!rationale) {
+        warnings.push("Gold Standard Violation: Missing global rationale object.");
+    } else {
+        if (!rationale.coreConcept) warnings.push("Rationale missing 'coreConcept'.");
+        if (!rationale.trap) warnings.push("Rationale missing 'trap'.");
+        if (!rationale.difficulty || typeof rationale.difficulty.level !== 'number') {
+            warnings.push("Rationale missing Difficulty Level.");
+        }
+    }
+
+    // 5. Clinical Data Check (Vitals)
+    const vitals = item.content.clinicalData?.vitals;
+    if (vitals && Array.isArray(vitals)) {
+        vitals.forEach((v: any, i: number) => {
+            // Check for existence of pain field (allow 0)
+            if (v.pain === undefined || v.pain === null || v.pain === "") {
+                warnings.push(`Vital Sign #${i + 1} is missing the required 'pain' field.`);
+            }
+        });
     }
 
     return {

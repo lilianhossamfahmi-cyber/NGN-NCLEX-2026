@@ -11,10 +11,17 @@ import { CognitiveAnalyticsEngine, SessionHistoryItem } from '../utils/scoringEn
 import { InteractionData } from '../utils/stressEngine';
 import { FloatingPatientHeader } from './FloatingPatientHeader';
 // FloatingControls removed - using custom footer controls
+import * as RationalePipeline from '../services/RationalePipeline';
+import { Wand2, X, Loader2 } from 'lucide-react';
+import { updateItem } from '../services/itemApiService';
+import { syncItemToSupabase } from '../services/itemSyncService';
 
 interface StudentPreviewModalProps {
     item: MasterQuestionItem;
     onClose: () => void;
+    hideRationales?: boolean;
+    onNextQuestion?: () => void;
+    enableAdminEditing?: boolean;
 }
 
 // Icons
@@ -259,14 +266,112 @@ import {
     hasCriticalRadiologyFinding
 } from '../utils/ClinicalHelpers';
 
-export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: rawItem, onClose }) => {
+export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: rawItem, onClose, hideRationales, onNextQuestion, enableAdminEditing = false }) => {
+    // Force EXAM mode if hideRationales is true (External Control)
+    const initialMode = hideRationales ? 'exam' : 'tutor';
+    const [mode, setMode] = useState<'tutor' | 'exam'>(initialMode); // 'tutor' = show rationale, 'exam' = hide rationale
+
+    // Magic Fix State
+    const [internalItem, setInternalItem] = useState(rawItem);
+    const [showMagicBubble, setShowMagicBubble] = useState(false);
+    const [selectionRect, setSelectionRect] = useState<DOMRect | null>(null);
+    const [selectedText, setSelectedText] = useState('');
+    const [isFixing, setIsFixing] = useState(false);
+    const [isApplyingFix, setIsApplyingFix] = useState(false);
+
+    useEffect(() => {
+        setInternalItem(rawItem);
+    }, [rawItem]);
+
+    // If external prop changes, update internal mode (effect sync)
+    useEffect(() => {
+        if (hideRationales) setMode('exam');
+    }, [hideRationales]);
+
+    // Selection Listener
+    useEffect(() => {
+        if (!enableAdminEditing) return;
+        const handleSelection = () => {
+            const selection = window.getSelection();
+            if (!selection || selection.isCollapsed) {
+                if (!isFixing) setShowMagicBubble(false);
+                return;
+            }
+            const text = selection.toString().trim();
+            if (text.length > 2 && !isFixing) {
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                if (rect.width > 0) {
+                    setSelectionRect(rect);
+                    setSelectedText(text);
+                    setShowMagicBubble(true);
+                }
+            }
+        };
+        document.addEventListener('mouseup', handleSelection);
+        return () => document.removeEventListener('mouseup', handleSelection);
+    }, [enableAdminEditing, isFixing]);
+
+    const handleMagicFix = async (instruction: string) => {
+        if (!internalItem) return;
+        setIsApplyingFix(true);
+        try {
+            const prompt = `CONTEXT: The user selected this text segment from the item content: "${selectedText}".\nINSTRUCTION: ${instruction}.\n\nTASK: Locate the selected context in the item JSON and modify ONLY that section to satisfy the instruction. Ensure the item validation status remains valid (lowercase). Return the FULL updated item JSON.`;
+
+            const response = await fetch('http://localhost:4000/api/ai/magic-fix', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ item: internalItem, instruction: prompt })
+            });
+
+            if (!response.ok) throw new Error('AI Fix Failed');
+
+            const newItemJson = await response.json();
+
+            // Restore ID and ensure integrity (AI sometimes drops fields)
+            const newItemProp = {
+                ...newItemJson,
+                id: internalItem.id,
+                typeId: internalItem.typeId, // Force preserve type
+                type: internalItem.type      // Force preserve type alias
+            };
+
+            // Normalize status
+            const safeStatus = (newItemProp.metadata?.status || 'draft').toLowerCase();
+            newItemProp.metadata = { ...newItemProp.metadata, status: ['draft', 'published', 'archived'].includes(safeStatus) ? safeStatus : 'draft' };
+
+            // Update DBs
+            await updateItem(newItemProp);
+            await syncItemToSupabase(newItemProp);
+
+            setInternalItem(newItemProp);
+            setShowMagicBubble(false);
+            setIsFixing(false);
+            window.getSelection()?.removeAllRanges();
+
+        } catch (err: any) {
+            console.error(err);
+            alert('Magic Fix Failed: ' + err.message);
+        } finally {
+            setIsApplyingFix(false);
+        }
+    };
+
     // 1. RADICAL STABILIZATION & ENRICHMENT
-    // Stabilize (Sanitize + Shuffle Once) -> Enrich (Perfect Fill)
+    // If already processed by UnifiedDataPipeline, skip re-processing
+    // Otherwise: Stabilize (Sanitize + Shuffle Once) -> Enrich (Perfect Fill)
     const item = useMemo(() => {
-        if (!rawItem) return null;
-        const stable = DataSanitizer.stabilizeItem(rawItem);
+        if (!internalItem) return null;
+
+        // Check if already processed by UnifiedDataPipeline
+        if ((internalItem as any)._unifiedPipelineProcessed) {
+            return PerfectFillService.enrich(internalItem);
+        }
+
+        // Legacy path: Stabilize then enrich
+        const stable = DataSanitizer.stabilizeItem(internalItem);
         return PerfectFillService.enrich(stable);
-    }, [rawItem?.id]); // Only re-run if ID changes
+    }, [internalItem]); // Only re-run if item changes
 
     if (!item) return null;
 
@@ -638,7 +743,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                                 )}
                                             </div>
                                             <div className="text-xs text-slate-400 font-mono mt-0.5">
-                                                Ref: {lab.ref || lab.reference || 'N/A'}
+                                                Ref: {lab.ref || lab.reference || lab.range || lab.normalRange || lab.refRange || 'N/A'}
                                             </div>
                                         </div>
                                         <div className="text-right">
@@ -693,9 +798,10 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
         };
 
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-3">
                 {orders.map((ord: any, i: number) => {
-                    const drugName = ord.drug || ord.name || 'Unknown';
+                    // CRITICAL: Check 'order' field first - Golden prompts use this instead of 'drug'
+                    const drugName = ord.order || ord.drug || ord.name || ord.medication || 'Unknown';
                     const tallManName = applyTallManLettering(drugName);
                     const isHighAlert = isHighAlertMedication(drugName);
                     const status = (ord.status || 'active').toLowerCase();
@@ -703,53 +809,50 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                     const isDiscontinued = status === 'discontinued';
 
                     return (
-                        <div key={i} className={`bg-white border-l-4 ${style.border} rounded-r-lg shadow-sm p-4 relative overflow-hidden group hover:shadow-md transition-all ${isDiscontinued ? 'opacity-60' : ''}`}>
-                            {/* Status Badge */}
-                            <div className={`absolute top-0 right-0 text-[10px] font-bold px-2 py-1 rounded-bl ${style.bgBadge}`}>
-                                {style.badge}
-                            </div>
+                        <div key={i} className={`bg-white border-l-4 ${style.border} rounded-r-lg shadow-sm p-3 relative overflow-visible transition-all hover:shadow-md ${isDiscontinued ? 'opacity-60' : ''}`}>
+                            <div className="flex justify-between items-start space-x-3">
+                                {/* Left Side: Name, Badges, Indication */}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${style.bgBadge} border-current opacity-80 whitespace-nowrap`}>
+                                            {style.badge}
+                                        </span>
+                                        {isHighAlert && (
+                                            <span className="bg-purple-100 text-purple-700 text-[10px] font-bold px-1.5 py-0.5 rounded border border-purple-200 flex items-center gap-1 whitespace-nowrap">
+                                                <span>💊</span> HIGH-ALERT
+                                            </span>
+                                        )}
+                                    </div>
 
-                            {/* High Alert Badge */}
-                            {isHighAlert && (
-                                <div className="absolute top-0 left-4 -translate-y-1/2 bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-md">
-                                    💊 HIGH-ALERT
+                                    <div className={`font-bold text-lg leading-tight mb-2 text-slate-800 break-words ${isDiscontinued ? 'line-through decoration-slate-400' : ''}`}>
+                                        {tallManName !== drugName ? (
+                                            <span dangerouslySetInnerHTML={{
+                                                __html: tallManName.replace(/([A-Z]+)/g, '<span class="text-red-600 font-black">$1</span>')
+                                            }} />
+                                        ) : drugName}
+                                    </div>
+
+                                    <div className="text-xs text-slate-500">
+                                        Indication: <span className="font-semibold text-slate-700">{ord.indication || 'Standard Care'}</span>
+                                    </div>
                                 </div>
-                            )}
 
-                            {/* Drug Name with Tall Man Lettering */}
-                            <div className={`font-bold text-lg mb-1 mt-2 ${isDiscontinued ? 'line-through text-slate-400' : 'text-slate-800'}`}>
-                                {tallManName !== drugName ? (
-                                    <span dangerouslySetInnerHTML={{
-                                        __html: tallManName.replace(/([A-Z]+)/g, '<span class="text-red-600 font-black">$1</span>')
-                                    }} />
-                                ) : (
-                                    drugName
-                                )}
-                            </div>
-
-                            {/* Dose/Route/Freq */}
-                            <div className="flex flex-wrap gap-2 text-sm text-slate-600 mb-3 font-medium">
-                                <span className="bg-slate-100 px-2 py-0.5 rounded">{ord.dose}</span>
-                                <span className="bg-slate-100 px-2 py-0.5 rounded italic">{ord.route}</span>
-                                <span className="bg-slate-100 px-2 py-0.5 rounded">{ord.freq || ord.frequency}</span>
-                            </div>
-
-                            {/* PRN Indication (required by ISMP) */}
-                            <div className="text-xs text-slate-400 border-t border-slate-100 pt-2 mt-2">
-                                Indication: <span className="text-slate-600">{ord.indication || 'Standard Care'}</span>
-                            </div>
-
-                            {/* Hold Reason */}
-                            {status === 'hold' && ord.holdReason && (
-                                <div className="mt-2 text-xs text-orange-600 font-medium">
-                                    ⚠ Hold Reason: {ord.holdReason}
+                                {/* Right Side: Dosing Box */}
+                                <div className="flex-shrink-0 text-right bg-slate-50 rounded border border-slate-100 p-2 min-w-[100px]">
+                                    <div className="font-bold text-slate-800 text-sm">{ord.dose}</div>
+                                    <div className="text-xs text-slate-600 font-medium mt-0.5">{ord.route}</div>
+                                    <div className="text-xs text-slate-400 mt-0.5 italics">{ord.freq || ord.frequency}</div>
                                 </div>
-                            )}
+                            </div>
 
-                            {/* IV Compatibility Warning (placeholder) */}
-                            {ord.route && ord.route.toLowerCase().includes('iv') && isHighAlert && (
-                                <div className="mt-2 text-[10px] text-purple-600 font-medium bg-purple-50 px-2 py-1 rounded">
-                                    ⚠ Verify Y-site compatibility before administration
+                            {/* Warnings / Alerts Footer */}
+                            {(status === 'hold' && ord.holdReason) ? (
+                                <div className="mt-2 text-xs text-orange-600 font-bold bg-orange-50 px-2 py-1 rounded border border-orange-100 flex items-center gap-1">
+                                    <span>⚠</span> Hold Reason: {ord.holdReason}
+                                </div>
+                            ) : (ord.route && ord.route.toLowerCase().includes('iv') && isHighAlert) && (
+                                <div className="mt-2 text-[10px] text-purple-600 font-medium bg-purple-50 px-2 py-1 rounded border border-purple-100">
+                                    ⚠ Verify Y-site compatibility
                                 </div>
                             )}
                         </div>
@@ -761,7 +864,88 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
 
     // 6. HELPER: Radiology Paper - GOLD STANDARD with Critical Finding Detection
     const renderRadiology = (data: any) => {
-        // Check if there's actually a report
+        // Handle array format (Golden prompts use this structured format)
+        if (Array.isArray(data) && data.length > 0) {
+            return (
+                <div className="max-w-2xl mx-auto space-y-6">
+                    {data.map((rad: any, i: number) => {
+                        const study = rad.study || rad.exam || rad.type || "Diagnostic Imaging";
+                        const findings = rad.findings || rad.result || rad.report || "";
+                        const impression = rad.impression || rad.conclusion || "";
+                        const indication = rad.indication || rad.reason || "";
+                        const radiologist = rad.radiologist || rad.readBy || rad.physician || "";
+                        const date = rad.date || rad.time || "Recent";
+                        const hasCritical = hasCriticalRadiologyFinding(findings) || hasCriticalRadiologyFinding(impression);
+
+                        return (
+                            <div key={i} className="bg-gradient-to-b from-amber-50/80 via-white to-amber-50/30 shadow-lg border border-amber-200/60 p-6 relative rounded-lg">
+                                {/* Critical Finding Stamp */}
+                                {hasCritical && (
+                                    <div className="absolute -top-3 left-4 bg-red-600 text-white text-xs font-black px-3 py-1 rounded shadow-lg animate-pulse flex items-center gap-1 z-10">
+                                        <span>🚨</span> CRITICAL FINDING
+                                    </div>
+                                )}
+
+                                {/* Report Header */}
+                                <div className={`text-center border-b-2 pb-3 mb-4 ${hasCritical ? 'border-red-400' : 'border-slate-300'}`}>
+                                    <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">Department of Radiology</div>
+                                    <h3 className="text-lg font-serif font-bold text-slate-900">{study}</h3>
+                                    <div className="text-xs text-slate-500 mt-1 font-mono">{date}</div>
+                                </div>
+
+                                {/* Indication */}
+                                {indication && (
+                                    <div className="mb-3 text-sm">
+                                        <span className="font-bold text-slate-600 uppercase text-xs">INDICATION: </span>
+                                        <span className="text-slate-700">{indication}</span>
+                                    </div>
+                                )}
+
+                                {/* Findings */}
+                                {findings && (
+                                    <div className="mb-4">
+                                        <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 border-b border-slate-200 pb-1">
+                                            FINDINGS
+                                        </div>
+                                        <p className="text-sm text-slate-800 leading-relaxed pl-2">{findings}</p>
+                                    </div>
+                                )}
+
+                                {/* Impression Box */}
+                                {impression && (
+                                    <div className={`p-3 rounded-lg border-2 ${hasCritical ? 'bg-red-50 border-red-300' : 'bg-blue-50/80 border-blue-200'}`}>
+                                        <div className={`text-xs font-bold uppercase mb-1 flex items-center gap-1 ${hasCritical ? 'text-red-800' : 'text-blue-800'}`}>
+                                            <span>📋</span> IMPRESSION
+                                        </div>
+                                        <div className={`font-medium text-sm ${hasCritical ? 'text-red-900 font-bold' : 'text-blue-900'}`}>
+                                            {impression}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Radiologist Signature */}
+                                {radiologist && (
+                                    <div className="mt-4 pt-3 border-t border-dashed border-slate-300 text-right">
+                                        <div className="text-xs text-slate-500">Electronically Signed By:</div>
+                                        <div className="text-sm font-semibold text-slate-700 italic">{radiologist}</div>
+                                    </div>
+                                )}
+
+                                {/* Critical Finding Communication */}
+                                {hasCritical && (
+                                    <div className="mt-3 p-2 bg-red-100 border border-red-300 rounded text-xs text-red-800 font-medium flex items-center gap-2">
+                                        <span>📞</span>
+                                        <span>Critical finding communicated to ordering provider per TJC requirements.</span>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            );
+        }
+
+        // Check if there's actually a report (string format)
         const hasReport = data && typeof data === 'string' && data.trim().length > 20 && data.trim() !== "No report available.";
 
         // Empty State: No imaging studies
@@ -907,7 +1091,8 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
         );
     };
 
-    const screens = item.content?.structure?.screens || [];
+    // FIX: Check both internal path AND Golden Prompt root path for screens
+    const screens = item.content?.structure?.screens || (item as any).structure?.screens || [];
 
 
     const isCaseStudy = screens.length > 0;
@@ -943,7 +1128,8 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
     // Normalize ONCE to ensure IDs and structure are consistent between Renderer and Rationale
     const currentQ = useMemo(() => normalizeConfig(rawCurrentQ), [rawCurrentQ]);
 
-    const qKey = currentQ?.id || `q_${currentScreenIndex}`;
+    // Use stable index-based key for session state to prevent ID mismatches
+    const qKey = `q_${currentScreenIndex}`;
     const isLastScreen = isCaseStudy ? currentScreenIndex === screens.length - 1 : true;
 
     const [activeTab, setActiveTab] = useState('notes');
@@ -991,6 +1177,18 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
     const [answers, setAnswers] = useState<Record<string, any>>({});
     const [submissionState, setSubmissionState] = useState<Record<string, boolean>>({});
 
+    // Reset state when Item ID changes (Case Study or Single Item)
+    useEffect(() => {
+        setAnswers({});
+        setSubmissionState({});
+        setFlaggedIndices([]);
+        setIsRationaleOpen(false);
+        setElapsedTime(0);
+        setTimeLeft(mode === 'tutor' ? 300 : timeLeft); // Reset tutor timer
+        setCurrentScreenIndex(0);
+        console.log('[StudentPreviewModal] New Item Loaded - State Reset');
+    }, [item.id]);
+
     const currentAnswer = answers[qKey];
     const isCurrentSubmitted = submissionState[qKey] || false;
 
@@ -1010,7 +1208,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
 
     const [leftFontSize, setLeftFontSize] = useState(1);
     const [rightFontSize, setRightFontSize] = useState(1);
-    const [mode, setMode] = useState<'tutor' | 'exam'>('tutor');
+    // const [mode, setMode] = useState<'tutor' | 'exam'>('tutor'); // REMOVED DUPLICATE
 
     const isMobile = useMediaQuery('(max-width: 768px)');
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -1054,58 +1252,24 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
         // Process all submissions to build history
         rawScreens.forEach((rawQ: any, idx: number) => {
             const q = normalizeConfig(rawQ);
-            const key = q?.id || `q_${idx}`;
+            const key = `q_${idx}`;
             if (submissionState[key]) {
-                const nType = (q.type || '').toLowerCase().replace(/_/g, '-');
-                // Re-construct correct answer (same logic as before)
-                let correctObj: any = null;
-                if (nType === 'matrix') {
-                    correctObj = {};
-                    if (Array.isArray(q.rows)) q.rows.forEach((r: any) => correctObj[r.id] = r.correctColumnId || r.correctColumn || r.correctAnswer);
-                } else if (nType.includes('multiple-response') || nType === 'sata') {
-                    correctObj = Array.isArray(q.options) ? q.options.filter((o: any) => o.isCorrect).map((o: any) => o.id) : [];
-                } else if (nType === 'highlight') {
-                    correctObj = q.correct || [];
-                } else if (nType === 'bow-tie') {
-                    correctObj = {
-                        actions: q.actions?.pool?.filter((x: any) => x.isCorrect).map((x: any) => x.id) || [],
-                        condition: q.conditions?.pool?.filter((x: any) => x.isCorrect).map((x: any) => x.id) || [],
-                        parameters: q.parameters?.pool?.filter((x: any) => x.isCorrect).map((x: any) => x.id) || []
-                    };
-                } else if (nType.includes('cloze') || nType === 'dropdown') {
-                    correctObj = {};
-                    if (q.dropdowns) {
-                        q.dropdowns.forEach((d: any) => {
-                            if (d.correctOptionId) correctObj[d.id] = d.correctOptionId;
-                        });
-                    }
-                    if (q.sentences) {
-                        q.sentences.forEach((s: any) => {
-                            if (s.dropdowns) {
-                                s.dropdowns.forEach((d: any) => {
-                                    if (d.correctOptionId) correctObj[d.id] = d.correctOptionId;
-                                });
-                            }
-                        });
-                    }
-                } else if (nType.includes('calculation') || nType.includes('numeric')) {
-                    // Calculation items - extract correct value
-                    correctObj = q.correctValue || q.structure?.correctValue || q.answer;
-                    if (q.acceptableRange) {
-                        correctObj = { value: correctObj, range: q.acceptableRange };
-                    }
-                } else {
-                    const cOpt = q.options?.find((o: any) => o.isCorrect);
-                    if (cOpt) correctObj = cOpt.id;
-                    if (!correctObj && nType.includes('ordered-response')) {
-                        correctObj = q.orderedOptions?.map((o: any) => o.id) || q.options?.map((o: any) => o.id);
-                    }
-                }
-                const result = CognitiveAnalyticsEngine.calculateScore(q.type, answers[key], correctObj);
+                // Unified Scoring via RationalePipeline
+                const rat = RationalePipeline.generateRationale(q, answers[key]);
+
+                const result = {
+                    score: rat.outcome.earnedPoints,
+                    maxScore: rat.outcome.totalPoints,
+                    isCorrect: rat.outcome.badge === 'CORRECT',
+                    outcome: rat.outcome.badge
+                };
 
                 // Fallback Metadata with Zero Error Fill System
                 let effectiveMetadata = q.metadata;
-                if (!effectiveMetadata || !effectiveMetadata.cjmmStep) {
+                // FIX: Check root cjmmStep (Golden Prompt Standard)
+                const rootCjmm = q.cjmmStep || (effectiveMetadata && effectiveMetadata.cjmmStep);
+
+                if (!effectiveMetadata || !rootCjmm) {
                     // Infer CJMM Step from Item Type (Zero Error Fill)
                     const inferCjmmStep = (type: string, idx: number): string => {
                         const t = (type || '').toLowerCase();
@@ -1123,7 +1287,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                     effectiveMetadata = {
                         ...(effectiveMetadata || {}),
                         clientNeeds: effectiveMetadata?.clientNeeds || 'Physiological Integrity',
-                        cjmmStep: inferCjmmStep(q.type, idx),
+                        cjmmStep: rootCjmm || inferCjmmStep(q.type, idx),
                         difficulty: effectiveMetadata?.difficulty || 'Medium'
                     };
                 }
@@ -1144,115 +1308,18 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
 
         // Calculate CURRENT item result separately for the widget
         let currentResult = null;
-        const currentKey = currentQ?.id || `q_${isCaseStudy ? currentScreenIndex : 0}`;
+        // Match the qKey logic: strict index based
+        const currentKey = `q_${isCaseStudy ? currentScreenIndex : 0}`;
         if (submissionState[currentKey]) {
-            const qType = (currentQ.type || '').toLowerCase().replace(/_/g, '-');
-            let correctObj: any = null;
-            if (qType === 'matrix') {
-                correctObj = {};
-                if (Array.isArray(currentQ.rows)) currentQ.rows.forEach((r: any) => correctObj[r.id] = r.correctColumnId || r.correctColumn || r.correctAnswer);
-            } else if (qType.includes('multiple-response') || qType === 'sata') {
-                correctObj = Array.isArray(currentQ.options) ? currentQ.options.filter((o: any) => o.isCorrect).map((o: any) => o.id) : [];
-            } else if (qType === 'highlight') {
-                correctObj = currentQ.correct || [];
-            } else if (qType.includes('cloze') || qType === 'dropdown') {
-                correctObj = {};
-
-                const processDropdown = (d: any) => {
-                    if (!d) return;
-
-                    // 1. Normalize Options (Match Renderer Logic)
-                    const normOptions = (d.options || []).map((o: any, i: number) => {
-                        if (typeof o === 'string') return { id: o, text: o, isCorrect: false };
-                        return {
-                            id: o.id || `opt-${i}`,
-                            text: o.text || o.label || o.value || o,
-                            isCorrect: !!o.isCorrect
-                        };
-                    });
-
-                    // 2. Resolve Correct ID
-                    let cid = d.correctOptionId;
-                    let foundMatch = false;
-
-                    // Strategy A: Explicit Key
-                    if (cid) {
-                        // Check strict ID match first
-                        const idMatch = normOptions.find((o: any) => o.id === cid);
-                        if (idMatch) {
-                            cid = idMatch.id;
-                            foundMatch = true;
-                        } else {
-                            // Check Fuzzy Text Match
-                            const textMatch = normOptions.find((o: any) =>
-                                String(o.text).toLowerCase().trim() === String(cid).toLowerCase().trim()
-                            );
-                            if (textMatch) {
-                                cid = textMatch.id;
-                                foundMatch = true;
-                            }
-                        }
-                    }
-
-                    // Strategy B: Boolean Flag
-                    if (!foundMatch) {
-                        const boolMatch = normOptions.find((o: any) => o.isCorrect);
-                        if (boolMatch) {
-                            cid = boolMatch.id;
-                            foundMatch = true;
-                        }
-                    }
-
-                    if (cid) correctObj[d.id] = cid;
-                };
-
-                // Handle root and nested
-                if (currentQ.dropdowns) currentQ.dropdowns.forEach(processDropdown);
-                if (currentQ.sentences) {
-                    currentQ.sentences.forEach((s: any) => {
-                        if (s.dropdowns) s.dropdowns.forEach(processDropdown);
-                    });
-                }
-            } else if (currentQ.type === 'bow-tie') {
-                correctObj = {
-                    actions: currentQ.actions?.pool?.filter((x: any) => x.isCorrect).map((x: any) => x.id) || [],
-                    condition: currentQ.conditions?.pool?.filter((x: any) => x.isCorrect).map((x: any) => x.id) || [],
-                    parameters: currentQ.parameters?.pool?.filter((x: any) => x.isCorrect).map((x: any) => x.id) || []
-                };
-            } else if (currentQ.type === 'cloze' || currentQ.type === 'drop-cloze' || currentQ.type === 'dropdown') {
-                correctObj = {};
-                // Handle root dropdowns
-                if (currentQ.dropdowns) {
-                    currentQ.dropdowns.forEach((d: any) => {
-                        if (d.correctOptionId) correctObj[d.id] = d.correctOptionId;
-                    });
-                }
-                // Handle nested sentences
-                if (currentQ.sentences) {
-                    currentQ.sentences.forEach((s: any) => {
-                        if (s.dropdowns) {
-                            s.dropdowns.forEach((d: any) => {
-                                if (d.correctOptionId) correctObj[d.id] = d.correctOptionId;
-                            });
-                        }
-                    });
-                }
-            } else if (qType.includes('calculation') || qType.includes('numeric')) {
-                // Calculation items - extract correct value
-                correctObj = currentQ.correctValue || currentQ.structure?.correctValue || currentQ.answer;
-                if (currentQ.acceptableRange) {
-                    correctObj = { value: correctObj, range: currentQ.acceptableRange };
-                }
-            } else {
-                const cOpt = currentQ.options?.find((o: any) => o.isCorrect);
-                if (cOpt) correctObj = cOpt.id;
-                if (!correctObj && currentQ.type === 'ordered-response') {
-                    correctObj = currentQ.orderedOptions?.map((o: any) => o.id) || currentQ.options?.map((o: any) => o.id);
-                }
-            }
+            const rat = RationalePipeline.generateRationale(currentQ, answers[currentKey]);
+            const scoreRule = currentQ.type.includes('sata') ? '+/- RULE' : (currentQ.type.includes('bow') ? 'RATIONALE RULE' : '0/1 RULE');
             currentResult = {
-                ...CognitiveAnalyticsEngine.calculateScore(currentQ.type, answers[currentKey], correctObj),
-                userAns: answers[currentKey] // Attach actual user input for Rationale/Feedback visualization
+                score: rat.outcome.earnedPoints,
+                maxScore: rat.outcome.totalPoints,
+                isCorrect: rat.outcome.badge === 'CORRECT',
+                outcome: rat.outcome.badge,
+                rule: scoreRule,
+                userAns: answers[currentKey]
             };
         }
 
@@ -1267,10 +1334,23 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
     }, [submissionState, answers, screens, currentQ, isCaseStudy, currentScreenIndex]);
 
 
+    const submitTimeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
+
+    useEffect(() => {
+        return () => {
+            if (submitTimeoutRef.current) clearTimeout(submitTimeoutRef.current);
+        };
+    }, []);
+
     const handleSubmit = () => {
-        setSubmissionState(prev => ({ ...prev, [qKey]: true }));
-        // Auto-open rationale modal after brief delay to show on-screen feedback first
-        setTimeout(() => setIsRationaleOpen(true), 800);
+        console.log('[StudentPreviewModal] Submitting val for key:', qKey);
+        setSubmissionState(prev => {
+            console.log('[StudentPreviewModal] New Submission State:', { ...prev, [qKey]: true });
+            return { ...prev, [qKey]: true };
+        });
+        // Auto-open rationale modal after delay (increased to allow visual feedback)
+        if (submitTimeoutRef.current) clearTimeout(submitTimeoutRef.current);
+        submitTimeoutRef.current = setTimeout(() => setIsRationaleOpen(true), 1500);
     };
 
     const handleNext = () => {
@@ -1375,13 +1455,13 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                     }}>
                         <div style={{ padding: '12px 0 12px 0', textAlign: 'center' }}>
                             <FloatingPatientHeader
-                                patientName={item.content.clinicalData?.patientInfo?.name || "Client, Generic"}
-                                age={item.content.clinicalData?.patientInfo?.age || 35}
-                                gender={item.content.clinicalData?.patientInfo?.gender || "M"}
+                                patientName={item.content.clinicalData?.patientInfo?.name || (item.content as any)?.patient?.name || "Client, Generic"}
+                                age={item.content.clinicalData?.patientInfo?.age || (item.content as any)?.patient?.age || 35}
+                                gender={item.content.clinicalData?.patientInfo?.gender || ((item.content as any)?.patient?.sex === 'Female' ? 'F' : ((item.content as any)?.patient?.sex === 'Male' ? 'M' : 'M'))}
                                 codeStatus={item.content.clinicalData?.patientInfo?.codeStatus || "FULL CODE"}
                             />
                         </div>
-                        <PatientHeader data={item.content.clinicalData?.patientInfo} />
+                        <PatientHeader data={item.content.clinicalData?.patientInfo || (item.content as any)?.patient} />
                         <CaseTabSystem activeTab={activeTab} onTabChange={setActiveTab} />
                         <div style={{ flex: 1, overflowY: 'auto', background: 'white' }}>
                             <div style={leftContentStyle} className="tab-animate">
@@ -1391,19 +1471,19 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                             <h3 className="text-xl font-bold text-slate-800">Nurses Notes</h3>
                                             <span className="text-xs bg-white border px-2 py-1 rounded text-slate-500">Live Feed</span>
                                         </div>
-                                        {renderNursesNotes(item.content.clinicalData?.history)}
+                                        {renderNursesNotes(item.content.clinicalData?.history || (item.content as any)?.chiefComplaint)}
                                     </div>
                                 )}
                                 {activeTab === 'history' && (
                                     <div className="p-6">
                                         <h3 className="text-xl font-bold text-slate-800 border-b-2 border-blue-600 pb-2 mb-6">History & Physical</h3>
-                                        {renderHistoryPhysical(item.content.clinicalData?.historyPhysical)}
+                                        {renderHistoryPhysical(item.content.clinicalData?.historyPhysical || (item.content as any)?.historyPhysical)}
                                     </div>
                                 )}
                                 {activeTab === 'vitals' && (
                                     <div className="p-6 bg-slate-50">
                                         <h3 className="text-xl font-bold text-slate-800 border-b border-slate-200 pb-2 mb-6">Vital Signs Trend</h3>
-                                        {renderVitals(item.content.clinicalData?.vitals)}
+                                        {renderVitals(item.content.clinicalData?.vitals || (item.content as any)?.vitals || (item.content as any)?.vitalSigns)}
                                         <div className="mt-4 text-center">
                                             <span className="text-xs text-slate-400 uppercase tracking-widest font-bold">← Scroll to see earlier vitals →</span>
                                         </div>
@@ -1415,20 +1495,20 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                             <h3 className="text-xl font-bold text-slate-800">Laboratory Results</h3>
                                             <span className="text-xs text-red-500 font-bold bg-red-50 px-2 py-1 rounded">Criticals Highlighted</span>
                                         </div>
-                                        {renderLabs(item.content.clinicalData?.labs)}
+                                        {renderLabs(item.content.clinicalData?.labs || (item.content as any)?.labs || (item.content as any)?.laboratory)}
                                     </div>
                                 )}
                                 {activeTab === 'orders' && (
                                     <div className="p-4 bg-slate-50" style={{ minHeight: '100%' }}>
                                         <h3 className="text-xl font-bold text-slate-800 mb-4">Medical Orders</h3>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                            {renderOrders(item.content.clinicalData?.orders)}
+                                            {renderOrders(item.content.clinicalData?.orders || (item.content as any)?.orders)}
                                         </div>
                                     </div>
                                 )}
                                 {activeTab === 'rad' && (
                                     <div className="p-6 bg-gray-200 min-h-full">
-                                        {renderRadiology(item.content.clinicalData?.radiology)}
+                                        {renderRadiology(item.content.clinicalData?.radiology || (item.content as any)?.radiology)}
                                     </div>
                                 )}
                             </div>
@@ -1574,6 +1654,9 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                     undefined,
                                     currentAnswer,
                                     (ans) => {
+                                        // GUARD: Prevent clearing existing answer with undefined (fixes remount issue)
+                                        if (ans === undefined) return;
+
                                         // Smart Indecision Tracking
                                         // 1. Single Select: Changing an existing answer = Indecision (+1)
                                         // 2. Multi Select (SATA): UN-checking an option = Indecision (+1). Adding is valid.
@@ -1634,66 +1717,57 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                 </div>
                             </div>
                         </div>
-                        {/* MODERN FOOTER BAR */}
+                        {/* MODERN FOOTER BAR - Clean White Box with Glass Feel */}
                         <div style={{
-                            padding: '10px 20px',
-                            background: 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.98) 100%)',
-                            borderTop: '1px solid rgba(226,232,240,0.8)',
+                            padding: '16px 24px',
+                            background: 'rgba(255, 255, 255, 0.95)',
+                            backdropFilter: 'blur(12px)',
+                            borderTop: '1px solid rgba(226, 232, 240, 0.8)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            backdropFilter: 'blur(12px)',
-                            boxShadow: '0 -2px 10px rgba(0,0,0,0.03)',
+                            boxShadow: '0 -4px 20px rgba(0,0,0,0.03)',
                             zIndex: 10
                         }}>
                             {/* LEFT: Font Controls (Compact) */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                 <button
                                     onClick={() => setRightFontSize(Math.max(0.8, rightFontSize - 0.1))}
                                     style={{
-                                        width: 32, height: 32, borderRadius: 6,
+                                        width: 32, height: 32, borderRadius: 8,
                                         border: '1px solid #e2e8f0', background: 'white',
-                                        color: '#64748b', fontWeight: 700, fontSize: '0.75rem',
-                                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                        color: '#64748b', fontWeight: 700, fontSize: '0.8rem',
+                                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                                     }}
                                 >A-</button>
-                                <div style={{
-                                    padding: '4px 8px',
-                                    fontSize: '0.7rem',
-                                    fontWeight: 600,
-                                    color: '#475569',
-                                    background: '#f1f5f9',
-                                    borderRadius: 4,
-                                    minWidth: 40,
-                                    textAlign: 'center'
-                                }}>
-                                    {Math.round(rightFontSize * 100)}%
-                                </div>
                                 <button
                                     onClick={() => setRightFontSize(Math.min(1.5, rightFontSize + 0.1))}
                                     style={{
-                                        width: 32, height: 32, borderRadius: 6,
+                                        width: 32, height: 32, borderRadius: 8,
                                         border: '1px solid #e2e8f0', background: 'white',
-                                        color: '#64748b', fontWeight: 700, fontSize: '0.75rem',
-                                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                        color: '#64748b', fontWeight: 700, fontSize: '0.8rem',
+                                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                                     }}
                                 >A+</button>
                             </div>
 
                             {/* CENTER: Navigation & Submit */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                                 {/* Prev */}
                                 <button
                                     onClick={handlePrev}
                                     disabled={currentScreenIndex <= 0}
                                     style={{
-                                        width: 36, height: 36, borderRadius: 8,
+                                        width: 40, height: 40, borderRadius: 12,
                                         border: 'none',
                                         background: currentScreenIndex > 0 ? '#f1f5f9' : '#f8fafc',
                                         color: currentScreenIndex > 0 ? '#475569' : '#cbd5e1',
                                         cursor: currentScreenIndex > 0 ? 'pointer' : 'not-allowed',
                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        fontSize: '1rem'
+                                        fontSize: '1.2rem',
+                                        transition: 'all 0.2s'
                                     }}
                                 >
                                     ‹
@@ -1702,42 +1776,43 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                 {/* Submit/Status */}
                                 {isCurrentSubmitted ? (
                                     <div style={{
-                                        padding: '8px 20px',
-                                        borderRadius: 24,
+                                        padding: '10px 24px',
+                                        borderRadius: 30,
                                         background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                                         color: 'white',
                                         fontWeight: 600,
-                                        fontSize: '0.85rem',
+                                        fontSize: '0.9rem',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: 6,
+                                        gap: 8,
                                         boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
                                     }}>
-                                        <span>✓</span> Answer Saved
+                                        <span style={{ fontSize: '1.1rem' }}>✓</span> Answer Saved
                                     </div>
                                 ) : (
                                     <button
                                         onClick={handleSubmit}
                                         disabled={!currentQ}
                                         style={{
-                                            padding: '10px 32px',
-                                            borderRadius: 24,
+                                            padding: '12px 40px',
+                                            borderRadius: 30,
                                             background: currentQ
                                                 ? 'linear-gradient(135deg, #06b6d4 0%, #0891b2 50%, #0e7490 100%)'
-                                                : '#e2e8f0',
+                                                : '#f1f5f9',
                                             border: 'none',
-                                            color: currentQ ? 'white' : '#94a3b8',
+                                            color: currentQ ? 'white' : '#cbd5e1',
                                             fontWeight: 700,
-                                            fontSize: '0.9rem',
+                                            fontSize: '0.95rem',
                                             cursor: currentQ ? 'pointer' : 'not-allowed',
                                             boxShadow: currentQ ? '0 4px 15px rgba(6, 182, 212, 0.4), 0 2px 4px rgba(0,0,0,0.1)' : 'none',
                                             transition: 'all 0.2s',
-                                            letterSpacing: '0.02em'
+                                            letterSpacing: '0.03em',
+                                            minWidth: '160px'
                                         }}
                                         onMouseEnter={(e) => {
                                             if (currentQ) {
-                                                e.currentTarget.style.transform = 'translateY(-1px)';
-                                                e.currentTarget.style.boxShadow = '0 6px 20px rgba(6, 182, 212, 0.5), 0 3px 6px rgba(0,0,0,0.15)';
+                                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                                e.currentTarget.style.boxShadow = '0 8px 25px rgba(6, 182, 212, 0.5), 0 4px 8px rgba(0,0,0,0.15)';
                                             }
                                         }}
                                         onMouseLeave={(e) => {
@@ -1745,7 +1820,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                             e.currentTarget.style.boxShadow = currentQ ? '0 4px 15px rgba(6, 182, 212, 0.4), 0 2px 4px rgba(0,0,0,0.1)' : 'none';
                                         }}
                                     >
-                                        Submit
+                                        SUBMIT
                                     </button>
                                 )}
 
@@ -1754,40 +1829,64 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                     onClick={isLastScreen ? onClose : handleNext}
                                     disabled={!isCurrentSubmitted}
                                     style={{
-                                        width: 36, height: 36, borderRadius: 8,
+                                        width: 40, height: 40, borderRadius: 12,
                                         border: 'none',
                                         background: isCurrentSubmitted ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' : '#f8fafc',
                                         color: isCurrentSubmitted ? 'white' : '#cbd5e1',
                                         cursor: isCurrentSubmitted ? 'pointer' : 'not-allowed',
                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        fontSize: '1rem',
-                                        boxShadow: isCurrentSubmitted ? '0 2px 8px rgba(59, 130, 246, 0.3)' : 'none'
+                                        fontSize: '1.2rem',
+                                        boxShadow: isCurrentSubmitted ? '0 4px 12px rgba(59, 130, 246, 0.3)' : 'none',
+                                        transition: 'all 0.2s'
                                     }}
                                 >
                                     ›
                                 </button>
 
-                                {/* Rationale Button (after submit) */}
+                                {/* Rationale Button (Enhanced) */}
                                 {isCurrentSubmitted && mode !== 'exam' && (
-                                    <button
-                                        onClick={() => setIsRationaleOpen(true)}
-                                        style={{
-                                            width: 40, height: 40, borderRadius: '50%',
-                                            background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-                                            border: '2px solid #f59e0b',
-                                            color: '#92400e',
-                                            cursor: 'pointer',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            fontSize: '1.2rem',
-                                            fontWeight: 700,
-                                            fontStyle: 'italic',
-                                            fontFamily: 'Georgia, serif',
-                                            boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)'
-                                        }}
-                                        title="View Clinical Reasoning"
-                                    >
-                                        i
-                                    </button>
+                                    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', marginLeft: 12 }}>
+                                        <style>{`
+                                            @keyframes fluid-pulse {
+                                                0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+                                                70% { box-shadow: 0 0 0 15px rgba(245, 158, 11, 0); }
+                                                100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+                                            }
+                                            @keyframes rotate-slow {
+                                                from { transform: rotate(0deg); }
+                                                to { transform: rotate(360deg); }
+                                            }
+                                        `}</style>
+
+                                        {/* Animated Ring */}
+                                        <div style={{
+                                            position: 'absolute', inset: -4, borderRadius: '50%',
+                                            border: '2px dashed rgba(245, 158, 11, 0.4)',
+                                            animation: 'rotate-slow 10s linear infinite'
+                                        }} />
+
+                                        <button
+                                            onClick={() => setIsRationaleOpen(true)}
+                                            style={{
+                                                width: 48, height: 48, borderRadius: '50%',
+                                                background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                                                border: '3px solid #f59e0b',
+                                                color: '#92400e',
+                                                cursor: 'pointer',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                fontSize: '1.4rem',
+                                                fontWeight: 700,
+                                                fontStyle: 'italic',
+                                                fontFamily: 'Georgia, serif',
+                                                boxShadow: '0 4px 15px rgba(245, 158, 11, 0.4)',
+                                                animation: 'fluid-pulse 2s infinite',
+                                                zIndex: 1
+                                            }}
+                                            title="View Clinical Reasoning"
+                                        >
+                                            i
+                                        </button>
+                                    </div>
                                 )}
                             </div>
 
@@ -1795,29 +1894,32 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                             <button
                                 onClick={onClose}
                                 style={{
-                                    padding: '8px 16px',
-                                    borderRadius: 8,
-                                    background: 'transparent',
+                                    padding: '10px 20px',
+                                    borderRadius: 12,
+                                    background: '#f8fafc',
                                     border: '1px solid #e2e8f0',
                                     color: '#64748b',
                                     fontWeight: 600,
-                                    fontSize: '0.8rem',
+                                    fontSize: '0.85rem',
                                     cursor: 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: 6,
-                                    transition: 'all 0.2s'
+                                    gap: 8,
+                                    transition: 'all 0.2s',
+                                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                                 }}
                                 onMouseEnter={(e) => {
-                                    e.currentTarget.style.background = '#f8fafc';
+                                    e.currentTarget.style.background = '#f1f5f9';
                                     e.currentTarget.style.color = '#334155';
+                                    e.currentTarget.style.transform = 'translateY(-1px)';
                                 }}
                                 onMouseLeave={(e) => {
-                                    e.currentTarget.style.background = 'transparent';
+                                    e.currentTarget.style.background = '#f8fafc';
                                     e.currentTarget.style.color = '#64748b';
+                                    e.currentTarget.style.transform = 'translateY(0)';
                                 }}
                             >
-                                ⏸️ Exit
+                                ⏸️ Pause/Exit
                             </button>
                         </div>
                     </div>
@@ -1853,12 +1955,24 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                     cjmmGrid={sessionAnalytics.cjmmGrid}
                                     currentItemResult={sessionAnalytics.currentResult}
                                     pace={{
-                                        userTime: elapsedTime,
-                                        peerTime: item.peerAverageTime || 60
+                                        userAvg: elapsedTime,
+                                        peerAvg: item.peerAverageTime || 60,
+                                        diff: elapsedTime - (item.peerAverageTime || 60),
+                                        status: elapsedTime > (item.peerAverageTime || 60) ? 'slower' : 'faster',
+                                        isSlower: elapsedTime > (item.peerAverageTime || 60)
                                     }}
                                     stress={stressMetrics}
                                     mode={mode}
                                     interactionBase={interactionBase}
+                                    itemDifficulty={
+                                        (item.content?.rationale as any)?.difficulty ||
+                                        currentQ?.rationale?.difficulty ||
+                                        ((item as any).metadata?.difficulty ? { level: (item as any).metadata.difficulty } : null) ||
+                                        ((item as any).pedagogy?.difficultyLevel ? { level: (item as any).pedagogy.difficultyLevel } : null) ||
+                                        ((item.content as any)?.metadata?.difficulty ? { level: (item.content as any).metadata.difficulty } : null) ||
+                                        null
+                                    }
+                                    itemType={currentQ?.type || item.type || 'multiple_choice'}
                                 />
                             </div>
                         </div>
@@ -1883,12 +1997,85 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
             </div>
 
             {/* Render RationaleDrawer OUTSIDE the main container to avoid stacking context issues */}
+            {isRationaleOpen && !hideRationales && console.log('[StudentPreviewModal] Opening RationaleDrawer with Question:', currentQ)}
             <RationaleDrawer
-                isOpen={isRationaleOpen}
+                isOpen={isRationaleOpen && !hideRationales}
                 onClose={() => setIsRationaleOpen(false)}
                 question={currentQ}
                 result={sessionAnalytics.currentResult}
             />
+
+            {/* Magic Fix Bubble */}
+            {showMagicBubble && selectionRect && enableAdminEditing && (
+                <div style={{
+                    position: 'fixed',
+                    top: selectionRect.top - 45,
+                    left: selectionRect.left,
+                    zIndex: 9999,
+                    animation: 'fade-in 0.2s ease-out'
+                }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                >
+                    {!isFixing ? (
+                        <div className="flex items-center gap-1 p-1 bg-white rounded-lg shadow-xl border border-slate-200">
+                            <button
+                                onClick={() => setIsFixing(true)}
+                                className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 text-white rounded-md text-xs font-bold hover:bg-indigo-700 transition shadow-sm"
+                            >
+                                <Wand2 size={14} /> Magic Fix
+                            </button>
+                            <button onClick={() => setShowMagicBubble(false)} className="p-1.5 hover:bg-slate-100 rounded-md text-slate-400">
+                                <X size={14} />
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="p-3 w-80 bg-white rounded-xl shadow-2xl border border-slate-200 flex flex-col gap-2">
+                            <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">AI Magic Fixer</span>
+                                <button onClick={() => { setIsFixing(false); setShowMagicBubble(false); }} className="text-slate-400 hover:text-slate-600"><X size={14} /></button>
+                            </div>
+                            <div className="bg-slate-50 border border-slate-200 rounded p-2 text-xs text-slate-600 italic max-h-20 overflow-hidden text-ellipsis whitespace-nowrap">
+                                "{selectedText}"
+                            </div>
+                            <textarea
+                                autoFocus
+                                placeholder="How should I change this?"
+                                className="w-full text-sm border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none"
+                                rows={2}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        const val = (e.target as any).value;
+                                        if (val) handleMagicFix(val);
+                                    }
+                                }}
+                            />
+                            <div className="flex justify-end gap-2">
+                                <button
+                                    className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-md font-bold hover:bg-indigo-700 flex items-center gap-1 shadow-sm transition-all hover:shadow"
+                                    onClick={(e) => {
+                                        const val = (e.currentTarget.parentElement?.previousElementSibling as any)?.value;
+                                        if (val) handleMagicFix(val);
+                                    }}
+                                >
+                                    Apply Fix <Wand2 size={12} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Loading Overlay */}
+            {isApplyingFix && (
+                <div className="fixed inset-0 bg-black/50 z-[10000] flex items-center justify-center backdrop-blur-sm">
+                    <div className="bg-white p-6 rounded-2xl shadow-2xl text-center transform scale-110">
+                        <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mx-auto mb-4" />
+                        <h3 className="text-lg font-bold text-slate-800">Applying Magic Fix...</h3>
+                        <p className="text-slate-500 text-sm mt-1">Consulting the AI Engine</p>
+                    </div>
+                </div>
+            )}
         </>
     );
 };

@@ -1,0 +1,8 @@
+node_modules
+dist
+.env
+.git
+logs
+coverage
+*.sqlite
+itemBank.db

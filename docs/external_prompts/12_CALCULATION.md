@@ -8,11 +8,11 @@
 Generate **[QUANTITY]** **Fill-in-the-Blank Calculation** items with a Clinical Focus of **[FOCUS]** at Difficulty Level **[LEVEL]** (1-5).
 
 **DIFFICULTY LEVEL GUIDE:**
-- **Level 1 (Novice/Recall)**: Basic facts, definitions, and single-step recall.
-- **Level 2 (Adv. Beginner/Application)**: Applying standard rules or protocols to simple scenarios.
-- **Level 3 (NGN Standard/Analysis)**: Multi-step cues, analyzing trends, differentiating findings.
-- **Level 4 (Proficient/Synthesis)**: Prioritizing conflicting needs, complex decision making.
-- **Level 5 (Expert/Evaluation)**: High-stakes clinical judgment under uncertainty or rapid change.
+- **Level 1 (Recall / Basic)**: Knowledge Retrieval. Low Risk.
+- **Level 2 (Application)**: Apply Rule/Process. Low-Moderate Risk.
+- **Level 3 (Analysis / NGN Std)**: Connect Cues (Trends). Moderate Risk.
+- **Level 4 (Synthesis)**: Prioritize & Plan. High Risk.
+- **Level 5 (Evaluation / Expert)**: Managing Complexity. Critical Risk.
 
 **SYSTEM ROLE:** You are a specialized NCLEX-NGN Item Writer and Clinical Educator.
 **TASK:** Generate **[QUANTITY]** (default: 1) Fill-in-the-Blank Calculation Item.
@@ -59,10 +59,24 @@ Populate metadata with:
   - **Narrative redundancy**: The `historyPhysical` MUST explicitly state the age and allergies in text format (e.g., "Pt is a 5-year-old male... Allergies: NKA") to ensure easy parsing.
 
 ## ⚕️ 3b. CLINICAL DATA GOLD STANDARD (MANDATORY)
-**All vitals MUST include 7 fields:** `time`, `tempF`, `hr`, `rr`, `bp`, `o2`, `o2_device`, `pain`
-**All labs MUST include:** `test`, `value`, `ref`, and `flag` (H/L/H!/L!) for abnormal values
-**All orders MUST include:** `drug`, `dose`, `route`, `freq`, `status`, `indication`
-**Nurses notes MUST use SBAR format** with initials like "JD123.RN"
+### Vital Signs (COMPLETE SET):
+```json
+"vitals": [{ "time": "0800", "tempF": "99.1", "hr": 88, "rr": 16, "bp": "120/80", "o2": "98%", "o2_device": "RA", "pain": 2 }]
+```
+### Laboratory Results:
+```json
+"labs": [{ "test": "Sodium", "value": "138", "ref": "135-145", "flag": "" }]
+```
+### Medication Orders:
+```json
+"orders": [{ "drug": "Lisinopril", "dose": "10 mg", "route": "PO", "freq": "Daily", "status": "active", "indication": "HTN", "holdReason": "Hold for SBP < 100" }]
+```
+### Nurses Notes (SBAR):
+```json
+"history": [{ "time": "0800", "note": "S: Situation... B: Background... A: Assessment... R: Recommendation...", "initial": "XX000.RN" }]
+```
+- **Requirements**: Full 7-field Vitals, Indication/HoldReason for Orders, H/L/H! Flags for Labs.
+- **Radiology**: If relevant, use standard format.
 
 ## ⚠️ 4. Rationale & Feedback (Zero Error Safety Fill)
 - **Step-by-Step Methodology (Engaging & Dual-Method)**:
@@ -161,6 +175,7 @@ Before outputting, you MUST internally verify:
       "difficulty": "Level 2: Single-Step Application",
       "topic": "Pharmacology",
       "peerAverageTime": "90",
+      "peerSuccessRate": "50",
       "cueCount": 2,
       "timePressure": "medium",
       "integrationLevel": "basic",

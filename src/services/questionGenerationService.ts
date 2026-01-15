@@ -1,16 +1,16 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { GenerationSettings, MasterQuestionItem, ReferenceSource } from '../types/master-schema';
-import { AppConfig } from '../config/apiConfig';
-import { getQuestionType } from '../registry';
+
+import { GenerationSettings, MasterQuestionItem, ReferenceSource } from '../types/master-schema.ts';
+import { AppConfig, getGenAI, limiter } from '../config/apiConfig.ts';
+import { getQuestionType } from '../registry/index.ts';
 
 /**
  * Question Generation Service v2.2
  * Supports: Live Gemini Integration, Mix-All logic, and Mock Fallback with Rich Content.
  */
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const USE_MOCK = !API_KEY || !AppConfig.features.aiGeneration;
-const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
+const genAI = getGenAI();
+const USE_MOCK = !genAI || !AppConfig.features.aiGeneration;
+
 
 interface GenerationResponse {
     success: boolean;
@@ -24,16 +24,19 @@ interface GenerationResponse {
 export const generateQuestions = async (
     settings: GenerationSettings,
     references: ReferenceSource[],
-    onProgress?: (status: string) => void
+    onProgress?: (status: string) => void,
+    signal?: AbortSignal
 ): Promise<GenerationResponse> => {
 
     // 1. Resolve Mix-All Logic
     const resolvedTypes = resolveTargetTypes(settings.targetTypes);
     const totalCount = resolvedTypes.length * settings.quantityPerType;
 
+    if (signal?.aborted) return { success: false, error: "Generation Cancelled" };
+
     if (USE_MOCK) {
         console.warn('Configuration forces Mock Mode (missing API Key or Feature Flag)');
-        return generateMockItems(settings, resolvedTypes, onProgress);
+        return generateMockItems(settings, resolvedTypes, onProgress, signal);
     }
 
     if (!genAI) {
@@ -60,15 +63,30 @@ export const generateQuestions = async (
         let lastError = null;
 
         for (const modelName of candidateModels) {
+            if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+
             try {
                 if (onProgress) onProgress(`Attempting generation with model: ${modelName}...`);
                 const model = genAI.getGenerativeModel({ model: modelName });
-                const result = await model.generateContent(prompt);
+                await limiter.checkLimit(); // Enforce Rate Limit
+
+                // Using a manual race for abort signal support
+                const result = await Promise.race([
+                    model.generateContent(prompt),
+                    new Promise<never>((_, reject) => {
+                        if (signal) {
+                            signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+                        }
+                    })
+                ]) as any; // Type casting as race result
+
                 responseText = result.response.text();
                 // If we get here, it worked!
                 lastError = null;
                 break;
             } catch (err: any) {
+                if (err.name === 'AbortError') throw err; // Re-throw abort immediately
+
                 console.warn(`Model ${modelName} failed:`, err.message);
                 lastError = err;
                 // If it's a 404 (Not Found), we continue to next model.
@@ -84,6 +102,7 @@ export const generateQuestions = async (
             throw lastError; // Throw the last error if all candidates failed
         }
 
+        if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
         if (onProgress) onProgress("Running AI Validation & Logic Checks...");
 
         const cleanJson = extractJsonFromMarkdown(responseText);
@@ -104,6 +123,9 @@ export const generateQuestions = async (
         return { success: true, data: processed };
 
     } catch (error: any) {
+        if (error.name === 'AbortError' || error.message === 'Aborted') {
+            return { success: false, error: "Generation Cancelled" };
+        }
         return { success: false, error: error.message || "AI Generation Failed" };
     }
 };
@@ -135,9 +157,27 @@ const resolveTargetTypes = (types: string[]): string[] => {
 /**
  * MOCK GENERATOR (High Fidelity) - UPDATED FOR ULTIMATE RATIONALE SCHEMA
  */
-const generateMockItems = async (settings: GenerationSettings, types: string[], onProgress?: (s: string) => void): Promise<GenerationResponse> => {
+const generateMockItems = async (settings: GenerationSettings, types: string[], onProgress?: (s: string) => void, signal?: AbortSignal): Promise<GenerationResponse> => {
+    if (signal?.aborted) return { success: false, error: "Generation Cancelled" };
     if (onProgress) onProgress(`Simulating Batch Generation of ${types.length * settings.quantityPerType} items...`);
-    await new Promise(r => setTimeout(r, 1200));
+
+    try {
+        await new Promise<void>((resolve, reject) => {
+            if (signal?.aborted) return reject(new DOMException('Aborted', 'AbortError'));
+
+            const timer = setTimeout(() => resolve(), 1200);
+
+            if (signal) {
+                signal.addEventListener('abort', () => {
+                    clearTimeout(timer);
+                    reject(new DOMException('Aborted', 'AbortError'));
+                });
+            }
+        });
+    } catch (e: any) {
+        if (e.name === 'AbortError') return { success: false, error: "Generation Cancelled" };
+        throw e;
+    }
 
     const newItems: MasterQuestionItem[] = [];
 
@@ -197,14 +237,22 @@ const generateMockItems = async (settings: GenerationSettings, types: string[], 
                     { time: '1400', tempF: 102.2, tempC: 39.0, hr: 118, rr: 28, bp: '110/70', o2: '91% 2L NC' }
                 ],
 
-                // 4. Lab Results (Formatted HTML Table)
-                labs: `<table class="clinical-table"><thead><tr><th>Test</th><th>Result</th><th>Units</th><th>Ref Range</th><th style="text-align:center">Flag</th></tr></thead><tbody><tr><td>WBC</td><td style="color:#b91c1c; font-weight:bold">15.2</td><td>K/µL</td><td>5.0–10.0</td><td style="color:#b91c1c; text-align:center; font-weight:bold">↑</td></tr><tr><td>Lactate</td><td style="color:#b91c1c; font-weight:bold">3.4</td><td>mmol/L</td><td>0.5–2.2</td><td style="color:#b91c1c; text-align:center; font-weight:bold">↑</td></tr></tbody></table>`,
+                // 4. Lab Results (Structured Array)
+                labs: [
+                    { test: "WBC", value: "15.2", units: "K/µL", ref: "5.0-10.0", flag: "H", category: "Hematology" },
+                    { test: "Lactate", value: "3.4", units: "mmol/L", ref: "0.5-2.2", flag: "H", category: "Chemistry" }
+                ],
 
-                // 5. Medical Orders (JCIA Standard)
-                orders: `03/15/2025 1430 – Dr. A.S. (Internal Med)\n1. Normal saline 0.9% 1,000 mL IV bolus over 30 min STAT.\n2. Ceftriaxone 1 g IV q24h.`,
+                // 5. Medical Orders (Structured Array)
+                orders: [
+                    { order: "Normal saline 0.9%", dose: "1,000 mL", route: "IV bolus", freq: "STAT", status: "Active", indication: "Resuscitation" },
+                    { order: "Ceftriaxone", dose: "1 g", route: "IV", freq: "q24h", status: "Active", indication: "Infection" }
+                ],
 
-                // 6. Radiology (New Field)
-                radiology: `Study: Chest X-ray\nFindings: Diffuse bilateral infiltrates.`
+                // 6. Radiology (Structured Array)
+                radiology: [
+                    { study: "Chest X-ray", findings: "Diffuse bilateral infiltrates.", impression: "Suggestive of pneumonia.", date: "03/15/2025 1000" }
+                ]
             };
 
             // 3. Generate Structure/Options based on Type (with Variation)
@@ -274,7 +322,14 @@ const createMockRationale = (topic: string, summary: string, breakdown: string) 
     ],
     mnemonic: { title: "ABC", content: "Airway, Breathing, Circulation", explanation: "Primary survey." },
     cheatSheet: { title: "Clinical Pearls", points: ["Point 1", "Point 2", "Point 3"] },
-    referenceInfo: { anatomy: "Relevant anatomy.", physiology: "Relevant physiology.", pharm: "Relevant meds." }
+    referenceInfo: { anatomy: "Relevant anatomy.", physiology: "Relevant physiology.", pharm: "Relevant meds." },
+    difficulty: {
+        score: 60,
+        level: 3,
+        label: "Analysis",
+        clinicalStrategy: "Prioritize using ABC framework.",
+        recommendedActions: ["Review pathophysiology", "Practice prioritization"]
+    }
 });
 
 const generateMockStructure = (typeId: string, _focus: string): any => {
@@ -290,249 +345,304 @@ const generateMockStructure = (typeId: string, _focus: string): any => {
                 focusVariant: 'Sepsis',
                 screens: [
                     {
+                        type: 'highlight',
+                        cjmmStep: 'Recognize Cues',
+                        prompt: 'Highlight the findings that require immediate follow-up.',
+                        // Gold Standard: 50-80 words
+                        text: 'Client is <span id="h1">diaphoretic</span> and <span id="h2">confused</span> upon arrival. Family reports the client has been complaining of <span id="h3">stable bowel sounds</span> and general malaise for two days. Initial assessment reveals <span id="h4">tachycardia</span> (HR 120), <span id="h5">warm, flushed skin</span>, and a temperature of 102.5°F. The client appears anxious and is attempting to remove the oxygen mask repeatedly, indicating potential hypoxia or delirium involved in the presentation.',
+                        correct: ["h1", "h2", "h4", "h5"],
+                        decoys: ["h3"],
+                        rationales: {
+                            h1: { isCorrect: true, whyCorrect: "Sign of sympathetic discharge/shock.", whyIncorrect: "N/A" },
+                            h2: { isCorrect: true, whyCorrect: "Indicates brain hypoperfusion.", whyIncorrect: "N/A" },
+                            h3: { isCorrect: false, whyCorrect: "N/A", whyIncorrect: "Normal finding, not urgent." },
+                            h4: { isCorrect: true, whyCorrect: "Compensatory mechanism for shock.", whyIncorrect: "N/A" },
+                            h5: { isCorrect: true, whyCorrect: "Vasodilation from infection.", whyIncorrect: "N/A" }
+                        },
+                        rationale: createMockRationale("Urgent Cues", "Recognize shock signs.", "Confusion, sweating, and high HR are ominous.")
+                    },
+                    {
                         type: 'matrix',
+                        cjmmStep: 'Analyze Cues',
                         prompt: 'Assess Sepsis vs Heart Failure findings.',
-                        columns: [{ id: 'c1', label: 'Sepsis' }, { id: 'c2', label: 'Heart Failure' }],
+                        columns: [{ id: 'c1', text: 'Sepsis' }, { id: 'c2', text: 'Heart Failure' }],
+                        // Gold Standard: 4-6 Rows
                         rows: [
                             { id: 'r1', text: 'Fever 102.2°F', correctColumnId: 'c1', rationale: 'Sign of infection.' },
-                            { id: 'r2', text: 'BNP 1200', correctColumnId: 'c2', rationale: 'Sign of HF.' }
+                            { id: 'r2', text: 'BNP 1200', correctColumnId: 'c2', rationale: 'Sign of HF.' },
+                            { id: 'r3', text: 'Lactate 4.0 mmol/L', correctColumnId: 'c1', rationale: 'Anaerobic metabolism (Sepsis).' },
+                            { id: 'r4', text: 'S3 Gallop', correctColumnId: 'c2', rationale: 'Fluid overload (HF).' }
                         ],
                         rationale: createMockRationale("Sepsis vs HF", "Distinguish fever from fluid overload.", "Fever points to sepsis; BNP points to HF.")
                     },
                     {
-                        type: 'highlight', prompt: 'Review the clinical data. Identify the five (5) findings that require immediate nursing intervention or further evaluation. Two (2) findings are distractors and not directly related to the patient\'s current presentation.',
-                        text: 'Client is <span id="h1">diaphoretic</span>, <span id="h2">confused</span>, and has <span id="h3">stable bowel sounds</span>. Assessment shows <span id="h4">tachycardia</span> and <span id="h5">warm, dry skin on the hands</span>.',
-                        rationales: {
-                            h1: createMockRationale("Diaphoresis", "Sympathetic discharge.", "Sign of shock."),
-                            h2: createMockRationale("Confusion", "Brain hypoperfusion.", "Early sign of sepsis."),
-                            h3: createMockRationale("Bowel Sounds", "Normal finding.", "This is a distractor; normal bowel sounds are not an urgent cue here."),
-                            h4: createMockRationale("Tachycardia", "Compensatory mechanism.", "Indicates physiological stress/shock."),
-                            h5: createMockRationale("Skin Texture", "Normal finding.", "This is a distractor; warm dry skin on peripheral extremities is not an urgent cue.")
-                        },
-                        correct: ["h1", "h2", "h4"],
-                        rationale: createMockRationale("Urgent Cues", "Recognize shock signs.", "Confusion, sweating, and high HR are ominous.")
-                    },
-                    {
-                        type: 'ordered-response', prompt: 'Antibiotic Steps.',
+                        type: 'ordered-response',
+                        cjmmStep: 'Prioritize Hypotheses',
+                        prompt: 'Prioritize Antibiotic Administration Steps.',
                         orderedOptions: [
                             { id: 's1', text: 'Check Allergies', rationale: 'Safety first.' },
-                            { id: 's2', text: 'Draw Cultures', rationale: 'Before Abx.' },
-                            { id: 's3', text: 'Give Abx', rationale: 'Within 1 hour.' }
+                            { id: 's2', text: 'Draw Blood Cultures', rationale: 'Before Abx.' },
+                            { id: 's3', text: 'Administer Antibiotics', rationale: 'Within 1 hour.' }
                         ],
                         rationale: createMockRationale("Sepsis Bundle", "Time is tissue.", "Follow the bundle order.")
                     },
                     {
-                        type: 'cloze', prompt: 'Care Plan',
-                        sentences: [{
-                            text: 'Priority is %BLANK1%.', dropdowns: [
-                                { id: 'BLANK1', options: [{ text: 'Perfusion', isCorrect: true, rationale: 'Flow.' }, { text: 'Comfort' }] }
-                            ]
-                        }],
-                        rationale: createMockRationale("Planning", "Perfusion is key.", "Restore flow.")
-                    },
-                    {
-                        type: 'bow-tie', prompt: 'Sepsis Management',
-                        actions: [{ id: 'a1', text: 'Fluids', isCorrect: true, rationale: 'Fill tank.' }, { id: 'a2', text: 'Antibiotics', isCorrect: true, rationale: 'Kill bug.' }],
-                        conditions: [{ id: 'c1', text: 'Septic Shock', isCorrect: true, rationale: 'Hypotension.' }],
-                        parameters: [{ id: 'p1', text: 'MAP', isCorrect: true, rationale: 'Perf pressure.' }, { id: 'p2', text: 'Lactate', isCorrect: true, rationale: 'Cell hypoxia.' }],
-                        correct: { condition: 'c1', actions: ['a1', 'a2'], parameters: ['p1', 'p2'] },
+                        type: 'bow-tie',
+                        cjmmStep: 'Generate Solutions',
+                        prompt: 'Sepsis Management',
+                        actions: [{ id: 'a1', text: 'Fluids 30mL/kg', isCorrect: true }, { id: 'a2', text: 'Broad Spectrum Abx', isCorrect: true }, { id: 'a3', text: 'Diuretics', isCorrect: false }, { id: 'a4', text: 'Beta Blockers', isCorrect: false }, { id: 'a5', text: 'Hold Fluids', isCorrect: false }],
+                        conditions: [{ id: 'c1', text: 'Septic Shock', isCorrect: true }, { id: 'c2', text: 'Cardiogenic Shock', isCorrect: false }, { id: 'c3', text: 'Anaphylaxis', isCorrect: false }, { id: 'c4', text: 'Neurogenic Shock', isCorrect: false }],
+                        parameters: [{ id: 'p1', text: 'MAP > 65', isCorrect: true }, { id: 'p2', text: 'Lactate < 2', isCorrect: true }, { id: 'p3', text: 'CVP', isCorrect: false }, { id: 'p4', text: 'HR < 60', isCorrect: false }, { id: 'p5', text: 'Temp < 96', isCorrect: false }],
                         rationale: createMockRationale("Clinical Judgment", "Connect Sepsis to Fluids causing improved MAP.", "Fluids fix the pipes.")
                     },
                     {
-                        type: 'sata', prompt: 'Improvements?',
-                        options: [{ id: 'o1', text: 'MAP > 65', isCorrect: true, rationale: 'Success.' }],
-                        rationale: createMockRationale("Evaluation", "Goals met.", "MAP restored.")
+                        type: 'drop-cloze',
+                        cjmmStep: 'Take Action',
+                        prompt: 'Complete the care plan.',
+                        sentences: [{
+                            text: 'The priority is to restore %{d1} using %{d2}.',
+                            dropdowns: [
+                                // Gold Standard: 3-5 Options per dropdown
+                                {
+                                    id: 'd1',
+                                    options: [
+                                        { id: 'o1', text: 'Perfusion', isCorrect: true },
+                                        { id: 'o2', text: 'Comfort', isCorrect: false },
+                                        { id: 'o3', text: 'Mobility', isCorrect: false }
+                                    ]
+                                },
+                                {
+                                    id: 'd2',
+                                    options: [
+                                        { id: 'o4', text: 'IV Fluids', isCorrect: true },
+                                        { id: 'o5', text: 'Antipyretics', isCorrect: false },
+                                        { id: 'o6', text: 'Analgesics', isCorrect: false }
+                                    ]
+                                }
+                            ]
+                        }],
+                        blankMap: {
+                            d1: { correctOptionId: 'o1', whyCorrect: 'Perfusion is life-sustaining.', distractorRationales: { o2: 'Comfort is secondary.', o3: 'Mobility is unsafe.' } },
+                            d2: { correctOptionId: 'o4', whyCorrect: 'Fluids restore volume.', distractorRationales: { o5: 'Fever is not the primary threat.', o6: 'Pain is not priority.' } }
+                        },
+                        rationale: createMockRationale("Planning", "Perfusion is key.", "Restore flow.")
+                    },
+                    {
+                        type: 'multiple-response',
+                        cjmmStep: 'Evaluate Outcomes',
+                        prompt: 'Which findings indicate improvement? Select all that apply.',
+                        options: [
+                            { id: 'o1', text: 'MAP > 65 mmHg', isCorrect: true, rationale: 'Perfusion goal met.' },
+                            { id: 'o2', text: 'Lactate 1.5 mmol/L', isCorrect: true, rationale: 'Aerobic metabolism restored.' },
+                            { id: 'o3', text: 'Urine output 0.2 mL/kg/hr', isCorrect: false, rationale: 'Indicates retained failure.' },
+                            { id: 'o4', text: 'HR 110 bpm', isCorrect: false, rationale: 'Still tachycardic.' },
+                            { id: 'o5', text: 'Alert and Oriented', isCorrect: true, rationale: 'Brain perfusion improved.' }
+                        ],
+                        rationale: createMockRationale("Evaluation", "Goals met.", "MAP and Lactate normalized.")
                     }
                 ]
             };
         } else {
-            // Variant 1: Heart Failure
+            // Variant 1: Heart Failure (Simplified but strict)
             return {
                 type: 'case-study',
                 titleVariant: 'Acute Heart Failure',
                 focusVariant: 'Heart Failure',
                 screens: [
-                    {
-                        type: 'matrix',
-                        prompt: 'Right vs Left HF.',
-                        columns: [{ id: 'c1', label: 'Right HF' }, { id: 'c2', label: 'Left HF' }],
-                        rows: [
-                            { id: 'r1', text: 'JVD', correctColumnId: 'c1', rationale: 'Systemic.' },
-                            { id: 'r2', text: 'Crackles', correctColumnId: 'c2', rationale: 'Pulmonary.' }
-                        ],
-                        rationale: createMockRationale("HF Types", "Right = Rest of Body; Left = Lungs.", "JVD is systemic; Crackles are pulmonary.")
-                    },
-                    {
-                        type: 'highlight', prompt: 'Review the clinical data. Identify the five (5) findings that require immediate nursing intervention or further evaluation. Two (2) findings are distractors and not directly related to the patient\'s current presentation.',
-                        text: 'Client has <span id="h1">frothy sputum</span>, <span id="h2">bibasilar crackles</span>, and <span id="h3">intact cranial nerves</span>. Noted <span id="h4">orthopnea</span> and <span id="h5">normal pupil reaction</span>.',
-                        rationales: {
-                            h1: createMockRationale("Pulmonary Edema", "Fluid in alveoli.", "Life threatening."),
-                            h2: createMockRationale("Crackles", "Fluid overload.", "Indicates left-sided heart failure."),
-                            h3: createMockRationale("Neurological Status", "Normal finding.", "This is a distractor; intact cranial nerves are expected and not critical here."),
-                            h4: createMockRationale("Orthopnea", "Difficulty breathing lying flat.", "Classic sign of pulmonary congestion."),
-                            h5: createMockRationale("Pupils", "Normal finding.", "This is a distractor; normal pupil reaction is not a critical cue for HF.")
-                        },
-                        correct: ["h1", "h2", "h4"],
-                        rationale: createMockRationale("Assessment", "Identify Pulmonary Edema.", "Frothy sputum and crackles are classic.")
-                    },
-                    {
-                        type: 'ordered-response', prompt: 'Prioritize HF Actions.',
-                        orderedOptions: [{ id: 's1', text: 'Sit Up', rationale: 'Improve expansion.' }, { id: 's2', text: 'Oxygen', rationale: 'Hypoxia.' }],
-                        rationale: createMockRationale("Intervention", "Positioning first.", "High Fowlers reduces return.")
-                    },
-                    {
-                        type: 'cloze', prompt: 'Goals.',
-                        sentences: [{
-                            text: 'Reduce %BLANK1%.', dropdowns: [
-                                { id: 'BLANK1', options: [{ text: 'Preload', isCorrect: true, rationale: 'Volume.' }, { text: 'Afterload' }] }
-                            ]
-                        }],
-                        rationale: createMockRationale("Physiology", "Preload reduction.", "Less fluid returning to heart.")
-                    },
-                    {
-                        type: 'bow-tie', prompt: 'Protocol.',
-                        actions: [{ id: 'a1', text: 'Diuretics', isCorrect: true, rationale: 'DUMP fluid.' }, { id: 'a2', text: 'Restrict Fluid', isCorrect: true, rationale: 'STOP fluid.' }],
-                        conditions: [{ id: 'c1', text: 'Pulmonary Edema', isCorrect: true, rationale: 'Fluid in lungs.' }],
-                        parameters: [{ id: 'p1', text: 'Lung Sounds', isCorrect: true, rationale: 'Crackles.' }, { id: 'p2', text: 'Weight', isCorrect: true, rationale: 'Fluid status.' }],
-                        correct: { condition: 'c1', actions: ['a1', 'a2'], parameters: ['p1', 'p2'] },
-                        rationale: createMockRationale("Integration", "Pulmonary Edema requires Diuresis.", "Clear the lungs.")
-                    },
-                    {
-                        type: 'sata', prompt: 'Success?',
-                        options: [{ id: 'o1', text: 'Clear lungs', isCorrect: true, rationale: 'Resolved.' }],
-                        rationale: createMockRationale("Outcomes", "Lungs clear.", "Breathing improved.")
-                    }
+                    { type: 'highlight', cjmmStep: 'Recognize Cues', prompt: 'Highlight urgent cues.', text: 'Patient has <span id="h1">frothy sputum</span> and <span id="h2">bibasilar crackles</span>. Dyspnea is worsening despite <span id="h3">sitting upright</span>. O2 sat is <span id="h4">88% on RA</span>.', correct: ['h1', 'h2', 'h4'], decoys: ['h3'], rationales: { h1: { isCorrect: true, whyCorrect: 'Edema.', whyIncorrect: 'N/A' }, h2: { isCorrect: true, whyCorrect: 'Fluid.', whyIncorrect: 'N/A' }, h3: { isCorrect: false, whyCorrect: 'N/A', whyIncorrect: 'Appropriate position.' }, h4: { isCorrect: true, whyCorrect: 'Hypoxia.', whyIncorrect: 'N/A' } }, rationale: createMockRationale('Assess', 'Edema', 'Frothy sputum.') },
+                    { type: 'matrix', cjmmStep: 'Analyze Cues', prompt: 'Right vs Left HF', columns: [{ id: 'c1', text: 'Right' }, { id: 'c2', text: 'Left' }], rows: [{ id: 'r1', text: 'JVD', correctColumnId: 'c1', rationale: 'Systemic.' }, { id: 'r2', text: 'Lung Crackles', correctColumnId: 'c2', rationale: 'Lungs.' }, { id: 'r3', text: 'Peripheral Edema', correctColumnId: 'c1', rationale: 'Systemic.' }, { id: 'r4', text: 'Orthopnea', correctColumnId: 'c2', rationale: 'Lungs.' }], rationale: createMockRationale('Analyze', 'Side', 'JVD=Right.') },
+                    { type: 'ordered-response', cjmmStep: 'Prioritize Hypotheses', prompt: 'Actions', orderedOptions: [{ id: 's1', text: 'Sit Up', rationale: 'Breathing.' }, { id: 's2', text: 'O2', rationale: 'Hypoxia.' }, { id: 's3', text: 'Diuretics', rationale: 'Fluid.' }], rationale: createMockRationale('Priority', 'Position', 'High Fowlers.') },
+                    { type: 'bow-tie', cjmmStep: 'Generate Solutions', prompt: 'Diagram', actions: [{ id: 'a1', text: 'Diuretics', isCorrect: true }, { id: 'a2', text: 'Restrict Fluids', isCorrect: true }, { id: 'a3', text: 'Beta Blocker', isCorrect: false }, { id: 'a4', text: 'Fluids', isCorrect: false }, { id: 'a5', text: 'Digoxin', isCorrect: false }], conditions: [{ id: 'c1', text: 'Fluid Overload', isCorrect: true }, { id: 'c2', text: 'Dehydration', isCorrect: false }, { id: 'c3', text: 'Sepsis', isCorrect: false }, { id: 'c4', text: 'Anemia', isCorrect: false }], parameters: [{ id: 'p1', text: 'Clear Lungs', isCorrect: true }, { id: 'p2', text: 'Weight Loss', isCorrect: true }, { id: 'p3', text: 'Fever', isCorrect: false }, { id: 'p4', text: 'HR increase', isCorrect: false }, { id: 'p5', text: 'BP decrease', isCorrect: false }], rationale: createMockRationale('Solution', 'Diurese', 'Remove fluid.') },
+                    { type: 'drop-cloze', cjmmStep: 'Take Action', prompt: 'Administer...', sentences: [{ text: 'Give %{d1} to treat %{d2}.', dropdowns: [{ id: 'd1', options: [{ id: 'o1', text: 'Lasix', isCorrect: true }, { id: 'o2', text: 'Fluids', isCorrect: false }, { id: 'o3', text: 'Aspirin', isCorrect: false }] }, { id: 'd2', options: [{ id: 'o4', text: 'Edema', isCorrect: true }, { id: 'o5', text: 'Pain', isCorrect: false }, { id: 'o6', text: 'Fever', isCorrect: false }] }] }], blankMap: { d1: { correctOptionId: 'o1', whyCorrect: 'Diuretic.', distractorRationales: {} }, d2: { correctOptionId: 'o4', whyCorrect: 'Fluid.', distractorRationales: {} } }, rationale: createMockRationale('Action', 'Meds', 'Lasix.') },
+                    { type: 'multiple-response', cjmmStep: 'Evaluate Outcomes', prompt: 'Outcomes', options: [{ id: 'o1', text: 'Clear lungs', isCorrect: true, rationale: 'Good.' }, { id: 'o2', text: 'Weight decreased', isCorrect: true, rationale: 'Fluid loss.' }], rationale: createMockRationale('Eval', 'Lungs', 'Clear.') }
                 ]
             };
         }
     }
 
-    // 0.5 Ordered Response
+    // 0.5 Ordered Response (Standalone)
     if (typeId.includes('ordered')) {
         return {
             type: 'ordered-response',
             titleVariant: 'Foley Insertion',
-            prompt: 'Drag steps for Foley.',
+            prompt: 'Drag steps for Foley Insertion into order.',
             orderedOptions: [
-                { id: 's1', text: 'Hand Hygiene', rationale: 'Clean.' },
-                { id: 's2', text: 'Open Kit', rationale: 'Field.' },
-                { id: 's3', text: 'Glove', rationale: 'Sterile.' }
+                { id: 's1', text: 'Perform Hand Hygiene', rationale: 'Infection control.' },
+                { id: 's2', text: 'Open Sterile Kit', rationale: 'Maintain field.' },
+                { id: 's3', text: 'Don Sterile Gloves', rationale: 'Sterile technique.' }
             ],
             rationale: createMockRationale("Sterile Tech", "Hand hygiene then Sterile Field.", "Don't break sterility.")
         };
     }
 
-    // 1. Bow-Tie
+    // 1. Bow-Tie (Standalone)
     if (typeId.includes('bow-tie')) {
         return {
             type: 'bow-tie',
             titleVariant: 'Sepsis',
-            prompt: 'Complete Sepsis bow-tie.',
-            actions: [{ id: 'a1', text: 'Fluids', isCorrect: true, rationale: 'Support BP.' }, { id: 'a2', text: 'Abx', isCorrect: true, rationale: 'Kill bacteria.' }],
-            conditions: [{ id: 'c1', text: 'Septic Shock', isCorrect: true, rationale: 'Matches cues.' }],
-            parameters: [{ id: 'p1', text: 'MAP', isCorrect: true, rationale: 'Perfusion.' }, { id: 'p2', text: 'Lactate', isCorrect: true, rationale: 'Hypoxia.' }],
-            correct: { condition: 'c1', actions: ['a1', 'a2'], parameters: ['p1', 'p2'] },
+            prompt: 'Complete the Clinical Decision Diagram.',
+            actions: [
+                { id: 'a1', text: 'Administer IV Fluids', isCorrect: true },
+                { id: 'a2', text: 'Administer Antibiotics', isCorrect: true },
+                { id: 'a3', text: 'Restrict Fluids', isCorrect: false },
+                { id: 'a4', text: 'Perform Cardioversion', isCorrect: false },
+                { id: 'a5', text: 'Administer Beta Blockers', isCorrect: false }
+            ],
+            conditions: [
+                { id: 'c1', text: 'Septic Shock', isCorrect: true },
+                { id: 'c2', text: 'Cardiogenic Shock', isCorrect: false },
+                { id: 'c3', text: 'Hypovolemic Shock', isCorrect: false },
+                { id: 'c4', text: 'Neurogenic Shock', isCorrect: false }
+            ],
+            parameters: [
+                { id: 'p1', text: 'MAP > 65 mmHg', isCorrect: true },
+                { id: 'p2', text: 'Lactate Clearance', isCorrect: true },
+                { id: 'p3', text: 'Decrease in CVP', isCorrect: false },
+                { id: 'p4', text: 'Bradycardia', isCorrect: false },
+                { id: 'p5', text: 'Hypothermia', isCorrect: false }
+            ],
             rationale: createMockRationale("Sepsis Logic", "Fluids and Abx for Septic Shock.", "Standard bundle.")
         };
     }
 
-    // 2. Matrix
+    // 2. Matrix (Standalone)
     if (typeId.includes('matrix')) {
         return {
             type: 'matrix',
-            prompt: 'Assess Findings.',
-            columns: [{ id: 'c1', label: 'True' }, { id: 'c2', label: 'False' }],
-            rows: [{ id: 'r1', text: 'Stable?', correctColumnId: 'c2', rationale: 'Unstable.' }],
+            prompt: 'Indicate whether each finding corresponds to Sepsis or Heart Failure.',
+            columns: [{ id: 'c1', text: 'Sepsis' }, { id: 'c2', text: 'Heart Failure' }],
+            rows: [ // Gold Standard: 4-6 Rows
+                { id: 'r1', text: 'Fever > 101°F', correctColumnId: 'c1', rationale: 'Infection sign.' },
+                { id: 'r2', text: 'BNP > 400', correctColumnId: 'c2', rationale: 'Heart stretch sign.' },
+                { id: 'r3', text: 'Lactate > 2', correctColumnId: 'c1', rationale: 'Hypoperfusion sign.' },
+                { id: 'r4', text: 'New S3 Heart Sound', correctColumnId: 'c2', rationale: 'Fluid overload sign.' }
+            ],
             rationale: createMockRationale("Assessment", "Determine stability.", "Patient is unstable.")
         };
     }
 
-    // 3. Highlight
+    // 3. Highlight (Standalone)
     if (typeId.includes('highlight')) {
         return {
             type: 'highlight',
-            prompt: 'Review the clinical data. Identify the five (5) findings that require immediate nursing intervention or further evaluation. Two (2) findings are distractors and not directly related to the patient\'s current presentation.',
-            text: 'Patient is <span id="h1">cyanotic</span>, <span id="h2">lethargic</span>, and <span id="h3">resting quietly</span>. Monitor shows <span id="h4">SpO2 82%</span> and <span id="h5">regular heart rhythm</span>.',
+            prompt: 'Highlight the findings that require immediate intervention.',
+            // Gold Standard: 50-80 Words & Plausible
+            text: 'Patient is <span id="h1">cyanotic</span> and <span id="h2">lethargic</span> upon examination. The spouse reports the patient was <span id="h3">resting quietly</span> earlier but became difficult to arouse. Monitor shows <span id="h4">SpO2 82%</span> on room air and a <span id="h5">regular heart rhythm</span> of 110 bpm. The nurse notes <span id="h6">accessory muscle use</span> and immediate intervention is required to prevent arrest.',
+            correct: ["h1", "h2", "h4", "h6"],
+            decoys: ["h3", "h5"],
             rationales: {
-                h1: createMockRationale("Cyanosis", "Severe hypoxia.", "Late and critical sign."),
-                h2: createMockRationale("Lethargy", "Decreased cerebral oxygenation.", "Indicates decompensation."),
-                h3: createMockRationale("Activity Level", "Normal appearance.", "This is a distractor; resting quietly is not an urgent cue."),
-                h4: createMockRationale("SpO2", "Critical hypoxemia.", "Requires immediate oxygen/intervention."),
-                h5: createMockRationale("Pulse Rhythm", "Stated as regular.", "This is a distractor; a regular rhythm is not an urgent cue here.")
+                h1: { isCorrect: true, whyCorrect: "Severe hypoxia.", whyIncorrect: "N/A" },
+                h2: { isCorrect: true, whyCorrect: "Brain hypoperfusion.", whyIncorrect: "N/A" },
+                h3: { isCorrect: false, whyCorrect: "N/A", whyIncorrect: "Non-urgent finding." },
+                h4: { isCorrect: true, whyCorrect: "Critical hypoxemia.", whyIncorrect: "N/A" },
+                h5: { isCorrect: false, whyCorrect: "N/A", whyIncorrect: "Tachycardia is urgent but rhythm is regular." },
+                h6: { isCorrect: true, whyCorrect: "Respiratory distress.", whyIncorrect: "N/A" }
             },
-            correct: ["h1", "h2", "h4"],
             rationale: createMockRationale("Urgency", "Hypoxia is critical.", "Cyanosis and low SpO2 require immediate action.")
         };
     }
 
-    // 4. Cloze
-    if (typeId.includes('cloze')) {
+    // 4. Drop-Cloze (Standalone) - FIXED SCHEMA
+    if (typeId.includes('cloze') || typeId.includes('drop')) {
         return {
-            type: 'cloze',
-            prompt: 'Sepsis Cloze',
+            type: 'drop-cloze',
+            prompt: 'Complete the sentence.',
             sentences: [{
-                text: 'Give %BLANK1%.',
-                dropdowns: [{ id: 'BLANK1', options: [{ text: 'Fluids', isCorrect: true, rationale: 'Volume.' }] }]
+                text: 'The nurse should immediately administer %{d1} to increase %{d2}.',
+                dropdowns: [
+                    // Gold Standard: 3-5 Options per dropdown
+                    {
+                        id: 'd1',
+                        options: [
+                            { id: 'o1', text: 'IV Fluids', isCorrect: true },
+                            { id: 'o2', text: 'Beta Blockers', isCorrect: false },
+                            { id: 'o3', text: 'Sedatives', isCorrect: false }
+                        ]
+                    },
+                    {
+                        id: 'd2',
+                        options: [
+                            { id: 'o4', text: 'Blood Pressure', isCorrect: true },
+                            { id: 'o5', text: 'Potassium', isCorrect: false },
+                            { id: 'o6', text: 'Sleep', isCorrect: false }
+                        ]
+                    }
+                ]
             }],
+            blankMap: {
+                d1: { correctOptionId: 'o1', whyCorrect: 'Restores volume.', distractorRationales: { o2: 'Decreases BP, contraindicated.', o3: 'Unsafe in shock.' } },
+                d2: { correctOptionId: 'o4', whyCorrect: 'Perfuses organs.', distractorRationales: { o5: 'Not relevant to fluids.', o6: 'Not priority.' } }
+            },
             rationale: createMockRationale("Treatment", "Fluids first.", "Fill the tank.")
         };
     }
 
-    // 5. SATA
+    // 5. SATA (Standalone)
     if (typeId.includes('multiple-response')) {
         return {
-            type: 'sata',
-            prompt: 'Select interventions.',
-            options: [{ id: 'o1', text: 'Fluids', isCorrect: true, rationale: 'Yes.' }, { id: 'o2', text: 'Ignore', isCorrect: false, rationale: 'No.' }],
+            type: 'multiple-response', // Fixed Type ID
+            prompt: 'Select all that apply.',
+            options: [
+                { id: 'o1', text: 'Administer IV Fluids', isCorrect: true, rationale: 'Restores volume.' },
+                { id: 'o2', text: 'Ignore symptoms', isCorrect: false, rationale: 'Negligence.' },
+                { id: 'o3', text: 'Monitor Vital Signs', isCorrect: true, rationale: 'Safety.' },
+                { id: 'o4', text: 'Notify Provider', isCorrect: true, rationale: 'Escalation.' }, // Added 4th option
+                { id: 'o5', text: 'Document Findings', isCorrect: true, rationale: 'Legal.' } // Added 5th option
+            ],
             rationale: createMockRationale("Interventions", "Select appropriate actions.", "Fluids are key.")
         };
     }
 
-    // 6. Trend
+    // 6. Trend (Standalone)
     if (typeId.includes('trend')) {
         return {
             type: 'trend',
             titleVariant: 'Shock Trend',
-            prompt: 'Analyze trend.',
+            prompt: 'Analyze the trend data.',
             trendData: {
                 timePoints: [{ id: 't1', timeLabel: '08:00' }, { id: 't2', timeLabel: '09:00' }],
                 parameters: [{ name: 'BP', values: ['100/60', '80/40'] }]
             },
-            questionFormat: 'single',
-            options: [{ id: 'o1', text: 'Fluids', isCorrect: true, rationale: 'Shock.' }],
+            questionFormat: 'multiple-response', // Fixed valid format
+            options: [
+                { id: 'o1', text: 'Hypotension', isCorrect: true, rationale: 'Consistent with trend data.' },
+                { id: 'o2', text: 'Hypertension', isCorrect: false, rationale: 'Contradicts trend.' }
+            ],
             rationale: createMockRationale("Trending", "Deterioration.", "BP is dropping.")
         };
     }
 
-    // 7. Hot Spot
+    // 7. Hot Spot (Standalone)
     if (typeId.includes('hot-spot')) {
         return {
-            type: 'hot-spot',
+            type: 'hot_spot', // Fixed Type ID
             prompt: "Click the Left Ventricle.",
             imageUrl: "https://placehold.co/600x400?text=Heart+Diagram",
-            areas: [{ id: "a1", x: 50, y: 50, radius: 10, isCorrect: true, rationale: "[Hook] The Pump. [Breakdown] Correct." }], // Simple rationale for area
+            targetArea: { x: 50, y: 50, radius: 10 },
             rationale: createMockRationale("Anatomy", "Left Ventricle location.", "Lower left chamber.")
         };
     }
 
-    // 8. Calculation
+    // 8. Calculation (Standalone)
     if (typeId.includes('calculation')) {
         return {
             type: 'calculation',
-            prompt: "Calculate mL.",
-            units: "mL",
-            label: "mL",
-            correctValue: 2,
-            acceptableRange: [2, 2],
-            rationale: createMockRationale("Dosage", "Simple math.", "1+1=2")
+            prompt: "Calculate the infusion rate in mL/hr.",
+            units: "mL/hr",
+            correctValue: 125,
+            acceptableRange: [124, 126],
+            rationale: createMockRationale("Dosage", "Simple math.", "1000mL / 8hr = 125 mL/hr.")
         };
     }
 
     // Default
     return {
-        type: 'multiple-choice',
+        type: 'single-response', // Fixed default type
         prompt: 'Default Question',
-        options: [{ id: 'A', text: 'Correct Answer', isCorrect: true, rationale: 'Explanation.' }],
+        options: [
+            { id: 'o1', text: 'Correct Answer', isCorrect: true, rationale: 'Explanation.' },
+            { id: 'o2', text: 'Distractor', isCorrect: false, rationale: 'Explanation.' }
+        ],
         rationale: createMockRationale("Default", "Summary.", "Breakdown.")
     };
 };
@@ -541,10 +651,29 @@ const generateMockStructure = (typeId: string, _focus: string): any => {
  * Validates and hydrates an item after generation.
  */
 const processGeneratedItem = (item: MasterQuestionItem, settings: GenerationSettings): MasterQuestionItem => {
-    // 1. Ensure IDs
+    // 1. Ensure IDs and Type Mapping
+    // @ts-ignore
+    if (!item.typeId && item.type) {
+        // @ts-ignore
+        item.typeId = item.type;
+    }
     item.id = item.id || crypto.randomUUID();
+
+    // Ensure Pedagogy Object
+    if (!item.pedagogy) {
+        item.pedagogy = {
+            difficultyLevel: settings.difficultyLevel,
+            clinicalFocus: settings.clinicalFocus[0] || 'General',
+            clinicalFocusTopics: settings.clinicalFocus
+        };
+    } else {
+        // Ensure sub-fields
+        item.pedagogy.difficultyLevel = item.pedagogy.difficultyLevel || settings.difficultyLevel;
+        item.pedagogy.clinicalFocus = item.pedagogy.clinicalFocus || settings.clinicalFocus[0] || 'General';
+    }
+
     item.metadata = {
-        title: item.metadata?.title || "Untitled Generated Item",
+        title: item.metadata?.title || `Generated ${item.typeId || 'Item'}`,
         authorId: 'AI_Gen',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -602,7 +731,11 @@ import { PROMPT_MAP } from '../config/promptTemplates';
 const buildDetailedPrompt = (settings: GenerationSettings, refs: ReferenceSource[], types: string[]): string => {
     // Collect Context
     const activeRefs = refs.filter(r => settings.selectedReferenceIds.includes(r.referenceId) && r.isActive);
-    const refContext = activeRefs.map(r => `Document: ${r.fileName} (Type: ${r.fileType})`).join('\n');
+
+    const refContext = activeRefs.map(r => {
+        const content = r.contentSummary || (r as any).extractedText || (r as any).text || "No content extracted.";
+        return `Document: ${r.fileName} (Type: ${r.fileType})\nContent: ${content}\n---`;
+    }).join('\n\n');
 
     // Auto-Describe Logic
     const userPrompt = settings.aiPrompt && settings.aiPrompt.trim().length > 0
@@ -621,14 +754,23 @@ const buildDetailedPrompt = (settings: GenerationSettings, refs: ReferenceSource
             template = template.replace(/\[QUANTITY\]/g, settings.quantityPerType.toString());
             template = template.replace(/\*\*\[QUANTITY\]\*\*/g, settings.quantityPerType.toString());
 
-            // Replace [FOCUS]
+            // Replace [FOCUS] and [TOPIC]
             const focusString = settings.clinicalFocus.join(', ') + (settings.customClinicalFocus ? ` (${settings.customClinicalFocus})` : '');
             template = template.replace(/\[FOCUS\]/g, focusString);
             template = template.replace(/\*\*\[FOCUS\]\*\*/g, focusString);
+            template = template.replace(/\[TOPIC\]/g, focusString);
+            template = template.replace(/\*\*\[TOPIC\]\*\*/g, focusString);
 
-            // Replace [LEVEL]
+            // Replace [LEVEL], [DIFFICULTY], and [SCORE]
             template = template.replace(/\[LEVEL\]/g, settings.difficultyLevel.toString());
             template = template.replace(/\*\*\[LEVEL\]\*\*/g, settings.difficultyLevel.toString());
+            template = template.replace(/\[DIFFICULTY\]/g, settings.difficultyLevel.toString());
+            template = template.replace(/\*\*\[DIFFICULTY\]\*\*/g, settings.difficultyLevel.toString());
+
+            const scoreMap: Record<number, number> = { 1: 50, 2: 60, 3: 75, 4: 85, 5: 95 };
+            const score = scoreMap[settings.difficultyLevel] || 75;
+            template = template.replace(/\[SCORE\]/g, score.toString());
+            template = template.replace(/\*\*\[SCORE\]\*\*/g, score.toString());
 
             typeSpecificPrompts += `\n\n--- INSTRUCTIONS AND TEMPLATE FOR TYPE: ${t} ---\n${template}`;
         }

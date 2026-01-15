@@ -120,7 +120,7 @@ export const SingleChoiceRenderer: React.FC<GenericRendererProps> = ({ config, a
                 }
             `}</style>
 
-            {config.options?.map((opt: any) => {
+            {config.options?.map((opt: any, idx: number) => {
                 const isSelected = answers === opt.id;
                 const isCorrect = opt.isCorrect; // Note: Ensure config actually carries this if we want specific correct visual, usually passed via validation logic or hidden in config
 
@@ -161,7 +161,7 @@ export const SingleChoiceRenderer: React.FC<GenericRendererProps> = ({ config, a
 
                 return (
                     <div
-                        key={opt.id}
+                        key={opt.id || idx}
                         className={cardClass}
                         onClick={() => handleChange(opt.id)}
                     >

@@ -12,11 +12,11 @@
 Generate **[QUANTITY]** **Case Study (6-Screen)** items with a Clinical Focus of **[FOCUS]** at Difficulty Level **[LEVEL]** (1-5).
 
 **DIFFICULTY LEVEL GUIDE:**
-- **Level 1 (Novice/Recall)**: Basic facts, definitions, and single-step recall.
-- **Level 2 (Adv. Beginner/Application)**: Applying standard rules or protocols to simple scenarios.
-- **Level 3 (NGN Standard/Analysis)**: Multi-step cues, analyzing trends, differentiating findings.
-- **Level 4 (Proficient/Synthesis)**: Prioritizing conflicting needs, complex decision making.
-- **Level 5 (Expert/Evaluation)**: High-stakes clinical judgment under uncertainty or rapid change.
+- **Level 1 (Recall / Basic)**: Knowledge Retrieval. Low Risk.
+- **Level 2 (Application)**: Apply Rule/Process. Low-Moderate Risk.
+- **Level 3 (Analysis / NGN Std)**: Connect Cues (Trends). Moderate Risk.
+- **Level 4 (Synthesis)**: Prioritize & Plan. High Risk.
+- **Level 5 (Evaluation / Expert)**: Managing Complexity. Critical Risk.
 
 **SYSTEM ROLE:** You are a specialized NCLEX-NGN Item Writer and Clinical Educator.
 **TASK:** Generate **[QUANTITY]** (default: 1) complete 6-Screen NGN Case Study/Studies.
@@ -167,7 +167,9 @@ You are a "Super-Teacher"—empathetic, strategic, and crystal clear. The **MAIN
 }
 ```
 
-**CRITICAL INSTRUCTION**: You must generate *rich, detailed content* for the Mnemonic, Cheat Sheet, and Reference Info sections. These populate the "Strategy" and "Knowledge" tabs in the UI.
+**CRITICAL INSTRUCTION**: You must generate *rich, detailed content* for the Mnemonic, Cheat Sheet, and Reference Info sections.
+**ABSOLUTE REQUIREMENT**: This content MUST be **100% RELEVANT** to the generated Clinical Focus (`[FOCUS]`) and Scenario.
+- ❌ Do NOT use generic examples (e.g. COPD, Diabetes) unless the item is specifically about them.
 
 ## 📋 4. Screen Types Reference (ALL 6 MANDATORY)
 | Screen | Type | Key Fields |
@@ -190,7 +192,8 @@ You are a "Super-Teacher"—empathetic, strategic, and crystal clear. The **MAIN
   "cjmmStep": "Generate Solutions", // Must match the question type (Screen 1=Recognize, Screen 6=Evaluate)
   "difficulty": "Hard",
   "topic": "Cardiology / Heart Failure",
-  "peerAverageTime": "90" // Estimated seconds for this specific item
+  "peerAverageTime": "90", // Estimated seconds for this specific item
+  "peerSuccessRate": "65" // Estimated percentage of students who answer correctly (0-100)
 }
 ```
 

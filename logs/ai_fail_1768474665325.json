@@ -1,0 +1,804 @@
+{
+  "id": "unified_1768414632757_9_ymxwxl",
+  "type": "multiple-response",
+  "typeId": "multiple-response",
+  "metadata": {
+    "title": "Legal/Ethical (Advance Directives, HIPAA) (Batch 10)",
+    "topic": "Fundamentals & Leadership",
+    "subTopic": "Legal/Ethical (Advance Directives, HIPAA)",
+    "status": "published",
+    "difficulty": "Easy",
+    "difficultyLevel": 2,
+    "authorId": "admin",
+    "createdAt": "2026-01-14T18:17:12.757Z",
+    "updatedAt": "2026-01-14T18:17:12.757Z",
+    "sourceOrigin": "manual",
+    "sourceReferences": [],
+    "allowed_modes": [
+      "practice",
+      "exam",
+      "tutor"
+    ],
+    "hasStudentPreview": true,
+    "score": 50,
+    "clinicalFocus": "Mental Health"
+  },
+  "content": {
+    "patient": {
+      "age": 35,
+      "sex": "Female",
+      "name": "Jane Doe"
+    },
+    "vitals": [
+      {
+        "time": "07:30",
+        "tempF": 98.6,
+        "hr": 78,
+        "rr": 16,
+        "bp": "120/80",
+        "o2": 98,
+        "pain": 0
+      },
+      {
+        "time": "08:00",
+        "tempF": 98.7,
+        "hr": 76,
+        "rr": 18,
+        "bp": "122/82",
+        "o2": 99,
+        "pain": 0
+      },
+      {
+        "time": "08:30",
+        "tempF": 98.8,
+        "hr": 75,
+        "rr": 17,
+        "bp": "124/84",
+        "o2": 99,
+        "pain": 2
+      }
+    ],
+    "labs": [
+      {
+        "test": "Sodium",
+        "value": 140,
+        "unit": "mEq/L",
+        "flag": null,
+        "reference": "135-145"
+      },
+      {
+        "test": "Potassium",
+        "value": 4.2,
+        "unit": "mEq/L",
+        "flag": null,
+        "reference": "3.5-5.0"
+      },
+      {
+        "test": "Chloride",
+        "value": 100,
+        "unit": "mEq/L",
+        "flag": null,
+        "reference": "98-106"
+      },
+      {
+        "test": "BUN",
+        "value": 15,
+        "unit": "mg/dL",
+        "flag": null,
+        "reference": "8-20"
+      },
+      {
+        "test": "Creatinine",
+        "value": 0.8,
+        "unit": "mg/dL",
+        "flag": null,
+        "reference": "0.6-1.2"
+      },
+      {
+        "test": "Glucose",
+        "value": 90,
+        "unit": "mg/dL",
+        "flag": null,
+        "reference": "70-110"
+      },
+      {
+        "test": "WBC",
+        "value": 7.5,
+        "unit": "x10^3/uL",
+        "flag": null,
+        "reference": "4.5-11.0"
+      },
+      {
+        "test": "Hemoglobin",
+        "value": 13.5,
+        "unit": "g/dL",
+        "flag": null,
+        "reference": "12.0-16.0"
+      },
+      {
+        "test": "Platelets",
+        "value": 250,
+        "unit": "x10^3/uL",
+        "flag": null,
+        "reference": "150-400"
+      },
+      {
+        "test": "Magnesium",
+        "value": 2,
+        "unit": "mg/dL",
+        "flag": null,
+        "reference": "1.5-2.5"
+      },
+      {
+        "test": "Calcium",
+        "value": 9.5,
+        "unit": "mg/dL",
+        "flag": null,
+        "reference": "8.5-10.5"
+      }
+    ],
+    "orders": [
+      {
+        "order": "Start IV Normal Saline at 20 mL/hr",
+        "status": "Active",
+        "orderedBy": "Dr. S. Specialist",
+        "time": "07:45"
+      },
+      {
+        "order": "Escitalopram 10mg PO daily",
+        "status": "Active",
+        "orderedBy": "Dr. S. Specialist",
+        "time": "08:00"
+      },
+      {
+        "order": "Acetaminophen 500mg PO PRN for headache, every 4-6 hours",
+        "status": "Active",
+        "orderedBy": "Dr. S. Specialist",
+        "time": "08:00"
+      },
+      {
+        "order": "Consult with Mental Health Liaison",
+        "status": "Active",
+        "orderedBy": "Dr. S. Specialist",
+        "time": "09:30"
+      },
+      {
+        "order": "Monitor vital signs every 4 hours",
+        "status": "Active",
+        "orderedBy": "Dr. S. Specialist",
+        "time": "09:30"
+      },
+      {
+        "order": "Assess pain and anxiety levels every 4 hours",
+        "status": "Active",
+        "orderedBy": "Dr. S. Specialist",
+        "time": "09:30"
+      }
+    ],
+    "historyPhysical": {
+      "chiefComplaint": "Anxiety and Headache",
+      "hpi": "The patient, Jane Doe, is a 35-year-old female admitted for anxiety and migraine management. She reports feeling anxious due to the hospitalization environment and a mild headache. She has a history of GAD and migraines, which are usually well-managed with medication at home. She denies any suicidal ideation or recent changes in her mental health treatment.",
+      "pmh": "Generalized Anxiety Disorder (GAD) - well managed with medication, Migraines - occur approximately 2-3 times per month",
+      "psh": "No previous surgeries.",
+      "medications": "Escitalopram 10mg daily, Ibuprofen 200mg PRN for migraines",
+      "allergies": "NKDA",
+      "familyHistory": "Mother with hypertension, Father with no known medical conditions.",
+      "socialHistory": "Non-smoker, occasional alcohol consumption (1-2 drinks per week), works as an accountant. Reports feeling stressed at work recently.",
+      "general": "Patient is alert and oriented to person, place, and time. Appears stated age, well-nourished, and well-hydrated. No acute distress.",
+      "cardiovascular": "Regular rate and rhythm, no murmurs, rubs, or gallops auscultated.",
+      "respiratory": "Lungs clear to auscultation bilaterally. No wheezes, crackles, or rhonchi noted. Effort is normal.",
+      "gastrointestinal": "Abdomen soft, non-tender to palpation. Bowel sounds present in all four quadrants.",
+      "neurological": "Grossly intact. Cranial nerves II-XII intact. Strength 5/5 in all extremities. Sensation intact.",
+      "psychiatric": "Patient reports feeling anxious due to hospitalization but is cooperative and follows directions. Affect is congruent with mood. Denies suicidal ideation. Anxious but coherent.",
+      "skin": "Skin warm, dry, and intact. No rashes, lesions, or edema noted."
+    },
+    "rationales": {},
+    "rationale": {
+      "coreConcept": "Understanding patient rights and ethical obligations related to advance directives and HIPAA.",
+      "caseSummary": "The patient, Jane Doe, is admitted to the hospital for anxiety and migraine management. The nurse must ensure compliance with HIPAA regulations and verify the patient's advance directives to respect her privacy, autonomy, and healthcare wishes.",
+      "answerAnalysis": "The correct options highlight the nurse's responsibilities in protecting patient rights and maintaining confidentiality. The incorrect options describe actions that violate ethical and legal standards.",
+      "trap": "Failing to verify advance directives or discussing patient information inappropriately can lead to legal and ethical breaches.",
+      "goldenRule": "Prioritize patient autonomy, confidentiality, and informed consent in all aspects of care.",
+      "pitfalls": [
+        "Assuming family members have decision-making authority without legal documentation.",
+        "Disclosing patient information without consent, except when legally or ethically justified.",
+        "Not providing patients with adequate information about HIPAA and their privacy rights."
+      ],
+      "steps": [
+        {
+          "tag": "Recognize",
+          "description": "Identify the need to verify advance directives and HIPAA compliance upon admission."
+        },
+        {
+          "tag": "Analyze",
+          "description": "Determine the patient's wishes and legal documentation regarding healthcare decisions and information sharing."
+        },
+        {
+          "tag": "Prioritize",
+          "description": "Protect patient autonomy and confidentiality, balancing the need to provide safe and effective care."
+        },
+        {
+          "tag": "Act",
+          "description": "Verify advance directives, obtain necessary consents, and implement security measures to protect patient information."
+        },
+        {
+          "tag": "Evaluate",
+          "description": "Monitor adherence to ethical and legal guidelines, addressing any breaches promptly."
+        }
+      ],
+      "mnemonic": {
+        "title": "ADVICE",
+        "content": "A-Advance Directives, D-Disclosure, V-Verify, I-Informed Consent, C-Confidentiality, E-Ethics",
+        "explanation": "ADVICE reminds healthcare providers to consider all aspects of advance directives, disclosure, verification, informed consent, confidentiality, and ethics to provide quality patient care."
+      },
+      "cheatSheet": {
+        "title": "Key Considerations for Advance Directives and HIPAA",
+        "points": [
+          "Advance directives allow patients to express their preferences for future medical treatment.",
+          "HIPAA protects the privacy and security of patients' protected health information.",
+          "Patient consent is required before disclosing PHI, unless an exception applies.",
+          "Healthcare providers must comply with HIPAA regulations to avoid penalties and uphold ethical standards."
+        ]
+      },
+      "referenceInfo": {
+        "anatomy": "Cognitive function and decision-making involve the frontal lobe of the brain.",
+        "physiology": "Patient autonomy and respect are essential for maintaining physiological and psychological well-being.",
+        "pharm": "Medications can impair a patient's ability to make informed decisions."
+      },
+      "difficulty": {
+        "level": 3,
+        "score": 60,
+        "label": "Analysis",
+        "clinicalStrategy": "Level 3 clinical reasoning.",
+        "recommendedActions": [
+          "Review fundamentals"
+        ]
+      }
+    },
+    "structure": {
+      "type": "multiple-response",
+      "prompt": "A 35-year-old female, Jane Doe, is admitted to the medical-surgical unit. During the admission assessment, which of the following actions should the nurse prioritize regarding legal and ethical considerations? Select all that apply.",
+      "options": [
+        {
+          "key": "A",
+          "label": "Verify the patient's advance directives and healthcare proxy."
+        },
+        {
+          "key": "B",
+          "label": "Discuss the patient's medical history with the admitting physician in a private setting to expedite care coordination."
+        },
+        {
+          "key": "C",
+          "label": "Provide the patient with information about HIPAA and obtain consent for sharing protected health information."
+        },
+        {
+          "key": "D",
+          "label": "Ensure patient has provided consent for treatment."
+        },
+        {
+          "key": "E",
+          "label": "Document all patient interactions and maintain the confidentiality of patient information."
+        }
+      ],
+      "_optionsShuffled": true
+    },
+    "clinicalData": {
+      "patientInfo": {
+        "mrn": "123-456-7890",
+        "fullName": "Jane Doe",
+        "age": 35,
+        "gender": "Female",
+        "race": "Caucasian",
+        "ethnicity": "Non-Hispanic",
+        "maritalStatus": "Single",
+        "occupation": "Accountant",
+        "codeStatus": "Full Code",
+        "admissionDate": "2024-01-15T07:30:00.000Z",
+        "admissionDiagnosis": "Anxiety and Migraines",
+        "room": "MedSurg-12",
+        "attendingPhysician": "Dr. Samantha Specialist, MD",
+        "admittingNurse": "RN Staff, BSN",
+        "allergies": "NKDA",
+        "isolationPrecautions": "Standard Precautions",
+        "pmh": [
+          "Generalized Anxiety Disorder (GAD) - well managed with medication",
+          "Migraines - occur approximately 2-3 times per month"
+        ],
+        "psh": [],
+        "homeMedications": [
+          "Escitalopram 10mg daily, taken in the morning.",
+          "Ibuprofen 200mg PRN for migraines, max 6 tablets per day."
+        ],
+        "advanceDirectives": "Patient reports she has a living will but does not have it with her. States her sister, Mary Smith, is her healthcare proxy. Documentation pending verification."
+      },
+      "nurseNotes": [
+        {
+          "time": "0730",
+          "date": "Day 1",
+          "note": "Patient admitted to MedSurg-12 via wheelchair. Initial assessment completed. Vital signs recorded per protocol. Patient reports anxiety level 6/10 and mild headache (3/10). Verbalized understanding of the hospital environment. Allergies verified as NKDA. Medication list reviewed with patient and cross-referenced with admission orders. Advance directive status pending verification. Plan: Contact patient's sister to obtain documentation and clarify wishes. Implement comfort measures. Educate on HIPAA privacy practices.",
+          "author": "J. Smith, RN"
+        },
+        {
+          "time": "0745",
+          "date": "Day 1",
+          "note": "Peripheral IV (20G) started in right forearm without complications. Normal saline infusing at 20 mL/hr per orders. Site assessed, no signs of infiltration or phlebitis. Educated patient on call light usage and importance of notifying staff of any changes in condition or discomfort. Call light placed within reach. Re-emphasized HIPAA privacy practices and the importance of keeping her personal health information secure.",
+          "author": "J. Smith, RN"
+        },
+        {
+          "time": "0800",
+          "date": "Day 1",
+          "note": "Patient reports headache is a 3/10. Acetaminophen 500mg administered PO per order. Encouraged patient to rest in a quiet environment to minimize stimuli. Offered relaxation techniques, including deep breathing exercises and guided imagery. Reassessed anxiety level. Plan: Reassess pain and anxiety levels in one hour. Monitor for any adverse reactions to the medication.",
+          "author": "J. Smith, RN"
+        },
+        {
+          "time": "0830",
+          "date": "Day 1",
+          "note": "Patient reports headache is now a 2/10 after acetaminophen administration. Tolerating IV fluids well. IV site remains patent with no signs of complications. Continues to express mild anxiety related to hospitalization. Provided reassurance, education on relaxation techniques (deep breathing exercises), and offered resources for managing anxiety, including the hospital's mental health liaison service. Reviewed HIPAA rights again, emphasizing the Notice of Privacy Practices.",
+          "author": "J. Smith, RN"
+        },
+        {
+          "time": "0900",
+          "date": "Day 1",
+          "note": "Contacted patient's sister, Mary Smith, via phone to confirm healthcare proxy status. Mary stated she will bring in the living will documentation later today. Discussed the importance of advance directives and the patient's right to make healthcare decisions. Explained HIPAA privacy practices to patient and her sister during the phone call, emphasizing the importance of patient confidentiality and obtaining patient consent for any information sharing.",
+          "author": "J. Smith, RN"
+        },
+        {
+          "time": "1000",
+          "date": "Day 1",
+          "note": "Patient reports feeling less anxious after speaking with her sister. Headache remains at 2/10. Continues to engage in relaxation techniques independently. Encouraged patient to verbalize any further concerns or anxieties. Educated patient on the process for accessing her medical records and amending them if necessary, in accordance with HIPAA regulations. Will continue to monitor vital signs and overall comfort level.",
+          "author": "J. Smith, RN"
+        },
+        {
+          "time": "1200",
+          "date": "Day 1",
+          "note": "Mary Smith, patient's sister, arrived with a copy of the patient's living will. Reviewed documentation, which states the patient's wishes regarding end-of-life care. The patient has appointed Mary Smith as her healthcare proxy and has documented her preferences for life-sustaining treatment. The living will has been scanned into the patient's electronic health record and verified by the attending physician. Patient and her sister were informed of the verification process.",
+          "author": "J. Smith, RN"
+        }
+      ],
+      "radiology": [
+        {
+          "exam": "Chest X-Ray",
+          "date": "2024-01-15",
+          "report": "https://placehold.co/600x400?text=No+acute+findings.+Lungs+are+clear.+Heart+size+is+normal."
+        }
+      ],
+      "vitals": [
+        {
+          "time": "07:30",
+          "tempF": 98.6,
+          "hr": 78,
+          "rr": 16,
+          "bp": "120/80",
+          "o2": 98,
+          "pain": 0
+        },
+        {
+          "time": "08:00",
+          "tempF": 98.7,
+          "hr": 76,
+          "rr": 18,
+          "bp": "122/82",
+          "o2": 99,
+          "pain": 0
+        },
+        {
+          "time": "08:30",
+          "tempF": 98.8,
+          "hr": 75,
+          "rr": 17,
+          "bp": "124/84",
+          "o2": 99,
+          "pain": 2
+        },
+        {
+          "time": "11:30",
+          "tempF": 98.7,
+          "hr": 74,
+          "rr": 16,
+          "bp": "120/80",
+          "o2": 99,
+          "pain": 1
+        }
+      ],
+      "labs": [
+        {
+          "test": "Sodium",
+          "value": 140,
+          "unit": "mEq/L",
+          "flag": null,
+          "reference": "135-145"
+        },
+        {
+          "test": "Potassium",
+          "value": 4.2,
+          "unit": "mEq/L",
+          "flag": null,
+          "reference": "3.5-5.0"
+        },
+        {
+          "test": "Chloride",
+          "value": 100,
+          "unit": "mEq/L",
+          "flag": null,
+          "reference": "98-106"
+        },
+        {
+          "test": "BUN",
+          "value": 15,
+          "unit": "mg/dL",
+          "flag": null,
+          "reference": "8-20"
+        },
+        {
+          "test": "Creatinine",
+          "value": 0.8,
+          "unit": "mg/dL",
+          "flag": null,
+          "reference": "0.6-1.2"
+        },
+        {
+          "test": "Glucose",
+          "value": 90,
+          "unit": "mg/dL",
+          "flag": null,
+          "reference": "70-110"
+        },
+        {
+          "test": "WBC",
+          "value": 7.5,
+          "unit": "x10^3/uL",
+          "flag": null,
+          "reference": "4.5-11.0"
+        },
+        {
+          "test": "Hemoglobin",
+          "value": 13.5,
+          "unit": "g/dL",
+          "flag": null,
+          "reference": "12.0-16.0"
+        },
+        {
+          "test": "Platelets",
+          "value": 250,
+          "unit": "x10^3/uL",
+          "flag": null,
+          "reference": "150-400"
+        },
+        {
+          "test": "Magnesium",
+          "value": 2,
+          "unit": "mg/dL",
+          "flag": null,
+          "reference": "1.5-2.5"
+        },
+        {
+          "test": "Calcium",
+          "value": 9.5,
+          "unit": "mg/dL",
+          "flag": null,
+          "reference": "8.5-10.5"
+        },
+        {
+          "test": "ALT",
+          "value": 25,
+          "unit": "U/L",
+          "flag": null,
+          "reference": "7-55"
+        }
+      ],
+      "orders": [
+        {
+          "order": "Start IV Normal Saline at 20 mL/hr",
+          "status": "Active",
+          "orderedBy": "Dr. S. Specialist",
+          "time": "07:45"
+        },
+        {
+          "order": "Escitalopram 10mg PO daily",
+          "status": "Active",
+          "orderedBy": "Dr. S. Specialist",
+          "time": "08:00"
+        },
+        {
+          "order": "Acetaminophen 500mg PO PRN for headache, every 4-6 hours",
+          "status": "Active",
+          "orderedBy": "Dr. S. Specialist",
+          "time": "08:00"
+        },
+        {
+          "order": "Consult with Mental Health Liaison",
+          "status": "Active",
+          "orderedBy": "Dr. S. Specialist",
+          "time": "09:30"
+        },
+        {
+          "order": "Monitor vital signs every 4 hours",
+          "status": "Active",
+          "orderedBy": "Dr. S. Specialist",
+          "time": "09:30"
+        },
+        {
+          "order": "Assess pain and anxiety levels every 4 hours",
+          "status": "Active",
+          "orderedBy": "Dr. S. Specialist",
+          "time": "09:30"
+        },
+        {
+          "order": "Document Advance Directive Status",
+          "status": "Active",
+          "orderedBy": "Dr. S. Specialist",
+          "time": "12:15"
+        }
+      ],
+      "historyPhysical": {
+        "chiefComplaint": "Anxiety and Headache",
+        "hpi": "The patient, Jane Doe, is a 35-year-old female admitted for anxiety and migraine management. She reports feeling anxious due to the hospitalization environment and a mild headache. She has a history of GAD and migraines, which are usually well-managed with medication at home. She denies any suicidal ideation or recent changes in her mental health treatment.",
+        "pmh": "Generalized Anxiety Disorder (GAD) - well managed with medication, Migraines - occur approximately 2-3 times per month",
+        "psh": "No previous surgeries.",
+        "medications": "Escitalopram 10mg daily, Ibuprofen 200mg PRN for migraines",
+        "allergies": "NKDA",
+        "familyHistory": "Mother with hypertension, Father with no known medical conditions.",
+        "socialHistory": "Non-smoker, occasional alcohol consumption (1-2 drinks per week), works as an accountant. Reports feeling stressed at work recently.",
+        "general": "Patient is alert and oriented to person, place, and time. Appears stated age, well-nourished, and well-hydrated. No acute distress.",
+        "cardiovascular": "Regular rate and rhythm, no murmurs, rubs, or gallops auscultated.",
+        "respiratory": "Lungs clear to auscultation bilaterally. No wheezes, crackles, or rhonchi noted. Effort is normal.",
+        "gastrointestinal": "Abdomen soft, non-tender to palpation. Bowel sounds present in all four quadrants.",
+        "neurological": "Grossly intact. Cranial nerves II-XII intact. Strength 5/5 in all extremities. Sensation intact.",
+        "psychiatric": "Patient reports feeling anxious due to hospitalization but is cooperative and follows directions. Affect is congruent with mood. Denies suicidal ideation. Anxious but coherent.",
+        "skin": "Skin warm, dry, and intact. No rashes, lesions, or edema noted."
+      },
+      "_structuredHistory": [],
+      "_structuredVitals": [
+        {
+          "time": "07:30",
+          "tempF": "98.6",
+          "hr": 78,
+          "rr": 16,
+          "bp": "120/80",
+          "o2": "98",
+          "o2_device": "RA",
+          "pain": 0
+        },
+        {
+          "time": "08:00",
+          "tempF": "98.7",
+          "hr": 76,
+          "rr": 18,
+          "bp": "122/82",
+          "o2": "99",
+          "o2_device": "RA",
+          "pain": 0
+        },
+        {
+          "time": "08:30",
+          "tempF": "98.8",
+          "hr": 75,
+          "rr": 17,
+          "bp": "124/84",
+          "o2": "99",
+          "o2_device": "RA",
+          "pain": 2
+        }
+      ],
+      "_structuredLabs": [
+        {
+          "test": "Sodium",
+          "value": "140",
+          "ref": "135-145",
+          "flag": "",
+          "category": "CMP"
+        },
+        {
+          "test": "Potassium",
+          "value": "4.2",
+          "ref": "3.5-5.0",
+          "flag": "",
+          "category": "CMP"
+        },
+        {
+          "test": "Chloride",
+          "value": "100",
+          "ref": "98-106",
+          "flag": "",
+          "category": "CMP"
+        },
+        {
+          "test": "BUN",
+          "value": "15",
+          "ref": "8-20",
+          "flag": "",
+          "category": "CMP"
+        },
+        {
+          "test": "Creatinine",
+          "value": "0.8",
+          "ref": "0.6-1.2",
+          "flag": "",
+          "category": "CMP"
+        },
+        {
+          "test": "Glucose",
+          "value": "90",
+          "ref": "70-110",
+          "flag": "",
+          "category": "CMP"
+        },
+        {
+          "test": "WBC",
+          "value": "7.5",
+          "ref": "4.5-11.0",
+          "flag": "",
+          "category": "CBC"
+        },
+        {
+          "test": "Hemoglobin",
+          "value": "13.5",
+          "ref": "12.0-16.0",
+          "flag": "",
+          "category": "CBC"
+        },
+        {
+          "test": "Platelets",
+          "value": "250",
+          "ref": "150-400",
+          "flag": "",
+          "category": "CBC"
+        }
+      ],
+      "_structuredOrders": [
+        {
+          "drug": "Start IV Normal Saline at 20 mL/hr",
+          "dose": "",
+          "route": "IV",
+          "freq": "Continuous",
+          "status": "active",
+          "indication": "Hydration",
+          "time": "07:45",
+          "orderedBy": "Dr. S. Specialist"
+        },
+        {
+          "drug": "Escitalopram",
+          "dose": "10mg",
+          "route": "PO",
+          "freq": "Daily",
+          "status": "active",
+          "indication": "Anxiety",
+          "time": "08:00",
+          "orderedBy": "Dr. S. Specialist"
+        },
+        {
+          "drug": "Acetaminophen",
+          "dose": "500mg",
+          "route": "PO",
+          "freq": "PRN q4-6h",
+          "status": "active",
+          "indication": "Headache",
+          "time": "08:00",
+          "orderedBy": "Dr. S. Specialist"
+        },
+        {
+          "drug": "Consult with Mental Health Liaison",
+          "dose": "",
+          "route": "",
+          "freq": "",
+          "status": "active",
+          "indication": "Anxiety Management",
+          "time": "09:30",
+          "orderedBy": "Dr. S. Specialist"
+        }
+      ],
+      "_structuredHistoryPhysical": {
+        "sections": [
+          {
+            "title": "Chief Complaint",
+            "content": [
+              "Anxiety and Headache"
+            ]
+          },
+          {
+            "title": "History of Present Illness",
+            "content": [
+              "The patient, Jane Doe, is a 35-year-old female admitted for anxiety and migraine management. She reports feeling anxious due to the hospitalization environment and a mild headache. She has a history of GAD and migraines, which are usually well-managed with medication at home. She denies any suicidal ideation or recent changes in her mental health treatment."
+            ]
+          },
+          {
+            "title": "Past Medical History",
+            "content": [
+              "Generalized Anxiety Disorder (GAD) - well managed with medication",
+              "Migraines - occur approximately 2-3 times per month"
+            ]
+          },
+          {
+            "title": "Past Surgical History",
+            "content": [
+              "No previous surgeries."
+            ]
+          },
+          {
+            "title": "Medications",
+            "content": [
+              "Escitalopram 10mg daily",
+              "Ibuprofen 200mg PRN for migraines"
+            ]
+          },
+          {
+            "title": "Allergies",
+            "content": [
+              "NKDA"
+            ]
+          },
+          {
+            "title": "Social History",
+            "content": [
+              "Non-smoker",
+              "Occasional alcohol consumption (1-2 drinks per week)",
+              "Works as an accountant. Reports feeling stressed at work recently."
+            ]
+          },
+          {
+            "title": "Family History",
+            "content": [
+              "Mother with hypertension",
+              "Father with no known medical conditions"
+            ]
+          }
+        ]
+      },
+      "_structuredRadiology": "[object Object]"
+    },
+    "caseScenario": {
+      "screen1": {
+        "id": 1,
+        "title": "Recognize Cues",
+        "cjmmPhase": "recognize",
+        "prompt": "Review the patient information. What findings are relevant?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Patient reports anxiety and headache."
+          },
+          {
+            "id": "B",
+            "text": "Patient states she has a living will, but it's not with her."
+          },
+          {
+            "id": "C",
+            "text": "Patient identifies her sister as her healthcare proxy."
+          },
+          {
+            "id": "D",
+            "text": "Orders for IV fluids, escitalopram, and PRN acetaminophen are present."
+          }
+        ],
+        "correctAnswer": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      "screen2": {
+        "id": 2,
+        "title": "Analyze Cues",
+        "cjmmPhase": "analyze",
+        "prompt": "Based on the recognized cues, what are the priority considerations?",
+        "options": [
+          {
+            "id": "A",
+            "text": "Verifying advance directives and healthcare proxy."
+          },
+          {
+            "id": "B",
+            "text": "Ensuring compliance with HIPAA regulations."
+          },
+          {
+            "id": "C",
+            "text": "Providing patient education on rights and hospital procedures."
+          },
+          {
+            "id": "D",
+            "text": "Addressing the patient's immediate needs for anxiety and headache relief."
+          }
+        ],
+        "correctAnswer": [
+          

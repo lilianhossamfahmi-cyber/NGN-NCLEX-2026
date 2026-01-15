@@ -1,0 +1,2734 @@
+[
+  {
+    "type": "case-study",
+    "content": {
+      "metadata": {
+        "title": "Severe Burns - Resuscitation Phase",
+        "clinicalFocus": "BURN",
+        "level": 5,
+        "targetScore": 90,
+        "generator": "Golden NGN v3, ",
+        "difficulty": 5
+      },
+      "patient": {
+        "name": "J.B.",
+        "age": 42,
+        "sex": "Male",
+        "allergies": "NKDA",
+        "weightKg": 80,
+        "history": [
+          "Hypertension"
+        ],
+        "homeMeds": [
+          {
+            "name": "Lisinopril",
+            "dose": "10mg",
+            "route": "PO",
+            "frequency": "daily"
+          }
+        ]
+      },
+      "setting": "Burn Intensive Care Unit",
+      "chiefComplaint": "Severe burns following a house fire",
+      "vitals": [
+        {
+          "time": "0800, ",
+          "tempF": "96.5, ",
+          "hr": 128,
+          "rr": 26,
+          "bp": "94/58, ",
+          "o2, ": "100, ",
+          "o2_device": "Intubated",
+          "pain": 0
+        },
+        {
+          "time": "0900, ",
+          "tempF": "96.8, ",
+          "hr": 122,
+          "rr": 24,
+          "bp": "92/56, ",
+          "o2, ": "100, ",
+          "o2_device": "Intubated",
+          "pain": 0
+        }
+      ],
+      "labs": [
+        {
+          "test": "K+",
+          "value": "6.2, ",
+          "unit": "mEq/L",
+          "flag": "H!",
+          "reference": "3.5-5.0, "
+        },
+        {
+          "test": "Hct",
+          "value": "58, ",
+          "unit": "%",
+          "flag": "H",
+          "reference": "40-52, "
+        },
+        {
+          "test": "Lactate",
+          "value": "4.5, ",
+          "unit": "mmol/L",
+          "flag": "H",
+          "reference": "0.5-2.2, "
+        },
+        {
+          "test": "Carboxyhemoglobin",
+          "value": "12, ",
+          "unit": "%",
+          "flag": "H",
+          "reference": "<3, "
+        }
+      ],
+      "assessmentData": {
+        "screening": {
+          "tool": "Lund-Browder Chart",
+          "score": 45,
+          "interpretation": "45% TBSA Deep Partial/Full Thickness"
+        }
+      },
+      "nursesNotes": [
+        {
+          "time": "0800, ",
+          "author": "RN Trauma",
+          "entry": "Patient arrived via EMS intubated. Reports being trapped in burning structure for approx 20 mins. Deep partial and full-thickness burns noted to face, chest, abdomen, bilateral anterior arms, and anterior thighs. Singed nasal hairs and soot in oropharynx noted prior to intubation. 2 large bore IVs patent."
+        },
+        {
+          "time": "0900, ",
+          "author": "RN Trauma",
+          "entry": "Foley catheter placed, drained 15 mL dark red urine. Peripheral pulses weak but palpable. Extremities cool. Parkland formula resuscitation initiated. Escharotomy kit at bedside due to circumferential chest burns."
+        }
+      ],
+      "historyPhysical": {
+        "chiefComplaint": "Thermal injury",
+        "hpi": "42yo male rescued from residential fire. Prolonged extrication. Intubated on scene for airway protection due to stridor.",
+        "pmh": [
+          "Hypertension"
+        ],
+        "psh": [
+          "Appendectomy (2010)"
+        ],
+        "medications": [
+          "Lisinopril"
+        ],
+        "allergies": "NKDA",
+        "socialHistory": "Social smoker, occasional alcohol.",
+        "familyHistory": "Non-contributory.",
+        "reviewOfSystems": {
+          "constitutional": "Hypothermia risk",
+          "cardiovascular": "Tachycardia, hypotension",
+          "respiratory": "Intubated, inhalation injury risk",
+          "genitourinary": "Oliguria, myoglobinuria"
+        },
+        "physicalExam": {
+          "general": "Sedated, intubated",
+          "skin": "45% TBSA mixed burns. Chest eschar tight.",
+          "respiratory": "Coarse breath sounds, soot in sputum",
+          "cardiovascular": "Tachycardic, weak pulses"
+        }
+      },
+      "orders": [
+        {
+          "order": "Lactated Ringers at 1000 mL/hr",
+          "status": "Active",
+          "orderedBy": "Dr. Burn",
+          "time": "0815, "
+        },
+        {
+          "order": "Fentanyl infusion 50 mcg/hr",
+          "status": "Active",
+          "orderedBy": "Dr. Burn",
+          "time": "0815, "
+        },
+        {
+          "order": "Maintain Urine Output 0.5-1 mL/kg/hr",
+          "status": "Active",
+          "orderedBy": "Dr. Burn",
+          "time": "0815, "
+        },
+        {
+          "order": "Arterial Line placement",
+          "status": "Pending",
+          "orderedBy": "Dr. Burn",
+          "time": "0830, "
+        },
+        {
+          "order": "Escharotomy if peak airway pressures > 35, ",
+          "status": "Conditional",
+          "orderedBy": "Dr. Burn",
+          "time": "0830, "
+        }
+      ],
+      "radiology": [
+        {
+          "study": "Chest X-Ray",
+          "date": "Current Date 0820, ",
+          "indication": "Tube placement",
+          "findings": "ETT in good position. Diffuse patchy infiltrates suggesting inhalation injury. No pneumothorax.",
+          "impression": "Inhalation injury confirmed.",
+          "radiologist": "Dr. Rads"
+        }
+      ],
+      "rationale": {
+        "coreConcept": "Burn Shock and Resuscitation Phase",
+        "caseSummary": "A patient with 45% TBSA burns and inhalation injury presents in the emergent phase. The priority is fluid resuscitation to prevent hypovolemic shock and managing airway compromise.",
+        "answerAnalysis": "Fluid shifts in major burns cause massive intravascular volume loss (hypovolemic shock). Hyperkalemia occurs from cell lysis. Hemoconcentration (high Hct) reflects volume loss. Myoglobinuria (red urine) risks renal failure.",
+        "trap": "Assuming the high Hematocrit means the patient has 'too much blood' or is stable. It actually indicates severe dehydration/volume depletion (hemoconcentration).",
+        "goldenRule": "In the first 24 hours of a major burn, the patient is hypovolemic, hyperkalemic, and hyponatremic.",
+        "steps": [
+          {
+            "tag": "Recognize",
+            "description": "Signs of Burn Shock: Hypotension, Tachycardia, High Hct."
+          },
+          {
+            "tag": "Analyze",
+            "description": "Calculate fluid needs (Parkland) and identify complications (Compartment syndrome)."
+          },
+          {
+            "tag": "Take Action",
+            "description": "Aggressive fluids (LR) and airway management."
+          }
+        ],
+        "difficulty": {
+          "level": 5,
+          "score": 100,
+          "label": "Evaluation",
+          "clinicalStrategy": "Focus on the ABCs and Fluid status. Airway is secured, so Circulation (Fluids) is the next priority.",
+          "recommendedActions": [
+            "Titrate fluids to UOP",
+            "Monitor electrolytes"
+          ]
+        },
+        "mnemonic": {
+          "title": "Emergent Phase Risks",
+          "content": "6 H's: Hypovolemia, Hyperkalemia, Hyponatremia, Hemoconcentration, Hypothermia, Hypoxia (Inhalation)",
+          "explanation": "Key physiological derangements in the first 24-48 hours."
+        },
+        "cheatSheet": {
+          "title": "Burn Resuscitation Pearls",
+          "points": [
+            "Urine Output is the best indicator of resuscitation adequacy.",
+            "LR is the fluid of choice (buffers acidosis).",
+            "Watch for circumferential burns (tourniquet effect)."
+          ]
+        },
+        "referenceInfo": {
+          "anatomy": "Capillary endothelial damage leads to leakage of plasma proteins into interstitial space.",
+          "physiology": "Massive fluid shift (third spacing) reduces cardiac output. Cell destruction releases Potassium. Muscle damage releases Myoglobin.",
+          "pharm": "Lactated Ringers is isotonic and metabolizes to bicarbonate, helping correct metabolic acidosis."
+        }
+      },
+      "clinicalData": {
+        "patientInfo": {
+          "name": "J.B.",
+          "age": 42,
+          "gender": "M",
+          "codeStatus": "FULL CODE",
+          "admissionDate": "1/11/2026 07:30",
+          "room": "MedSurg-12",
+          "physician": "Dr. S. Specialist",
+          "nurse": "RN Staff",
+          "allergies": "NKDA",
+          "isolation": "Standard Precautions",
+          "weightKg": 80,
+          "history": [
+            "Hypertension"
+          ],
+          "homeMeds": [
+            {
+              "name": "Lisinopril",
+              "dose": "10mg",
+              "route": "PO",
+              "frequency": "daily"
+            }
+          ]
+        },
+        "vitals": [
+          {
+            "time": "0800, ",
+            "tempF": "96.5, ",
+            "hr": 128,
+            "rr": 26,
+            "bp": "94/58, ",
+            "o2": "98",
+            "o2_device": "Intubated",
+            "pain": 0
+          },
+          {
+            "time": "0900, ",
+            "tempF": "96.8, ",
+            "hr": 122,
+            "rr": 24,
+            "bp": "92/56, ",
+            "o2": "98",
+            "o2_device": "Intubated",
+            "pain": 0
+          }
+        ],
+        "labs": [
+          {
+            "test": "K+",
+            "value": "6.2, ",
+            "unit": "mEq/L",
+            "ref": "3.5-5.0, ",
+            "flag": "h!"
+          },
+          {
+            "test": "Hct",
+            "value": "58, ",
+            "unit": "%",
+            "ref": "40-52, ",
+            "flag": "h"
+          },
+          {
+            "test": "Lactate",
+            "value": "4.5, ",
+            "unit": "mmol/L",
+            "ref": "0.5-2.2, ",
+            "flag": "h"
+          },
+          {
+            "test": "Carboxyhemoglobin",
+            "value": "12, ",
+            "unit": "%",
+            "ref": "<3, ",
+            "flag": "h"
+          }
+        ],
+        "orders": [
+          {
+            "drug": "Lactated Ringers at 1000 mL/hr",
+            "dose": "As ordered",
+            "route": "IV",
+            "freq": "Per protocol",
+            "status": "active",
+            "indication": ""
+          },
+          {
+            "drug": "Fentanyl infusion 50 mcg/hr",
+            "dose": "As ordered",
+            "route": "IV",
+            "freq": "Per protocol",
+            "status": "active",
+            "indication": ""
+          },
+          {
+            "drug": "Maintain Urine Output 0.5-1 mL/kg/hr",
+            "dose": "As ordered",
+            "route": "IV",
+            "freq": "Per protocol",
+            "status": "active",
+            "indication": ""
+          },
+          {
+            "drug": "Arterial Line placement",
+            "dose": "As ordered",
+            "route": "IV",
+            "freq": "Per protocol",
+            "status": "pending",
+            "indication": ""
+          },
+          {
+            "drug": "Escharotomy if peak airway pressures > 35, ",
+            "dose": "As ordered",
+            "route": "IV",
+            "freq": "Per protocol",
+            "status": "conditional",
+            "indication": ""
+          }
+        ],
+        "history": [
+          {
+            "time": "0800, ",
+            "note": "Patient arrived via EMS intubated. Reports being trapped in burning structure for approx 20 mins. Deep partial and full-thickness burns noted to face, chest, abdomen, bilateral anterior arms, and anterior thighs. Singed nasal hairs and soot in oropharynx noted prior to intubation. 2 large bore IVs patent.",
+            "initial": "RN Trauma"
+          },
+          {
+            "time": "0900, ",
+            "note": "Foley catheter placed, drained 15 mL dark red urine. Peripheral pulses weak but palpable. Extremities cool. Parkland formula resuscitation initiated. Escharotomy kit at bedside due to circumferential chest burns.",
+            "initial": "RN Trauma"
+          }
+        ],
+        "historyPhysical": {
+          "chiefComplaint": "Thermal injury",
+          "hpi": "42yo male rescued from residential fire. Prolonged extrication. Intubated on scene for airway protection due to stridor.",
+          "pmh": [
+            "Hypertension"
+          ],
+          "psh": [
+            "Appendectomy (2010)"
+          ],
+          "medications": [
+            "Lisinopril"
+          ],
+          "allergies": "NKDA",
+          "socialHistory": "Social smoker, occasional alcohol.",
+          "familyHistory": "Non-contributory.",
+          "reviewOfSystems": {
+            "constitutional": "Hypothermia risk",
+            "cardiovascular": "Tachycardia, hypotension",
+            "respiratory": "Intubated, inhalation injury risk",
+            "genitourinary": "Oliguria, myoglobinuria"
+          },
+          "physicalExam": {
+            "general": "Sedated, intubated",
+            "skin": "45% TBSA mixed burns. Chest eschar tight.",
+            "respiratory": "Coarse breath sounds, soot in sputum",
+            "cardiovascular": "Tachycardic, weak pulses"
+          }
+        },
+        "radiology": [
+          {
+            "study": "Chest X-Ray",
+            "date": "Current Date 0820, ",
+            "indication": "Tube placement",
+            "findings": "ETT in good position. Diffuse patchy infiltrates suggesting inhalation injury. No pneumothorax.",
+            "impression": "Inhalation injury confirmed.",
+            "radiologist": "Dr. Rads"
+          }
+        ],
+        "setting": "Burn Intensive Care Unit"
+      },
+      "structure": {
+        "type": "case-study",
+        "prompt": "Review the case study and answer the question.",
+        "screens": [
+          {
+            "type": "highlight",
+            "cjmmStep": "Recognize Cues",
+            "prompt": "Highlight the findings requiring immediate intervention.",
+            "text": "The patient has <span id='h1'>singed nasal hairs</span> and <span id='h2'>soot in the oropharynx</span>. Urine output is <span id='h3'>15 mL of dark red urine</span>. The chest burn eschar is <span id='h4'>circumferential and tight</span>. Heart rate is <span id='h5'>128 bpm</span>. Temperature is <span id='h6'>96.5°F</span>. Potassium is <span id='h7'>6.2 mEq/L</span>. The patient has <span id='h8'>a history of hypertension</span>.",
+            "correct": [
+              "h1, ",
+              "h2, ",
+              "h3, ",
+              "h4, ",
+              "h7, "
+            ],
+            "decoys": [
+              "h5, ",
+              "h6, ",
+              "h8, "
+            ],
+            "rationale": {
+              "coreConcept": "Burn Assessment Priorities",
+              "caseSummary": "Identifying critical complications of thermal injury: Airway, Renal, and Circulation.",
+              "answerAnalysis": "Singed hairs/soot indicate inhalation injury (Airway). Dark red urine indicates myoglobinuria (Renal threat). Circumferential chest burns restrict breathing (Breathing/Circulation). Hyperkalemia (6.2) risks cardiac arrest. Tachycardia is expected compensatory. Hypothermia is a risk but less immediate than airway/K+.",
+              "trap": "Prioritizing the temperature or expected tachycardia over the life-threatening potassium or airway signs.",
+              "goldenRule": "Dark urine in burns = Myoglobinuria -> Rhabdomyolysis -> Renal Failure. Flush it out!",
+              "steps": [
+                {
+                  "tag": "Recognize",
+                  "description": "Identify red flags: Airway soot, Red urine, Tight chest."
+                },
+                {
+                  "tag": "Analyze",
+                  "description": "These threaten A, B, and Kidneys."
+                },
+                {
+                  "tag": "Take Action",
+                  "description": "Highlight for intervention."
+                }
+              ],
+              "mnemonic": {
+                "title": "Burn Red Flags",
+                "content": "Soot (Inhalation), Red Pee (Myoglobin), Tight Skin (Compartment), High K+ (Heart)",
+                "explanation": "Immediate threats to life."
+              },
+              "cheatSheet": {
+                "title": "Assessment Cues",
+                "points": [
+                  "Facial burns/Soot -> Intubate early.",
+                  "Circumferential burns -> Prepare for escharotomy.",
+                  "Myoglobinuria -> Increase fluids to flush kidneys."
+                ]
+              },
+              "referenceInfo": {
+                "anatomy": "Myoglobin is a large protein that clogs renal tubules.",
+                "physiology": "Eschar is dead, inelastic tissue. If circumferential, it acts like a tourniquet or corset, preventing expansion.",
+                "pharm": "Sodium Bicarbonate may be used to alkalize urine and prevent myoglobin precipitation."
+              },
+              "difficulty": {
+                "score": 90,
+                "level": 5,
+                "label": "Expert",
+                "clinicalStrategy": "Differentiate 'Expected/Manageable' (HR 128) from 'Immediate Threat' (K+ 6.2, Myoglobinuria).",
+                "recommendedActions": [
+                  "Prepare Calcium Gluconate",
+                  "Increase Fluids"
+                ]
+              }
+            },
+            "rationales": {
+              "h1, ": "[Hook] Singed nasal hairs. [Breakdown] High suspicion for inhalation injury and potential airway edema. [Trap] Waiting for stridor to appear (too late).",
+              "h2, ": "[Hook] Soot in oropharynx. [Breakdown] Confirms smoke inhalation, risk of glottic edema and CO poisoning. [Trap] Assuming patent airway is stable.",
+              "h3, ": "[Hook] 15 mL dark red urine. [Breakdown] Oliguria + Myoglobinuria (Rhabdomyolysis) indicates acute tubular necrosis risk. [Trap] Thinking it's concentrated urine only.",
+              "h4, ": "[Hook] Circumferential/Tight eschar. [Breakdown] Restricts chest expansion, leading to respiratory failure (mechanical). [Trap] Confusing with normal edema.",
+              "h5, ": "[Hook] HR 128 bpm. [Breakdown] Expected compensatory response to shock/pain. Not the primary 'fixable' problem (fix fluids first). [Trap] Treating the rate with meds.",
+              "h6, ": "[Hook] Temp 96.5°F. [Breakdown] Mild hypothermia is common due to skin loss. Needs warming but not as urgent as Airway/K+. [Trap] Prioritizing comfort over ABCs.",
+              "h7, ": "[Hook] K+ 6.2 mEq/L. [Breakdown] Critical Hyperkalemia from cell lysis. Risk of arrhythmias. [Trap] Ignoring electrolyte shifts.",
+              "h8, ": "[Hook] History of HTN. [Breakdown] Chronic condition not relevant to acute resuscitation priorities. [Trap] Focusing on history."
+            },
+            "id": "screen_0"
+          },
+          {
+            "type": "matrix",
+            "cjmmStep": "Analyze Cues",
+            "prompt": "For each finding, indicate if it supports Hypovolemic Shock, Inhalation Injury, or Compartment Syndrome.",
+            "columns": [
+              {
+                "id": "c1, ",
+                "text": "Hypovolemic Shock"
+              },
+              {
+                "id": "c2, ",
+                "text": "Inhalation Injury"
+              },
+              {
+                "id": "c3, ",
+                "text": "Compartment Syndrome"
+              }
+            ],
+            "rows": [
+              {
+                "id": "r1, ",
+                "text": "Hematocrit 58%",
+                "correctColumnId": "c1, ",
+                "rationale": "Hemoconcentration due to loss of plasma volume."
+              },
+              {
+                "id": "r2, ",
+                "text": "Carboxyhemoglobin 12%",
+                "correctColumnId": "c2, ",
+                "rationale": "Indicates Carbon Monoxide poisoning from smoke."
+              },
+              {
+                "id": "r3, ",
+                "text": "Loss of distal pulses",
+                "correctColumnId": "c3, ",
+                "rationale": "Circumferential burns compressing arteries."
+              },
+              {
+                "id": "r4, ",
+                "text": "Lactate 4.5 mmol/L",
+                "correctColumnId": "c1, ",
+                "rationale": "Tissue hypoperfusion from shock."
+              },
+              {
+                "id": "r5, ",
+                "text": "Hoarse voice/Stridor",
+                "correctColumnId": "c2, ",
+                "rationale": "Upper airway edema."
+              },
+              {
+                "id": "r6, ",
+                "text": "High peak airway pressures",
+                "correctColumnId": "c3, ",
+                "rationale": "Thoracic compartment syndrome restricting ventilation."
+              }
+            ],
+            "rationale": {
+              "coreConcept": "Complications of Major Burns",
+              "caseSummary": "The patient is presenting with all three major complications.",
+              "answerAnalysis": "High Hct/Lactate = Volume loss (Shock). CO/Stridor = Airway (Inhalation). Lost pulses/High pressures = Restriction (Compartment).",
+              "trap": "Thinking high airway pressures are always ARDS/Lung injury. In burns, check the chest wall compliance (eschar) first.",
+              "goldenRule": "High Hct in a trauma/burn patient means they are DRY (Hemoconcentrated), not that they have too much blood.",
+              "steps": [
+                {
+                  "tag": "Recognize",
+                  "description": "Group signs by system: Circulatory (Shock), Respiratory (Inhalation), Mechanical (Compartment)."
+                },
+                {
+                  "tag": "Analyze",
+                  "description": "Match lab/physical finding to pathology."
+                },
+                {
+                  "tag": "Take Action",
+                  "description": "Categorize correctly."
+                }
+              ],
+              "mnemonic": {
+                "title": "Burn Triad of Death",
+                "content": "Shock (Fluids), Smoke (Airway), Squeeze (Escharotomy)",
+                "explanation": "The three killers in the first 24 hours."
+              },
+              "cheatSheet": {
+                "title": "Diagnostic Clues",
+                "points": [
+                  "Rising Hct = Falling Volume.",
+                  "Cherry Red Skin = CO Poisoning.",
+                  "Pain > Injury or Numbness = Compartment Syndrome."
+                ]
+              },
+              "referenceInfo": {
+                "anatomy": "Fascial compartments in extremities; Chest wall mechanics.",
+                "physiology": "CO binds Hgb 200x stronger than O2. Shock is distributive/hypovolemic.",
+                "pharm": "100% O2 decreases CO half-life from 4 hours to 45 mins."
+              },
+              "difficulty": {
+                "score": 90,
+                "level": 5,
+                "label": "Expert",
+                "clinicalStrategy": "Connect pathophysiology to lab values (Hemoconcentration = Hypovolemia).",
+                "recommendedActions": [
+                  "Review labs",
+                  "Assess pulses"
+                ]
+              }
+            },
+            "id": "screen_1"
+          },
+          {
+            "type": "ordered-response",
+            "cjmmStep": "Prioritize Hypotheses",
+            "prompt": "Drag the nursing actions into the correct priority order.",
+            "orderedOptions": [
+              {
+                "id": "s1, ",
+                "text": "Assess airway patency and endotracheal tube security",
+                "rationale": "Airway is always priority #1, especially with inhalation injury."
+              },
+              {
+                "id": "s2, ",
+                "text": "Titrate Lactated Ringers to maintain urine output",
+                "rationale": "Circulation/Shock management is priority #2."
+              },
+              {
+                "id": "s3, ",
+                "text": "Prepare for chest escharotomy",
+                "rationale": "Breathing/Circulation mechanical fix, priority #3."
+              },
+              {
+                "id": "s4, ",
+                "text": "Administer IV Fentanyl for pain",
+                "rationale": "Comfort is important but follows ABCs."
+              }
+            ],
+            "rationale": {
+              "coreConcept": "Prioritization in Burn Care",
+              "caseSummary": "Managing competing life-threats.",
+              "answerAnalysis": "Airway integrity is the absolute prerequisite. Fluid resuscitation treats the lethal shock state. Escharotomy is a procedure for a specific complication. Pain meds are supportive.",
+              "trap": "Stopping resuscitation to do a procedure (escharotomy) before stabilizing the volume status, or prioritizing pain over shock.",
+              "goldenRule": "You can't resuscitate a patient who can't breathe. Airway -> Fluids -> Procedures.",
+              "steps": [
+                {
+                  "tag": "Recognize",
+                  "description": "ABCs apply."
+                },
+                {
+                  "tag": "Analyze",
+                  "description": "Inhalation injury makes Airway tenuous."
+                },
+                {
+                  "tag": "Take Action",
+                  "description": "Secure Airway, then Push Fluids."
+                }
+              ],
+              "mnemonic": {
+                "title": "A-B-C-D-E",
+                "content": "Airway, Breathing, Circulation, Disability, Exposure (Temperature)",
+                "explanation": "Standard trauma protocol."
+              },
+              "cheatSheet": {
+                "title": "Priority Ladder",
+                "points": [
+                  "1. Intubate if stridor/burns to face.",
+                  "2. IV Access & Fluids (Parkland).",
+                  "3. Pulse checks (Circulation).",
+                  "4. Analgesia."
+                ]
+              },
+              "referenceInfo": {
+                "anatomy": "Glottis can swell shut in minutes.",
+                "physiology": "Hypovolemia leads to cardiac arrest if not treated aggressively.",
+                "pharm": "Opioids can cause hypotension; ensure fluids are running."
+              },
+              "difficulty": {
+                "score": 90,
+                "level": 5,
+                "label": "Expert",
+                "clinicalStrategy": "Follow standard resuscitation algorithms (ATLS/ABLS).",
+                "recommendedActions": [
+                  "Secure airway first",
+                  "Start fluids second"
+                ]
+              }
+            },
+            "id": "screen_2"
+          },
+          {
+            "type": "bow-tie",
+            "cjmmStep": "Generate Solutions",
+            "prompt": "Complete the diagram: Action, Condition, Parameters.",
+            "actions": [
+              {
+                "id": "a1, ",
+                "text": "Increase IV fluid rate",
+                "isCorrect": true
+              },
+              {
+                "id": "a2, ",
+                "text": "Administer Sodium Bicarbonate",
+                "isCorrect": true
+              },
+              {
+                "id": "a3, ",
+                "text": "Prepare for fasciotomy/escharotomy",
+                "isCorrect": false
+              },
+              {
+                "id": "a4, ",
+                "text": "Decrease IV fluid rate"
+              },
+              {
+                "id": "a5, ",
+                "text": "Administer Mannitol",
+                "isCorrect": true
+              }
+            ],
+            "conditions": [
+              {
+                "id": "c1, ",
+                "text": "Rhabdomyolysis / Myoglobinuria",
+                "isCorrect": true
+              },
+              {
+                "id": "c2, ",
+                "text": "Fluid Overload"
+              },
+              {
+                "id": "c3, ",
+                "text": "Septic Shock"
+              },
+              {
+                "id": "c4, ",
+                "text": "Acute Respiratory Distress Syndrome"
+              }
+            ],
+            "parameters": [
+              {
+                "id": "p1, ",
+                "text": "Urine output > 75-100 mL/hr",
+                "isCorrect": true
+              },
+              {
+                "id": "p2, ",
+                "text": "Urine color clearing",
+                "isCorrect": true
+              },
+              {
+                "id": "p3, ",
+                "text": "Serum Creatinine",
+                "isCorrect": true
+              },
+              {
+                "id": "p4, ",
+                "text": "Blood Pressure > 140/90, "
+              },
+              {
+                "id": "p5, ",
+                "text": "Pain Score < 3, "
+              }
+            ],
+            "rationale": {
+              "coreConcept": "Management of Myoglobinuria in Burns",
+              "caseSummary": "The patient has dark red urine (myoglobin) and low output. This is a specific renal threat.",
+              "answerAnalysis": "Condition is Rhabdomyolysis/Myoglobinuria. Actions: FLUSH the kidneys. Increase fluids (higher target UOP 75-100mL/hr vs standard 30-50). Mannitol (osmotic diuretic) keeps tubules open. Bicarb alkalizes urine to prevent pigment precipitation. Escharotomy treats compartment syndrome, not directly the renal issue (though related).",
+              "trap": "Treating with standard fluid goals (30mL/hr). In myoglobinuria, you must drive the kidneys harder to prevent clogging.",
+              "goldenRule": "Red Urine = Double the Fluid Goal. Flush until clear.",
+              "steps": [
+                {
+                  "tag": "Recognize",
+                  "description": "Dark urine = Myoglobin."
+                },
+                {
+                  "tag": "Analyze",
+                  "description": "Risk is Acute Tubular Necrosis."
+                },
+                {
+                  "tag": "Take Action",
+                  "description": "Increase flush (Fluids/Mannitol) and alkalize."
+                }
+              ],
+              "mnemonic": {
+                "title": "Myoglobin Management",
+                "content": "Flush (Fluids), Flow (Mannitol), Fix pH (Bicarb)",
+                "explanation": "Three pillars of treating pigment nephropathy."
+              },
+              "cheatSheet": {
+                "title": "Urine Output Goals",
+                "points": [
+                  "Thermal Burn: 0.5 mL/kg/hr (30-50 mL/hr).",
+                  "Electrical/Myoglobinuria: 1.0-1.5 mL/kg/hr (75-100 mL/hr)."
+                ]
+              },
+              "referenceInfo": {
+                "anatomy": "Renal tubules.",
+                "physiology": "Myoglobin precipitates in acidic urine, causing obstruction.",
+                "pharm": "Mannitol draws fluid into nephron; Bicarbonate raises pH."
+              },
+              "difficulty": {
+                "score": 90,
+                "level": 5,
+                "label": "Expert",
+                "clinicalStrategy": "Identify the specific complication requiring altered fluid goals.",
+                "recommendedActions": [
+                  "Target higher UOP",
+                  "Monitor urine color"
+                ]
+              }
+            },
+            "id": "screen_3"
+          },
+          {
+            "type": "drop-cloze",
+            "cjmmStep": "Take Action",
+            "prompt": "Complete the nursing documentation.",
+            "text": "The nurse anticipates administering %{d1} to treat %{d2}.",
+            "dropdowns": [
+              {
+                "id": "d1, ",
+                "options": [
+                  {
+                    "id": "o1, ",
+                    "text": "Regular Insulin IV and Dextrose",
+                    "isCorrect": true,
+                    "rationale": "Insulin shifts Potassium into cells; Dextrose prevents hypoglycemia. Standard hyperkalemia cocktail."
+                  },
+                  {
+                    "id": "o2, ",
+                    "text": "Kayexalate PO",
+                    "rationale": "Too slow for emergency treatment of K+ 6.2."
+                  }
+                ]
+              },
+              {
+                "id": "d2, ",
+                "options": [
+                  {
+                    "id": "o3, ",
+                    "text": "Hyperkalemia",
+                    "isCorrect": true,
+                    "rationale": "K+ 6.2 is life-threatening."
+                  },
+                  {
+                    "id": "o4, ",
+                    "text": "Hypernatremia",
+                    "rationale": "Patient is likely hyponatremic."
+                  }
+                ]
+              }
+            ],
+            "rationale": {
+              "coreConcept": "Hyperkalemia Management in Burns",
+              "caseSummary": "Cell lysis releases massive K+. Levels > 6.0 require shifting agents.",
+              "answerAnalysis": "Insulin/D50 is the fastest temporary fix to shift K+ into cells to protect the heart. Kayexalate takes hours. Calcium gluconate (not listed) stabilizes the heart but doesn't lower K+.",
+              "trap": "Ignoring the K+ because 'burns cause tissue damage'. K+ 6.2 can cause V-Fib regardless of the cause.",
+              "goldenRule": "See High K+ -> Protect Heart (Calcium) -> Shift K+ (Insulin/Albuterol) -> Eliminate K+ (Lasix/Kayexalate).",
+              "steps": [
+                {
+                  "tag": "Recognize",
+                  "description": "K+ 6.2 is critical."
+                },
+                {
+                  "tag": "Analyze",
+                  "description": "Need rapid shift."
+                },
+                {
+                  "tag": "Take Action",
+                  "description": "Administer Insulin/Glucose."
+                }
+              ],
+              "mnemonic": {
+                "title": "C-BIG-K-Drop",
+                "content": "C-alcium, B-icarb, I-nsulin, G-lucose, K-ayexalate, D-ialysis",
+                "explanation": "Steps to treat hyperkalemia."
+              },
+              "cheatSheet": {
+                "title": "Electrolytes in Burns",
+                "points": [
+                  "Early (0-24h): High K+, Low Na+.",
+                  "Late (48h+): Low K+ (diuresis), Variable Na+."
+                ]
+              },
+              "referenceInfo": {
+                "anatomy": "Cardiac conduction system.",
+                "physiology": "High K+ lowers resting membrane potential, making myocardium irritable.",
+                "pharm": "Insulin stimulates Na-K-ATPase pump."
+              },
+              "difficulty": {
+                "score": 90,
+                "level": 5,
+                "label": "Expert",
+                "clinicalStrategy": "Prioritize immediate cardiac protection over long-term elimination.",
+                "recommendedActions": [
+                  "Obtain ECG",
+                  "Prepare IV Insulin"
+                ]
+              }
+            },
+            "id": "screen_4"
+          },
+          {
+            "type": "multiple-response",
+            "cjmmStep": "Evaluate Outcomes",
+            "prompt": "Which findings indicate the resuscitation is adequate? Select all that apply.",
+            "options": [
+              {
+                "id": "o1, ",
+                "text": "Urine output is 90 mL/hr",
+                "isCorrect": true,
+                "rationale": "Meets the higher goal for myoglobinuria (75-100 mL/hr)."
+              },
+              {
+                "id": "o2, ",
+                "text": "Mean Arterial Pressure (MAP) is 70 mmHg",
+                "isCorrect": true,
+                "rationale": "MAP > 65 indicates organ perfusion."
+              },
+              {
+                "id": "o3, ",
+                "text": "Heart rate decreases to 100 bpm",
+                "isCorrect": true,
+                "rationale": "Trending down suggests intravascular volume is replenishing."
+              },
+              {
+                "id": "o4, ",
+                "text": "Hematocrit increases to 60%",
+                "rationale": "Rising Hct indicates worsening dehydration/fluid loss."
+              },
+              {
+                "id": "o5, ",
+                "text": "Lactate increases to 6.0 mmol/L",
+                "rationale": "Rising lactate indicates ongoing shock/hypoperfusion."
+              }
+            ],
+            "rationale": {
+              "coreConcept": "Evaluating Burn Resuscitation",
+              "caseSummary": "Assessing if the fluids are working.",
+              "answerAnalysis": "Adequate resuscitation is marked by: UOP meeting goal, MAP > 65, down-trending HR (resolving shock), and normalizing labs (Hct and Lactate should drop).",
+              "trap": "Thinking a high Hct is good. In burns, we want the Hct to drop (dilution) back to normal.",
+              "goldenRule": "Urine Output is the 'Vital Sign' of Burn Resuscitation.",
+              "steps": [
+                {
+                  "tag": "Recognize",
+                  "description": "Identify markers of perfusion."
+                },
+                {
+                  "tag": "Analyze",
+                  "description": "Compare to goals (UOP, MAP)."
+                },
+                {
+                  "tag": "Take Action",
+                  "description": "Adjust fluids based on UOP."
+                }
+              ],
+              "mnemonic": {
+                "title": "Resuscitation Goals",
+                "content": "Pee, Pressure, Pulse",
+                "explanation": "UOP, MAP, and HR trends."
+              },
+              "cheatSheet": {
+                "title": "Signs of Success",
+                "points": [
+                  "UOP 0.5-1.0 mL/kg/hr.",
+                  "MAP > 65.",
+                  "Clear Sensorium.",
+                  "Lactate < 2."
+                ]
+              },
+              "referenceInfo": {
+                "anatomy": "Kidneys receive 20-25% of cardiac output.",
+                "physiology": "Adequate UOP proves the kidneys (and thus the core organs) are perfused.",
+                "pharm": "Parkland formula is just a starting point; titrate to the patient."
+              },
+              "difficulty": {
+                "score": 90,
+                "level": 5,
+                "label": "Expert",
+                "clinicalStrategy": "Evaluate trends. Rising bad markers (Lactate/Hct) = Failure. Normalizing markers = Success.",
+                "recommendedActions": [
+                  "Check hourly UOP",
+                  "Re-evaluate fluid rate"
+                ]
+              }
+            },
+            "id": "screen_5"
+          }
+        ],
+        "difficulty": 5
+      }
+    },
+    "structure": {
+      "type": "case-study",
+      "screens": [
+        {
+          "type": "highlight",
+          "cjmmStep": "Recognize Cues",
+          "prompt": "Highlight the findings requiring immediate intervention.",
+          "text": "The patient has <span id='h1'>singed nasal hairs</span> and <span id='h2'>soot in the oropharynx</span>. Urine output is <span id='h3'>15 mL of dark red urine</span>. The chest burn eschar is <span id='h4'>circumferential and tight</span>. Heart rate is <span id='h5'>128 bpm</span>. Temperature is <span id='h6'>96.5°F</span>. Potassium is <span id='h7'>6.2 mEq/L</span>. The patient has <span id='h8'>a history of hypertension</span>.",
+          "correct": [
+            "h1, ",
+            "h2, ",
+            "h3, ",
+            "h4, ",
+            "h7, "
+          ],
+          "decoys": [
+            "h5, ",
+            "h6, ",
+            "h8, "
+          ],
+          "rationale": {
+            "coreConcept": "Burn Assessment Priorities",
+            "caseSummary": "Identifying critical complications of thermal injury: Airway, Renal, and Circulation.",
+            "answerAnalysis": "Singed hairs/soot indicate inhalation injury (Airway). Dark red urine indicates myoglobinuria (Renal threat). Circumferential chest burns restrict breathing (Breathing/Circulation). Hyperkalemia (6.2) risks cardiac arrest. Tachycardia is expected compensatory. Hypothermia is a risk but less immediate than airway/K+.",
+            "trap": "Prioritizing the temperature or expected tachycardia over the life-threatening potassium or airway signs.",
+            "goldenRule": "Dark urine in burns = Myoglobinuria -> Rhabdomyolysis -> Renal Failure. Flush it out!",
+            "steps": [
+              {
+                "tag": "Recognize",
+                "description": "Identify red flags: Airway soot, Red urine, Tight chest."
+              },
+              {
+                "tag": "Analyze",
+                "description": "These threaten A, B, and Kidneys."
+              },
+              {
+                "tag": "Take Action",
+                "description": "Highlight for intervention."
+              }
+            ],
+            "mnemonic": {
+              "title": "Burn Red Flags",
+              "content": "Soot (Inhalation), Red Pee (Myoglobin), Tight Skin (Compartment), High K+ (Heart)",
+              "explanation": "Immediate threats to life."
+            },
+            "cheatSheet": {
+              "title": "Assessment Cues",
+              "points": [
+                "Facial burns/Soot -> Intubate early.",
+                "Circumferential burns -> Prepare for escharotomy.",
+                "Myoglobinuria -> Increase fluids to flush kidneys."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Myoglobin is a large protein that clogs renal tubules.",
+              "physiology": "Eschar is dead, inelastic tissue. If circumferential, it acts like a tourniquet or corset, preventing expansion.",
+              "pharm": "Sodium Bicarbonate may be used to alkalize urine and prevent myoglobin precipitation."
+            },
+            "difficulty": {
+              "score": 90,
+              "level": 5,
+              "label": "Expert",
+              "clinicalStrategy": "Differentiate 'Expected/Manageable' (HR 128) from 'Immediate Threat' (K+ 6.2, Myoglobinuria).",
+              "recommendedActions": [
+                "Prepare Calcium Gluconate",
+                "Increase Fluids"
+              ]
+            }
+          },
+          "rationales": {
+            "h1, ": "[Hook] Singed nasal hairs. [Breakdown] High suspicion for inhalation injury and potential airway edema. [Trap] Waiting for stridor to appear (too late).",
+            "h2, ": "[Hook] Soot in oropharynx. [Breakdown] Confirms smoke inhalation, risk of glottic edema and CO poisoning. [Trap] Assuming patent airway is stable.",
+            "h3, ": "[Hook] 15 mL dark red urine. [Breakdown] Oliguria + Myoglobinuria (Rhabdomyolysis) indicates acute tubular necrosis risk. [Trap] Thinking it's concentrated urine only.",
+            "h4, ": "[Hook] Circumferential/Tight eschar. [Breakdown] Restricts chest expansion, leading to respiratory failure (mechanical). [Trap] Confusing with normal edema.",
+            "h5, ": "[Hook] HR 128 bpm. [Breakdown] Expected compensatory response to shock/pain. Not the primary 'fixable' problem (fix fluids first). [Trap] Treating the rate with meds.",
+            "h6, ": "[Hook] Temp 96.5°F. [Breakdown] Mild hypothermia is common due to skin loss. Needs warming but not as urgent as Airway/K+. [Trap] Prioritizing comfort over ABCs.",
+            "h7, ": "[Hook] K+ 6.2 mEq/L. [Breakdown] Critical Hyperkalemia from cell lysis. Risk of arrhythmias. [Trap] Ignoring electrolyte shifts.",
+            "h8, ": "[Hook] History of HTN. [Breakdown] Chronic condition not relevant to acute resuscitation priorities. [Trap] Focusing on history."
+          }
+        },
+        {
+          "type": "matrix",
+          "cjmmStep": "Analyze Cues",
+          "prompt": "For each finding, indicate if it supports Hypovolemic Shock, Inhalation Injury, or Compartment Syndrome.",
+          "columns": [
+            {
+              "id": "c1, ",
+              "text": "Hypovolemic Shock"
+            },
+            {
+              "id": "c2, ",
+              "text": "Inhalation Injury"
+            },
+            {
+              "id": "c3, ",
+              "text": "Compartment Syndrome"
+            }
+          ],
+          "rows": [
+            {
+              "id": "r1, ",
+              "text": "Hematocrit 58%",
+              "correctColumnId": "c1, ",
+              "rationale": "Hemoconcentration due to loss of plasma volume."
+            },
+            {
+              "id": "r2, ",
+              "text": "Carboxyhemoglobin 12%",
+              "correctColumnId": "c2, ",
+              "rationale": "Indicates Carbon Monoxide poisoning from smoke."
+            },
+            {
+              "id": "r3, ",
+              "text": "Loss of distal pulses",
+              "correctColumnId": "c3, ",
+              "rationale": "Circumferential burns compressing arteries."
+            },
+            {
+              "id": "r4, ",
+              "text": "Lactate 4.5 mmol/L",
+              "correctColumnId": "c1, ",
+              "rationale": "Tissue hypoperfusion from shock."
+            },
+            {
+              "id": "r5, ",
+              "text": "Hoarse voice/Stridor",
+              "correctColumnId": "c2, ",
+              "rationale": "Upper airway edema."
+            },
+            {
+              "id": "r6, ",
+              "text": "High peak airway pressures",
+              "correctColumnId": "c3, ",
+              "rationale": "Thoracic compartment syndrome restricting ventilation."
+            }
+          ],
+          "rationale": {
+            "coreConcept": "Complications of Major Burns",
+            "caseSummary": "The patient is presenting with all three major complications.",
+            "answerAnalysis": "High Hct/Lactate = Volume loss (Shock). CO/Stridor = Airway (Inhalation). Lost pulses/High pressures = Restriction (Compartment).",
+            "trap": "Thinking high airway pressures are always ARDS/Lung injury. In burns, check the chest wall compliance (eschar) first.",
+            "goldenRule": "High Hct in a trauma/burn patient means they are DRY (Hemoconcentrated), not that they have too much blood.",
+            "steps": [
+              {
+                "tag": "Recognize",
+                "description": "Group signs by system: Circulatory (Shock), Respiratory (Inhalation), Mechanical (Compartment)."
+              },
+              {
+                "tag": "Analyze",
+                "description": "Match lab/physical finding to pathology."
+              },
+              {
+                "tag": "Take Action",
+                "description": "Categorize correctly."
+              }
+            ],
+            "mnemonic": {
+              "title": "Burn Triad of Death",
+              "content": "Shock (Fluids), Smoke (Airway), Squeeze (Escharotomy)",
+              "explanation": "The three killers in the first 24 hours."
+            },
+            "cheatSheet": {
+              "title": "Diagnostic Clues",
+              "points": [
+                "Rising Hct = Falling Volume.",
+                "Cherry Red Skin = CO Poisoning.",
+                "Pain > Injury or Numbness = Compartment Syndrome."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Fascial compartments in extremities; Chest wall mechanics.",
+              "physiology": "CO binds Hgb 200x stronger than O2. Shock is distributive/hypovolemic.",
+              "pharm": "100% O2 decreases CO half-life from 4 hours to 45 mins."
+            },
+            "difficulty": {
+              "score": 90,
+              "level": 5,
+              "label": "Expert",
+              "clinicalStrategy": "Connect pathophysiology to lab values (Hemoconcentration = Hypovolemia).",
+              "recommendedActions": [
+                "Review labs",
+                "Assess pulses"
+              ]
+            }
+          }
+        },
+        {
+          "type": "ordered-response",
+          "cjmmStep": "Prioritize Hypotheses",
+          "prompt": "Drag the nursing actions into the correct priority order.",
+          "orderedOptions": [
+            {
+              "id": "s1, ",
+              "text": "Assess airway patency and endotracheal tube security",
+              "rationale": "Airway is always priority #1, especially with inhalation injury."
+            },
+            {
+              "id": "s2, ",
+              "text": "Titrate Lactated Ringers to maintain urine output",
+              "rationale": "Circulation/Shock management is priority #2."
+            },
+            {
+              "id": "s3, ",
+              "text": "Prepare for chest escharotomy",
+              "rationale": "Breathing/Circulation mechanical fix, priority #3."
+            },
+            {
+              "id": "s4, ",
+              "text": "Administer IV Fentanyl for pain",
+              "rationale": "Comfort is important but follows ABCs."
+            }
+          ],
+          "rationale": {
+            "coreConcept": "Prioritization in Burn Care",
+            "caseSummary": "Managing competing life-threats.",
+            "answerAnalysis": "Airway integrity is the absolute prerequisite. Fluid resuscitation treats the lethal shock state. Escharotomy is a procedure for a specific complication. Pain meds are supportive.",
+            "trap": "Stopping resuscitation to do a procedure (escharotomy) before stabilizing the volume status, or prioritizing pain over shock.",
+            "goldenRule": "You can't resuscitate a patient who can't breathe. Airway -> Fluids -> Procedures.",
+            "steps": [
+              {
+                "tag": "Recognize",
+                "description": "ABCs apply."
+              },
+              {
+                "tag": "Analyze",
+                "description": "Inhalation injury makes Airway tenuous."
+              },
+              {
+                "tag": "Take Action",
+                "description": "Secure Airway, then Push Fluids."
+              }
+            ],
+            "mnemonic": {
+              "title": "A-B-C-D-E",
+              "content": "Airway, Breathing, Circulation, Disability, Exposure (Temperature)",
+              "explanation": "Standard trauma protocol."
+            },
+            "cheatSheet": {
+              "title": "Priority Ladder",
+              "points": [
+                "1. Intubate if stridor/burns to face.",
+                "2. IV Access & Fluids (Parkland).",
+                "3. Pulse checks (Circulation).",
+                "4. Analgesia."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Glottis can swell shut in minutes.",
+              "physiology": "Hypovolemia leads to cardiac arrest if not treated aggressively.",
+              "pharm": "Opioids can cause hypotension; ensure fluids are running."
+            },
+            "difficulty": {
+              "score": 90,
+              "level": 5,
+              "label": "Expert",
+              "clinicalStrategy": "Follow standard resuscitation algorithms (ATLS/ABLS).",
+              "recommendedActions": [
+                "Secure airway first",
+                "Start fluids second"
+              ]
+            }
+          }
+        },
+        {
+          "type": "bow-tie",
+          "cjmmStep": "Generate Solutions",
+          "prompt": "Complete the diagram: Action, Condition, Parameters.",
+          "actions": [
+            {
+              "id": "a1, ",
+              "text": "Increase IV fluid rate",
+              "isCorrect": true
+            },
+            {
+              "id": "a2, ",
+              "text": "Administer Sodium Bicarbonate",
+              "isCorrect": true
+            },
+            {
+              "id": "a3, ",
+              "text": "Prepare for fasciotomy/escharotomy",
+              "isCorrect": false
+            },
+            {
+              "id": "a4, ",
+              "text": "Decrease IV fluid rate"
+            },
+            {
+              "id": "a5, ",
+              "text": "Administer Mannitol",
+              "isCorrect": true
+            }
+          ],
+          "conditions": [
+            {
+              "id": "c1, ",
+              "text": "Rhabdomyolysis / Myoglobinuria",
+              "isCorrect": true
+            },
+            {
+              "id": "c2, ",
+              "text": "Fluid Overload"
+            },
+            {
+              "id": "c3, ",
+              "text": "Septic Shock"
+            },
+            {
+              "id": "c4, ",
+              "text": "Acute Respiratory Distress Syndrome"
+            }
+          ],
+          "parameters": [
+            {
+              "id": "p1, ",
+              "text": "Urine output > 75-100 mL/hr",
+              "isCorrect": true
+            },
+            {
+              "id": "p2, ",
+              "text": "Urine color clearing",
+              "isCorrect": true
+            },
+            {
+              "id": "p3, ",
+              "text": "Serum Creatinine",
+              "isCorrect": true
+            },
+            {
+              "id": "p4, ",
+              "text": "Blood Pressure > 140/90, "
+            },
+            {
+              "id": "p5, ",
+              "text": "Pain Score < 3, "
+            }
+          ],
+          "rationale": {
+            "coreConcept": "Management of Myoglobinuria in Burns",
+            "caseSummary": "The patient has dark red urine (myoglobin) and low output. This is a specific renal threat.",
+            "answerAnalysis": "Condition is Rhabdomyolysis/Myoglobinuria. Actions: FLUSH the kidneys. Increase fluids (higher target UOP 75-100mL/hr vs standard 30-50). Mannitol (osmotic diuretic) keeps tubules open. Bicarb alkalizes urine to prevent pigment precipitation. Escharotomy treats compartment syndrome, not directly the renal issue (though related).",
+            "trap": "Treating with standard fluid goals (30mL/hr). In myoglobinuria, you must drive the kidneys harder to prevent clogging.",
+            "goldenRule": "Red Urine = Double the Fluid Goal. Flush until clear.",
+            "steps": [
+              {
+                "tag": "Recognize",
+                "description": "Dark urine = Myoglobin."
+              },
+              {
+                "tag": "Analyze",
+                "description": "Risk is Acute Tubular Necrosis."
+              },
+              {
+                "tag": "Take Action",
+                "description": "Increase flush (Fluids/Mannitol) and alkalize."
+              }
+            ],
+            "mnemonic": {
+              "title": "Myoglobin Management",
+              "content": "Flush (Fluids), Flow (Mannitol), Fix pH (Bicarb)",
+              "explanation": "Three pillars of treating pigment nephropathy."
+            },
+            "cheatSheet": {
+              "title": "Urine Output Goals",
+              "points": [
+                "Thermal Burn: 0.5 mL/kg/hr (30-50 mL/hr).",
+                "Electrical/Myoglobinuria: 1.0-1.5 mL/kg/hr (75-100 mL/hr)."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Renal tubules.",
+              "physiology": "Myoglobin precipitates in acidic urine, causing obstruction.",
+              "pharm": "Mannitol draws fluid into nephron; Bicarbonate raises pH."
+            },
+            "difficulty": {
+              "score": 90,
+              "level": 5,
+              "label": "Expert",
+              "clinicalStrategy": "Identify the specific complication requiring altered fluid goals.",
+              "recommendedActions": [
+                "Target higher UOP",
+                "Monitor urine color"
+              ]
+            }
+          }
+        },
+        {
+          "type": "drop-cloze",
+          "cjmmStep": "Take Action",
+          "prompt": "Complete the nursing documentation.",
+          "text": "The nurse anticipates administering %{d1} to treat %{d2}.",
+          "dropdowns": [
+            {
+              "id": "d1, ",
+              "options": [
+                {
+                  "id": "o1, ",
+                  "text": "Regular Insulin IV and Dextrose",
+                  "isCorrect": true,
+                  "rationale": "Insulin shifts Potassium into cells; Dextrose prevents hypoglycemia. Standard hyperkalemia cocktail."
+                },
+                {
+                  "id": "o2, ",
+                  "text": "Kayexalate PO",
+                  "rationale": "Too slow for emergency treatment of K+ 6.2."
+                }
+              ]
+            },
+            {
+              "id": "d2, ",
+              "options": [
+                {
+                  "id": "o3, ",
+                  "text": "Hyperkalemia",
+                  "isCorrect": true,
+                  "rationale": "K+ 6.2 is life-threatening."
+                },
+                {
+                  "id": "o4, ",
+                  "text": "Hypernatremia",
+                  "rationale": "Patient is likely hyponatremic."
+                }
+              ]
+            }
+          ],
+          "rationale": {
+            "coreConcept": "Hyperkalemia Management in Burns",
+            "caseSummary": "Cell lysis releases massive K+. Levels > 6.0 require shifting agents.",
+            "answerAnalysis": "Insulin/D50 is the fastest temporary fix to shift K+ into cells to protect the heart. Kayexalate takes hours. Calcium gluconate (not listed) stabilizes the heart but doesn't lower K+.",
+            "trap": "Ignoring the K+ because 'burns cause tissue damage'. K+ 6.2 can cause V-Fib regardless of the cause.",
+            "goldenRule": "See High K+ -> Protect Heart (Calcium) -> Shift K+ (Insulin/Albuterol) -> Eliminate K+ (Lasix/Kayexalate).",
+            "steps": [
+              {
+                "tag": "Recognize",
+                "description": "K+ 6.2 is critical."
+              },
+              {
+                "tag": "Analyze",
+                "description": "Need rapid shift."
+              },
+              {
+                "tag": "Take Action",
+                "description": "Administer Insulin/Glucose."
+              }
+            ],
+            "mnemonic": {
+              "title": "C-BIG-K-Drop",
+              "content": "C-alcium, B-icarb, I-nsulin, G-lucose, K-ayexalate, D-ialysis",
+              "explanation": "Steps to treat hyperkalemia."
+            },
+            "cheatSheet": {
+              "title": "Electrolytes in Burns",
+              "points": [
+                "Early (0-24h): High K+, Low Na+.",
+                "Late (48h+): Low K+ (diuresis), Variable Na+."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Cardiac conduction system.",
+              "physiology": "High K+ lowers resting membrane potential, making myocardium irritable.",
+              "pharm": "Insulin stimulates Na-K-ATPase pump."
+            },
+            "difficulty": {
+              "score": 90,
+              "level": 5,
+              "label": "Expert",
+              "clinicalStrategy": "Prioritize immediate cardiac protection over long-term elimination.",
+              "recommendedActions": [
+                "Obtain ECG",
+                "Prepare IV Insulin"
+              ]
+            }
+          }
+        },
+        {
+          "type": "multiple-response",
+          "cjmmStep": "Evaluate Outcomes",
+          "prompt": "Which findings indicate the resuscitation is adequate? Select all that apply.",
+          "options": [
+            {
+              "id": "o1, ",
+              "text": "Urine output is 90 mL/hr",
+              "isCorrect": true,
+              "rationale": "Meets the higher goal for myoglobinuria (75-100 mL/hr)."
+            },
+            {
+              "id": "o2, ",
+              "text": "Mean Arterial Pressure (MAP) is 70 mmHg",
+              "isCorrect": true,
+              "rationale": "MAP > 65 indicates organ perfusion."
+            },
+            {
+              "id": "o3, ",
+              "text": "Heart rate decreases to 100 bpm",
+              "isCorrect": true,
+              "rationale": "Trending down suggests intravascular volume is replenishing."
+            },
+            {
+              "id": "o4, ",
+              "text": "Hematocrit increases to 60%",
+              "rationale": "Rising Hct indicates worsening dehydration/fluid loss."
+            },
+            {
+              "id": "o5, ",
+              "text": "Lactate increases to 6.0 mmol/L",
+              "rationale": "Rising lactate indicates ongoing shock/hypoperfusion."
+            }
+          ],
+          "rationale": {
+            "coreConcept": "Evaluating Burn Resuscitation",
+            "caseSummary": "Assessing if the fluids are working.",
+            "answerAnalysis": "Adequate resuscitation is marked by: UOP meeting goal, MAP > 65, down-trending HR (resolving shock), and normalizing labs (Hct and Lactate should drop).",
+            "trap": "Thinking a high Hct is good. In burns, we want the Hct to drop (dilution) back to normal.",
+            "goldenRule": "Urine Output is the 'Vital Sign' of Burn Resuscitation.",
+            "steps": [
+              {
+                "tag": "Recognize",
+                "description": "Identify markers of perfusion."
+              },
+              {
+                "tag": "Analyze",
+                "description": "Compare to goals (UOP, MAP)."
+              },
+              {
+                "tag": "Take Action",
+                "description": "Adjust fluids based on UOP."
+              }
+            ],
+            "mnemonic": {
+              "title": "Resuscitation Goals",
+              "content": "Pee, Pressure, Pulse",
+              "explanation": "UOP, MAP, and HR trends."
+            },
+            "cheatSheet": {
+              "title": "Signs of Success",
+              "points": [
+                "UOP 0.5-1.0 mL/kg/hr.",
+                "MAP > 65.",
+                "Clear Sensorium.",
+                "Lactate < 2."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Kidneys receive 20-25% of cardiac output.",
+              "physiology": "Adequate UOP proves the kidneys (and thus the core organs) are perfused.",
+              "pharm": "Parkland formula is just a starting point; titrate to the patient."
+            },
+            "difficulty": {
+              "score": 90,
+              "level": 5,
+              "label": "Expert",
+              "clinicalStrategy": "Evaluate trends. Rising bad markers (Lactate/Hct) = Failure. Normalizing markers = Success.",
+              "recommendedActions": [
+                "Check hourly UOP",
+                "Re-evaluate fluid rate"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "metadata": {
+      "difficulty": 5,
+      "difficultyLevel": 5,
+      "title": "Severe Burns - Resuscitation Phase",
+      "authorId": "UnifiedPipeline",
+      "createdAt": "2026-01-11T16:43:10.511Z",
+      "updatedAt": "2026-01-11T16:43:10.511Z",
+      "status": "published",
+      "qualityScore": 80,
+      "hasStudentPreview": true,
+      "sourceOrigin": "ai",
+      "batchInfo": {
+        "batchId": "unified",
+        "batchSize": 1,
+        "temperature": 0,
+        "generationDate": "2026-01-11T16:43:10.511Z"
+      },
+      "score": 50,
+      "topic": "Cardiology"
+    },
+    "pedagogy": {
+      "difficultyLevel": 5,
+      "clinicalFocus": "Cardiology"
+    },
+    "difficulty": 5,
+    "difficultyLevel": 5,
+    "id": "unified_1768149790511_xscrfn",
+    "typeId": "case-study",
+    "_unifiedPipelineProcessed": true,
+    "_sanitized": true,
+    "status": "review_needed"
+  },
+  {
+    "type": "bow-tie",
+    "prompt": "Read the case study and complete the diagram by selecting the most appropriate Condition, Actions (2), and Parameters (2).",
+    "metadata": {
+      "topic": "Cardiology / Acute Pericarditis",
+      "difficulty": 5,
+      "clientNeeds": "Physiological Integrity",
+      "cjmmStep": "Generate Solutions",
+      "targetScore": 90,
+      "difficultyLevel": 5,
+      "title": "Clinical Assessment Item",
+      "authorId": "UnifiedPipeline",
+      "createdAt": "2026-01-12T10:52:27.144Z",
+      "updatedAt": "2026-01-12T10:52:27.144Z",
+      "status": "draft",
+      "qualityScore": 80,
+      "hasStudentPreview": true,
+      "sourceOrigin": "ai",
+      "batchInfo": {
+        "batchId": "unified",
+        "batchSize": 1,
+        "temperature": 0,
+        "generationDate": "2026-01-12T10:52:27.144Z"
+      },
+      "score": 50
+    },
+    "content": {
+      "patient": {
+        "name": "J.K.",
+        "age": 34,
+        "gender": "Male",
+        "allergies": "Sulfa",
+        "weightKg": 78,
+        "codeStatus": "Full Code"
+      },
+      "setting": "Emergency Department",
+      "historyPhysical": {
+        "chiefComplaint": "Sharp chest pain",
+        "hpi": "34-year-old male presents with sharp, retrosternal chest pain that began 2 days ago. Pain radiates to the left trapezius ridge and worsens with inspiration and lying supine. He reports relief when sitting up and leaning forward. Patient had a 'flu-like illness' 2 weeks ago.",
+        "pmh": [
+          "Asthma",
+          "Recent viral URI"
+        ],
+        "medications": [
+          "Albuterol inhaler PRN"
+        ],
+        "allergies": "Sulfonamides (Rash)",
+        "socialHistory": "Non-smoker, social drinker.",
+        "reviewOfSystems": {
+          "constitutional": "Low-grade fever, malaise",
+          "cardiovascular": "Chest pain, palpitations",
+          "respiratory": "Dyspnea on deep inspiration (pleuritic)"
+        },
+        "physicalExam": {
+          "general": "Uncomfortable, leaning forward on stretcher",
+          "cardiovascular": "Tachycardia, high-pitched scratching sound heard at LSB",
+          "respiratory": "Lungs clear but shallow breath sounds due to pain",
+          "extremities": "No edema, pulses 2+ equal"
+        }
+      },
+      "nursesNotes": [
+        {
+          "time": "1400, ",
+          "author": "RN Emergency",
+          "entry": "Patient triage: Complaints of sharp chest pain 8/10. States 'it feels like a knife when I breathe in.' Positioned sitting upright, leaning over bedside table. ECG obtained. Friction rub audible at left sternal border."
+        },
+        {
+          "time": "1430, ",
+          "author": "RN Emergency",
+          "entry": "ECG shows diffuse ST-segment elevation in precordial leads with PR depression. Troponin I negative. Patient remains tachypneic due to pleuritic pain. Vitals stable but febrile."
+        },
+        {
+          "time": "1500, ",
+          "author": "RN Emergency",
+          "entry": "Dr. Cardio evaluated. Concern for inflammatory process vs ACS. Echocardiogram ordered to rule out effusion/tamponade. Pain management initiated."
+        }
+      ],
+      "vitalSigns": [
+        {
+          "time": "1400, ",
+          "tempF": "100.8, ",
+          "hr": 104,
+          "rr": 22,
+          "bp": "124/76, ",
+          "o2, ": "97, ",
+          "o2_device": "RA",
+          "pain": 8
+        },
+        {
+          "time": "1500, ",
+          "tempF": "101.2, ",
+          "hr": 98,
+          "rr": 20,
+          "bp": "122/74, ",
+          "o2, ": "98, ",
+          "o2_device": "RA",
+          "pain": 6
+        }
+      ],
+      "laboratory": [
+        {
+          "test": "WBC",
+          "value": "13.2, ",
+          "flag": "H",
+          "reference": "4.5-11.0, ",
+          "unit": "10^3/uL",
+          "date": "Today"
+        },
+        {
+          "test": "CRP",
+          "value": "45, ",
+          "flag": "H",
+          "reference": "<10, ",
+          "unit": "mg/L",
+          "date": "Today"
+        },
+        {
+          "test": "Troponin I",
+          "value": "0.02, ",
+          "flag": "N",
+          "reference": "<0.04, ",
+          "unit": "ng/mL",
+          "date": "Today"
+        },
+        {
+          "test": "ESR",
+          "value": "60, ",
+          "flag": "H",
+          "reference": "0-15, ",
+          "unit": "mm/hr",
+          "date": "Today"
+        }
+      ],
+      "orders": [
+        {
+          "order": "12-Lead ECG STAT",
+          "status": "Completed"
+        },
+        {
+          "order": "Ibuprofen 600mg PO q6h",
+          "status": "Active"
+        },
+        {
+          "order": "Colchicine 0.6mg PO BID",
+          "status": "Active"
+        },
+        {
+          "order": "Transthoracic Echocardiogram",
+          "status": "Pending"
+        }
+      ],
+      "radiology": [
+        {
+          "study": "CXR PA/Lateral",
+          "finding": "Normal cardiac silhouette. No pulmonary edema or consolidation.",
+          "impression": "No acute cardiopulmonary process identified on plain film."
+        }
+      ],
+      "clinicalData": {
+        "patientInfo": {
+          "name": "J.K.",
+          "age": 34,
+          "gender": "M",
+          "codeStatus": "Full Code",
+          "admissionDate": "1/12/2026 07:30",
+          "room": "MedSurg-12",
+          "physician": "Dr. S. Specialist",
+          "nurse": "RN Staff",
+          "allergies": "Sulfa",
+          "isolation": "Standard Precautions",
+          "weightKg": 78,
+          "history": [],
+          "homeMeds": []
+        },
+        "vitals": [
+          {
+            "time": "1400, ",
+            "tempF": "100.8, ",
+            "hr": 104,
+            "rr": 22,
+            "bp": "124/76, ",
+            "o2": "98",
+            "o2_device": "RA",
+            "pain": 8
+          },
+          {
+            "time": "1500, ",
+            "tempF": "101.2, ",
+            "hr": 98,
+            "rr": 20,
+            "bp": "122/74, ",
+            "o2": "98",
+            "o2_device": "RA",
+            "pain": 6
+          }
+        ],
+        "labs": [
+          {
+            "test": "WBC",
+            "value": "13.2, ",
+            "unit": "10^3/uL",
+            "ref": "4.5-11.0, ",
+            "flag": "h"
+          },
+          {
+            "test": "CRP",
+            "value": "45, ",
+            "unit": "mg/L",
+            "ref": "<10, ",
+            "flag": "h"
+          },
+          {
+            "test": "Troponin I",
+            "value": "0.02, ",
+            "unit": "ng/mL",
+            "ref": "<0.04, ",
+            "flag": "n"
+          },
+          {
+            "test": "ESR",
+            "value": "60, ",
+            "unit": "mm/hr",
+            "ref": "0-15, ",
+            "flag": "h"
+          }
+        ],
+        "orders": [
+          {
+            "drug": "12-Lead ECG STAT",
+            "dose": "As ordered",
+            "route": "IV",
+            "freq": "Per protocol",
+            "status": "completed",
+            "indication": ""
+          },
+          {
+            "drug": "Ibuprofen 600mg PO q6h",
+            "dose": "As ordered",
+            "route": "IV",
+            "freq": "Per protocol",
+            "status": "active",
+            "indication": ""
+          },
+          {
+            "drug": "Colchicine 0.6mg PO BID",
+            "dose": "As ordered",
+            "route": "IV",
+            "freq": "Per protocol",
+            "status": "active",
+            "indication": ""
+          },
+          {
+            "drug": "Transthoracic Echocardiogram",
+            "dose": "As ordered",
+            "route": "IV",
+            "freq": "Per protocol",
+            "status": "pending",
+            "indication": ""
+          }
+        ],
+        "history": [
+          {
+            "time": "1400, ",
+            "note": "Patient triage: Complaints of sharp chest pain 8/10. States 'it feels like a knife when I breathe in.' Positioned sitting upright, leaning over bedside table. ECG obtained. Friction rub audible at left sternal border.",
+            "initial": "RN Emergency"
+          },
+          {
+            "time": "1430, ",
+            "note": "ECG shows diffuse ST-segment elevation in precordial leads with PR depression. Troponin I negative. Patient remains tachypneic due to pleuritic pain. Vitals stable but febrile.",
+            "initial": "RN Emergency"
+          },
+          {
+            "time": "1500, ",
+            "note": "Dr. Cardio evaluated. Concern for inflammatory process vs ACS. Echocardiogram ordered to rule out effusion/tamponade. Pain management initiated.",
+            "initial": "RN Emergency"
+          }
+        ],
+        "historyPhysical": {
+          "chiefComplaint": "Sharp chest pain",
+          "hpi": "34-year-old male presents with sharp, retrosternal chest pain that began 2 days ago. Pain radiates to the left trapezius ridge and worsens with inspiration and lying supine. He reports relief when sitting up and leaning forward. Patient had a 'flu-like illness' 2 weeks ago.",
+          "pmh": [
+            "Asthma",
+            "Recent viral URI"
+          ],
+          "medications": [
+            "Albuterol inhaler PRN"
+          ],
+          "allergies": "Sulfonamides (Rash)",
+          "socialHistory": "Non-smoker, social drinker.",
+          "reviewOfSystems": {
+            "constitutional": "Low-grade fever, malaise",
+            "cardiovascular": "Chest pain, palpitations",
+            "respiratory": "Dyspnea on deep inspiration (pleuritic)"
+          },
+          "physicalExam": {
+            "general": "Uncomfortable, leaning forward on stretcher",
+            "cardiovascular": "Tachycardia, high-pitched scratching sound heard at LSB",
+            "respiratory": "Lungs clear but shallow breath sounds due to pain",
+            "extremities": "No edema, pulses 2+ equal"
+          }
+        },
+        "radiology": [
+          {
+            "study": "CXR PA/Lateral",
+            "finding": "Normal cardiac silhouette. No pulmonary edema or consolidation.",
+            "impression": "No acute cardiopulmonary process identified on plain film."
+          }
+        ],
+        "setting": "Emergency Department"
+      },
+      "structure": {
+        "type": "bow-tie",
+        "prompt": "Read the case study and complete the diagram by selecting the most appropriate Condition, Actions (2), and Parameters (2).",
+        "actions": [
+          {
+            "id": "a1, ",
+            "text": "Administer high-dose NSAIDs (Ibuprofen) and Colchicine",
+            "isCorrect": true
+          },
+          {
+            "id": "a2, ",
+            "text": "Position patient upright and leaning forward for comfort",
+            "isCorrect": true
+          },
+          {
+            "id": "a3, ",
+            "text": "Prepare for immediate cardiac catheterization",
+            "isCorrect": false
+          },
+          {
+            "id": "a4, ",
+            "text": "Administer sublingual Nitroglycerin for pain relief",
+            "isCorrect": false
+          },
+          {
+            "id": "a5, ",
+            "text": "Initiate thrombolytic therapy (tPA)",
+            "isCorrect": false
+          }
+        ],
+        "conditions": [
+          {
+            "id": "c1, ",
+            "text": "Acute Pericarditis",
+            "isCorrect": true
+          },
+          {
+            "id": "c2, ",
+            "text": "ST-Elevation Myocardial Infarction (STEMI)",
+            "isCorrect": false
+          },
+          {
+            "id": "c3, ",
+            "text": "Pulmonary Embolism",
+            "isCorrect": false
+          },
+          {
+            "id": "c4, ",
+            "text": "Costochondritis",
+            "isCorrect": false
+          }
+        ],
+        "parameters": [
+          {
+            "id": "p1, ",
+            "text": "Monitor for Beck's Triad (Hypotension, JVD, Muffled tones)",
+            "isCorrect": true
+          },
+          {
+            "id": "p2, ",
+            "text": "Assess pain response to positioning and respiration",
+            "isCorrect": true
+          },
+          {
+            "id": "p3, ",
+            "text": "Monitor Troponin levels q6h for significant elevation",
+            "isCorrect": false
+          },
+          {
+            "id": "p4, ",
+            "text": "Monitor PTT/INR levels",
+            "isCorrect": false
+          },
+          {
+            "id": "p5, ",
+            "text": "Assess for new onset murmur of mitral regurgitation",
+            "isCorrect": false
+          }
+        ],
+        "difficulty": 5
+      },
+      "rationale": {
+        "coreConcept": "Clinical Judgment",
+        "caseSummary": "Clinical scenario analysis required.",
+        "answerAnalysis": "See option review for detailed analysis.",
+        "goldenRule": "Distinguish Pericarditis from MI: Pericarditis pain changes with position/respiration and ECG changes are diffuse (everywhere), whereas MI pain is constant and ECG changes are localized to coronary territories.",
+        "steps": [],
+        "difficulty": {
+          "level": 5,
+          "score": 100,
+          "label": "Evaluation",
+          "clinicalStrategy": "Level 5 clinical reasoning required.",
+          "recommendedActions": [
+            "Practice advanced scenarios"
+          ]
+        },
+        "mnemonic": {
+          "title": "FRICTION",
+          "content": "F-Friction rub, R-Radiating pain to trap, I-Increased pain on inspiration, C-Chest pain (sharp), T-Trouble breathing (supine), I-Infection (viral hx), O-On leaning forward pain lessens, N-NSAIDs are first line",
+          "explanation": "Summarizes the key assessment findings and management for Acute Pericarditis."
+        },
+        "referenceInfo": {
+          "anatomy": "Acute Pericarditis is inflammation of the pericardial sac, often viral or idiopathic. The classic presentation includes pleuritic chest pain relieved by leaning forward, a pericardial friction rub, and diffuse ST elevation with PR depression on ECG.",
+          "physiology": "Inflammation of the pericardium causes the layers to rub against each other (friction rub) and irritate local nerves (pain). The ECG changes reflect superficial myocardial inflammation (ST elevation) and atrial injury (PR depression). Effusions may develop if fluid accumulates rapidly.",
+          "pharm": "Review relevant medication mechanisms."
+        },
+        "pathophysiology": "Inflammation of the pericardium causes the layers to rub against each other (friction rub) and irritate local nerves (pain). The ECG changes reflect superficial myocardial inflammation (ST elevation) and atrial injury (PR depression). Effusions may develop if fluid accumulates rapidly.",
+        "general": "Acute Pericarditis is inflammation of the pericardial sac, often viral or idiopathic. The classic presentation includes pleuritic chest pain relieved by leaning forward, a pericardial friction rub, and diffuse ST elevation with PR depression on ECG.",
+        "safetyCheck": "CRITICAL: Monitor for signs of Cardiac Tamponade (Beck's Triad: Hypotension, JVD, Muffled Heart Sounds). This is a life-threatening complication where fluid compresses the heart, preventing filling.",
+        "clinicalTakeaway": "Distinguish Pericarditis from MI: Pericarditis pain changes with position/respiration and ECG changes are diffuse (everywhere), whereas MI pain is constant and ECG changes are localized to coronary territories."
+      }
+    },
+    "rationale": {
+      "general": "Acute Pericarditis is inflammation of the pericardial sac, often viral or idiopathic. The classic presentation includes pleuritic chest pain relieved by leaning forward, a pericardial friction rub, and diffuse ST elevation with PR depression on ECG.",
+      "pathophysiology": "Inflammation of the pericardium causes the layers to rub against each other (friction rub) and irritate local nerves (pain). The ECG changes reflect superficial myocardial inflammation (ST elevation) and atrial injury (PR depression). Effusions may develop if fluid accumulates rapidly.",
+      "safetyCheck": "CRITICAL: Monitor for signs of Cardiac Tamponade (Beck's Triad: Hypotension, JVD, Muffled Heart Sounds). This is a life-threatening complication where fluid compresses the heart, preventing filling.",
+      "clinicalTakeaway": "Distinguish Pericarditis from MI: Pericarditis pain changes with position/respiration and ECG changes are diffuse (everywhere), whereas MI pain is constant and ECG changes are localized to coronary territories.",
+      "mnemonic": {
+        "title": "FRICTION",
+        "content": "F-Friction rub, R-Radiating pain to trap, I-Increased pain on inspiration, C-Chest pain (sharp), T-Trouble breathing (supine), I-Infection (viral hx), O-On leaning forward pain lessens, N-NSAIDs are first line",
+        "explanation": "Summarizes the key assessment findings and management for Acute Pericarditis."
+      }
+    },
+    "structure": {
+      "actions": [
+        {
+          "id": "a1, ",
+          "text": "Administer high-dose NSAIDs (Ibuprofen) and Colchicine",
+          "isCorrect": true
+        },
+        {
+          "id": "a2, ",
+          "text": "Position patient upright and leaning forward for comfort",
+          "isCorrect": true
+        },
+        {
+          "id": "a3, ",
+          "text": "Prepare for immediate cardiac catheterization",
+          "isCorrect": false
+        },
+        {
+          "id": "a4, ",
+          "text": "Administer sublingual Nitroglycerin for pain relief",
+          "isCorrect": false
+        },
+        {
+          "id": "a5, ",
+          "text": "Initiate thrombolytic therapy (tPA)",
+          "isCorrect": false
+        }
+      ],
+      "conditions": [
+        {
+          "id": "c1, ",
+          "text": "Acute Pericarditis",
+          "isCorrect": true
+        },
+        {
+          "id": "c2, ",
+          "text": "ST-Elevation Myocardial Infarction (STEMI)",
+          "isCorrect": false
+        },
+        {
+          "id": "c3, ",
+          "text": "Pulmonary Embolism",
+          "isCorrect": false
+        },
+        {
+          "id": "c4, ",
+          "text": "Costochondritis",
+          "isCorrect": false
+        }
+      ],
+      "parameters": [
+        {
+          "id": "p1, ",
+          "text": "Monitor for Beck's Triad (Hypotension, JVD, Muffled tones)",
+          "isCorrect": true
+        },
+        {
+          "id": "p2, ",
+          "text": "Assess pain response to positioning and respiration",
+          "isCorrect": true
+        },
+        {
+          "id": "p3, ",
+          "text": "Monitor Troponin levels q6h for significant elevation",
+          "isCorrect": false
+        },
+        {
+          "id": "p4, ",
+          "text": "Monitor PTT/INR levels",
+          "isCorrect": false
+        },
+        {
+          "id": "p5, ",
+          "text": "Assess for new onset murmur of mitral regurgitation",
+          "isCorrect": false
+        }
+      ]
+    },
+    "pedagogy": {
+      "difficultyLevel": 5,
+      "clinicalFocus": "General"
+    },
+    "actions": [
+      {
+        "id": "a1, ",
+        "text": "Administer high-dose NSAIDs (Ibuprofen) and Colchicine",
+        "isCorrect": true
+      },
+      {
+        "id": "a2, ",
+        "text": "Position patient upright and leaning forward for comfort",
+        "isCorrect": true
+      },
+      {
+        "id": "a3, ",
+        "text": "Prepare for immediate cardiac catheterization",
+        "isCorrect": false
+      },
+      {
+        "id": "a4, ",
+        "text": "Administer sublingual Nitroglycerin for pain relief",
+        "isCorrect": false
+      },
+      {
+        "id": "a5, ",
+        "text": "Initiate thrombolytic therapy (tPA)",
+        "isCorrect": false
+      }
+    ],
+    "conditions": [
+      {
+        "id": "c1, ",
+        "text": "Acute Pericarditis",
+        "isCorrect": true
+      },
+      {
+        "id": "c2, ",
+        "text": "ST-Elevation Myocardial Infarction (STEMI)",
+        "isCorrect": false
+      },
+      {
+        "id": "c3, ",
+        "text": "Pulmonary Embolism",
+        "isCorrect": false
+      },
+      {
+        "id": "c4, ",
+        "text": "Costochondritis",
+        "isCorrect": false
+      }
+    ],
+    "parameters": [
+      {
+        "id": "p1, ",
+        "text": "Monitor for Beck's Triad (Hypotension, JVD, Muffled tones)",
+        "isCorrect": true
+      },
+      {
+        "id": "p2, ",
+        "text": "Assess pain response to positioning and respiration",
+        "isCorrect": true
+      },
+      {
+        "id": "p3, ",
+        "text": "Monitor Troponin levels q6h for significant elevation",
+        "isCorrect": false
+      },
+      {
+        "id": "p4, ",
+        "text": "Monitor PTT/INR levels",
+        "isCorrect": false
+      },
+      {
+        "id": "p5, ",
+        "text": "Assess for new onset murmur of mitral regurgitation",
+        "isCorrect": false
+      }
+    ],
+    "difficulty": 5,
+    "difficultyLevel": 5,
+    "id": "unified_1768215147144_pq7hli",
+    "typeId": "bow-tie",
+    "_unifiedPipelineProcessed": true,
+    "_sanitized": true,
+    "status": "review_needed"
+  },
+  {
+    "type": "bow-tie",
+    "prompt": "Read the case study and complete the diagram by selecting the most appropriate Condition, Actions (2), and Parameters (2).",
+    "metadata": {
+      "topic": "Cardiology / Acute Decompensated Heart Failure",
+      "difficulty": 5,
+      "clientNeeds": "Physiological Integrity",
+      "cjmmStep": "Generate Solutions",
+      "targetScore": 90,
+      "difficultyLevel": 5,
+      "title": "Clinical Assessment Item",
+      "authorId": "UnifiedPipeline",
+      "createdAt": "2026-01-12T10:56:07.728Z",
+      "updatedAt": "2026-01-12T10:56:07.728Z",
+      "status": "draft",
+      "qualityScore": 80,
+      "hasStudentPreview": true,
+      "sourceOrigin": "ai",
+      "batchInfo": {
+        "batchId": "unified",
+        "batchSize": 1,
+        "temperature": 0,
+        "generationDate": "2026-01-12T10:56:07.729Z"
+      },
+      "score": 50
+    },
+    "content": {
+      "patient": {
+        "name": "R.G.",
+        "age": 72,
+        "gender": "Male",
+        "allergies": "NKDA",
+        "weightKg": 92,
+        "codeStatus": "Full Code"
+      },
+      "setting": "Emergency Department",
+      "historyPhysical": {
+        "chiefComplaint": "Severe shortness of breath",
+        "hpi": "72-year-old male with history of HFrEF (EF 30%) presents with acute onset dyspnea. Patient reports sleeping in a recliner for the past 3 nights due to orthopnea. States he ran out of his 'water pills' 4 days ago. Coughing up pink, frothy sputum.",
+        "pmh": [
+          "CHF",
+          "Hypertension",
+          "Chronic Kidney Disease Stage 3, "
+        ],
+        "medications": [
+          "Furosemide 40mg BID",
+          "Lisinopril 20mg",
+          "Carvedilol 12.5mg"
+        ],
+        "allergies": "NKDA",
+        "socialHistory": "Former smoker, quit 20 years ago.",
+        "reviewOfSystems": {
+          "constitutional": "Fatigue, 5lb weight gain in 2 days",
+          "cardiovascular": "Palpitations, lower extremity swelling",
+          "respiratory": "Air hunger, productive cough"
+        },
+        "physicalExam": {
+          "general": "Diaphoretic, using accessory muscles to breathe",
+          "cardiovascular": "S3 gallop noted, JVD distended to mandible",
+          "respiratory": "Coarse crackles auscultated up to apices bilaterally",
+          "extremities": "3+ pitting edema to knees"
+        }
+      },
+      "nursesNotes": [
+        {
+          "time": "1900, ",
+          "author": "RN Triage",
+          "entry": "Patient arrived via private vehicle. Visible respiratory distress. SpO2 86% on RA. Placed on 15L NRB. BP 178/94. Pink frothy sputum noted. Immediate transfer to Resus bay."
+        },
+        {
+          "time": "1915, ",
+          "author": "RN Primary",
+          "entry": "IV access established #18g LAC. ECG shows sinus tachycardia. Patient struggling to speak in full sentences. Breath sounds wet throughout. Dr. Cardio at bedside."
+        },
+        {
+          "time": "1930, ",
+          "author": "RN Primary",
+          "entry": "Foley catheter inserted. Output 20mL concentrated urine. Patient anxious, diaphoretic. BP remains elevated."
+        }
+      ],
+      "vitalSigns": [
+        {
+          "time": "1900, ",
+          "tempF": "98.4, ",
+          "hr": 118,
+          "rr": 34,
+          "bp": "178/94, ",
+          "o2, ": "86, ",
+          "o2_device": "RA",
+          "pain": 0
+        },
+        {
+          "time": "1915, ",
+          "tempF": "98.4, ",
+          "hr": 112,
+          "rr": 30,
+          "bp": "172/90, ",
+          "o2, ": "91, ",
+          "o2_device": "15L NRB",
+          "pain": 0
+        }
+      ],
+      "laboratory": [
+        {
+          "test": "BNP",
+          "value": "2450, ",
+          "flag": "H!",
+          "reference": "<100, ",
+          "unit": "pg/mL",
+          "date": "Today"
+        },
+        {
+          "test": "Creatinine",
+          "value": "1.8, ",
+          "flag": "H",
+          "reference": "0.7-1.3, ",
+          "unit": "mg/dL",
+          "date": "Today"
+        },
+        {
+          "test": "K+",
+          "value": "4.1, ",
+          "flag": "N",
+          "reference": "3.5-5.0, ",
+          "unit": "mEq/L",
+          "date": "Today"
+        }
+      ],
+      "orders": [
+        {
+          "order": "Furosemide 80mg IV Push STAT",
+          "status": "Active"
+        },
+        {
+          "order": "BiPAP 10/5 cmH2O",
+          "status": "Active"
+        },
+        {
+          "order": "Nitroglycerin infusion start at 10mcg/min",
+          "status": "Pending"
+        }
+      ],
+      "radiology": [
+        {
+          "study": "CXR Portable",
+          "finding": "Significant cardiomegaly. Diffuse bilateral alveolar infiltrates with Kerley B lines ('Batwing appearance').",
+          "impression": "Severe Pulmonary Edema consistent with CHF exacerbation."
+        }
+      ],
+      "clinicalData": {
+        "patientInfo": {
+          "name": "R.G.",
+          "age": 72,
+          "gender": "M",
+          "codeStatus": "Full Code",
+          "admissionDate": "1/12/2026 07:30",
+          "room": "MedSurg-12",
+          "physician": "Dr. S. Specialist",
+          "nurse": "RN Staff",
+          "allergies": "NKDA",
+          "isolation": "Standard Precautions",
+          "weightKg": 92,
+          "history": [],
+          "homeMeds": []
+        },
+        "vitals": [
+          {
+            "time": "1900, ",
+            "tempF": "98.4, ",
+            "hr": 118,
+            "rr": 34,
+            "bp": "178/94, ",
+            "o2": "98",
+            "o2_device": "RA",
+            "pain": 0
+          },
+          {
+            "time": "1915, ",
+            "tempF": "98.4, ",
+            "hr": 112,
+            "rr": 30,
+            "bp": "172/90, ",
+            "o2": "98",
+            "o2_device": "15L NRB",
+            "pain": 0
+          }
+        ],
+        "labs": [
+          {
+            "test": "BNP",
+            "value": "2450, ",
+            "unit": "pg/mL",
+            "ref": "<100, ",
+            "flag": "h!"
+          },
+          {
+            "test": "Creatinine",
+            "value": "1.8, ",
+            "unit": "mg/dL",
+            "ref": "0.7-1.3, ",
+            "flag": "h"
+          },
+          {
+            "test": "K+",
+            "value": "4.1, ",
+            "unit": "mEq/L",
+            "ref": "3.5-5.0, ",
+            "flag": "n"
+          }
+        ],
+        "orders": [
+          {
+            "drug": "Furosemide 80mg IV Push STAT",
+            "dose": "As ordered",
+            "route": "IV",
+            "freq": "Per protocol",
+            "status": "active",
+            "indication": ""
+          },
+          {
+            "drug": "BiPAP 10/5 cmH2O",
+            "dose": "As ordered",
+            "route": "IV",
+            "freq": "Per protocol",
+            "status": "active",
+            "indication": ""
+          },
+          {
+            "drug": "Nitroglycerin infusion start at 10mcg/min",
+            "dose": "As ordered",
+            "route": "IV",
+            "freq": "Per protocol",
+            "status": "pending",
+            "indication": ""
+          }
+        ],
+        "history": [
+          {
+            "time": "1900, ",
+            "note": "Patient arrived via private vehicle. Visible respiratory distress. SpO2 86% on RA. Placed on 15L NRB. BP 178/94. Pink frothy sputum noted. Immediate transfer to Resus bay.",
+            "initial": "RN Triage"
+          },
+          {
+            "time": "1915, ",
+            "note": "IV access established #18g LAC. ECG shows sinus tachycardia. Patient struggling to speak in full sentences. Breath sounds wet throughout. Dr. Cardio at bedside.",
+            "initial": "RN Primary"
+          },
+          {
+            "time": "1930, ",
+            "note": "Foley catheter inserted. Output 20mL concentrated urine. Patient anxious, diaphoretic. BP remains elevated.",
+            "initial": "RN Primary"
+          }
+        ],
+        "historyPhysical": {
+          "chiefComplaint": "Severe shortness of breath",
+          "hpi": "72-year-old male with history of HFrEF (EF 30%) presents with acute onset dyspnea. Patient reports sleeping in a recliner for the past 3 nights due to orthopnea. States he ran out of his 'water pills' 4 days ago. Coughing up pink, frothy sputum.",
+          "pmh": [
+            "CHF",
+            "Hypertension",
+            "Chronic Kidney Disease Stage 3, "
+          ],
+          "medications": [
+            "Furosemide 40mg BID",
+            "Lisinopril 20mg",
+            "Carvedilol 12.5mg"
+          ],
+          "allergies": "NKDA",
+          "socialHistory": "Former smoker, quit 20 years ago.",
+          "reviewOfSystems": {
+            "constitutional": "Fatigue, 5lb weight gain in 2 days",
+            "cardiovascular": "Palpitations, lower extremity swelling",
+            "respiratory": "Air hunger, productive cough"
+          },
+          "physicalExam": {
+            "general": "Diaphoretic, using accessory muscles to breathe",
+            "cardiovascular": "S3 gallop noted, JVD distended to mandible",
+            "respiratory": "Coarse crackles auscultated up to apices bilaterally",
+            "extremities": "3+ pitting edema to knees"
+          }
+        },
+        "radiology": [
+          {
+            "study": "CXR Portable",
+            "finding": "Significant cardiomegaly. Diffuse bilateral alveolar infiltrates with Kerley B lines ('Batwing appearance').",
+            "impression": "Severe Pulmonary Edema consistent with CHF exacerbation."
+          }
+        ],
+        "setting": "Emergency Department"
+      },
+      "structure": {
+        "type": "bow-tie",
+        "prompt": "Read the case study and complete the diagram by selecting the most appropriate Condition, Actions (2), and Parameters (2).",
+        "actions": [
+          {
+            "id": "a1, ",
+            "text": "Administer IV Loop Diuretics (Furosemide)",
+            "isCorrect": true
+          },
+          {
+            "id": "a2, ",
+            "text": "Initiate Non-Invasive Positive Pressure Ventilation (BiPAP)",
+            "isCorrect": true
+          },
+          {
+            "id": "a3, ",
+            "text": "Administer IV Normal Saline Bolus 500mL",
+            "isCorrect": false
+          },
+          {
+            "id": "a4, ",
+            "text": "Place patient in Trendelenburg position",
+            "isCorrect": false
+          },
+          {
+            "id": "a5, ",
+            "text": "Administer Beta-Blocker (Metoprolol) IV Push",
+            "isCorrect": false
+          }
+        ],
+        "conditions": [
+          {
+            "id": "c1, ",
+            "text": "Acute Pulmonary Edema (Flash)",
+            "isCorrect": true
+          },
+          {
+            "id": "c2, ",
+            "text": "Pneumonia",
+            "isCorrect": false
+          },
+          {
+            "id": "c3, ",
+            "text": "Pulmonary Embolism",
+            "isCorrect": false
+          },
+          {
+            "id": "c4, ",
+            "text": "COPD Exacerbation",
+            "isCorrect": false
+          }
+        ],
+        "parameters": [
+          {
+            "id": "p1, ",
+            "text": "Lung sounds (resolution of crackles) and Oxygen Saturation",
+            "isCorrect": true
+          },
+          {
+            "id": "p2, ",
+            "text": "Strict Intake and Output (monitor diuresis)",
+            "isCorrect": true
+          },
+          {
+            "id": "p3, ",
+            "text": "Neurological checks q1h",
+            "isCorrect": false
+          },
+          {
+            "id": "p4, ",
+            "text": "Temperature q4h",
+            "isCorrect": false
+          },
+          {
+            "id": "p5, ",
+            "text": "Blood cultures results",
+            "isCorrect": false
+          }
+        ],
+        "difficulty": 5
+      },
+      "rationale": {
+        "coreConcept": "Clinical Judgment",
+        "caseSummary": "Clinical scenario analysis required.",
+        "answerAnalysis": "See option review for detailed analysis.",
+        "goldenRule": "LMNOP for Pulmonary Edema: Lasix, Morphine (rarely used now), Nitrates, Oxygen, Position/Positive Pressure. Preload and Afterload reduction are key.",
+        "steps": [],
+        "difficulty": {
+          "level": 5,
+          "score": 100,
+          "label": "Evaluation",
+          "clinicalStrategy": "Level 5 clinical reasoning required.",
+          "recommendedActions": [
+            "Practice advanced scenarios"
+          ]
+        },
+        "mnemonic": {
+          "title": "UNLOAD FAST",
+          "content": "U-Upright position, N-Nitrates, L-Lasix, O-Oxygen, A-ACE Inhibitors, D-Digoxin, F-Fluids (decrease), A-Afterload (decrease), S-Sodium (restrict), T-Test (Dig level, K+)",
+          "explanation": "Interventions for treating heart failure exacerbation."
+        },
+        "referenceInfo": {
+          "anatomy": "Acute Decompensated Heart Failure (ADHF) presenting as Flash Pulmonary Edema. The left ventricle fails to pump effectively, causing blood to back up into the pulmonary vasculature, leading to fluid extravasation into alveoli (pink frothy sputum).",
+          "physiology": "Increased afterload (HTN) + Volume overload (missed diuretics) -> Elevated Left Ventricular End Diastolic Pressure (LVEDP) -> Increased Pulmonary Capillary Wedge Pressure -> Fluid crosses capillary membrane into alveoli -> Hypoxia -> Sympathetic surge -> Tachycardia/Vasoconstriction -> Worsening Cycle.",
+          "pharm": "Review relevant medication mechanisms."
+        },
+        "pathophysiology": "Increased afterload (HTN) + Volume overload (missed diuretics) -> Elevated Left Ventricular End Diastolic Pressure (LVEDP) -> Increased Pulmonary Capillary Wedge Pressure -> Fluid crosses capillary membrane into alveoli -> Hypoxia -> Sympathetic surge -> Tachycardia/Vasoconstriction -> Worsening Cycle.",
+        "general": "Acute Decompensated Heart Failure (ADHF) presenting as Flash Pulmonary Edema. The left ventricle fails to pump effectively, causing blood to back up into the pulmonary vasculature, leading to fluid extravasation into alveoli (pink frothy sputum).",
+        "safetyCheck": "CRITICAL: Airway/Breathing is the priority. Non-Invasive Positive Pressure Ventilation (BiPAP/CPAP) drives fluid out of alveoli and reduces preload. Do not delay respiratory support.",
+        "clinicalTakeaway": "LMNOP for Pulmonary Edema: Lasix, Morphine (rarely used now), Nitrates, Oxygen, Position/Positive Pressure. Preload and Afterload reduction are key."
+      }
+    },
+    "rationale": {
+      "general": "Acute Decompensated Heart Failure (ADHF) presenting as Flash Pulmonary Edema. The left ventricle fails to pump effectively, causing blood to back up into the pulmonary vasculature, leading to fluid extravasation into alveoli (pink frothy sputum).",
+      "pathophysiology": "Increased afterload (HTN) + Volume overload (missed diuretics) -> Elevated Left Ventricular End Diastolic Pressure (LVEDP) -> Increased Pulmonary Capillary Wedge Pressure -> Fluid crosses capillary membrane into alveoli -> Hypoxia -> Sympathetic surge -> Tachycardia/Vasoconstriction -> Worsening Cycle.",
+      "safetyCheck": "CRITICAL: Airway/Breathing is the priority. Non-Invasive Positive Pressure Ventilation (BiPAP/CPAP) drives fluid out of alveoli and reduces preload. Do not delay respiratory support.",
+      "clinicalTakeaway": "LMNOP for Pulmonary Edema: Lasix, Morphine (rarely used now), Nitrates, Oxygen, Position/Positive Pressure. Preload and Afterload reduction are key.",
+      "mnemonic": {
+        "title": "UNLOAD FAST",
+        "content": "U-Upright position, N-Nitrates, L-Lasix, O-Oxygen, A-ACE Inhibitors, D-Digoxin, F-Fluids (decrease), A-Afterload (decrease), S-Sodium (restrict), T-Test (Dig level, K+)",
+        "explanation": "Interventions for treating heart failure exacerbation."
+      }
+    },
+    "structure": {
+      "actions": [
+        {
+          "id": "a1, ",
+          "text": "Administer IV Loop Diuretics (Furosemide)",
+          "isCorrect": true
+        },
+        {
+          "id": "a2, ",
+          "text": "Initiate Non-Invasive Positive Pressure Ventilation (BiPAP)",
+          "isCorrect": true
+        },
+        {
+          "id": "a3, ",
+          "text": "Administer IV Normal Saline Bolus 500mL",
+          "isCorrect": false
+        },
+        {
+          "id": "a4, ",
+          "text": "Place patient in Trendelenburg position",
+          "isCorrect": false
+        },
+        {
+          "id": "a5, ",
+          "text": "Administer Beta-Blocker (Metoprolol) IV Push",
+          "isCorrect": false
+        }
+      ],
+      "conditions": [
+        {
+          "id": "c1, ",
+          "text": "Acute Pulmonary Edema (Flash)",
+          "isCorrect": true
+        },
+        {
+          "id": "c2, ",
+          "text": "Pneumonia",
+          "isCorrect": false
+        },
+        {
+          "id": "c3, ",
+          "text": "Pulmonary Embolism",
+          "isCorrect": false
+        },
+        {
+          "id": "c4, ",
+          "text": "COPD Exacerbation",
+          "isCorrect": false
+        }
+      ],
+      "parameters": [
+        {
+          "id": "p1, ",
+          "text": "Lung sounds (resolution of crackles) and Oxygen Saturation",
+          "isCorrect": true
+        },
+        {
+          "id": "p2, ",
+          "text": "Strict Intake and Output (monitor diuresis)",
+          "isCorrect": true
+        },
+        {
+          "id": "p3, ",
+          "text": "Neurological checks q1h",
+          "isCorrect": false
+        },
+        {
+          "id": "p4, ",
+          "text": "Temperature q4h",
+          "isCorrect": false
+        },
+        {
+          "id": "p5, ",
+          "text": "Blood cultures results",
+          "isCorrect": false
+        }
+      ]
+    },
+    "pedagogy": {
+      "difficultyLevel": 5,
+      "clinicalFocus": "General"
+    },
+    "actions": [
+      {
+        "id": "a1, ",
+        "text": "Administer IV Loop Diuretics (Furosemide)",
+        "isCorrect": true
+      },
+      {
+        "id": "a2, ",
+        "text": "Initiate Non-Invasive Positive Pressure Ventilation (BiPAP)",
+        "isCorrect": true
+      },
+      {
+        "id": "a3, ",
+        "text": "Administer IV Normal Saline Bolus 500mL",
+        "isCorrect": false
+      },
+      {
+        "id": "a4, ",
+        "text": "Place patient in Trendelenburg position",
+        "isCorrect": false
+      },
+      {
+        "id": "a5, ",
+        "text": "Administer Beta-Blocker (Metoprolol) IV Push",
+        "isCorrect": false
+      }
+    ],
+    "conditions": [
+      {
+        "id": "c1, ",
+        "text": "Acute Pulmonary Edema (Flash)",
+        "isCorrect": true
+      },
+      {
+        "id": "c2, ",
+        "text": "Pneumonia",
+        "isCorrect": false
+      },
+      {
+        "id": "c3, ",
+        "text": "Pulmonary Embolism",
+        "isCorrect": false
+      },
+      {
+        "id": "c4, ",
+        "text": "COPD Exacerbation",
+        "isCorrect": false
+      }
+    ],
+    "parameters": [
+      {
+        "id": "p1, ",
+        "text": "Lung sounds (resolution of crackles) and Oxygen Saturation",
+        "isCorrect": true
+      },
+      {
+        "id": "p2, ",
+        "text": "Strict Intake and Output (monitor diuresis)",
+        "isCorrect": true
+      },
+      {
+        "id": "p3, ",
+        "text": "Neurological checks q1h",
+        "isCorrect": false
+      },
+      {
+        "id": "p4, ",
+        "text": "Temperature q4h",
+        "isCorrect": false
+      },
+      {
+        "id": "p5, ",
+        "text": "Blood cultures results",
+        "isCorrect": false
+      }
+    ],
+    "difficulty": 5,
+    "difficultyLevel": 5,
+    "id": "unified_1768215367728_5qqoff",
+    "typeId": "bow-tie",
+    "_unifiedPipelineProcessed": true,
+    "_sanitized": true,
+    "status": "review_needed"
+  }
+]

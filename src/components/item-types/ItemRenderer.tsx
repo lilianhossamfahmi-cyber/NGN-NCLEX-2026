@@ -10,6 +10,8 @@ import { OrderedResponseRenderer } from './renderers/OrderedResponseRenderer';
 import { DropClozeRenderer } from './renderers/DropClozeRenderer';
 import { HotSpotRenderer } from './renderers/HotSpotRenderer';
 import { CalculationRenderer } from './renderers/CalculationRenderer';
+import { ErrorRenderer } from './renderers/ErrorRenderer'; // New: Validation Error Display
+import { ItemIngestionService } from '../../services/ingestion/ItemIngestionService'; // New: Ironclad Pipeline
 
 // --- SHARED TYPES ---
 interface QuestionConfig {
@@ -20,20 +22,80 @@ interface QuestionConfig {
     [key: string]: any;
 }
 
+// --- SHUFFLE CACHE (Prevents re-shuffling on every render) ---
+// Key: itemId, Value: { options: shuffled[], bowTie: { actions, conditions, parameters } }
+const shuffleCache = new Map<string, any>();
+
+// Helper to get or create cached shuffle
+const getCachedShuffle = (itemId: string, key: string, array: any[], shuffleFn: (arr: any[]) => any[]): any[] => {
+    if (!itemId || !array || array.length <= 1) return array;
+
+    const cacheKey = `${itemId}_${key}`;
+    if (shuffleCache.has(cacheKey)) {
+        return shuffleCache.get(cacheKey);
+    }
+
+    const shuffled = shuffleFn(array);
+    shuffleCache.set(cacheKey, shuffled);
+    return shuffled;
+};
 
 
 // --- DATA NORMALIZER ---
 export const normalizeConfig = (raw: any): QuestionConfig => {
     if (!raw) return { type: 'unknown' } as QuestionConfig;
 
+    // UNIFIED PIPELINE: If already processed, return the config from content.structure
+    if (raw && (raw.type === 'highlight' || (raw.text && raw.text.includes('<span')))) {
+        console.log('[ItemRenderer] normalizeConfig input for Highlight:', {
+            hasRationales: !!(raw.rationales || raw.content?.structure?.rationales),
+            rationalesKeys: raw.rationales ? Object.keys(raw.rationales) : []
+        });
+    }
+
+    if (raw._unifiedPipelineProcessed) {
+        const config = raw.content?.structure || raw;
+        console.log('[ItemRenderer] Item already processed by UnifiedDataPipeline, using structure directly');
+        return {
+            ...config,
+            type: raw.type || config.type || 'unknown',
+            // Lift BowTie data to root for renderer compatibility
+            actions: config.actions || raw.actions,
+            conditions: config.conditions || raw.conditions,
+            parameters: config.parameters || raw.parameters,
+        } as QuestionConfig;
+    }
+
     // 0. TYPE INFERENCE (If type is missing or generic)
     const norm = { ...raw };
 
+    // FIX: Detect if a standalone item was mislabeled as 'case-study' by AI
+    if (norm.type === 'case-study') {
+        const innerType = norm.content?.structure?.type || norm.structure?.type;
+        const hasCalcFields = norm.correctValue !== undefined || norm.structure?.correctValue !== undefined || norm.content?.structure?.correctValue !== undefined;
+
+        // Check for Explicit Calculation Fields
+        if (hasCalcFields) {
+            console.log('[ItemRenderer] Force-correcting case-study to calculation');
+            norm.type = 'calculation';
+        }
+        // Check for Structure Type override
+        else if (innerType && innerType !== 'case-study') {
+            console.log('[ItemRenderer] Correcting mislabeled case-study to:', innerType);
+            norm.type = innerType;
+        }
+        // SAFETY NET: Check Prompt Text
+        else if (norm.prompt && typeof norm.prompt === 'string' && norm.prompt.toLowerCase().includes('calculate')) {
+            console.log('[ItemRenderer] Heuristic: Prompt contains "calculate" -> type = calculation');
+            norm.type = 'calculation';
+        }
+    }
+
     if (!norm.type || norm.type === 'unknown') {
-        if (norm.typeId) norm.type = norm.typeId;
-        else if (norm.itemType) norm.type = norm.itemType;
+        if (norm.typeId && norm.typeId !== 'unknown') norm.type = norm.typeId;
+        else if (norm.itemType && norm.itemType !== 'unknown') norm.type = norm.itemType;
         // Heuristics
-        else if (norm.bowTieConfiguration || (norm.conditions && norm.actions && norm.parameters)) norm.type = 'bow-tie';
+        else if (norm.bowTieConfiguration || (norm.conditions && norm.actions && norm.parameters) || (norm.stem && Array.isArray(norm.actions_options)) || norm.condition_options) norm.type = 'bow-tie';
         else if (norm.trendData) norm.type = 'trend';
         else if (norm.orderedOptions) norm.type = 'ordered-response';
         else if (norm.cloze || (norm.sentences && norm.sentences.some((s: any) => s.dropdowns))) norm.type = 'cloze';
@@ -59,11 +121,14 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
 
     // 1. Unified Prompt/Stem
     if (!norm.prompt) {
-        if (norm.stem?.promptText) norm.prompt = norm.stem.promptText;
+        // Handle stem as direct string (common AI output)
+        if (typeof norm.stem === 'string') norm.prompt = norm.stem;
+        else if (norm.stem?.promptText) norm.prompt = norm.stem.promptText;
         else if (norm.itemStem?.en) norm.prompt = norm.itemStem.en;
         else if (norm.cloze?.taskPrompt?.en) norm.prompt = norm.cloze.taskPrompt.en;
         else if (norm.task?.instruction) norm.prompt = norm.task.instruction;
         else if (norm.stimulus?.prompt?.en) norm.prompt = norm.stimulus.prompt.en;
+        else if (norm.structure?.prompt) norm.prompt = norm.structure.prompt;
     }
 
     // 1.5 Unified Rationale (Catch-all)
@@ -71,6 +136,28 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
         if (norm.explanation) norm.rationale = norm.explanation;
         else if (norm.rational) norm.rationale = norm.rational; // Catch typo
         else if (norm.answerExplanation) norm.rationale = norm.answerExplanation;
+    }
+
+    // FIXv3 (Relocated)    // (Moved Case-Study Detection to after Prompt Normalization to ensure prompt text is available)
+    if (norm.type === 'case-study') {
+        const innerType = norm.content?.structure?.type || norm.structure?.type;
+        const hasCalcFields = norm.correctValue !== undefined || norm.structure?.correctValue !== undefined || norm.content?.structure?.correctValue !== undefined;
+
+        // Check for Explicit Calculation Fields
+        if (hasCalcFields) {
+            console.log('[ItemRenderer] Force-correcting case-study to calculation');
+            norm.type = 'calculation';
+        }
+        // Check for Structure Type override
+        else if (innerType && innerType !== 'case-study') {
+            console.log('[ItemRenderer] Correcting mislabeled case-study to:', innerType);
+            norm.type = innerType;
+        }
+        // SAFETY NET: Check Prompt Text
+        else if (norm.prompt && typeof norm.prompt === 'string' && norm.prompt.toLowerCase().includes('calculate')) {
+            console.log('[ItemRenderer] Heuristic: Prompt contains "calculate" -> type = calculation');
+            norm.type = 'calculation';
+        }
     }
 
     // 2. Unified Options/Choices
@@ -101,9 +188,25 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
 
     // 3. Type-Specific Normalization
 
-    // CLOZE / DROPDOWN
-    if (String(norm.type).includes('cloze') || String(norm.type).includes('dropdown')) {
-        norm.type = 'cloze';
+    // CLOZE / DROPDOWN / DROP-CLOZE
+    if (String(norm.type).includes('cloze') || String(norm.type).includes('dropdown') || String(norm.type).includes('drop-cloze')) {
+        // FIX: Preserve drop-cloze type so it uses DropClozeRenderer
+        // Only normalize to 'cloze' if NOT already drop-cloze
+        const isDropCloze = String(norm.type).includes('drop-cloze');
+        if (!isDropCloze) {
+            norm.type = 'cloze';
+        }
+
+        // [FIX] Convert legacy/simple 'text' to 'sentences' structure
+        // But SKIP for drop-cloze which uses direct text + dropdowns format
+        if (norm.text && !norm.sentences && !norm.cloze?.sentences && !isDropCloze) {
+            norm.sentences = [{
+                sentenceId: 's1',
+                text: norm.text,
+                dropdowns: norm.dropdowns || norm.blanks
+            }];
+        }
+
         if ((norm.cloze?.sentences) && !norm.sentences) {
             norm.sentences = norm.cloze.sentences.map((s: any) => {
                 let text = typeof s.template === 'object' ? s.template.en : s.template;
@@ -212,6 +315,36 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
             }
         }
 
+        // --- SUPPORT LEGACY FLAT FORMAT ---
+        // { actions_options: [], correct_actions: [], etc. }
+        if (norm.actions_options && !norm.actions?.pool) {
+            norm.actions = {
+                pool: norm.actions_options.map((txt: string, i: number) => ({
+                    id: `a_${i}`,
+                    text: txt,
+                    isCorrect: norm.correct_actions?.includes(txt)
+                }))
+            };
+        }
+        if (norm.condition_options && !norm.conditions?.pool) {
+            norm.conditions = {
+                pool: norm.condition_options.map((txt: string, i: number) => ({
+                    id: `c_${i}`,
+                    text: txt,
+                    isCorrect: txt === norm.correct_condition || norm.correct_condition?.includes(txt) // Handle string or array
+                }))
+            };
+        }
+        if (norm.parameter_options && !norm.parameters?.pool) {
+            norm.parameters = {
+                pool: norm.parameter_options.map((txt: string, i: number) => ({
+                    id: `p_${i}`,
+                    text: txt,
+                    isCorrect: norm.correct_parameters?.includes(txt)
+                }))
+            };
+        }
+
         // Handle Direct Arrays (Mock Data)
         if (Array.isArray(norm.actions) && !norm.actions.pool) {
             norm.actions = { pool: norm.actions };
@@ -229,6 +362,50 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
         norm.type = 'matrix';
         if (!norm.rows && norm.matrix?.rows) norm.rows = norm.matrix.rows;
         if (!norm.columns && norm.matrix?.columns) norm.columns = norm.matrix.columns;
+
+        // [FIX] Support 'options' array structure (AI Generation Fallback)
+        // If rows are missing but we have options with columns, transform them.
+        if (!norm.rows && norm.options && Array.isArray(norm.options) && !norm.columns) {
+            // 1. Deduce Global Columns from the first option
+            if (norm.options[0]?.columns) {
+                norm.columns = norm.options[0].columns.map((c: any, idx: number) => ({
+                    id: c.id || `c_${idx}`,
+                    label: c.label || c.text || `Col ${idx + 1}`,
+                }));
+            }
+
+            // 2. Deduce Rows and map correct answers
+            norm.rows = norm.options.map((opt: any, idx: number) => {
+                // Determine correct column IDs for this row
+                const correctIds = opt.columns
+                    ?.map((c: any, cIdx: number) => {
+                        // Match the column ID generation logic above
+                        return c.isCorrect ? (c.id || `c_${cIdx}`) : null;
+                    })
+                    .filter(Boolean) || [];
+
+                return {
+                    id: opt.id || `r_${idx}`,
+                    text: opt.text || opt.label || `Row ${idx + 1}`,
+                    correctColumnIds: correctIds // For Checkbox (Multi-Select)
+                };
+            });
+
+            // [FIX] Auto-detect Checkbox mode (Multiple selections per row)
+            const hasMultipleCorrect = norm.rows.some((r: any) => r.correctColumnIds && r.correctColumnIds.length > 1);
+            if (hasMultipleCorrect) {
+                norm.inputType = 'checkbox';
+                norm.questionFormat = 'checkbox';
+            }
+        }
+
+        // [FIX] Map text->label for columns (Golden Prompt compatibility)
+        if (norm.columns) {
+            norm.columns = norm.columns.map((c: any) => ({
+                ...c,
+                label: c.label || c.text
+            }));
+        }
     }
 
     // ORDERED RESPONSE (Drag/Drop)
@@ -244,7 +421,7 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
     }
 
     // MULTIPLE RESPONSE (SATA)
-    if (String(norm.type).includes('multiple-response') || String(norm.type).includes('sata')) {
+    if (String(norm.type).includes('multiple-response') || String(norm.type).includes('multiple_response') || String(norm.type).includes('sata')) {
         norm.type = 'multiple-response';
         if (!norm.options && norm.sataOptions) {
             norm.options = norm.sataOptions.map((opt: any, idx: number) => ({
@@ -271,7 +448,7 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
         if (norm.structure.prompt && !norm.prompt) norm.prompt = norm.structure.prompt;
     }
 
-    // --- RANDOMIZATION ---
+    // --- RANDOMIZATION (with stable cache) ---
     // Helper to shuffle arrays safely
     const shuffle = (array: any[]) => {
         if (!array || array.length <= 1) return array;
@@ -283,25 +460,42 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
         return newArr;
     };
 
-    // Apply Randomization to Options (Standard Types & Trend)
+    // Get stable item ID for caching
+    const itemId = norm.id || norm._itemId || 'unknown';
+
+    // Apply Randomization to Options (Standard Types & Trend) - CACHED
     // We check for 'multiple-choice' explicitly as it's a common alias for single-response in our prompt templates
-    if (norm.options && !norm._shuffled_opts && (
+    if (norm.options && (
         norm.type === 'single-response' ||
         norm.type === 'multiple-response' ||
         norm.type === 'sata' ||
         norm.type === 'trend' ||
         norm.type === 'multiple-choice'
     )) {
-        norm.options = shuffle(norm.options); // Enabled randomization
-        norm._shuffled_opts = true;
+        norm.options = getCachedShuffle(itemId, 'options', norm.options, shuffle);
     }
 
-    // Apply Randomization to Bow-Tie Pools
-    if (norm.type === 'bow-tie' && !norm._shuffled) {
-        if (norm.actions?.pool) norm.actions.pool = shuffle(norm.actions.pool);
-        if (norm.conditions?.pool) norm.conditions.pool = shuffle(norm.conditions.pool);
-        if (norm.parameters?.pool) norm.parameters.pool = shuffle(norm.parameters.pool);
-        norm._shuffled = true;
+    // Apply Randomization to Bow-Tie Pools - CACHED
+    // Handle both formats: flat arrays and {pool: []} objects
+    if (norm.type === 'bow-tie') {
+        // Actions
+        if (Array.isArray(norm.actions)) {
+            norm.actions = getCachedShuffle(itemId, 'actions', norm.actions, shuffle);
+        } else if (norm.actions?.pool) {
+            norm.actions.pool = getCachedShuffle(itemId, 'actions', norm.actions.pool, shuffle);
+        }
+        // Conditions
+        if (Array.isArray(norm.conditions)) {
+            norm.conditions = getCachedShuffle(itemId, 'conditions', norm.conditions, shuffle);
+        } else if (norm.conditions?.pool) {
+            norm.conditions.pool = getCachedShuffle(itemId, 'conditions', norm.conditions.pool, shuffle);
+        }
+        // Parameters
+        if (Array.isArray(norm.parameters)) {
+            norm.parameters = getCachedShuffle(itemId, 'parameters', norm.parameters, shuffle);
+        } else if (norm.parameters?.pool) {
+            norm.parameters.pool = getCachedShuffle(itemId, 'parameters', norm.parameters.pool, shuffle);
+        }
     }
 
     // Apply Randomization to Matrix Rows
@@ -309,18 +503,19 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
         // norm.rows = shuffle(norm.rows); // Disabled to ensure Option Review sequence matches
     }
 
-    // Apply Randomization to Cloze Dropdowns
-    if (norm.type === 'cloze' && norm.sentences) {
-        norm.sentences.forEach((s: any) => {
-            if (s.dropdowns) {
-                s.dropdowns.forEach((d: any) => {
-                    if (d.options) {
-                        d.options = shuffle(d.options);
-                    }
-                });
-            }
-        });
-    }
+    // Apply Randomization to Cloze Dropdowns - DISABLED (causes re-render issues)
+    // Dropdown options should remain in their defined order for consistency
+    // if (norm.type === 'cloze' && norm.sentences) {
+    //     norm.sentences.forEach((s: any) => {
+    //         if (s.dropdowns) {
+    //             s.dropdowns.forEach((d: any) => {
+    //                 if (d.options) {
+    //                     d.options = getCachedShuffle(itemId, `cloze_${d.id}`, d.options, shuffle);
+    //                 }
+    //             });
+    //         }
+    //     });
+    // }
 
     // FINAL SANITIZATION: Ensure text fields are strings
     const extractText = (val: any) => {
@@ -328,7 +523,19 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
         return val;
     };
 
-    if (norm.rationale) norm.rationale = extractText(norm.rationale);
+    if (norm.rationale) {
+        // V2 PROTECTION: Do not stringify Rich Rationale objects (containing coreConcept, difficulty, etc.)
+        const isV2Rationale = typeof norm.rationale === 'object' && (
+            norm.rationale.coreConcept ||
+            norm.rationale.difficulty ||
+            norm.rationale.pathophysiology ||
+            norm.rationale.general ||
+            norm.rationale.sections
+        );
+        if (!isV2Rationale) {
+            norm.rationale = extractText(norm.rationale);
+        }
+    }
     if (norm.clinicalSummary) norm.clinicalSummary = extractText(norm.clinicalSummary);
     if (norm.strategy) norm.strategy = extractText(norm.strategy);
 
@@ -340,7 +547,22 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
         }));
     }
 
-    console.log('[ItemRenderer] Normalized Config (Randomized & Sanitized):', norm);
+    // console.log('[ItemRenderer] Normalized Config (Randomized & Sanitized):', norm); // Disabled for production
+    // [FIX] Sync Difficulty Level (Ensure Expert HUD matches Clinical Reasoning)
+    if (norm.rationale?.difficulty?.level) {
+        if (!norm.metadata) norm.metadata = {};
+        norm.metadata.difficultyLevel = norm.rationale.difficulty.level;
+    }
+
+    // --- IRONCLAD PIPELINE BRIDGE (Phase 1) ---
+    // If we resolved to a 'calculation', run it through the strict Ingestion Service
+    // to validate Data Completeness, JCIA compliance, and Structural Integrity.
+    if (norm.type === 'calculation' || norm.type === 'bow-tie') {
+        const validated = ItemIngestionService.ingest(norm);
+        // If validation failed, 'validated' will be of type 'error'
+        return validated;
+    }
+
     return norm;
 };
 
@@ -450,25 +672,40 @@ const validateAnswers = (answers: any, config: QuestionConfig) => {
 
 const InteractionDispatcher = (props: any) => {
     const { config } = props;
-    const type = (config.type || '').toLowerCase();
+    const type = (config.type || '').toLowerCase().trim();
 
-    console.log('[ItemRenderer] Dispatching Type:', type);
+    // console.log('[ItemRenderer] Dispatching Type:', type); 
 
+    if (type === 'error') return <ErrorRenderer {...props} />; // New: Validation Errors
     if (type.includes('bow-tie')) return <BowTieRenderer {...props} />;
     if (type.includes('matrix')) return <MatrixRenderer {...props} />;
     if (type.includes('highlight')) return <HighlightRenderer {...props} />;
+
+    // FIX: Check drop-cloze BEFORE cloze (drop-cloze contains "cloze")
+    if (type.includes('drop-cloze')) return <DropClozeRenderer {...props} />;
     if (type.includes('cloze')) return <ClozeRenderer {...props} />;
-    if (type.includes('multiple-response') || type.includes('sata')) return <SATARenderer {...props} />;
+
+    if (type.includes('multiple-response') || type.includes('multiple_response') || type.includes('sata')) return <SATARenderer {...props} />;
     if (type.includes('trend')) return <TrendRenderer {...props} />;
     if (type.includes('ordered-response')) return <OrderedResponseRenderer {...props} />;
 
-    // New Types
-    if (type.includes('drop-cloze')) return <DropClozeRenderer {...props} />;
-    if (type.includes('hot-spot')) return <HotSpotRenderer {...props} />;
-    if (type.includes('calculation')) return <CalculationRenderer {...props} />;
+    // New Types (Robust Handling)
+    if (type.includes('hot-spot') || type.includes('hot_spot') || type.includes('hotspot')) return <HotSpotRenderer {...props} />;
+    if (type.includes('calculation') || type.includes('numeric') || type === 'math') return <CalculationRenderer {...props} />;
+
+    // Explicit check for Single Response to avoid Fallback Renderer
+    if (type.includes('single-response') || type.includes('single_response') || type.includes('single-choice') || type.includes('single_choice')) return <SingleChoiceRenderer {...props} />;
 
     // Default Fallback
-    return <SingleChoiceRenderer {...props} />;
+    return (
+        <div className="p-4 border-2 border-red-500 rounded text-red-600 bg-red-50 mb-4">
+            <strong>DEBUG: Fallback Renderer Triggered</strong><br />
+            Resolved Type: "{type}"<br />
+            Original Type: "{config.type}"<br />
+            Please report this to the developer.
+            <SingleChoiceRenderer {...props} />
+        </div>
+    );
 };
 
 const RationaleDisplay = ({ config }: { config: any }) => {
@@ -648,6 +885,8 @@ export const renderQuestion = (
     hideFooter?: boolean,
     scale?: number
 ) => {
+    // Debug log removed to prevent console flooding
+
     return <QuestionRuntime
         config={config}
         mode={mode}
@@ -701,6 +940,8 @@ const QuestionRuntimeInner: React.FC<QuestionRuntimePropsV2 & { rawConfig?: any 
     const answers = controlledAnswers !== undefined ? controlledAnswers : internalAnswers;
     const isSubmitted = controlledIsSubmitted !== undefined ? controlledIsSubmitted : internalIsSubmitted;
 
+    // Debug log removed to prevent console flooding
+
     // Handler wrapper
     const handleSetAnswers = (newAns: any) => {
         if (onAnswersChange) {
@@ -710,15 +951,22 @@ const QuestionRuntimeInner: React.FC<QuestionRuntimePropsV2 & { rawConfig?: any 
         }
     };
 
+    // Track if we've initialized to prevent resetting on config changes
+    const isInitializedRef = React.useRef(false);
+
     useEffect(() => {
-        if (controlledAnswers === undefined) {
-            setInternalAnswers(initializeAnswers(config));
-        }
-        if (controlledIsSubmitted === undefined) {
-            setInternalIsSubmitted(false);
+        // Only initialize ONCE on mount, not on every config change
+        if (!isInitializedRef.current) {
+            if (controlledAnswers === undefined) {
+                setInternalAnswers(initializeAnswers(config));
+            }
+            if (controlledIsSubmitted === undefined) {
+                setInternalIsSubmitted(false);
+            }
+            isInitializedRef.current = true;
         }
         setShowRationale(mode === 'author' || mode === 'review');
-    }, [config, mode]); // removed dependencies to avoid reset loops if controlled
+    }, [config, mode, controlledAnswers, controlledIsSubmitted]);
 
     const handleSubmit = () => {
         if (!validateAnswers(answers, config)) {

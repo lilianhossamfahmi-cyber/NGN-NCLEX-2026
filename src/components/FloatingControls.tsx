@@ -25,11 +25,19 @@ export const FloatingControls: React.FC<FloatingControlsProps> = ({
 }) => {
     const [isSpinning, setIsSpinning] = useState(false);
 
+    const timerRef = React.useRef<NodeJS.Timeout>();
+
+    React.useEffect(() => {
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current);
+        };
+    }, []);
+
     const handleSubmitClick = () => {
         if (!canSubmit) return;
         setIsSpinning(true);
         // Micro-interaction: Spin for 600ms, then trigger submit
-        setTimeout(() => {
+        timerRef.current = setTimeout(() => {
             setIsSpinning(false);
             if (onSubmit) onSubmit();
         }, 600);

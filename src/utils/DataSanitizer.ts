@@ -255,7 +255,9 @@ export const DataSanitizer = {
         return labs.map(lab => {
             const testName = lab.test || lab.name || lab.testName || "Unknown";
             const value = String(lab.value || lab.result || "");
-            const ref = lab.ref || lab.reference || lab.refRange || "N/A";
+            // Support all variations of Reference Range
+            const ref = lab.ref || lab.reference || lab.range || lab.normalRange || lab.refRange || lab.referenceRange || "N/A";
+            // console.log(`[DataSanitizer] Lab: ${lab.test}, Ref: ${ref}`); // Debug Log
 
             // Auto-detect flag if not provided
             let flag = lab.flag || "";
@@ -397,13 +399,17 @@ export const DataSanitizer = {
         }
 
         return orders.map(ord => ({
-            drug: ord.drug || ord.medication || ord.name || ord.med || "Unknown",
+            // FIX: Golden Prompt uses 'order' field for the full order text
+            drug: ord.drug || ord.medication || ord.name || ord.med || ord.order || "Unknown",
             dose: ord.dose || ord.dosage || "",
             route: ord.route || "PO",
             freq: ord.freq || ord.frequency || ord.schedule || "Daily",
             status: (ord.status || "active").toLowerCase(),
-            indication: ord.indication || ord.reason || "Standard Care",
-            holdReason: ord.holdReason || ord.hold_reason || undefined
+            indication: ord.indication || ord.reason || (ord.orderedBy ? `Ordered by: ${ord.orderedBy}` : "Standard Care"),
+            holdReason: ord.holdReason || ord.hold_reason || undefined,
+            // Preserve additional Golden fields
+            time: ord.time,
+            orderedBy: ord.orderedBy
         }));
     },
 
@@ -441,6 +447,42 @@ export const DataSanitizer = {
     sanitizeHistoryPhysical: (data: any): any => {
         if (!data) return null;
         if (typeof data === 'object' && data.sections) return data;
+
+        // FIX: Handle Golden Prompt format with direct properties
+        if (typeof data === 'object' && (data.chiefComplaint || data.hpi || data.pmh || data.physicalExam)) {
+            const sections: { title: string; content: string[] }[] = [];
+
+            // Helper to format value (handle strings, arrays, objects)
+            const formatValue = (val: any): string => {
+                if (!val) return '';
+                if (typeof val === 'string') return val;
+                if (Array.isArray(val)) return val.join(', ');
+                if (typeof val === 'object') {
+                    // Convert object keys/values to readable text
+                    return Object.entries(val)
+                        .map(([k, v]) => `<strong>${k}:</strong> ${typeof v === 'string' ? v : JSON.stringify(v)}`)
+                        .join('<br/>');
+                }
+                return String(val);
+            };
+
+            // Map Golden Prompt fields to sections
+            if (data.chiefComplaint) sections.push({ title: 'Chief Complaint', content: [formatValue(data.chiefComplaint)] });
+            if (data.hpi) sections.push({ title: 'History of Present Illness', content: [formatValue(data.hpi)] });
+            if (data.pmh) sections.push({ title: 'Past Medical History', content: [formatValue(data.pmh)] });
+            if (data.psh) sections.push({ title: 'Past Surgical History', content: [formatValue(data.psh)] });
+            if (data.medications) sections.push({ title: 'Medications', content: [formatValue(data.medications)] });
+            if (data.allergies) sections.push({ title: 'Allergies', content: [formatValue(data.allergies)] });
+            if (data.socialHistory) sections.push({ title: 'Social History', content: [formatValue(data.socialHistory)] });
+            if (data.familyHistory) sections.push({ title: 'Family History', content: [formatValue(data.familyHistory)] });
+            if (data.reviewOfSystems) sections.push({ title: 'Review of Systems', content: [formatValue(data.reviewOfSystems)] });
+            if (data.physicalExam) sections.push({ title: 'Physical Exam', content: [formatValue(data.physicalExam)] });
+
+            // Return structured format if we found any sections
+            if (sections.length > 0) {
+                return { sections };
+            }
+        }
 
         const raw = String(data);
         const sections: { title: string; content: string[] }[] = [];
@@ -551,6 +593,363 @@ export const DataSanitizer = {
     },
 
     /**
+     * Sanitize Rationale - Ensures V2 Schema compliance
+     * Injects default difficulty object if missing (fixes Legacy/Mock bugs)
+     */
+    sanitizeRationale: (rat: any): any => {
+        const DEFAULT_DIFFICULTY = {
+            score: 50,
+            level: 3,
+            label: "Application",
+            clinicalStrategy: "Standard clinical reasoning applies.",
+            recommendedActions: ["Review core concepts"]
+        };
+
+        if (!rat) return {
+            coreConcept: "Clinical Judgment",
+            caseSummary: "Generated Clinical Scenario",
+            answerAnalysis: "Detailed analysis pending.",
+            trap: "N/A",
+            goldenRule: "Assess before action.",
+            steps: [],
+            difficulty: DEFAULT_DIFFICULTY
+        };
+
+        // If exists but missing difficulty logic
+        if (!rat.difficulty) {
+            rat.difficulty = DEFAULT_DIFFICULTY;
+        }
+
+        return rat;
+    },
+
+    /**
+     * Enriches rationale with smart clinical defaults based on focus area.
+     * Ensures Knowledge and Strategy tabs always have content.
+     */
+    enrichRationale: (rationale: any, clinicalFocus?: string, cjmmStep?: string): any => {
+        const focus = clinicalFocus || 'Clinical Assessment';
+        const r = rationale || {};
+
+        // Smart defaults based on clinical focus keywords
+        const KNOWLEDGE_DEFAULTS: Record<string, { anatomy: string; physiology: string; pharm: string }> = {
+            'depression': {
+                anatomy: 'Limbic system including hippocampus, amygdala, and prefrontal cortex regulate mood and emotional processing.',
+                physiology: 'Neurotransmitter imbalances (serotonin, norepinephrine, dopamine) affect mood regulation. HPA axis dysregulation contributes to stress response.',
+                pharm: 'SSRIs (e.g., sertraline) increase serotonin availability. MAOIs require dietary restrictions. Onset of action typically 2-4 weeks.'
+            },
+            'cardiac': {
+                anatomy: 'Four-chambered heart with SA node, AV node, Bundle of His, and Purkinje fibers for electrical conduction.',
+                physiology: 'Frank-Starling mechanism regulates cardiac output. Preload, afterload, and contractility determine stroke volume.',
+                pharm: 'Beta-blockers reduce heart rate and contractility. ACE inhibitors reduce preload and afterload. Digoxin increases contractility.'
+            },
+            'respiratory': {
+                anatomy: 'Upper and lower airways, alveoli for gas exchange, diaphragm and intercostal muscles for breathing mechanics.',
+                physiology: 'Ventilation-perfusion matching optimizes oxygen delivery. CO2 diffuses 20x faster than oxygen.',
+                pharm: 'Beta-2 agonists (albuterol) cause bronchodilation. Corticosteroids reduce airway inflammation. Anticholinergics reduce secretions.'
+            },
+            'sepsis': {
+                anatomy: 'Vascular system including capillary beds where inflammatory mediators cause increased permeability.',
+                physiology: 'Systemic inflammatory response leads to vasodilation, capillary leak, and tissue hypoperfusion. Lactate accumulates with anaerobic metabolism.',
+                pharm: 'Broad-spectrum antibiotics within 1 hour of recognition. Vasopressors (norepinephrine) for refractory hypotension. Crystalloid fluids for resuscitation.'
+            },
+            'mental health': {
+                anatomy: 'Brain structures including prefrontal cortex (executive function), limbic system (emotions), and neurotransmitter pathways.',
+                physiology: 'Serotonin, dopamine, and norepinephrine regulate mood, motivation, and stress response. HPA axis mediates stress hormones.',
+                pharm: 'SSRIs for depression/anxiety, antipsychotics for psychosis, benzodiazepines for acute anxiety (short-term only).'
+            },
+            'default': {
+                anatomy: 'Review the relevant anatomical structures affected by this clinical presentation.',
+                physiology: 'Consider the physiological mechanisms and compensatory responses involved in this condition.',
+                pharm: 'Identify the pharmacological interventions and their mechanisms of action for this clinical scenario.'
+            }
+        };
+
+        // Helper: Check if content is generic placeholder (should be replaced)
+        const isGenericPlaceholder = (text: string | undefined): boolean => {
+            if (!text) return true;
+            const genericPhrases = [
+                'review the relevant',
+                'consider the',
+                'identify the',
+                'relevant anatomy',
+                'relevant physiology',
+                'relevant pharmacology',
+                'appropriate interventions',
+                'see above',
+                'n/a'
+            ];
+            const lower = text.toLowerCase();
+            return genericPhrases.some(phrase => lower.includes(phrase)) || text.length < 30;
+        };
+
+        // Find best match for focus
+        const focusLower = focus.toLowerCase();
+        const key = Object.keys(KNOWLEDGE_DEFAULTS).find(k => focusLower.includes(k)) || 'default';
+        const defaults = KNOWLEDGE_DEFAULTS[key];
+
+        // Build enriched rationale
+        return {
+            coreConcept: r.coreConcept || `Understanding ${focus} requires systematic clinical reasoning and evidence-based decision making.`,
+            caseSummary: r.caseSummary || `This case presents a clinical scenario requiring ${cjmmStep || 'clinical judgment'} skills.`,
+            answerAnalysis: r.answerAnalysis || 'Analyze each option based on clinical evidence and patient-specific factors.',
+            trap: r.trap || 'Common mistake: Overlooking subtle but critical findings or selecting an intervention without proper assessment.',
+            goldenRule: r.goldenRule || 'Always prioritize patient safety and use clinical judgment based on the complete clinical picture.',
+            pitfalls: r.pitfalls || [r.trap || 'Rushing to intervention without complete assessment'],
+            steps: r.steps?.length > 0 ? r.steps : [
+                { tag: 'Recognize', description: `Identify abnormal findings related to ${focus}` },
+                { tag: 'Analyze', description: 'Connect findings to underlying pathophysiology and prioritize concerns' },
+                { tag: 'Prioritize', description: 'Rank interventions by urgency using ABC and Maslow\'s hierarchy' },
+                { tag: 'Act', description: 'Implement evidence-based nursing actions within scope of practice' },
+                { tag: 'Evaluate', description: 'Monitor response to interventions and reassess as needed' }
+            ],
+            mnemonic: r.mnemonic?.title ? r.mnemonic : {
+                title: 'ADPIE',
+                content: 'A-Assessment, D-Diagnosis, P-Planning, I-Implementation, E-Evaluation',
+                explanation: 'The nursing process provides a systematic framework for clinical decision-making and ensures comprehensive patient care.'
+            },
+            cheatSheet: r.cheatSheet?.points?.length > 0 ? r.cheatSheet : {
+                title: 'Clinical Pearls',
+                points: [
+                    'Assess before acting - complete data collection precedes intervention',
+                    'Document all findings objectively and thoroughly',
+                    'Communicate changes promptly using SBAR format',
+                    'Follow up on interventions to evaluate effectiveness'
+                ]
+            },
+            referenceInfo: {
+                // Only use AI content if it's NOT a generic placeholder - otherwise use topic defaults
+                anatomy: (!isGenericPlaceholder(r.referenceInfo?.anatomy)) ? r.referenceInfo.anatomy : defaults.anatomy,
+                physiology: (!isGenericPlaceholder(r.referenceInfo?.physiology)) ? r.referenceInfo.physiology : defaults.physiology,
+                pharm: (!isGenericPlaceholder(r.referenceInfo?.pharm)) ? r.referenceInfo.pharm : defaults.pharm
+            },
+            difficulty: r.difficulty || {
+                score: 75,
+                level: 3,
+                label: 'Medium',
+                clinicalStrategy: 'Apply systematic clinical reasoning using the nursing process.',
+                recommendedActions: ['Review case data thoroughly', 'Identify priority concerns', 'Select evidence-based interventions']
+            }
+        };
+    },
+
+    /**
+     * Normalizes Golden Prompt v3 JSON structure to internal viewer format.
+     * Maps:
+     *   - content.patient -> content.clinicalData.patientInfo
+     *   - content.vitals -> content.clinicalData.vitals
+     *   - content.assessmentData -> content.clinicalData.assessmentData
+     *   - structure.screens -> content.structure.screens
+     *   - content.chiefComplaint -> content.clinicalData.history
+     *   - content.rationale -> content.rationale
+     */
+    normalizeGoldenPromptFormat: (item: any): void => {
+        if (!item) return;
+        if (!item.content) item.content = {};
+
+        const c = item.content;
+
+        // Detect Golden Prompt v3 format: has `content.patient` or root `structure.screens`
+        const isGoldenV3 = c.patient || (item.structure?.screens && !c.structure?.screens);
+
+        if (!isGoldenV3) return; // Already in internal format
+
+        // 1. Initialize clinicalData if missing
+        if (!c.clinicalData) c.clinicalData = {};
+        const cd = c.clinicalData;
+
+        // 2. Map patient -> patientInfo
+        if (c.patient && !cd.patientInfo) {
+            const p = c.patient;
+            cd.patientInfo = {
+                name: p.name || "Client, Generic",
+                age: p.age || 35,
+                gender: p.sex === 'Female' ? 'F' : (p.sex === 'Male' ? 'M' : (p.sex || 'M')),
+                codeStatus: "FULL CODE",
+                admissionDate: new Date().toLocaleDateString() + " 07:30",
+                room: c.setting?.includes('ED') ? 'ED-04' : 'MedSurg-12',
+                physician: "Dr. S. Specialist",
+                nurse: "RN Staff",
+                allergies: p.allergies || "NKDA",
+                isolation: "Standard Precautions",
+                // Extended patient data
+                weightKg: p.weightKg,
+                history: Array.isArray(p.history) ? p.history : [],
+                homeMeds: Array.isArray(p.homeMeds) ? p.homeMeds : []
+            };
+        }
+
+        // 3. Map vitals (includes vitalSigns alias)
+        const vitalsData = c.vitals || c.vitalSigns;
+        if (vitalsData && !cd.vitals) {
+            cd.vitals = Array.isArray(vitalsData) ? vitalsData : [vitalsData];
+        }
+
+        // 3b. Map labs (includes laboratory alias)
+        const labsData = c.labs || c.laboratory;
+        if (labsData && !cd.labs) {
+            cd.labs = Array.isArray(labsData) ? labsData : [labsData];
+        }
+
+        // 3c. Map setting
+        if (c.setting && !cd.setting) {
+            cd.setting = c.setting;
+        }
+
+        // 3d. Map orders (medical orders)
+        if ((c.orders || c.medicalOrders) && !cd.orders) {
+            const ordersData = c.orders || c.medicalOrders || [];
+            cd.orders = Array.isArray(ordersData) ? ordersData : [ordersData];
+        }
+
+        // 3e. Map historyPhysical (History & Physical)
+        if (c.historyPhysical && !cd.historyPhysical) {
+            cd.historyPhysical = c.historyPhysical;
+        }
+
+        // 3f. Map radiology
+        if (c.radiology && !cd.radiology) {
+            cd.radiology = Array.isArray(c.radiology) ? c.radiology : [c.radiology];
+        }
+
+        // 4. Map history/nursesNotes -> clinicalData.history
+        // PRIORITY 1: Use AI-provided history/nursesNotes if available
+        if (!cd.history) {
+            if (c.history && typeof c.history === 'string') {
+                // Already formatted HTML history
+                cd.history = c.history;
+            } else if (c.nursesNotes && Array.isArray(c.nursesNotes)) {
+                // Convert array format to HTML
+                const notesHtml = c.nursesNotes.map((note: any) => {
+                    const time = note.time || '';
+                    const author = note.author || 'RN';
+                    const entry = note.entry || note.text || note.note || '';
+                    return `<p><strong>${time} - ${author}:</strong> ${entry}</p>`;
+                }).join('\n');
+                cd.history = notesHtml;
+            } else if (c.chiefComplaint) {
+                // FALLBACK: Build from chiefComplaint + patient data
+                const patient = c.patient || {};
+                const assessmentData = c.assessmentData || {};
+
+                // Build comprehensive nursing notes from available data
+                let historyHtml = '';
+
+                // Admission Assessment Header
+                historyHtml += `<p><strong>ADMISSION ASSESSMENT</strong></p>`;
+
+                // Chief Complaint
+                historyHtml += `<p><strong>Chief Complaint:</strong> ${c.chiefComplaint}</p>`;
+
+                // PMH
+                if (patient.history && Array.isArray(patient.history) && patient.history.length > 0) {
+                    historyHtml += `<p><strong>Past Medical History:</strong> ${patient.history.join(', ')}</p>`;
+                }
+
+                // Allergies
+                if (patient.allergies) {
+                    historyHtml += `<p><strong>Allergies:</strong> ${patient.allergies}</p>`;
+                }
+
+                // Home Meds - Put in a separate section, NOT as nursing notes
+                // (They should go to Medications tab if available, or brief mention here)
+                if (patient.homeMeds && Array.isArray(patient.homeMeds) && patient.homeMeds.length > 0) {
+                    const medStrings = patient.homeMeds.map((m: any) =>
+                        `${m.name} ${m.dose || ''} ${m.route || ''} ${m.frequency || ''}`
+                    ).join('; ');
+                    historyHtml += `<p><strong>Home Medications:</strong> ${medStrings}</p>`;
+                }
+
+                // Assessment Data (PHQ-9, Suicide Risk, etc.)
+                if (assessmentData.screening) {
+                    historyHtml += `<p><strong>${assessmentData.screening.tool || 'Screening'}:</strong> Score ${assessmentData.screening.score} - ${assessmentData.screening.interpretation}</p>`;
+                }
+                if (assessmentData.suicideRisk) {
+                    const sr = assessmentData.suicideRisk;
+                    historyHtml += `<p><strong>Suicide Risk Assessment:</strong> Ideation: ${sr.ideation || 'N/A'}, Plan: ${sr.plan || 'N/A'}, Intent: "${sr.intent || 'N/A'}", Means: ${sr.means || 'N/A'}</p>`;
+                }
+
+                cd.history = historyHtml;
+            }
+        }
+
+        // 5. Map structure.screens -> content.structure.screens
+        if (item.structure?.screens && !c.structure?.screens) {
+            if (!c.structure) c.structure = {};
+            c.structure.screens = item.structure.screens;
+        }
+
+        // 5b. Process each screen - add IDs, enrich rationale, preserve cjmmStep
+        if (c.structure?.screens && Array.isArray(c.structure.screens)) {
+            const clinicalFocus = c.chiefComplaint || c.metadata?.clinicalFocus || 'Clinical Assessment';
+
+            c.structure.screens.forEach((screen: any, idx: number) => {
+                // Ensure screen has an ID
+                if (!screen.id) {
+                    screen.id = `screen_${idx}_${Date.now().toString(36)}`;
+                }
+
+                // Preserve cjmmStep for Expert HUD CJMM Grid
+                if (!screen.cjmmStep && screen.type) {
+                    const cjmmMap: Record<string, string> = {
+                        'highlight': 'Recognize Cues',
+                        'matrix': 'Analyze Cues',
+                        'ordered-response': 'Prioritize Hypotheses',
+                        'bow-tie': 'Generate Solutions',
+                        'drop-cloze': 'Take Action',
+                        'multiple-response': 'Evaluate Outcomes',
+                        'sata': 'Evaluate Outcomes'
+                    };
+                    screen.cjmmStep = cjmmMap[screen.type] || `Screen ${idx + 1}`;
+                }
+
+                // Enrich rationale with smart defaults
+                screen.rationale = DataSanitizer.enrichRationale(
+                    screen.rationale || {},
+                    clinicalFocus,
+                    screen.cjmmStep
+                );
+            });
+        }
+
+        // 6. Map content.rationale (use enricher to ensure proper structure)
+        if (c.rationale) {
+            c.rationale = DataSanitizer.enrichRationale(
+                c.rationale,
+                c.chiefComplaint || c.metadata?.clinicalFocus || 'Clinical Assessment'
+            );
+        } else {
+            // Create global rationale if missing
+            c.rationale = DataSanitizer.enrichRationale(
+                {},
+                c.chiefComplaint || c.metadata?.clinicalFocus || 'Clinical Assessment'
+            );
+        }
+
+        // 7. Set type if missing (Case Study)
+        if (!item.type && c.structure?.screens?.length > 0) {
+            item.type = 'case-study';
+        }
+
+        // 8. Ensure Item has ID
+        if (!item.id) {
+            item.id = `golden_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        }
+
+        // 9. Set metadata from content.metadata if present
+        if (c.metadata) {
+            item.metadata = {
+                ...item.metadata,
+                generator: c.metadata.generator,
+                clinicalFocus: c.metadata.clinicalFocus || c.metadata.topic,
+                difficultyLevel: c.metadata.level || c.metadata.difficulty, // Support both keys
+                difficulty: c.metadata.difficulty || c.metadata.level, // Mirror for consistency
+                targetScore: c.metadata.targetScore
+            };
+        }
+    },
+
+    /**
      * Stabilizes the entire item configuration + options + history.
      * Ensures we only shuffle ONCE and all clinical data is sanitized.
      */
@@ -561,6 +960,11 @@ export const DataSanitizer = {
         if (item._sanitized && !forceReshuffle) return item;
 
         const cleanItem = { ...item };
+
+        // ==== GOLDEN PROMPT V3 NORMALIZATION LAYER ====
+        // Converts Golden Prompt structure to internal Viewer structure
+        // This ensures AI-generated JSON is compatible with the StudentPreviewModal
+        DataSanitizer.normalizeGoldenPromptFormat(cleanItem);
 
         // 1. Sanitize Clinical Data (Gold Standard)
         if (cleanItem.content?.clinicalData) {
@@ -586,7 +990,72 @@ export const DataSanitizer = {
             cd._structuredRadiology = DataSanitizer.sanitizeRadiology(cd.radiology);
         }
 
-        // 2. Stabilize Options (Shuffle ONCE)
+        // 1.5 Sanitize Rationale (Ensure UI Safety)
+        if (cleanItem.content) {
+            cleanItem.content.rationale = DataSanitizer.sanitizeRationale(cleanItem.content.rationale);
+
+            // CRITICAL: Inject difficulty from metadata if rationale.difficulty is still default
+            const sourceDiff = cleanItem.metadata?.difficulty ||
+                cleanItem.metadata?.difficultyLevel ||
+                cleanItem.pedagogy?.difficultyLevel ||
+                (cleanItem.content as any)?.metadata?.difficulty;
+
+            if (sourceDiff && cleanItem.content.rationale) {
+                const diffLevel = typeof sourceDiff === 'number' ? sourceDiff : 3;
+                const levelLabels = ["", "Novice/Recall", "Application", "Analysis", "Synthesis", "Evaluation"];
+                cleanItem.content.rationale.difficulty = {
+                    level: diffLevel,
+                    score: diffLevel * 20,
+                    label: levelLabels[diffLevel] || "Standard",
+                    clinicalStrategy: `Level ${diffLevel} clinical reasoning.`,
+                    recommendedActions: diffLevel >= 4 ? ["Advanced practice required"] : ["Review fundamentals"]
+                };
+            }
+        }
+
+        // 2. Trend Item Specific: Auto-Generate Trend Table from Vitals
+        if (String(cleanItem.type).includes('trend') || String(cleanItem.content?.structure?.type).includes('trend')) {
+            const vitals = cleanItem.content?.clinicalData?._structuredVitals || cleanItem.content?.vitals || cleanItem.content?.clinicalData?.vitals;
+
+            if (vitals && Array.isArray(vitals) && vitals.length > 0) {
+                // Ensure structure object exists
+                if (!cleanItem.content.structure) cleanItem.content.structure = { type: 'trend' };
+
+                // columns: Time, Temp, HR, RR, BP, SpO2
+                const columns = ["Time", "Temp F", "HR", "RR", "BP", "SpO2"];
+
+                const rows = vitals.map((v: any) => [
+                    v.time || "00:00",
+                    v.tempF || v.temperature || "",
+                    v.hr || v.heartRate || "",
+                    v.rr || v.respiratoryRate || "",
+                    v.bp || v.bloodPressure || "",
+                    v.o2 || v.spO2 || ""
+                ]);
+
+                // Inject into structure for TrendRenderer
+                cleanItem.content.structure.trendTable = { columns, rows };
+            }
+        }
+
+        // 3. Hotspot: Ensure coordinates are numbers
+        if (String(cleanItem.type).includes('hot_spot') || cleanItem.content?.structure?.type === 'hot_spot') {
+            const ta = cleanItem.content?.structure?.targetArea;
+            if (ta) {
+                if (typeof ta.x === 'string') ta.x = parseFloat(ta.x);
+                if (typeof ta.y === 'string') ta.y = parseFloat(ta.y);
+                if (typeof ta.radius === 'string') ta.radius = parseFloat(ta.radius);
+            }
+        }
+
+        // 4. Calculation: Ensure numeric answer
+        if (String(cleanItem.type).includes('calculation') || cleanItem.content?.structure?.type === 'calculation') {
+            if (typeof cleanItem.content?.structure?.correctAnswer === 'string') {
+                cleanItem.content.structure.correctAnswer = parseFloat(cleanItem.content.structure.correctAnswer);
+            }
+        }
+
+        // 5. Stabilize Options (Shuffle ONCE)
         const struct = cleanItem.content?.structure;
         if (struct) {
             const shuffleArray = (arr: any[]) => {

@@ -66,6 +66,12 @@ export const ProCalculator: React.FC = () => {
 
     // Keyboard support
     const handleKeyDown = useCallback((event: KeyboardEvent) => {
+        // Prevent calculator from stealing keys when user is typing in Notepad or inputs
+        const target = event.target as HTMLElement;
+        if (['INPUT', 'TEXTAREA'].includes(target.tagName) || target.isContentEditable) {
+            return;
+        }
+
         const { key } = event;
 
         if (/\d/.test(key)) {

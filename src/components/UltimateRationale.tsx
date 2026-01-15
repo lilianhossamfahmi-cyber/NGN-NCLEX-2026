@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { MatrixFeedback } from './feedback/MatrixFeedback';
+import { OrderedFeedback } from './feedback/OrderedFeedback';
 import { OptionReviewV2 } from './OptionReviewV2';
-import { CalculationFrameworkApplicator } from './CalculationFrameworkApplicator';
-import { NCJMMPhase, OptionReview, OutcomeModel, MatrixRowAnalysis, CJFeedback } from '../types/RationaleTypes';
+
+import { NCJMMPhase, OptionReview, OutcomeModel, MatrixRowAnalysis, CJFeedback, OrderedReview } from '../types/RationaleTypes';
 import {
     X,
     XCircle,
@@ -39,8 +40,18 @@ import {
     StickyNote as StickyIcon,
     CheckSquare,
     Square,
-    ChevronDown
+    ChevronDown,
+    AlertTriangle,
+    GitBranch,
+    Scale,
+    Syringe,
+    Info
 } from 'lucide-react';
+import { BowTieFeedback } from './feedback/BowTieFeedback';
+import { HighlightFeedback } from './feedback/HighlightFeedback';
+import ClozeFeedback from './feedback/ClozeFeedback';
+import { BowTieReview } from '../services/RationalePipeline';
+import { HighlightReview, ClozeReview } from '../types/RationaleTypes';
 
 /* --------------------------------------------------------------
    1️⃣  DATA STRUCTURES & TYPES
@@ -50,6 +61,7 @@ import {
 export interface UltimateRationaleProps {
     isOpen: boolean;
     onClose: () => void;
+    onNextQuestion?: () => void;
 
     // New Props for V2
     outcome?: OutcomeModel;
@@ -66,10 +78,17 @@ export interface UltimateRationaleProps {
     cheatSheet?: { title: string; points: string[] };
     optionReviews?: OptionReview[];
     matrixRows?: MatrixRowAnalysis[]; // New Payload for Matrix Items
+    matrixColumns?: any[];            // New Payload for Matrix Headers
     cjFeedback?: CJFeedback;          // New Explicit CJ Feedback
     referenceInfo?: { anatomy?: string; physiology?: string; pharm?: string; };
     reviewUnits?: import('../types/OptionReviewV2Types').ReviewUnit[]; // V2 payload
+    bowTieReview?: BowTieReview;      // BowTie payload
+    highlightReview?: HighlightReview; // Highlight payload
+    clozeReview?: ClozeReview;        // Drop/Cloze payload
+    orderedReview?: OrderedReview;    // Ordered Response payload
     metadata?: any;
+    formulaMethod?: string;
+    dimensionalAnalysis?: string;
 }
 
 /* --------------------------------------------------------------
@@ -85,6 +104,97 @@ const InfoTooltip = ({ text, children, side = 'top' }: { text: string, children:
         </div>
     </div>
 );
+
+const formatBold = (text: string): React.ReactNode => {
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, index) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+            return <strong key={index} className="font-bold text-white">{part.slice(2, -2)}</strong>;
+        }
+        return part;
+    });
+};
+
+const MarkdownRenderer = ({ content }: { content: string }) => {
+    if (!content) return null;
+    return (
+        <div className="space-y-1 font-mono text-sm">
+            {content.split('\n').map((line, i) => {
+                const trimmed = line.trim();
+
+                // Special Header: CORRECT RESULT (green prominent)
+                if (trimmed.startsWith('### ✅') || trimmed.includes('CORRECT RESULT')) {
+                    const text = trimmed.replace('### ', '').replace('✅ ', '');
+                    return (
+                        <div key={i} className="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 mt-2 mb-4">
+                            <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />
+                            <span className="text-lg font-bold text-emerald-400">{formatBold(text)}</span>
+                        </div>
+                    );
+                }
+
+                // Special Header: HOW WE GOT IT (blue section)
+                if (trimmed.includes('HOW WE GOT IT') || trimmed.includes('🟢')) {
+                    const text = trimmed.replace('### ', '').replace('🟢 ', '');
+                    return (
+                        <h3 key={i} className="text-sm font-bold text-blue-400 mt-6 mb-3 uppercase tracking-wider flex items-center gap-2">
+                            <div className="w-2.5 h-2.5 rounded-full bg-blue-400" />
+                            {formatBold(text)}
+                        </h3>
+                    );
+                }
+
+                // Special Header: Safety Check (amber warning)
+                if (trimmed.includes('Safety Check') || trimmed.includes('🛡️')) {
+                    const text = trimmed.replace('### ', '').replace('🛡️ ', '');
+                    return (
+                        <h3 key={i} className="text-sm font-bold text-amber-400 mt-6 mb-3 uppercase tracking-wider flex items-center gap-2">
+                            <AlertTriangle className="w-4 h-4 text-amber-400" />
+                            {formatBold(text)}
+                        </h3>
+                    );
+                }
+
+                // Numbered Sections (1. The Setup, 2. The Math, etc.)
+                if (/^\*\*\d+\./.test(trimmed)) {
+                    const text = trimmed;
+                    return (
+                        <h4 key={i} className="text-sm font-bold text-slate-200 mt-4 mb-2">
+                            {formatBold(text)}
+                        </h4>
+                    );
+                }
+
+                // Standard Headers (### )
+                if (line.startsWith('### ')) {
+                    const text = line.replace('### ', '');
+                    return <h3 key={i} className="text-sm font-bold text-emerald-400 mt-6 mb-3 uppercase tracking-wider border-b border-emerald-500/20 pb-2">{formatBold(text)}</h3>;
+                }
+
+                // Bullet List (* )
+                if (trimmed.startsWith('* ')) {
+                    return (
+                        <div key={i} className="flex gap-3 mb-2 ml-4">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0" />
+                            <span className="flex-1 text-slate-300 leading-relaxed">{formatBold(trimmed.replace('* ', ''))}</span>
+                        </div>
+                    );
+                }
+
+                // Separator (---)
+                if (line.includes('---')) {
+                    return <div key={i} className="h-px bg-slate-700 my-4" />;
+                }
+
+                // Empty line
+                if (trimmed === '') return <div key={i} className="h-2" />;
+
+                // Regular Paragraph
+                return <p key={i} className="text-slate-300 leading-relaxed">{formatBold(line)}</p>;
+            })}
+        </div>
+    );
+};
 
 /* --------------------------------------------------------------
    3️⃣  SUB-COMPONENTS: Functional Tools
@@ -439,6 +549,7 @@ const DrawControls = ({ onColor, activeColor, onClear }: any) => {
 export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
     isOpen,
     onClose,
+    onNextQuestion,
     outcome,
     cjmmStep = "clinical judgment",
     coreConcept,
@@ -453,9 +564,16 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
     optionReviews,
     referenceInfo,
     matrixRows,
+    matrixColumns,
     cjFeedback,
     reviewUnits,
-    metadata
+    bowTieReview,
+    highlightReview,
+    clozeReview,
+    orderedReview,
+    metadata,
+    formulaMethod,
+    dimensionalAnalysis
 }) => {
     // Detect if this is a calculation item
     const isCalculation = useMemo(() => {
@@ -464,18 +582,25 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
             metadata?.correctValue !== undefined;
     }, [metadata]);
 
-    // CONSTANTS FOR DEFAULTS
-    const COPD_DEFAULTS = {
-        mnemonic: { title: "C.O.P.D.", content: "C-Cigarettes, O-Oxygen (Hypoxia), P-Pursed lip breathing, D-Dyspnea", explanation: "Recall the key triggers and management strategies for COPD." },
-        cheatSheet: { title: "COPD Management Pearls", points: ["Target SpO2: 88-92%", "Avoid high-flow O2 unless critical", "Administer Bronchodilators first", "Steroids reduce inflammation"] },
-        referenceInfo: {
-            anatomy: "Microscopic breakdown of alveolar walls (emphysema) reduces surface area for gas exchange, while chronic bronchitis causes airway inflammation and mucus plugging.",
-            physiology: "Chronic airflow limitation leads to air trapping and hyperinflation. V/Q mismatch is the primary cause of hypoxemia. The 'Hypoxic Drive' reliance is often overstated but uncontrolled O2 is risky.",
-            pharm: "Short-acting beta agonists (SABA) like Albuterol + Anticholinergics (Ipratropium) are first-line. Systemic corticosteroids (Prednisone) reduce inflammation. Antibiotics if infection is suspected."
+    // GENERIC FALLBACK DEFAULTS (No hardcoded clinical content)
+    const GENERIC_DEFAULTS = {
+        mnemonic: {
+            title: "Not Available",
+            content: "No mnemonic provided for this item.",
+            explanation: "This clinical scenario does not have an associated learning mnemonic."
         },
-        trap: "Withholding oxygen due to fear of 'knocking out hypoxic drive' in a severely hypoxemic patient.",
-        answerAnalysis: "The client is experiencing an acute exacerbation of COPD. The priority is to improve oxygenation without suppressing the hypoxic drive.",
-        goldenRule: "Treat the underlying cause while concurrently supporting perfusion."
+        cheatSheet: {
+            title: "Clinical Pearls",
+            points: ["Review the rationale for key learning points.", "Focus on the clinical findings that led to the correct answer."]
+        },
+        referenceInfo: {
+            anatomy: "No anatomical reference provided for this item.",
+            physiology: "No physiological explanation provided for this item.",
+            pharm: "No pharmacological information provided for this item."
+        },
+        trap: "Review the rationale to understand common mistakes for this item type.",
+        answerAnalysis: "Review the option-by-option analysis above for detailed explanations.",
+        goldenRule: "Always prioritize patient safety and use clinical judgment."
     };
 
 
@@ -506,7 +631,7 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
             points: ["Convert lbs to kg: divide by 2.2", "Verify mg/kg/day vs mg/kg/dose", "Round to the nearest whole number unless specified", "Always double-check decimal placement"]
         },
         referenceInfo: {
-            physiology: "Pediatric patients require weight-based dosing regarding metabolism. Always calculate doses using actual body weight unless otherwise specified (e.g., ideal body weight for certain drugs).",
+            physiology: "Pediatric patients require weight-based dosing regarding metabolism. Always calculate doses using actual body weight unless otherwise specified.",
             anatomy: "Drug distribution varies by age. Infants have higher body water content, affecting drug volume of distribution.",
             pharm: "Safe medication administration relies on accurate math. Narrow therapeutic index drugs require double verification."
         },
@@ -515,17 +640,34 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
         goldenRule: "Always verify units, use the formula method, and double-check your math before administering any medication."
     };
 
-    const effectiveMnemonic = useMemo(() => mnemonic || (isCalculation ? CALC_DEFAULTS.mnemonic : COPD_DEFAULTS.mnemonic), [mnemonic, isCalculation]);
-    const effectiveCheatSheet = useMemo(() => cheatSheet || (isCalculation ? CALC_DEFAULTS.cheatSheet : COPD_DEFAULTS.cheatSheet), [cheatSheet, isCalculation]);
-    const effectiveReferenceInfo = useMemo(() => referenceInfo || (isCalculation ? CALC_DEFAULTS.referenceInfo : COPD_DEFAULTS.referenceInfo), [referenceInfo, isCalculation]);
+    // Use item-specific data first, then fall back to calculation defaults for calc items, otherwise generic
+    const effectiveMnemonic = useMemo(() => {
+        if (mnemonic?.title && mnemonic.title !== 'Not Available') return mnemonic;
+        return isCalculation ? CALC_DEFAULTS.mnemonic : GENERIC_DEFAULTS.mnemonic;
+    }, [mnemonic, isCalculation]);
 
-    // Fallback strings need to handle empty strings passed as props too
-    const displayTrap = trap || (isCalculation ? CALC_DEFAULTS.trap : COPD_DEFAULTS.trap);
-    // For calculations: Force HTML format - use fallback if received data isn't HTML
+    const effectiveCheatSheet = useMemo(() => {
+        if (cheatSheet?.points && cheatSheet.points.length > 0) return cheatSheet;
+        return isCalculation ? CALC_DEFAULTS.cheatSheet : GENERIC_DEFAULTS.cheatSheet;
+    }, [cheatSheet, isCalculation]);
+
+    const effectiveReferenceInfo = useMemo(() => {
+        // Check if any field in referenceInfo has real content
+        const hasRealContent = referenceInfo && (
+            (referenceInfo.anatomy && !referenceInfo.anatomy.includes('No anatomical')) ||
+            (referenceInfo.physiology && !referenceInfo.physiology.includes('No physiological')) ||
+            (referenceInfo.pharm && !referenceInfo.pharm.includes('No pharmacological'))
+        );
+        if (hasRealContent) return referenceInfo;
+        return isCalculation ? CALC_DEFAULTS.referenceInfo : GENERIC_DEFAULTS.referenceInfo;
+    }, [referenceInfo, isCalculation]);
+
+    // Fallback strings - prioritize item data
+    const displayTrap = trap || (isCalculation ? CALC_DEFAULTS.trap : GENERIC_DEFAULTS.trap);
     const displayAnalysis = isCalculation
         ? (answerAnalysis && answerAnalysis.trim().startsWith('<h3') ? answerAnalysis : CALC_DEFAULTS.answerAnalysis)
-        : (answerAnalysis || COPD_DEFAULTS.answerAnalysis);
-    const displayGoldenRule = goldenRule || (isCalculation ? CALC_DEFAULTS.goldenRule : COPD_DEFAULTS.goldenRule);
+        : (answerAnalysis || GENERIC_DEFAULTS.answerAnalysis);
+    const displayGoldenRule = goldenRule || (isCalculation ? CALC_DEFAULTS.goldenRule : GENERIC_DEFAULTS.goldenRule);
 
     const [show, setShow] = useState(isOpen);
     const [animateIn, setAnimateIn] = useState(false);
@@ -540,9 +682,7 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
     // Accordion state
 
     // Matrix & Option Filters
-    const [matrixFilter, setMatrixFilter] = useState<'all' | 'correct' | 'incorrect' | 'missed'>('all');
     const [optFilter, setOptFilter] = useState<'all' | 'correct' | 'incorrect' | 'missed'>('all');
-    const [openMatrixRowId, setOpenMatrixRowId] = useState<string | null>(null);
     const [openOptId, setOpenOptId] = useState<string | null>(null);
 
     // ... (Highlighter & Drawing logic preserved) ...
@@ -715,7 +855,7 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
 
     const getStepContent = (phase: string) => {
         const keyword = phase.split(' ')[0].toLowerCase();
-        const match = steps.find(s => s.tag.toLowerCase().includes(keyword));
+        const match = steps.find(s => s.tag && s.tag.toLowerCase().includes(keyword));
         if (match) return match.description;
 
         // Fallback for Single Response Items:
@@ -724,12 +864,58 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
             return answerAnalysis || "Primary clinical judgment focus for this item.";
         }
 
+        // CALCULATION ITEM FALLBACK: Map calculation breakdown to CJMM phases
+        // This ensures Calculation items show meaningful content instead of "Not applicable"
+        if (formulaMethod || dimensionalAnalysis || (answerAnalysis && answerAnalysis.includes('Step'))) {
+            const calcContent: Record<string, string> = {
+                'recognize': formulaMethod
+                    ? `Identify the calculation type and gather required values: ${formulaMethod.split('.')[0]}.`
+                    : 'Identify relevant clinical values from the patient record (weight, lab results, current rate, medication concentration).',
+                'analyze': dimensionalAnalysis
+                    ? `Apply dimensional analysis: ${dimensionalAnalysis.split('.')[0]}.`
+                    : 'Analyze the relationship between values and determine which formula applies based on the clinical context.',
+                'prioritize': 'Prioritize accuracy in calculation - verify units match and conversion factors are correct before proceeding.',
+                'generate': formulaMethod
+                    ? `Set up the calculation using the appropriate formula and gathered values.`
+                    : 'Generate the solution by applying the correct formula with verified input values.',
+                'take': 'Execute the calculation step-by-step, documenting each operation for verification.',
+                'evaluate': 'Evaluate the result for clinical reasonableness. Round to appropriate precision for the clinical context (whole numbers for IV rates). Verify using independent double-check for high-alert medications.'
+            };
+
+            if (calcContent[keyword]) return calcContent[keyword];
+        }
+
         return null;
     };
 
     // --- NGN DIFFICULTY CALCULATION ENGINE ---
     const calculateNGNDifficulty = () => {
-        // 0. EXPLICIT SOURCE OF TRUTH (Prioritize Pedagogy, then Metadata difficultyLevel, then Metadata difficulty)
+        // V2 SOURCE OF TRUTH (PRIORITY 1): rationale.difficulty object from AI
+        // This is embedded directly in the question by the AI generation prompt
+        // Check multiple paths for the embedded difficulty
+        const embeddedDiff = metadata?.rationaleDifficulty ||
+            metadata?.rationale?.difficulty ||
+            metadata?.fullItem?.content?.rationale?.difficulty;
+
+        if (embeddedDiff && typeof embeddedDiff === 'object' && embeddedDiff.level) {
+            const lvl = Math.min(5, Math.max(1, Number(embeddedDiff.level)));
+            const definitions = [
+                { label: "Novice / Recall", subtext: "Requires basic recall of facts and definitions." },
+                { label: "Adv. Beginner (Application)", subtext: "Requires applying rules or protocols to a scenario." },
+                { label: "NGN Standard (Analysis)", subtext: "Requires analyzing trends and distinguishing relevant cues." },
+                { label: "Proficient (Synthesis)", subtext: "Requires prioritizing conflicting needs and planning care." },
+                { label: "Expert (Evaluation)", subtext: "Requires managing high-stakes complexity and uncertainty." }
+            ];
+            const def = definitions[lvl - 1];
+            return {
+                score: embeddedDiff.score || (lvl * 20),
+                level: lvl,
+                label: embeddedDiff.label || def.label,
+                subtext: embeddedDiff.subtext || embeddedDiff.clinicalStrategy || def.subtext
+            };
+        }
+
+        // V1.5 FALLBACK: Pedagogy or Metadata difficultyLevel
         const rawLevel = metadata?.pedagogy?.difficultyLevel || metadata?.difficultyLevel || metadata?.difficulty;
 
         // Helper to normalize level
@@ -965,6 +1151,15 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
 
                             <div className="w-px h-6 bg-white/10 mx-1" />
 
+                            {onNextQuestion && (
+                                <button
+                                    onClick={onNextQuestion}
+                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-blue-500/20 animate-pulse"
+                                >
+                                    Next Question <Play className="w-4 h-4 fill-current" />
+                                </button>
+                            )}
+
                             <button
                                 onClick={onClose}
                                 className="p-2.5 hover:bg-red-500/20 hover:text-red-400 text-slate-400 rounded-lg transition-colors ml-2"
@@ -1068,9 +1263,7 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                             height: scale > 1 ? `${100 / scale}%` : 'auto'
                         }}
                     >
-                        {activeTab === 0 && isCalculation && (
-                            <CalculationFrameworkApplicator question={metadata?.fullItem} />
-                        )}
+
                         {activeTab === 0 && !isCalculation && (
 
                             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 animate-in fade-in duration-500">
@@ -1204,6 +1397,61 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                                         </div>
                                     </div>
 
+                                    {isCalculation && (formulaMethod || dimensionalAnalysis) && (
+                                        <div className="rounded-2xl border p-6 mt-4" style={{ backgroundColor: THEME.card, borderColor: THEME.border }}>
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400"><Calculator className="w-5 h-5" /></div>
+                                                    <h4 className="text-sm font-bold uppercase tracking-widest opacity-80">Clinical Math Lab</h4>
+                                                </div>
+                                            </div>
+
+                                            {/* Clinical Setup Variables */}
+                                            <div className="grid grid-cols-3 gap-3 mb-6">
+                                                <div className="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex flex-col items-center text-center">
+                                                    <Scale className="w-4 h-4 text-indigo-400 mb-2" />
+                                                    <div className="text-[10px] uppercase font-bold text-indigo-300 opacity-70">Weight</div>
+                                                    <div className="text-sm font-bold text-indigo-100">{weightDisplay}</div>
+                                                    <div className="text-[10px] opacity-60">({kgDisplay})</div>
+                                                </div>
+                                                <div className="p-3 rounded-xl bg-pink-500/10 border border-pink-500/20 flex flex-col items-center text-center">
+                                                    <FileText className="w-4 h-4 text-pink-400 mb-2" />
+                                                    <div className="text-[10px] uppercase font-bold text-pink-300 opacity-70">Order</div>
+                                                    <div className="text-sm font-bold text-pink-100">{doseDisplay}</div>
+                                                </div>
+                                                <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex flex-col items-center text-center">
+                                                    <Syringe className="w-4 h-4 text-cyan-400 mb-2" />
+                                                    <div className="text-[10px] uppercase font-bold text-cyan-300 opacity-70">Supply</div>
+                                                    <div className="text-sm font-bold text-cyan-100">{supplyDoseDisplay} / {supplyVolDisplay}</div>
+                                                </div>
+                                            </div>
+
+                                            {/* Correct Answer Display */}
+                                            <div className="flex items-center justify-between p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 mb-6 font-mono">
+                                                <span className="text-xs font-bold uppercase tracking-wider text-blue-400">Target Answer</span>
+                                                <span className="text-lg font-bold text-blue-400">
+                                                    {metadata?.correctValue || '?'} {metadata?.units || metadata?.inputLabel || ''}
+                                                </span>
+                                            </div>
+
+
+                                            {/* Formula Method and Dimensional Analysis moved to Clinical Logic tab */}
+
+                                            {/* Safety Check */}
+                                            {metadata?.rationale?.safetyCheck && (
+                                                <div className="mt-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex gap-3 items-start">
+                                                    <AlertOctagon className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                                                    <div>
+                                                        <div className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-1">Safety Reality Check</div>
+                                                        <p className="text-sm text-amber-100/90 leading-relaxed italic">
+                                                            "{metadata.rationale.safetyCheck}"
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
                                     {/* 3. TRAP ALERT (Separate Card) */}
                                     {trap && (
                                         <div className="rounded-xl border p-4 flex items-start gap-4" style={{ borderColor: `${COLORS.critical}40`, backgroundColor: `${COLORS.critical}10` }}>
@@ -1254,6 +1502,26 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                                         </div>
                                         <OptionReviewV2 units={reviewUnits} />
                                     </div>
+                                ) : bowTieReview ? (
+                                    /* BOW TIE REVIEW MODE */
+                                    <div className="space-y-6">
+                                        <BowTieFeedback review={bowTieReview} />
+                                    </div>
+                                ) : highlightReview ? (
+                                    /* HIGHLIGHT CHART REVIEW MODE */
+                                    <div className="space-y-6">
+                                        <HighlightFeedback review={highlightReview} />
+                                    </div>
+                                ) : clozeReview ? (
+                                    /* DROP/CLOZE REVIEW MODE */
+                                    <div className="space-y-6">
+                                        <ClozeFeedback review={clozeReview} />
+                                    </div>
+                                ) : orderedReview ? (
+                                    /* ORDERED RESPONSE REVIEW MODE */
+                                    <div className="space-y-6">
+                                        <OrderedFeedback review={orderedReview} />
+                                    </div>
                                 ) : (
                                     <>
                                         {/* MATRIX ROW REVIEW MODE */}
@@ -1261,10 +1529,7 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                                             <div className="space-y-6">
                                                 <MatrixFeedback
                                                     rows={matrixRows}
-                                                    filter={matrixFilter}
-                                                    setFilter={setMatrixFilter}
-                                                    openRowId={openMatrixRowId}
-                                                    setOpenRowId={setOpenMatrixRowId}
+                                                    columns={matrixColumns || []}
                                                 />
                                             </div>
                                         ) : (
@@ -1394,10 +1659,51 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                                                                 </div>
                                                             </>
                                                         ) : (
-                                                            <div className="p-8 text-center text-slate-400 border border-dashed border-white/10 rounded-xl bg-white/5">
-                                                                <div className="mb-2 text-lg font-bold">No Option Analysis Available</div>
-                                                                <p className="text-sm opacity-70">Detailed option breakdowns are not available for this item type yet.</p>
-                                                            </div>
+                                                            /* FALLBACK: Generic Analysis for Non-Calculation Items (e.g. Trend, Highlight, Matrix) */
+                                                            <>
+                                                                {(displayAnalysis || displayGoldenRule || displayTrap) ? (
+                                                                    <div className="space-y-6">
+                                                                        {/* Analysis Section */}
+                                                                        {displayAnalysis && (
+                                                                            <div className="p-5 rounded-xl bg-blue-500/5 border border-blue-500/20">
+                                                                                <div className="flex items-center gap-2 mb-4">
+                                                                                    <div className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400"><ListChecks className="w-4 h-4" /></div>
+                                                                                    <div className="text-xs font-bold text-blue-400 uppercase tracking-wider">Clinical Reasoning</div>
+                                                                                </div>
+                                                                                {displayAnalysis.trim().startsWith('<h') ? (
+                                                                                    <div className="prose prose-sm max-w-none text-slate-300" dangerouslySetInnerHTML={{ __html: displayAnalysis }} />
+                                                                                ) : (
+                                                                                    <p className="text-sm leading-relaxed opacity-90">{displayAnalysis}</p>
+                                                                                )}
+                                                                            </div>
+                                                                        )}
+
+                                                                        {/* Trap Section */}
+                                                                        {displayTrap && (
+                                                                            <div className="rounded-xl border p-4 flex items-start gap-4" style={{ borderColor: `${COLORS.critical}40`, backgroundColor: `${COLORS.critical}10` }}>
+                                                                                <AlertOctagon className="w-5 h-5 shrink-0" style={{ color: COLORS.critical }} />
+                                                                                <div>
+                                                                                    <h5 className="text-[10px] font-bold uppercase mb-1" style={{ color: COLORS.critical }}>Clinical Pitfall</h5>
+                                                                                    <p className="text-xs opacity-90">{displayTrap}</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+
+                                                                        {/* Golden Rule Section */}
+                                                                        {displayGoldenRule && (
+                                                                            <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
+                                                                                <div className="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-1">Golden Rule</div>
+                                                                                <p className="text-sm font-medium opacity-90">"{displayGoldenRule}"</p>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="p-8 text-center text-slate-400 border border-dashed border-white/10 rounded-xl bg-white/5">
+                                                                        <div className="mb-2 text-lg font-bold">No Option Analysis Available</div>
+                                                                        <p className="text-sm opacity-70">Detailed option breakdowns are not available for this item type yet.</p>
+                                                                    </div>
+                                                                )}
+                                                            </>
                                                         )}
                                                     </div>
                                                 )}
@@ -1646,27 +1952,166 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                                 </div>
                             </div>
                         )}
+
+
+
+
+                        {activeTab === 0 && isCalculation && (
+                            <div className="p-8 max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                {/* 1. HEADER: CORRECT ANSWER */}
+                                <div className="flex items-center justify-between p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+                                    <div>
+                                        <div className="text-xs font-bold text-emerald-500 uppercase tracking-widest mb-1">Correct Answer</div>
+                                        <div className="text-3xl font-black text-emerald-400">
+                                            {metadata?.correctValue || (metadata?.answer ? metadata.answer : '—')} <span className="text-lg opacity-60 font-bold">{metadata?.units || ''}</span>
+                                        </div>
+                                    </div>
+                                    {metadata?.roundingRule && (
+                                        <div className="flex items-center gap-3 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                                            <AlertTriangle className="w-5 h-5 text-amber-500" />
+                                            <div className="text-xs font-bold text-amber-400 uppercase tracking-wider">{metadata.roundingRule}</div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* 2. DETAILED RATIONALE (MARKDOWN) */}
+                                <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 shadow-inner overflow-hidden">
+                                    {(() => {
+                                        // Check if we have a proper new-format answerAnalysis
+                                        const rawAnalysis = metadata?.rationale?.answerAnalysis;
+                                        if (rawAnalysis && (rawAnalysis.includes('CORRECT RESULT') || rawAnalysis.includes('HOW WE GOT IT') || rawAnalysis.includes('Step 1'))) {
+                                            return <MarkdownRenderer content={rawAnalysis} />;
+                                        }
+
+                                        // Use the formulaMethod from pipeline (now contains step-by-step breakdown)
+                                        const formula = formulaMethod || metadata?.rationale?.formulaMethod || '';
+                                        const safety = metadata?.rationale?.safetyCheck || '';
+
+                                        if (formula && formula.includes('Step')) {
+                                            // We have a real step-by-step breakdown from parsing the prompt
+                                            return (
+                                                <div className="space-y-4">
+                                                    <MarkdownRenderer content={formula} />
+                                                    {safety && (
+                                                        <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 mt-4">
+                                                            <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                                                            <MarkdownRenderer content={safety} />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        }
+
+                                        // Clean fallback for items we couldn't parse
+                                        return (
+                                            <div className="space-y-6">
+                                                {/* Info Banner */}
+                                                <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                                                    <Info className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+                                                    <div>
+                                                        <p className="text-sm text-blue-300 font-medium">Step-by-step breakdown</p>
+                                                        <p className="text-xs text-slate-400 mt-1">Review the calculation methodology below.</p>
+                                                    </div>
+                                                </div>
+
+                                                {/* Show whatever we have */}
+                                                {formula && <MarkdownRenderer content={formula} />}
+
+                                                {/* Safety Reminder */}
+                                                <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                                                    <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                                                    <div>
+                                                        <p className="text-sm text-amber-300 font-medium">Safety Reminder</p>
+                                                        <p className="text-xs text-slate-400 mt-1">Always double-check calculations. For high-alert medications, verify with a second nurse.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+                            </div>
+                        )}
+
+
                         {activeTab === 4 && (
                             <div className="animate-in fade-in duration-500">
                                 <div className="flex items-center justify-between mb-8">
                                     <div><h3 className="text-2xl font-bold mb-1">Foundational Knowledge</h3><p className="opacity-60">The "Why" behind the "What".</p></div>
                                 </div>
-                                <div className="grid md:grid-cols-3 gap-6">
-                                    {[
-                                        { title: 'Physiology', icon: Activity, color: COLORS.success, content: effectiveReferenceInfo.physiology },
-                                        { title: 'Anatomy', icon: Microscope, color: '#06B6D4', content: effectiveReferenceInfo.anatomy },
-                                        { title: 'Pharmacology', icon: Zap, color: COLORS.accent, content: effectiveReferenceInfo.pharm },
-                                    ].map((item, idx) => (
-                                        <div key={idx} className="group rounded-3xl p-1 relative overflow-hidden transition-all hover:scale-[1.02]" style={{ background: `linear-gradient(135deg, ${item.color}20, transparent)` }}>
-                                            <div className="h-full rounded-[20px] p-6 flex flex-col border transition-colors relative z-10" style={{ backgroundColor: THEME.card, borderColor: THEME.border }}>
-                                                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 shadow-lg" style={{ backgroundColor: item.color }}><item.icon className="w-6 h-6 text-white" /></div>
-                                                <h4 className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: item.color }}>{item.title}</h4>
-                                                <div className="w-8 h-1 rounded-full mb-4 opacity-50" style={{ backgroundColor: item.color }} />
-                                                <p className="text-sm leading-relaxed opacity-80">{item.content}</p>
+
+                                {isCalculation ? (
+                                    /* CALCULATION FRAMEWORK (Static Educational Content) */
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {/* 4. Calculation Type */}
+                                        <div className="p-6 rounded-2xl border border-blue-500/20 bg-blue-500/5">
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400"><Activity className="w-5 h-5" /></div>
+                                                <h4 className="text-sm font-bold uppercase tracking-widest text-blue-400">4. Calculation Type</h4>
                                             </div>
+                                            <p className="text-sm opacity-80 leading-relaxed">
+                                                This item requires <span className="font-bold text-white">{metadata?.topic || 'Dosage Calculation'}</span> logic.
+                                                Identify if this is a Single-Step (Simple Dose), Multi-Step (Weight-based), or Complex Rate (Drip Factor) calculation.
+                                                The units required in the answer (e.g., mL/hr vs gtt/min) dictate the path.
+                                            </p>
                                         </div>
-                                    ))}
-                                </div>
+
+                                        {/* 5. Method Selection */}
+                                        <div className="p-6 rounded-2xl border border-purple-500/20 bg-purple-500/5">
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <div className="p-2 rounded-lg bg-purple-500/20 text-purple-400"><GitBranch className="w-5 h-5" /></div>
+                                                <h4 className="text-sm font-bold uppercase tracking-widest text-purple-400">5. Method Selection</h4>
+                                            </div>
+                                            <p className="text-sm opacity-80 leading-relaxed">
+                                                <strong className="text-white">Dimensional Analysis</strong> is the Gold Standard for complex unit conversions to avoid "setup errors".
+                                                Use the <strong className="text-white">Formula Method (D/H x Q)</strong> only for simple single-step volume extractions where units already match.
+                                            </p>
+                                        </div>
+
+                                        {/* 8. Special Formulas */}
+                                        <div className="p-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/5">
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400"><FlaskConical className="w-5 h-5" /></div>
+                                                <h4 className="text-sm font-bold uppercase tracking-widest text-emerald-400">8. Special Formulas</h4>
+                                            </div>
+                                            <ul className="text-sm opacity-80 space-y-2 font-mono">
+                                                <li>• Flow Rate (mL/hr) = Total Vol / Total Hours</li>
+                                                <li>• Drop Rate (gtt/min) = (Vol mL x Drop Factor) / Time min</li>
+                                                <li>• Weight Based = mg/kg/min → Convert lb to kg first (÷ 2.2)</li>
+                                            </ul>
+                                        </div>
+
+                                        {/* 9. Critical Thinking */}
+                                        <div className="p-6 rounded-2xl border border-amber-500/20 bg-amber-500/5">
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <div className="p-2 rounded-lg bg-amber-500/20 text-amber-400"><Brain className="w-5 h-5" /></div>
+                                                <h4 className="text-sm font-bold uppercase tracking-widest text-amber-400">9. Critical Thinking</h4>
+                                            </div>
+                                            <p className="text-sm opacity-80 leading-relaxed">
+                                                Does the answer make clinical sense? (e.g. A flow rate of 1000 mL/hr for an infant is unstable).
+                                                Always double-check rounding rules (whole number vs tenth).
+                                                Ensure "Safety Checks" match the High Alert status of the medication.
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    /* STANDARD KNOWLEDGE GRID */
+                                    <div className="grid md:grid-cols-3 gap-6">
+                                        {[
+                                            { title: 'Physiology', icon: Activity, color: COLORS.success, content: effectiveReferenceInfo.physiology },
+                                            { title: 'Anatomy', icon: Microscope, color: '#06B6D4', content: effectiveReferenceInfo.anatomy },
+                                            { title: 'Pharmacology', icon: Zap, color: COLORS.accent, content: effectiveReferenceInfo.pharm },
+                                        ].map((item, idx) => (
+                                            <div key={idx} className="group rounded-3xl p-1 relative overflow-hidden transition-all hover:scale-[1.02]" style={{ background: `linear-gradient(135deg, ${item.color}20, transparent)` }}>
+                                                <div className="h-full rounded-[20px] p-6 flex flex-col border transition-colors relative z-10" style={{ backgroundColor: THEME.card, borderColor: THEME.border }}>
+                                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 shadow-lg" style={{ backgroundColor: item.color }}><item.icon className="w-6 h-6 text-white" /></div>
+                                                    <h4 className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: item.color }}>{item.title}</h4>
+                                                    <div className="w-8 h-1 rounded-full mb-4 opacity-50" style={{ backgroundColor: item.color }} />
+                                                    <p className="text-sm leading-relaxed opacity-80">{item.content}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

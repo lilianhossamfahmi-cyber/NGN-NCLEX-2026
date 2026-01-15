@@ -1,24 +1,90 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useMediaQuery } from '../../../hooks/useMediaQuery';
 import { GenericRendererProps } from './types';
 
 // PART 3: BOW-TIE – GOLD STANDARD UPGRADE
-// Features: Drag Pulse, Snap Animation, Enhanced Connectors, Mobile Optimization
-export const BowTieRenderer: React.FC<GenericRendererProps> = ({ config, answers, setAnswers, isSubmitted }) => {
+// Features: Drag Pulse, Snap Animation, Dynamic Sizing, Mobile Checkboxes
+export const BowTieRenderer: React.FC<GenericRendererProps> = ({ config, answers: propAnswers, setAnswers: parentSetAnswers, isSubmitted }) => {
     const isMobile = useMediaQuery('(max-width: 768px)');
-    const [isDragging, setIsDragging] = useState<string | null>(null); // 'actions', 'condition', 'parameters' or null
+    const [isDragging, setIsDragging] = useState<string | null>(null);
 
-    // answers: { actions: [id, id], condition: id, parameters: [id, id] }
+    // FIX: Use LOCAL state for answers to avoid controlled component flow issues
+    // Initialize from props if available, otherwise use default BowTie structure
+    const [localAnswers, setLocalAnswers] = useState(() => {
+        const initial = propAnswers && typeof propAnswers === 'object' && (propAnswers.actions || propAnswers.condition || propAnswers.parameters)
+            ? propAnswers
+            : { actions: [null, null], condition: null, parameters: [null, null] };
+        console.log('[BowTieRenderer] Initializing local state:', JSON.stringify(initial));
+        return initial;
+    });
 
+    // Use a ref for the latest answers to avoid stale closures in event handlers
+    const answersRef = useRef(localAnswers);
+    useEffect(() => {
+        answersRef.current = localAnswers;
+    }, [localAnswers]);
+
+    // Wrapper to update both local state and notify parent
+    const setAnswers = useCallback((newAns: any) => {
+        console.log('[BowTieRenderer] setAnswers called:', JSON.stringify(newAns));
+        setLocalAnswers(newAns);
+        answersRef.current = newAns; // Update ref immediately
+        if (parentSetAnswers) {
+            parentSetAnswers(newAns);
+        }
+    }, [parentSetAnswers]);
+
+    // Use local answers for rendering
+    const answers = localAnswers;
+
+    // --- DATA NORMALIZATION (Fix for R-01: Support flat arrays vs legacy pool objects) ---
+    // FIX: Also check config.structure fallback for nested format
+    const getPool = (source: any) => Array.isArray(source) ? source : (source?.pool || []);
+    const actionPool = getPool(config.actions || config.structure?.actions);
+    const conditionPool = getPool(config.conditions || config.structure?.conditions);
+    const paramPool = getPool(config.parameters || config.structure?.parameters);
+
+    // DEBUG: Log current state
+    console.log('[BowTieRenderer] Current answers:', JSON.stringify(answers));
+
+
+    // --- HELPER WRAPPERS ---
+    const handleSelectAction = (id: string, max: number) => {
+        if (isSubmitted) return;
+        const current = answers?.actions || [];
+        // Toggle logic with limit
+        if (current.includes(id)) {
+            setAnswers({ ...answers, actions: current.filter((x: any) => x !== id) });
+        } else {
+            if (current.length < max) {
+                setAnswers({ ...answers, actions: [...current, id] });
+            }
+        }
+    };
+
+    const handleSelectCondition = (id: string) => {
+        if (isSubmitted) return;
+        setAnswers({ ...answers, condition: id === answers?.condition ? null : id });
+    };
+
+    const handleSelectParameter = (id: string, max: number) => {
+        if (isSubmitted) return;
+        const current = answers?.parameters || [];
+        if (current.includes(id)) {
+            setAnswers({ ...answers, parameters: current.filter((x: any) => x !== id) });
+        } else {
+            if (current.length < max) {
+                setAnswers({ ...answers, parameters: [...current, id] });
+            }
+        }
+    };
+
+    // --- DRAG HANDLERS (Desktop) ---
     const handleDragStart = (e: React.DragEvent, item: any, category: string) => {
         if (isSubmitted) return;
         e.dataTransfer.setData("item", JSON.stringify({ ...item, category }));
         e.dataTransfer.effectAllowed = "copyMove";
-        setIsDragging(category); // "actions", "conditions", "parameters"
-    };
-
-    const handleDragEnd = () => {
-        setIsDragging(null);
+        setIsDragging(category);
     };
 
     const handleDrop = (e: React.DragEvent, slotType: 'actions' | 'condition' | 'parameters', index?: number) => {
@@ -27,45 +93,48 @@ export const BowTieRenderer: React.FC<GenericRendererProps> = ({ config, answers
         setIsDragging(null);
 
         try {
-            const data = JSON.parse(e.dataTransfer.getData("item"));
-            const newAns = { ...answers };
+            const rawData = e.dataTransfer.getData("item");
+            console.log('[BowTie Drop] Raw data:', rawData);
 
-            // Logic to clear if item moved from another slot logic could be added here, but simplified:
-            if (slotType === 'condition') {
-                if (config.conditions?.pool?.find((c: any) => c.id === data.id)) newAns.condition = data.id;
-            } else if (index !== undefined) {
-                if (!newAns[slotType]) newAns[slotType] = [null, null];
-                // Validate category (Basic safety check)
-                // Note: category from drag is 'conditions', 'actions', 'parameters'. slotType is singular/plural mix.
-                // We trust the user drops in visually correct zone or we can enforce:
-                // if (data.category !== slotType) return; 
-
-                const pool = slotType === 'actions' ? config.actions?.pool : config.parameters?.pool;
-                // Allow drop if id exists in appropriate pool
-                if (pool?.find((c: any) => c.id === data.id)) newAns[slotType][index] = data.id;
+            if (!rawData) {
+                console.error('[BowTie Drop] No data in dataTransfer!');
+                return;
             }
+
+            const data = JSON.parse(rawData);
+            console.log('[BowTie Drop] Parsed data:', data);
+            console.log('[BowTie Drop] SlotType:', slotType, 'Index:', index);
+
+            // FIX: Use ref to get the LATEST answers (not stale closure value)
+            const currentAnswers = answersRef.current;
+            const newAns = {
+                actions: Array.isArray(currentAnswers?.actions) ? [...currentAnswers.actions] : [null, null],
+                condition: currentAnswers?.condition || null,
+                parameters: Array.isArray(currentAnswers?.parameters) ? [...currentAnswers.parameters] : [null, null]
+            };
+
+            if (slotType === 'condition') {
+                const found = conditionPool.find((c: any) => c.id === data.id);
+                console.log('[BowTie Drop] Looking for condition ID:', data.id, 'Found:', !!found);
+                if (found) newAns.condition = data.id;
+            } else if (index !== undefined) {
+                const pool = slotType === 'actions' ? actionPool : paramPool;
+                const found = pool?.find((c: any) => c.id === data.id);
+                console.log('[BowTie Drop] Looking for', slotType, 'ID:', data.id, 'Pool size:', pool?.length, 'Found:', !!found);
+                if (found) {
+                    // Ensure we have a proper array
+                    if (!Array.isArray(newAns[slotType])) {
+                        newAns[slotType] = [null, null];
+                    }
+                    newAns[slotType][index] = data.id;
+                }
+            }
+
+            console.log('[BowTie Drop] Setting answers:', JSON.stringify(newAns));
             setAnswers(newAns);
         } catch (err) {
             console.error("Drop failed", err);
         }
-    };
-
-    const handleMobileSelect = (slotType: 'actions' | 'condition' | 'parameters', newVal: string, index?: number) => {
-        const newAns = { ...answers };
-        if (slotType === 'condition') {
-            newAns.condition = newVal;
-        } else if (index !== undefined) {
-            if (!newAns[slotType]) newAns[slotType] = [null, null];
-            newAns[slotType][index] = newVal;
-        }
-        setAnswers(newAns);
-    };
-
-    const getLabel = (id: string, pool: any[]) => pool?.find(x => x.id === id)?.text || id;
-    const getSlotStatus = (id: string, pool: any[]) => {
-        if (!isSubmitted || !id || !pool) return 'normal';
-        const item = pool.find(x => x.id === id);
-        return item?.isCorrect ? 'correct' : 'incorrect';
     };
 
     const handleSlotClick = (slotType: 'actions' | 'condition' | 'parameters', index?: number) => {
@@ -79,376 +148,295 @@ export const BowTieRenderer: React.FC<GenericRendererProps> = ({ config, answers
         setAnswers(newAns);
     };
 
-    // --- MOBILE RENDERER ---
+    const getSlotStatus = (id: string, pool: any[]) => {
+        if (!isSubmitted || !id || !pool) return 'normal';
+        const item = pool.find(x => x.id === id);
+        return item?.isCorrect ? 'correct' : 'incorrect';
+    };
+
+    // --- MOBILE RENDERER (Checkbox Groups) ---
     if (isMobile) {
         return (
-            <div className="bow-tie-mobile" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                    <div style={{ fontWeight: 700, color: '#334155', marginBottom: '8px' }}>1. Select Actions to Take (2):</div>
-                    {[0, 1].map(i => (
-                        <select
-                            key={i}
-                            disabled={isSubmitted}
-                            value={answers?.actions?.[i] || ""}
-                            onChange={(e) => handleMobileSelect('actions', e.target.value, i)}
-                            className={`mobile-select ${getSlotStatus(answers?.actions?.[i], config.actions?.pool)}`}
-                            style={{ width: '100%', marginBottom: '8px', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                        >
-                            <option value="">Select Action {i + 1}...</option>
-                            {config.actions?.pool?.map((opt: any) => (
-                                <option key={opt.id} value={opt.id} disabled={answers?.actions?.includes(opt.id) && answers?.actions?.[i] !== opt.id}>
-                                    {opt.text}
-                                </option>
-                            ))}
-                        </select>
-                    ))}
-                </div>
-
-                <div style={{ background: '#eff6ff', padding: '16px', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
-                    <div style={{ fontWeight: 700, color: '#1e3a8a', marginBottom: '8px' }}>2. Select Potential Condition:</div>
-                    <select
-                        disabled={isSubmitted}
-                        value={answers?.condition || ""}
-                        onChange={(e) => handleMobileSelect('condition', e.target.value)}
-                        className={`mobile-select ${getSlotStatus(answers?.condition, config.conditions?.pool)}`}
-                        style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #93c5fd' }}
-                    >
-                        <option value="">Select Condition...</option>
-                        {config.conditions?.pool?.map((opt: any) => (
-                            <option key={opt.id} value={opt.id}>{opt.text}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                    <div style={{ fontWeight: 700, color: '#334155', marginBottom: '8px' }}>3. Select Parameters to Monitor (2):</div>
-                    {[0, 1].map(i => (
-                        <select
-                            key={i}
-                            disabled={isSubmitted}
-                            value={answers?.parameters?.[i] || ""}
-                            onChange={(e) => handleMobileSelect('parameters', e.target.value, i)}
-                            className={`mobile-select ${getSlotStatus(answers?.parameters?.[i], config.parameters?.pool)}`}
-                            style={{ width: '100%', marginBottom: '8px', padding: '12px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                        >
-                            <option value="">Select Parameter {i + 1}...</option>
-                            {config.parameters?.pool?.map((opt: any) => (
-                                <option key={opt.id} value={opt.id} disabled={answers?.parameters?.includes(opt.id) && answers?.parameters?.[i] !== opt.id}>
-                                    {opt.text}
-                                </option>
-                            ))}
-                        </select>
-                    ))}
-                </div>
-            </div>
-        );
-    }
-
-    // --- DESKTOP RENDERER (Premium Flow) ---
-    const ArrowConnector = ({ color }: { color: string }) => (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '60px', alignSelf: 'center' }}>
-            <svg width="60" height="24" viewBox="0 0 60 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <style>
-                    {`
-                    @keyframes flow-animation {
-                        to { stroke-dashoffset: -20; }
-                    }
-                    `}
-                </style>
-                <path d="M0 12H50" stroke={color} strokeWidth="3" strokeLinecap="round" strokeDasharray="4 6" style={{ animation: 'flow-animation 1s linear infinite' }} />
-                <path d="M45 5L52 12L45 19" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-        </div>
-    );
-
-    return (
-        <div className="bow-tie-renderer" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', userSelect: 'none', padding: '1rem' }}>
-            <style>{`
-                @keyframes pulseRing {
-                    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-                    70% { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0); }
-                    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-                }
-                @keyframes popIn {
-                    0% { transform: scale(0.8); opacity: 0; }
-                    60% { transform: scale(1.05); }
-                    100% { transform: scale(1); opacity: 1; }
-                }
-                .drop-zone-active {
-                    animation: pulseRing 1.5s infinite;
-                    border-style: solid !important;
-                    border-width: 2px !important;
-                    background: #f0f9ff !important;
-                }
-                .filled-pop {
-                    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                }
-                /* Hide native drag image if possible, or just style source */
-            `}</style>
-
-            {/* DIAGRAM AREA */}
-            <div style={{ display: 'flex', alignItems: 'stretch', justifyContent: 'space-between' }}>
-
-                {/* 1. ACTIONS (Left Side) - Blue Theme */}
-                <div style={{ flex: 1, border: '2px solid #60a5fa', borderRadius: '16px', padding: '1.5rem', background: '#eff6ff', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px -1px rgba(30, 58, 138, 0.1)' }}>
-                    <div style={{ textAlign: 'center', fontWeight: '800', color: '#1e40af', marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.9rem' }}>Actions to Take</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
-                        {[0, 1].map(i => {
-                            const currentId = answers?.actions?.[i];
-                            const status = getSlotStatus(currentId, config.actions?.pool);
-                            const filledStyle = currentId ? { background: 'white', borderColor: '#3b82f6', color: '#1e40af', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' } : {};
-                            const isActiveTarget = isDragging === 'actions' && !isSubmitted;
-
+            <div className="bow-tie-mobile space-y-6 font-inter">
+                {/* ACTIONS */}
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-sm">1</span>
+                        Select Actions (Max 2)
+                    </div>
+                    <div className="space-y-2">
+                        {actionPool.map((opt: any) => {
+                            const isSelected = answers?.actions?.includes(opt.id);
+                            const atLimit = (answers?.actions?.length || 0) >= 2;
                             return (
-                                <div key={i}
-                                    onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
-                                    onDrop={e => handleDrop(e, 'actions', i)}
-                                    onClick={() => handleSlotClick('actions', i)}
-                                    title={currentId ? "Click to remove" : "Drag action here"}
-                                    className={`ngn-drop-slot ${currentId ? 'filled' : ''} ${status} ${isActiveTarget ? 'drop-zone-active' : ''}`}
-                                    style={{
-                                        cursor: isSubmitted ? 'default' : (currentId ? 'pointer' : 'default'),
-                                        background: 'white',
-                                        border: isActiveTarget ? '2px solid #3b82f6' : '2px dashed #93c5fd',
-                                        borderRadius: '12px',
-                                        padding: '16px',
-                                        minHeight: '60px',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
-                                        transition: 'all 0.2s ease',
-                                        fontWeight: 600,
-                                        fontSize: '0.9rem',
-                                        color: '#64748b',
-                                        ...filledStyle
-                                    }}
+                                <div key={opt.id}
+                                    onClick={() => !isSubmitted && (isSelected || !atLimit) && handleSelectAction(opt.id, 2)}
+                                    className={`p-3 rounded-lg border flex items-center gap-3 transition-all ${isSelected
+                                        ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500'
+                                        : atLimit ? 'opacity-50 border-slate-200 bg-slate-50' : 'bg-white border-slate-200 active:bg-slate-50'
+                                        }`}
                                 >
-                                    {currentId ? (
-                                        <div className="filled-pop" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <span style={{
-                                                textDecoration: status === 'incorrect' ? 'line-through' : 'none',
-                                                textDecorationColor: status === 'incorrect' ? '#dc2626' : 'currentColor',
-                                                textDecorationThickness: '2px'
-                                            }}>
-                                                {getLabel(currentId, config.actions?.pool)}
-                                            </span>
-                                            {status === 'correct' && <span style={{ color: '#16a34a', fontWeight: 'bold' }}>✓</span>}
-                                            {status === 'incorrect' && <span style={{ color: '#dc2626', fontWeight: 'bold' }}>✗</span>}
-                                        </div>
-                                    ) : "Drag Action Here"}
+                                    <div className={`w-5 h-5 rounded border flex items-center justify-center ${isSelected ? 'bg-blue-600 border-blue-600' : 'border-slate-300'}`}>
+                                        {isSelected && <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>}
+                                    </div>
+                                    <span className="text-sm font-medium text-slate-700">{opt.text}</span>
                                 </div>
                             );
                         })}
                     </div>
                 </div>
 
-                <ArrowConnector color="#3b82f6" />
+                {/* CONDITION */}
+                <div className="bg-purple-50 p-4 rounded-xl border border-purple-200">
+                    <div className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-sm">2</span>
+                        Select Condition (Max 1)
+                    </div>
+                    <div className="space-y-2">
+                        {conditionPool.map((opt: any) => {
+                            const isSelected = answers?.condition === opt.id;
+                            return (
+                                <div key={opt.id}
+                                    onClick={() => !isSubmitted && handleSelectCondition(opt.id)}
+                                    className={`p-3 rounded-lg border flex items-center gap-3 transition-all ${isSelected
+                                        ? 'bg-purple-50 border-purple-500 ring-1 ring-purple-500'
+                                        : 'bg-white border-slate-200 active:bg-slate-50'
+                                        }`}
+                                >
+                                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${isSelected ? 'bg-purple-600 border-purple-600' : 'border-slate-300'}`}>
+                                        {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
+                                    </div>
+                                    <span className="text-sm font-medium text-slate-700">{opt.text}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
 
-                {/* 2. CONDITION (Center) - Purple Theme */}
-                <div style={{ width: '280px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{
-                        width: '100%',
-                        aspectRatio: '1/1',
-                        border: '4px solid #c084fc',
-                        borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)',
-                        display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
-                        boxShadow: '0 10px 15px -3px rgba(126, 34, 206, 0.1), 0 4px 6px -2px rgba(126, 34, 206, 0.05)',
-                        position: 'relative'
-                    }}>
-                        <div style={{ position: 'absolute', top: '20px', fontWeight: '800', color: '#7e22ce', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.9rem' }}>Condition</div>
+                {/* PARAMETERS */}
+                <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+                    <div className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-sm">3</span>
+                        Select Parameters (Max 2)
+                    </div>
+                    <div className="space-y-2">
+                        {paramPool.map((opt: any) => {
+                            const isSelected = answers?.parameters?.includes(opt.id);
+                            const atLimit = (answers?.parameters?.length || 0) >= 2;
+                            return (
+                                <div key={opt.id}
+                                    onClick={() => !isSubmitted && (isSelected || !atLimit) && handleSelectParameter(opt.id, 2)}
+                                    className={`p-3 rounded-lg border flex items-center gap-3 transition-all ${isSelected
+                                        ? 'bg-emerald-50 border-emerald-500 ring-1 ring-emerald-500'
+                                        : atLimit ? 'opacity-50 border-slate-200 bg-emerald-50/50' : 'bg-white border-slate-200 active:bg-slate-50'
+                                        }`}
+                                >
+                                    <div className={`w-5 h-5 rounded border flex items-center justify-center ${isSelected ? 'bg-emerald-600 border-emerald-600' : 'border-slate-300'}`}>
+                                        {isSelected && <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><polyline points="20 6 9 17 4 12" /></svg>}
+                                    </div>
+                                    <span className="text-sm font-medium text-slate-700">{opt.text}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
+    // --- DESKTOP RENDERER ---
+    return (
+        <div className="bow-tie-renderer relative flex flex-col gap-8 p-4 select-none font-inter">
+            {/* Badge */}
+            <div className="absolute top-0 right-0 bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm z-10 flex items-center gap-1">
+                <span>⚡</span>
+                CLINICAL JUDGMENT
+            </div>
+
+            {/* DIAGRAM */}
+            <div className="flex items-stretch justify-between relative mt-4">
+
+                {/* 1. ACTIONS */}
+                <div className="flex-1 border-2 border-blue-400 bg-blue-50 rounded-2xl p-6 flex flex-col shadow-sm relative z-10">
+                    <div className="text-center font-extrabold text-blue-900 uppercase tracking-widest text-xs mb-4">Actions to Take</div>
+                    <div className="flex flex-col gap-4 flex-1">
+                        {[0, 1].map(i => {
+                            const val = answers?.actions?.[i];
+                            const status = getSlotStatus(val, actionPool);
+                            return (
+                                <DropSlot
+                                    key={i}
+                                    id={val}
+                                    label={val ? actionPool.find((x: any) => x.id === val)?.text : null}
+                                    status={status}
+                                    placeholder="Drag Action Here"
+                                    isActive={isDragging === 'actions'}
+                                    color="blue"
+                                    onClick={() => handleSlotClick('actions', i)}
+                                    onDrop={(e: any) => handleDrop(e, 'actions', i)}
+                                    isSubmitted={isSubmitted}
+                                />
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* DYNAMIC ARROW 1 */}
+                <DynamicArrow color="#60a5fa" />
+
+                {/* 2. CONDITION */}
+                <div className="w-72 flex-shrink-0 flex items-center justify-center z-10 relative">
+                    <div className="w-full aspect-square rounded-full border-4 border-purple-400 bg-gradient-to-br from-purple-50 to-purple-100 flex flex-col items-center justify-center shadow-lg relative p-8">
+                        <div className="absolute top-6 font-extrabold text-purple-900 uppercase tracking-widest text-xs">Condition</div>
                         <div
                             onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
                             onDrop={e => handleDrop(e, 'condition')}
                             onClick={() => handleSlotClick('condition')}
-                            title={answers?.condition ? "Click to remove" : "Drag condition here"}
-                            className={`${(isDragging === 'conditions' || isDragging === 'condition') && !isSubmitted ? 'drop-zone-active' : ''}`}
-                            style={{
-                                width: '80%',
-                                height: '40%',
-                                background: answers?.condition ? 'white' : 'rgba(255,255,255,0.8)',
-                                border: answers?.condition ? '2px solid #a855f7' : '2px dashed #a855f7',
-                                borderRadius: '12px',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
-                                padding: '10px',
-                                fontWeight: 600,
-                                color: answers?.condition ? '#6b21a8' : '#a855f7',
-                                cursor: isSubmitted ? 'default' : 'pointer',
-                                transition: 'all 0.2s ease',
-                                fontSize: '1rem'
-                            }}
+                            className={`w-full h-24 bg-white/80 backdrop-blur border-2 border-dashed border-purple-400 rounded-xl flex items-center justify-center p-2 text-center transition-all cursor-pointer hover:border-solid hover:border-purple-600
+                                ${answers?.condition ? 'border-solid border-purple-600 bg-white shadow-sm' : ''}
+                            `}
                         >
                             {answers?.condition ? (
-                                <div className="filled-pop" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <span style={{
-                                        textDecoration: getSlotStatus(answers.condition, config.conditions?.pool) === 'incorrect' ? 'line-through' : 'none',
-                                        textDecorationColor: getSlotStatus(answers.condition, config.conditions?.pool) === 'incorrect' ? '#dc2626' : 'currentColor',
-                                        textDecorationThickness: '2px'
-                                    }}>
-                                        {getLabel(answers.condition, config.conditions?.pool)}
-                                    </span>
-                                    {getSlotStatus(answers.condition, config.conditions?.pool) === 'correct' && <span style={{ color: '#16a34a', fontWeight: 'bold' }}>✓</span>}
-                                    {getSlotStatus(answers.condition, config.conditions?.pool) === 'incorrect' && <span style={{ color: '#dc2626', fontWeight: 'bold' }}>✗</span>}
-                                </div>
-                            ) : "Drag Condition"}
+                                <SlotContent
+                                    text={conditionPool.find((x: any) => x.id === answers.condition)?.text}
+                                    status={getSlotStatus(answers.condition, conditionPool)}
+                                />
+                            ) : <span className="text-purple-400 font-bold text-sm">Drag Condition</span>}
                         </div>
                     </div>
                 </div>
 
-                <ArrowConnector color="#10b981" />
+                {/* DYNAMIC ARROW 2 */}
+                <DynamicArrow color="#34d399" />
 
-                {/* 3. PARAMETERS (Right Side) - Green Theme */}
-                <div style={{ flex: 1, border: '2px solid #34d399', borderRadius: '16px', padding: '1.5rem', background: '#ecfdf5', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px -1px rgba(5, 150, 105, 0.1)' }}>
-                    <div style={{ textAlign: 'center', fontWeight: '800', color: '#047857', marginBottom: '1.5rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.9rem' }}>Parameters to Monitor</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
+                {/* 3. PARAMETERS */}
+                <div className="flex-1 border-2 border-emerald-400 bg-emerald-50 rounded-2xl p-6 flex flex-col shadow-sm relative z-10">
+                    <div className="text-center font-extrabold text-emerald-900 uppercase tracking-widest text-xs mb-4">Parameters to Monitor</div>
+                    <div className="flex flex-col gap-4 flex-1">
                         {[0, 1].map(i => {
-                            const currentId = answers?.parameters?.[i];
-                            const status = getSlotStatus(currentId, config.parameters?.pool);
-                            const filledStyle = currentId ? { background: 'white', borderColor: '#10b981', color: '#065f46', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' } : {};
-                            const isActiveTarget = isDragging === 'parameters' && !isSubmitted;
-
+                            const val = answers?.parameters?.[i];
+                            const status = getSlotStatus(val, paramPool);
                             return (
-                                <div key={i}
-                                    onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
-                                    onDrop={e => handleDrop(e, 'parameters', i)}
+                                <DropSlot
+                                    key={i}
+                                    id={val}
+                                    label={val ? paramPool.find((x: any) => x.id === val)?.text : null}
+                                    status={status}
+                                    placeholder="Drag Parameter Here"
+                                    isActive={isDragging === 'parameters'}
+                                    color="emerald"
                                     onClick={() => handleSlotClick('parameters', i)}
-                                    title={currentId ? "Click to remove" : "Drag parameter here"}
-                                    className={`ngn-drop-slot ${currentId ? 'filled' : ''} ${status} ${isActiveTarget ? 'drop-zone-active' : ''}`}
-                                    style={{
-                                        cursor: isSubmitted ? 'default' : (currentId ? 'pointer' : 'default'),
-                                        background: 'white',
-                                        border: isActiveTarget ? '2px solid #10b981' : '2px dashed #6ee7b7',
-                                        borderRadius: '12px',
-                                        padding: '16px',
-                                        minHeight: '60px',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
-                                        transition: 'all 0.2s ease',
-                                        fontWeight: 600,
-                                        fontSize: '0.9rem',
-                                        color: '#64748b',
-                                        ...filledStyle
-                                    }}
-                                >
-                                    {currentId ? (
-                                        <div className="filled-pop" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <span style={{
-                                                textDecoration: status === 'incorrect' ? 'line-through' : 'none',
-                                                textDecorationColor: status === 'incorrect' ? '#dc2626' : 'currentColor',
-                                                textDecorationThickness: '2px'
-                                            }}>
-                                                {getLabel(currentId, config.parameters?.pool)}
-                                            </span>
-                                            {status === 'correct' && <span style={{ color: '#16a34a', fontWeight: 'bold' }}>✓</span>}
-                                            {status === 'incorrect' && <span style={{ color: '#dc2626', fontWeight: 'bold' }}>✗</span>}
-                                        </div>
-                                    ) : "Drag Parameter"}
-                                </div>
-                            )
+                                    onDrop={(e: any) => handleDrop(e, 'parameters', i)}
+                                    isSubmitted={isSubmitted}
+                                />
+                            );
                         })}
                     </div>
                 </div>
             </div>
 
-            {/* OPTION POOLS - Styled Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px 1fr', gap: '60px', marginTop: '1rem', padding: '0 1rem' }}>
-                <PoolColumn
-                    title="Action Choices"
-                    list={config.actions?.pool?.filter((o: any) => !answers?.actions?.includes(o.id))}
-                    category="actions"
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
-                    disabled={isSubmitted}
-                    themeColor="#3b82f6"
-                    bgColor="#dbeafe"
-                />
-                <PoolColumn
-                    title="Condition Choices"
-                    list={config.conditions?.pool?.filter((o: any) => o.id !== answers?.condition)}
-                    category="conditions" // Matches logic in handleDrop check
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
-                    disabled={isSubmitted}
-                    themeColor="#a855f7"
-                    bgColor="#f3e8ff"
-                />
-                <PoolColumn
-                    title="Parameter Choices"
-                    list={config.parameters?.pool?.filter((o: any) => !answers?.parameters?.includes(o.id))}
-                    category="parameters"
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
-                    disabled={isSubmitted}
-                    themeColor="#10b981"
-                    bgColor="#d1fae5"
-                />
+            {/* POOLS */}
+            <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-[1fr_280px_1fr]'} gap-8 mt-4`}>
+                <PoolColumn title="Action Choices" items={actionPool} currentAnswers={answers?.actions} category="actions" color="blue" onDragStart={handleDragStart} disabled={isSubmitted} />
+                <PoolColumn title="Condition Choices" items={conditionPool} currentAnswers={[answers?.condition]} category="conditions" color="purple" onDragStart={handleDragStart} disabled={isSubmitted} />
+                <PoolColumn title="Parameter Choices" items={paramPool} currentAnswers={answers?.parameters} category="parameters" color="emerald" onDragStart={handleDragStart} disabled={isSubmitted} />
             </div>
 
-            {/* Feedback / Instructions */}
-            <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-                {!isSubmitted ? (
-                    <div style={{ display: 'inline-block', padding: '8px 16px', background: '#f8fafc', borderRadius: '20px', fontSize: '0.85rem', color: '#64748b', border: '1px solid #e2e8f0' }}>
-                        💡 Drag items from the bottom pools to the corresponding diagram slots.
-                    </div>
-                ) : (
-                    <div style={{ fontWeight: 700, color: '#0f172a' }}>Review your clinical judgment path above.</div>
-                )}
-            </div>
         </div>
     );
 };
 
-const PoolColumn = ({ title, list, category, onDragStart, onDragEnd, disabled, themeColor, bgColor }: any) => (
-    <div style={{
-        border: `1px solid ${themeColor}40`,
-        padding: '0',
-        borderRadius: '12px',
-        background: 'white',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.03)',
-        overflow: 'hidden'
-    }}>
-        <div style={{
-            fontSize: '0.8rem',
-            fontWeight: 700,
-            color: themeColor,
-            padding: '12px',
-            background: bgColor,
-            borderBottom: `1px solid ${themeColor}20`,
-            textTransform: 'uppercase',
-            textAlign: 'center',
-            letterSpacing: '0.05em'
-        }}>
-            {title}
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px', minHeight: '100px' }}>
-            {list?.length === 0 && <div style={{ fontSize: '0.8rem', color: '#94a3b8', textAlign: 'center', marginTop: '20px' }}>All items placed</div>}
+// --- SUB-COMPONENTS ---
 
-            {list?.map((opt: any) => {
-                const isMissed = disabled && opt.isCorrect;
-                return (
-                    <div key={opt.id}
-                        draggable={!disabled}
-                        onDragStart={e => onDragStart(e, opt, category)}
-                        onDragEnd={onDragEnd}
-                        className={`ngn-draggable-tile ${disabled ? 'disabled' : ''}`}
-                        style={{
-                            padding: '10px 14px',
-                            background: isMissed ? '#fde047' : 'white',
-                            border: isMissed ? '2px dashed #ca8a04' : '1px solid #e2e8f0',
-                            borderRadius: '8px',
-                            fontSize: '0.9rem',
-                            color: isMissed ? 'black' : '#334155',
-                            fontWeight: isMissed ? 600 : 500,
-                            cursor: disabled ? 'not-allowed' : 'grab',
-                            boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                        }}
-                        onMouseEnter={(e) => { if (!disabled) { e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)'; e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0,0,0,0.1)'; e.currentTarget.style.borderColor = themeColor; } }}
-                        onMouseLeave={(e) => { if (!disabled) { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'; e.currentTarget.style.borderColor = '#e2e8f0'; } }}
-                    >
-                        {opt.text}
-                        {isMissed && <span style={{ marginLeft: '8px', fontSize: '0.8rem', color: 'black' }}>(Missed)</span>}
-                    </div>
-                );
-            })}
-        </div>
+const DynamicArrow = ({ color }: { color: string }) => (
+    <div className="flex items-center justify-center w-16 relative z-0 self-center">
+        <svg width="100%" height="40" viewBox="0 0 100 40" preserveAspectRatio="none" className="overflow-visible">
+            <path d="M0 20 H80" stroke={color} strokeWidth="3" strokeDasharray="6 4" strokeLinecap="round">
+                <animate attributeName="stroke-dashoffset" from="20" to="0" dur="1s" repeatCount="indefinite" />
+            </path>
+            <path d="M75 10 L85 20 L75 30" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </svg>
     </div>
 );
+
+const DropSlot = ({ id, label, status, placeholder, isActive, color, onClick, onDrop }: any) => {
+    // Safely generate Tailwind classes using template literals but being careful about JIT purge
+    // We will use inline styles or standard classes.
+    // color is 'blue', 'purple', 'emerald'
+
+    let borderColor = 'border-slate-300';
+    let bgColor = 'bg-white/50';
+    let textColor = 'text-slate-400';
+
+    if (color === 'blue') {
+        if (id) borderColor = 'border-blue-500';
+        if (isActive) borderColor = 'border-blue-400';
+        textColor = 'text-blue-400';
+    } else if (color === 'emerald') {
+        if (id) borderColor = 'border-emerald-500';
+        textColor = 'text-emerald-400';
+    }
+
+    if (id) bgColor = 'bg-white';
+    if (isActive) bgColor = 'bg-blue-50'; // Assuming blue theme active generic
+
+    return (
+        <div
+            onClick={onClick}
+            onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
+            onDrop={onDrop}
+            className={`
+                min-h-[64px] rounded-xl border-2 ${isActive ? 'border-dashed animate-pulse ring-2 ring-offset-2' : (id ? 'border-solid' : 'border-dashed')} ${borderColor} ${bgColor}
+                flex items-center justify-center text-center p-3 cursor-pointer transition-all hover:shadow-md
+            `}
+        >
+            {id ? <SlotContent text={label} status={status} /> : <span className={`${textColor} font-bold text-sm`}>{placeholder}</span>}
+        </div>
+    );
+};
+
+const SlotContent = ({ text, status }: any) => (
+    <div className="flex items-center gap-2 text-sm font-bold text-slate-700 leading-tight">
+        <span className={status === 'incorrect' ? 'line-through decoration-red-500 decoration-2' : ''}>{text}</span>
+        {status === 'correct' && <span className="text-green-500 text-lg">✓</span>}
+        {status === 'incorrect' && <span className="text-red-500 text-lg">✗</span>}
+    </div>
+);
+
+const PoolColumn = ({ title, items, currentAnswers, category, color, onDragStart, disabled }: any) => {
+    const remaining = items?.filter((x: any) => !currentAnswers?.includes(x.id)) || [];
+
+    // Fallback colors for simplicity
+    let headerBg = 'bg-slate-100';
+    let headerText = 'text-slate-700';
+
+    if (color === 'blue') { headerBg = 'bg-blue-50'; headerText = 'text-blue-700'; }
+    if (color === 'purple') { headerBg = 'bg-purple-50'; headerText = 'text-purple-700'; }
+    if (color === 'emerald') { headerBg = 'bg-emerald-50'; headerText = 'text-emerald-700'; }
+
+    return (
+        <div className={`border border-slate-200 bg-white rounded-xl shadow-sm overflow-hidden flex flex-col h-full`}>
+            <div className={`${headerBg} p-3 text-center border-b border-slate-100 font-bold ${headerText} text-xs uppercase tracking-wider`}>
+                {title}
+            </div>
+            <div className="p-3 gap-2 flex flex-col flex-1 min-h-[120px]">
+                {remaining.length === 0 && <div className="text-center text-slate-400 text-xs py-4 italic">All items placed</div>}
+
+                {remaining.map((opt: any) => (
+                    <div
+                        key={opt.id}
+                        draggable={!disabled}
+                        onDragStart={(e) => onDragStart(e, opt, category)}
+                        className={`
+                            p-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-600 shadow-sm
+                            cursor-grab active:cursor-grabbing hover:border-blue-400 hover:shadow-md transition-all
+                            ${disabled ? 'opacity-50 pointer-events-none' : ''}
+                        `}
+                    >
+                        {opt.text}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};

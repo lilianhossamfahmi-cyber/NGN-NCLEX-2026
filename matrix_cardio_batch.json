@@ -1,0 +1,971 @@
+[
+    {
+        "id": "matrix-cardio-lvl1-001",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Cardiac Terms",
+            "status": "published",
+            "topic": "Cardiology"
+        },
+        "pedagogy": {
+            "difficultyLevel": 1,
+            "bloom": "Recall"
+        },
+        "content": {
+            "prompt": "Match the heart rate to the term.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "HR < 60"
+                },
+                {
+                    "id": "r2",
+                    "text": "HR 60-100"
+                },
+                {
+                    "id": "r3",
+                    "text": "HR > 100"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Bradycardia"
+                },
+                {
+                    "id": "c2",
+                    "label": "Normal"
+                },
+                {
+                    "id": "c3",
+                    "label": "Tachycardia"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2",
+                "r3": "c3"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl1-002",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Chamber Flow",
+            "status": "published",
+            "topic": "Cardiology"
+        },
+        "pedagogy": {
+            "difficultyLevel": 1,
+            "bloom": "Recall"
+        },
+        "content": {
+            "prompt": "Select the chamber associated with the description.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Pumps to Lungs"
+                },
+                {
+                    "id": "r2",
+                    "text": "Pumps to Body"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Right Ventricle"
+                },
+                {
+                    "id": "c2",
+                    "label": "Left Ventricle"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl1-003",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Drug Classes",
+            "status": "published",
+            "topic": "Cardiology"
+        },
+        "pedagogy": {
+            "difficultyLevel": 1,
+            "bloom": "Recall"
+        },
+        "content": {
+            "prompt": "Identify the drug class.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Metoprolol"
+                },
+                {
+                    "id": "r2",
+                    "text": "Furosemide"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Beta Blocker"
+                },
+                {
+                    "id": "c2",
+                    "label": "Diuretic"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl1-004",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Symptom Origin",
+            "status": "published",
+            "topic": "Cardiology"
+        },
+        "pedagogy": {
+            "difficultyLevel": 1,
+            "bloom": "Recall"
+        },
+        "content": {
+            "prompt": "Is the symptom typically Cardiac or Non-Cardiac?",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Crushing chest pressure"
+                },
+                {
+                    "id": "r2",
+                    "text": "Sharp pain with movement"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Cardiac"
+                },
+                {
+                    "id": "c2",
+                    "label": "Non-Cardiac"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl1-005",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Diet Restrictions",
+            "status": "published",
+            "topic": "Cardiology"
+        },
+        "pedagogy": {
+            "difficultyLevel": 1,
+            "bloom": "Recall"
+        },
+        "content": {
+            "prompt": "Select Allowed vs Restricted for a cardiac diet.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Fresh Fruits"
+                },
+                {
+                    "id": "r2",
+                    "text": "Canned Soup"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Allowed"
+                },
+                {
+                    "id": "c2",
+                    "label": "Restricted"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl2-001",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "HF Symptoms",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 2
+        },
+        "content": {
+            "prompt": "Classify symptoms as Left or Right HF.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Crackles"
+                },
+                {
+                    "id": "r2",
+                    "text": "JVD"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Left-Sided"
+                },
+                {
+                    "id": "c2",
+                    "label": "Right-Sided"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl2-002",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "ECG Rhythms",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 2
+        },
+        "content": {
+            "prompt": "Match characteristic to rhythm.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Regular, rate > 100"
+                },
+                {
+                    "id": "r2",
+                    "text": "Regular, rate < 60"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Sinus Tach"
+                },
+                {
+                    "id": "c2",
+                    "label": "Sinus Brady"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl2-003",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "ACE Inhibitors",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 2
+        },
+        "content": {
+            "prompt": "Identify Expected vs Adverse effects.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Lower BP"
+                },
+                {
+                    "id": "r2",
+                    "text": "Angioedema"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Expected"
+                },
+                {
+                    "id": "c2",
+                    "label": "Adverse"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl2-004",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Lab Tests",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 2
+        },
+        "content": {
+            "prompt": "What does each test measure?",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Troponin"
+                },
+                {
+                    "id": "r2",
+                    "text": "BNP"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Ischemia"
+                },
+                {
+                    "id": "c2",
+                    "label": "Heart Failure"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl2-005",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Risk Factors",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 2
+        },
+        "content": {
+            "prompt": "Classify as Modifiable or Non-Modifiable.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Smoking"
+                },
+                {
+                    "id": "r2",
+                    "text": "Age"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Modifiable"
+                },
+                {
+                    "id": "c2",
+                    "label": "Non-Modifiable"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl3-001",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Angina Care",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 3
+        },
+        "content": {
+            "prompt": "Indicated vs Contraindicated for Stable Angina.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Nitroglycerin"
+                },
+                {
+                    "id": "r2",
+                    "text": "Strenuous Exercise"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Indicated"
+                },
+                {
+                    "id": "c2",
+                    "label": "Contraindicated"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl3-002",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Post-Cath",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 3
+        },
+        "content": {
+            "prompt": "Notify Provider vs Continue Monitor.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Hematoma increasing size"
+                },
+                {
+                    "id": "r2",
+                    "text": "Pulse 80 regular"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Notify"
+                },
+                {
+                    "id": "c2",
+                    "label": "Monitor"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl3-003",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Dig toxicity",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 3
+        },
+        "content": {
+            "prompt": "Sign of Toxicity vs Expected.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Halo Vision"
+                },
+                {
+                    "id": "r2",
+                    "text": "Stronger Pulse"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Toxicity"
+                },
+                {
+                    "id": "c2",
+                    "label": "Expected"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl3-004",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "HTN Education",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 3
+        },
+        "content": {
+            "prompt": "Understanding vs Needs Teaching.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "I will stop meds when BP is normal"
+                },
+                {
+                    "id": "r2",
+                    "text": "I will limit salt"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Needs Teaching"
+                },
+                {
+                    "id": "c2",
+                    "label": "Understanding"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl3-005",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "A-Fib Goals",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 3
+        },
+        "content": {
+            "prompt": "Match treatment to goal.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Beta Blocker"
+                },
+                {
+                    "id": "r2",
+                    "text": "Warfarin"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Rate Control"
+                },
+                {
+                    "id": "c2",
+                    "label": "Anticoagulation"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl4-001",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "MI Evolution",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 4
+        },
+        "content": {
+            "prompt": "Differentiate STEMI vs NSTEMI.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "ST Elevation"
+                },
+                {
+                    "id": "r2",
+                    "text": "Troponin Elevation only"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "STEMI"
+                },
+                {
+                    "id": "c2",
+                    "label": "NSTEMI"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl4-002",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Shock Types",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 4
+        },
+        "content": {
+            "prompt": "Cardiogenic vs Hypovolemic values.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "High CVP"
+                },
+                {
+                    "id": "r2",
+                    "text": "Low CVP"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Cardiogenic"
+                },
+                {
+                    "id": "c2",
+                    "label": "Hypovolemic"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl4-003",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Heart Blocks",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 4
+        },
+        "content": {
+            "prompt": "Match block to description.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "PR lengthens until drop"
+                },
+                {
+                    "id": "r2",
+                    "text": "Consistent PR with drops"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Wenckebach (Type I)"
+                },
+                {
+                    "id": "c2",
+                    "label": "Mobitz II"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl4-004",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Endo vs Pericarditis",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 4
+        },
+        "content": {
+            "prompt": "Distinguish features.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Friction Rub"
+                },
+                {
+                    "id": "r2",
+                    "text": "Vegetations"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Pericarditis"
+                },
+                {
+                    "id": "c2",
+                    "label": "Endocarditis"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl4-005",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Polypharmacy",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 4
+        },
+        "content": {
+            "prompt": "Interaction vs Safe.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Sildenafil + Nitrate"
+                },
+                {
+                    "id": "r2",
+                    "text": "Aspirin + Metoprolol"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Unsafe"
+                },
+                {
+                    "id": "c2",
+                    "label": "Safe"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl5-001",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Decompensated HF",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 5
+        },
+        "content": {
+            "prompt": "Evaluate response.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "BP drops to 80/50"
+                },
+                {
+                    "id": "r2",
+                    "text": "PCWP decreases"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Adverse"
+                },
+                {
+                    "id": "c2",
+                    "label": "Effective"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl5-002",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Post-CABG",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 5
+        },
+        "content": {
+            "prompt": "Tamponade vs Graft Failure.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Sudden stop in drainage + Eq pressures"
+                },
+                {
+                    "id": "r2",
+                    "text": "Sudden ST Elevation"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Tamponade"
+                },
+                {
+                    "id": "c2",
+                    "label": "Ischemia/Graft Failure"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl5-003",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Hypertensive Crisis",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 5
+        },
+        "content": {
+            "prompt": "Signs of End Organ Damage.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Proteinuria"
+                },
+                {
+                    "id": "r2",
+                    "text": "Headache only"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "End Organ Damage"
+                },
+                {
+                    "id": "c2",
+                    "label": "Urgency"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl5-004",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "ACLS H's and T's",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 5
+        },
+        "content": {
+            "prompt": "Match intervention to cause.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Fluid Bolus"
+                },
+                {
+                    "id": "r2",
+                    "text": "Calcium Gluconate"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Hypovolemia"
+                },
+                {
+                    "id": "c2",
+                    "label": "Hyperkalemia"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    },
+    {
+        "id": "matrix-cardio-lvl5-005",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "LVAD Trouble",
+            "status": "published"
+        },
+        "pedagogy": {
+            "difficultyLevel": 5
+        },
+        "content": {
+            "prompt": "Alarms: Low Flow vs High Power.",
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Hypovolemia"
+                },
+                {
+                    "id": "r2",
+                    "text": "Thrombus"
+                }
+            ],
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Low Flow Risk"
+                },
+                {
+                    "id": "c2",
+                    "label": "High Power Risk"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2"
+            }
+        }
+    }
+]

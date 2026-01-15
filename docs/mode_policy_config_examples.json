@@ -1,0 +1,118 @@
+{
+    "docs_version": "1.0",
+    "generated_at": "2026-01-13T09:22:17+03:00",
+    "architectural_note": "This configuration file defines the behavior of the Session Engine. It allows the frontend to request a specific 'flavor' of assessment without hardcoding logic.",
+    "mode_policies": [
+        {
+            "comment": "TUTOR MODE: The learning sandbox. Optimized for cognitive reinforcement.",
+            "slug": "tutor_default",
+            "config": {
+                "ui_controls": {
+                    "navigation_locked": false,
+                    "show_rationales": true,
+                    "show_timer": false,
+                    "allow_hints": true,
+                    "allow_pause": true,
+                    "allow_notes": true
+                },
+                "feedback_policy": {
+                    "timing": "immediate",
+                    "depth": "comprehensive",
+                    "show_references": true
+                }
+            }
+        },
+        {
+            "comment": "REAL EXAM MODE: The stress test. Optimized for assessment validity.",
+            "slug": "exam_strict",
+            "config": {
+                "ui_controls": {
+                    "navigation_locked": true,
+                    "show_rationales": false,
+                    "show_timer": true,
+                    "allow_hints": false,
+                    "allow_pause": false,
+                    "allow_notes": true
+                },
+                "feedback_policy": {
+                    "timing": "end_of_session",
+                    "depth": "hidden",
+                    "show_references": false
+                }
+            }
+        }
+    ],
+    "session_configurations": [
+        {
+            "comment": "Example payload for creating a Study Session (Tutor Mode)",
+            "type": "tutor_session_request",
+            "session_config": {
+                "session_name": "Cardiac Pharmacology Review",
+                "mode_slug": "tutor_default",
+                "item_selection": {
+                    "source_bank": "main_bank",
+                    "filters": {
+                        "domains": [
+                            "Pharmacological and Parenteral Therapies"
+                        ],
+                        "cjmm_focus": [
+                            "Take Action",
+                            "Evaluate Outcomes"
+                        ],
+                        "difficulty_range": [
+                            2,
+                            4
+                        ],
+                        "item_types": [
+                            "multiple_choice",
+                            "sata",
+                            "bow_tie"
+                        ]
+                    },
+                    "limit": 20,
+                    "order": "random"
+                },
+                "coaching_settings": {
+                    "remediation_depth": "deep",
+                    "micro_drills_enabled": true
+                }
+            }
+        },
+        {
+            "comment": "Example payload for creating a Real Exam Simulation (CAT or Linear)",
+            "type": "exam_session_request",
+            "session_config": {
+                "exam_name": "Mock NCLEX-RN V",
+                "mode_slug": "exam_strict",
+                "blueprint_lock": true,
+                "timing": {
+                    "duration_minutes": 300,
+                    "auto_submit_on_timeout": true,
+                    "scheduled_breaks": [
+                        {
+                            "after_item": 85,
+                            "duration_minutes": 10
+                        }
+                    ]
+                },
+                "adaptive_engine_config": {
+                    "algorithm": "nclex_cat_v1",
+                    "min_items": 85,
+                    "max_items": 150,
+                    "passing_standard": 0.00,
+                    "domains_distribution": {
+                        "safe_effective_care": 0.20,
+                        "health_promotion": 0.15,
+                        "psychosocial": 0.15,
+                        "physiological": 0.50
+                    }
+                },
+                "security": {
+                    "browser_lockdown": false,
+                    "track_focus_loss": true,
+                    "ip_whitelist": null
+                }
+            }
+        }
+    ]
+}

@@ -39,7 +39,7 @@ export const SATARenderer: React.FC<GenericRendererProps> = ({ config, answers, 
                 )}
             </div>
 
-            {config.options?.map((opt: any) => {
+            {config.options?.map((opt: any, idx: number) => {
                 const isSelected = !!answers?.[opt.id];
                 const isCorrect = opt.isCorrect;
 
@@ -99,7 +99,7 @@ export const SATARenderer: React.FC<GenericRendererProps> = ({ config, answers, 
 
                 return (
                     <div
-                        key={opt.id}
+                        key={opt.id || idx}
                         onClick={() => toggle(opt.id)}
                         style={containerStyle}
                         className={!isSubmitted ? "hover:bg-slate-50" : ""}

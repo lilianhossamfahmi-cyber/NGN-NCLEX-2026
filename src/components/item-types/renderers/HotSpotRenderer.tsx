@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GenericRendererProps } from './types';
+import { getAuthorizedApiKey } from '../../../config/apiConfig';
 
-// Initialize AI (Note: In a production app, calls should go through backend to hide key)
-// For this Local Tool user request:
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
+
+// Initialize AI
+// Note: In a production app, calls should go through backend to hide key.
+// We now use the centralized config with rate limiting.
+
 
 export const HotSpotRenderer: React.FC<GenericRendererProps> = ({ config, answers, setAnswers, isSubmitted }) => {
     // config.imageUrl: string
@@ -53,15 +56,16 @@ export const HotSpotRenderer: React.FC<GenericRendererProps> = ({ config, answer
             let validationKeywords: string[] = [];
 
             // STEP 1: AI BRAIN - Generate Queries AND Validation Rules
-            if (API_KEY) {
+            const apiKey = await getAuthorizedApiKey();
+            if (apiKey) {
                 try {
-                    const listResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`);
+                    const listResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
                     const listData = await listResponse.json();
                     const validModel = listData.models?.find((m: any) => m.supportedGenerationMethods?.includes("generateContent"));
 
                     if (validModel) {
                         strategy = "ai_strict";
-                        const genUrl = `https://generativelanguage.googleapis.com/v1beta/${validModel.name}:generateContent?key=${API_KEY}`;
+                        const genUrl = `https://generativelanguage.googleapis.com/v1beta/${validModel.name}:generateContent?key=${apiKey}`;
 
                         // Strict Prompt for Gemini
                         const aiPrompt = `

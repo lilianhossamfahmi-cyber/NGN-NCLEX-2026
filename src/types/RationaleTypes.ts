@@ -37,18 +37,65 @@ export interface OutcomeModel {
 }
 
 export interface MatrixRowAnalysis {
-    rowId: string;
-    findingText: string;
-    userBucket?: string;
-    correctBucket: string;
-    allBuckets?: { id: string; label: string }[];
-    verdict: 'correct' | 'incorrect' | 'missed';
-    whyCorrect: string;
-    whyOtherBucketsWrong?: string[];
-    trap?: string;
+    id: string;
+    text: string;
+    isCorrect: boolean;
+    userAnswer: string;
+    correctAnswer: string;
+    rationale: string;
 }
 
 export interface CJFeedback {
     well: string;
     improve: string;
+}
+
+export interface HighlightSpan {
+    id: string;
+    text: string;
+    status: 'correct' | 'incorrect' | 'missed' | 'neutral';
+    rationale: string;
+    whyCorrect?: string;
+    whyIncorrect?: string;
+    description?: string;
+}
+
+export interface HighlightReview {
+    originalText: string;
+    spans: Record<string, HighlightSpan>;
+}
+
+// Drop/Cloze Item Types
+export interface ClozeBlankReview {
+    id: string;
+    position: number;        // Order in sentence (1, 2, 3...)
+    beforeText: string;      // Text before this blank
+    afterText: string;       // Text after this blank (until next blank or end)
+    userAnswer: string;      // What student selected (text)
+    userAnswerId: string;    // The option ID student selected
+    correctAnswer: string;   // The correct option text
+    correctAnswerId: string; // The correct option ID
+    isCorrect: boolean;
+    allOptions: { id: string; text: string; isCorrect: boolean }[];
+    whyCorrect?: string;
+    whyIncorrect?: string;
+}
+
+export interface ClozeReview {
+    originalSentence: string;
+    blanks: ClozeBlankReview[];
+    score: { earned: number; total: number; percentage: number };
+}
+
+export interface OrderedReviewItem {
+    id: string;
+    text: string;
+    rationale: string;
+    correctRank: number; // 1-based Correct Index
+    userRank: number | null; // 1-based User Index
+    isCorrectPosition: boolean;
+}
+
+export interface OrderedReview {
+    items: OrderedReviewItem[];
 }

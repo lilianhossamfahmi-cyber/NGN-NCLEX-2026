@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../index.css'; // Global Design System
 import { MasterQuestionItem, ReferenceSource, GenerationSettings } from '../types/master-schema';
 import { ResultsGrid } from '../components/ResultsGrid';
@@ -9,7 +9,7 @@ import { generateQuestions } from '../services/questionGenerationService';
 import { validateGenerationSettings } from '../services/validationService';
 import { ErrorAlert } from '../components/ErrorAlert';
 import { loadSession, saveSession, clearSession } from '../services/sessionService';
-import { saveBatchToBank, getBankItems, deleteItemFromBank, deleteBatchFromBank } from '../services/itemStorageService';
+import { saveBatchToBank, getBankItems, deleteItemFromBank, deleteBatchFromBank } from '../services/itemStorage';
 import { getQuestionType } from '../registry';
 import { AnalyticsDashboard } from '../components/analytics/AnalyticsDashboard';
 import { HeaderProgressBar } from '../components/analytics/HeaderProgressBar';
@@ -17,17 +17,19 @@ import { getMockAnalytics } from '../services/analyticsService';
 import { AnalyticsSummary } from '../types/analytics-schema';
 import { ThemeToggle } from '../components/common/ThemeToggle';
 import { EmptyState } from '../components/common/EmptyState';
-import { MobileNavigation } from '../components/mobile/MobileNavigation';
-import { GeneratorWorkflow } from './GeneratorWorkflow';
+import { MobileNavBar } from '../components/mobile/MobileNavBar';
 
+
+import { AdminDashboard } from '../components/admin/AdminDashboard';
+import { GeneratorWorkflow } from './GeneratorWorkflow';
+import { ErrorBoundary } from '../components/ErrorBoundary';
+import { StudentDashboard } from '../student/components/dashboard/StudentDashboard';
 
 /**
- * MASTER NGN CREATOR ENGINE v2.1
+ * MASTER NGN CREATOR ENGINE v2.2
  * The central controller for the NGN Question Creation workflow.
- * Updated with Analytics Dashboard.
+ * Updated with Analytics Dashboard and Session Persistence.
  */
-
-// --- DATA ---
 
 const INITIAL_SETTINGS: GenerationSettings = {
     mode: 'hybrid',
@@ -55,12 +57,19 @@ const MOCK_REFERENCES: ReferenceSource[] = [
 
 export const MasterCreatorEngine: React.FC = () => {
     // --- STATE ---
-    const [viewState, setViewState] = useState<'dashboard' | 'generating' | 'review' | 'authoring' | 'import' | 'bank' | 'analytics'>('dashboard');
+    // Initialize viewState based on URL Params (Deep Linking)
+    const [viewState, setViewState] = useState<'dashboard' | 'generating' | 'review' | 'authoring' | 'import' | 'bank' | 'analytics' | 'admin' | 'student'>(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('mode') === 'student') return 'student';
+        if (params.get('mode') === 'admin') return 'admin';
+        return 'dashboard';
+    });
     const [references, setReferences] = useState<ReferenceSource[]>(MOCK_REFERENCES);
     const [genSettings, setGenSettings] = useState<GenerationSettings>(INITIAL_SETTINGS);
     const [generatedBatch, setGeneratedBatch] = useState<MasterQuestionItem[]>([]);
     const [bankItems, setBankItems] = useState<MasterQuestionItem[]>([]);
     const [activeItem, setActiveItem] = useState<MasterQuestionItem | null>(null);
+
 
     // Selection & Filter State
     const [reviewSelectedIds, setReviewSelectedIds] = useState<string[]>([]);
@@ -74,6 +83,8 @@ export const MasterCreatorEngine: React.FC = () => {
 
     // Analytics Data (Lightweight summary for header)
     const [analyticsData, setAnalyticsData] = useState<AnalyticsSummary | null>(null);
+
+    const abortControllerRef = useRef<AbortController | null>(null);
 
     useEffect(() => {
         // Load initial analytics
@@ -90,7 +101,25 @@ export const MasterCreatorEngine: React.FC = () => {
                 setViewState('review');
             }
         }
-        setBankItems(getBankItems());
+        (async () => {
+            const items = await getBankItems();
+            setBankItems(items.items || []);
+        })();
+
+        // [PER-01 FIX] Restore detailed generated draft
+        const draft = sessionStorage.getItem('ngn_creator_draft');
+        if (draft) {
+            try {
+                const parsed = JSON.parse(draft);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setGeneratedBatch(parsed);
+                    setViewState('review');
+                    setSuccessMsg("Restored session from draft.");
+                    setTimeout(() => setSuccessMsg(null), 3000);
+                }
+            } catch (e) { console.error("Draft restore failed", e); }
+        }
+
     }, []);
 
     // Auto-Save Session
@@ -100,17 +129,36 @@ export const MasterCreatorEngine: React.FC = () => {
         }
     }, [genSettings, generatedBatch, activeItem, viewState]);
 
+    // [PER-01 FIX] Autosave Draft on Change
+    useEffect(() => {
+        if (generatedBatch.length > 0) {
+            sessionStorage.setItem('ngn_creator_draft', JSON.stringify(generatedBatch));
+        }
+    }, [generatedBatch]);
+
+
     // --- SORTING & VIEW STATE ---
     const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'title' | 'level'>('newest');
     const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+        }, 300);
+        return () => clearTimeout(handler);
+    }, [searchQuery]);
+
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid'); // New View Mode
 
     // Derived Bank Items (Filtered & Sorted)
     const filteredBankItems = bankItems
         .filter(item => {
             const matchesCategory = bankCategoryFilter === 'All' || item.typeId === bankCategoryFilter;
-            const matchesSearch = item.metadata.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (item.pedagogy.clinicalFocus || '').toLowerCase().includes(searchQuery.toLowerCase());
+            const title = item.metadata?.title || '';
+            const focus = item.pedagogy?.clinicalFocus || '';
+            const matchesSearch = title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+                focus.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
             return matchesCategory && matchesSearch;
         })
         .sort((a, b) => {
@@ -135,18 +183,30 @@ export const MasterCreatorEngine: React.FC = () => {
             return;
         }
 
+        // Abort previous if any
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+
         setViewState('generating');
         setProgressMsg("Starting AI Engine...");
 
-        const response = await generateQuestions(genSettings, references, (msg) => setProgressMsg(msg));
+        const response = await generateQuestions(genSettings, references, (msg) => setProgressMsg(msg), controller.signal);
+
+        abortControllerRef.current = null; // Clear ref
 
         if (response.success && response.data) {
             setGeneratedBatch(response.data);
             setReviewSelectedIds([]); // Reset selection
             setViewState('review');
         } else {
-            setError(response.error || "Unknown Generation Error");
-            setViewState('dashboard');
+            // Only show error if not manually cancelled
+            if (response.error !== "Generation Cancelled") {
+                setError(response.error || "Unknown Generation Error");
+                setViewState('dashboard');
+            }
         }
     };
 
@@ -161,8 +221,11 @@ export const MasterCreatorEngine: React.FC = () => {
 
         const bankIdx = bankItems.findIndex(i => i.id === updated.id);
         if (bankIdx >= 0) {
-            saveBatchToBank([updated]);
-            setBankItems(getBankItems());
+            (async () => {
+                await saveBatchToBank([updated]);
+                const items = await getBankItems();
+                setBankItems(items.items || []);
+            })();
         }
 
         setActiveItem(updated);
@@ -205,11 +268,19 @@ export const MasterCreatorEngine: React.FC = () => {
             ? generatedBatch.filter(i => reviewSelectedIds.includes(i.id))
             : generatedBatch;
 
-        const count = saveBatchToBank(toSave);
-        setBankItems(getBankItems());
-        setSuccessMsg(`Saved ${count} items to Item Bank.`);
-        setTimeout(() => setSuccessMsg(null), 3000);
-        setReviewSelectedIds([]);
+        (async () => {
+            const count = await saveBatchToBank(toSave);
+            const items = await getBankItems();
+            setBankItems(items.items || []);
+            setSuccessMsg(`Saved ${count} items to Bank.`);
+            setTimeout(() => setSuccessMsg(null), 3000);
+
+            // [PER-01] Cleanup draft after successful save
+            sessionStorage.removeItem('ngn_creator_draft');
+            setGeneratedBatch([]); // Clear buffer
+            setReviewSelectedIds([]);
+            setViewState('dashboard'); // Go back to start
+        })();
     };
 
     const handleDiscardSelectedReview = () => {
@@ -218,6 +289,7 @@ export const MasterCreatorEngine: React.FC = () => {
             if (window.confirm("Discard ALL items?")) {
                 setGeneratedBatch([]);
                 setReviewSelectedIds([]);
+                sessionStorage.removeItem('ngn_creator_draft'); // Clear Draft
                 setViewState('dashboard');
                 clearSession();
             }
@@ -231,6 +303,7 @@ export const MasterCreatorEngine: React.FC = () => {
             );
             if (remaining.length === 0) {
                 setTimeout(() => setViewState('dashboard'), 50);
+                sessionStorage.removeItem('ngn_creator_draft');
             }
             return remaining;
         });
@@ -246,19 +319,20 @@ export const MasterCreatorEngine: React.FC = () => {
         else setBankSelectedIds(filteredBankItems.map(i => String(i.id)));
     };
 
-    const handleDeleteSelectedBank = () => {
+    const handleDeleteSelectedBank = async () => {
         if (bankSelectedIds.length === 0) return;
-        deleteBatchFromBank(bankSelectedIds);
-        const updatedBank = getBankItems();
-        setBankItems(updatedBank);
+        await deleteBatchFromBank(bankSelectedIds);
+        const updatedBank = await getBankItems();
+        setBankItems(updatedBank.items || []);
         setBankSelectedIds([]);
         setSuccessMsg(`Deleted ${bankSelectedIds.length} items (Refreshed).`);
         setTimeout(() => setSuccessMsg(null), 3000);
     };
 
-    const handleDeleteFromBank = (id: string) => {
-        deleteItemFromBank(String(id));
-        setBankItems(getBankItems());
+    const handleDeleteFromBank = async (id: string) => {
+        await deleteItemFromBank(String(id));
+        const items = await getBankItems();
+        setBankItems(items.items || []);
     };
 
     const handleExportBank = () => {
@@ -275,12 +349,25 @@ export const MasterCreatorEngine: React.FC = () => {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+
+        // Feature: Post-Export Cleanup
+        if (itemsToExport.length > 0) {
+            if (window.confirm(`Successfully exported ${itemsToExport.length} items.\n\nDo you want to REMOVE them from the browser memory bank now?`)) {
+                const idsToRemove = itemsToExport.map(i => String(i.id));
+                (async () => {
+                    await deleteBatchFromBank(idsToRemove);
+                    const updatedBank = await getBankItems();
+                    setBankItems(updatedBank.items || []);
+                    setBankSelectedIds([]);
+                    setSuccessMsg(`Cleared ${idsToRemove.length} exported items.`);
+                    setTimeout(() => setSuccessMsg(null), 3000);
+                })();
+            }
+        }
     };
 
     return (
         <div className="dashboard-container" style={{ paddingBottom: '4rem', background: 'var(--bg-app)', minHeight: '100vh', transition: 'background-color 0.3s' }}>
-
-
             <div style={{ position: 'relative', maxWidth: '1200px', margin: '0 auto', paddingTop: '2rem' }}>
                 <div style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 50 }}>
                     <ThemeToggle />
@@ -293,7 +380,7 @@ export const MasterCreatorEngine: React.FC = () => {
                 )}
             </div>
 
-            <h1 style={{ textAlign: 'center', marginBottom: '2rem', color: 'var(--text-primary)' }}>Master NGN Question Creator v2.1</h1>
+            <h1 style={{ textAlign: 'center', marginBottom: '2rem', color: 'var(--text-primary)' }}>Master NGN Question Creator v2.2</h1>
 
             <div style={{ maxWidth: '800px', margin: '0 auto 1.5rem auto' }}>
                 {error && <ErrorAlert message={error} onDismiss={() => setError(null)} />}
@@ -310,33 +397,52 @@ export const MasterCreatorEngine: React.FC = () => {
                 )}
             </div>
 
-            <MobileNavigation
-                currentView={viewState === 'generating' ? 'dashboard' : viewState as any}
-                onNavigate={(v) => setViewState(v)}
-                bankCount={bankItems.length}
-            />
-
             <div className="desktop-only" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem', gap: '1rem' }}>
                 <button onClick={() => setViewState('dashboard')} className="btn-animate" style={{ padding: '0.5rem 1rem', background: viewState === 'dashboard' ? 'var(--color-primary-600)' : 'var(--bg-surface-elevated)', color: viewState === 'dashboard' ? 'white' : 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}>Generator</button>
                 <button onClick={() => setViewState('bank')} className="btn-animate" style={{ padding: '0.5rem 1rem', background: viewState === 'bank' ? 'var(--color-primary-600)' : 'var(--bg-surface-elevated)', color: viewState === 'bank' ? 'white' : 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}>Item Bank ({bankItems.length})</button>
                 <button onClick={() => setViewState('analytics')} className="btn-animate" style={{ padding: '0.5rem 1rem', background: viewState === 'analytics' ? 'var(--color-primary-600)' : 'var(--bg-surface-elevated)', color: viewState === 'analytics' ? 'white' : 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}>Analytics 📊</button>
+                <button onClick={() => setViewState('admin')} className="btn-animate" style={{ padding: '0.5rem 1rem', background: viewState === 'admin' ? 'var(--color-primary-600)' : 'var(--bg-surface-elevated)', color: viewState === 'admin' ? 'white' : 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}>Admin Panel 🛡️</button>
+                <button onClick={() => setViewState('student')} className="btn-animate" style={{ padding: '0.5rem 1rem', background: viewState === 'student' ? 'var(--color-primary-600)' : 'var(--bg-surface-elevated)', color: viewState === 'student' ? 'white' : 'var(--text-primary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', cursor: 'pointer' }}>Student View 🎓</button>
             </div>
 
             {viewState === 'analytics' && (
                 <div className="page-enter">
-                    <AnalyticsDashboard onBack={() => setViewState('dashboard')} />
+                    <ErrorBoundary>
+                        <AnalyticsDashboard onBack={() => setViewState('dashboard')} />
+                    </ErrorBoundary>
+                </div>
+            )}
+
+            {viewState === 'admin' && (
+                <div className="page-enter">
+                    <ErrorBoundary>
+                        <AdminDashboard onNavigate={(view) => {
+                            if (view === 'batch') setViewState('dashboard');
+                            else console.log('Admin navigate:', view);
+                        }} />
+                    </ErrorBoundary>
+                </div>
+            )}
+
+            {viewState === 'student' && (
+                <div className="page-enter">
+                    <ErrorBoundary>
+                        <StudentDashboard />
+                    </ErrorBoundary>
                 </div>
             )}
 
             {(viewState === 'dashboard' || viewState === 'generating') && (
-                <GeneratorWorkflow
-                    references={references}
-                    onReferencesChange={handleReferencesChange}
-                    genSettings={genSettings}
-                    onSettingsChange={setGenSettings}
-                    onGenerate={handleStartGeneration}
-                    onImportClick={() => setViewState('import')}
-                />
+                <ErrorBoundary>
+                    <GeneratorWorkflow
+                        references={references}
+                        onReferencesChange={handleReferencesChange}
+                        genSettings={genSettings}
+                        onSettingsChange={setGenSettings}
+                        onGenerate={handleStartGeneration}
+                        onImportClick={() => setViewState('import')}
+                    />
+                </ErrorBoundary>
             )}
 
             {viewState === 'generating' && (
@@ -345,7 +451,11 @@ export const MasterCreatorEngine: React.FC = () => {
                         <div style={{ marginBottom: '20px' }}><LoadingSpinner progress={65} message={progressMsg} /></div>
                         <h3 style={{ margin: '0 0 10px 0', fontSize: '1.2rem', color: '#1e293b' }}>Generating Content...</h3>
                         <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '24px' }}>The AI is crafting your clinical scenarios. This may take up to a minute.</p>
-                        <button onClick={() => { if (confirm("Cancel generation? Data may be lost.")) { setViewState('dashboard'); setError('Generation Cancelled'); } }} style={{ background: 'white', border: '2px solid #ef4444', color: '#ef4444', padding: '10px 24px', borderRadius: '12px', cursor: 'pointer', fontWeight: 600 }}>Cancel Generation</button>
+                        <button onClick={() => {
+                            if (abortControllerRef.current) abortControllerRef.current.abort();
+                            setViewState('dashboard');
+                            setError('Generation Cancelled');
+                        }} style={{ background: 'white', border: '2px solid #ef4444', color: '#ef4444', padding: '10px 24px', borderRadius: '12px', cursor: 'pointer', fontWeight: 600 }}>Cancel Generation</button>
                     </div>
                 </div>
             )}
@@ -366,6 +476,19 @@ export const MasterCreatorEngine: React.FC = () => {
                             <button onClick={handleSaveSelectedToBank} style={{ background: 'var(--color-primary-600)', border: 'none', padding: '0.5rem 1rem', color: 'white', borderRadius: 'var(--radius-md)', fontWeight: 'bold', cursor: 'pointer' }}>{reviewSelectedIds.length > 0 ? `💾 Save Selected (${reviewSelectedIds.length})` : '💾 Save All'}</button>
                         </div>
                     </header>
+                    <div style={{
+                        background: '#e0f2fe',
+                        color: '#0369a1',
+                        padding: '0.5rem 1rem',
+                        borderRadius: '6px',
+                        marginBottom: '1rem',
+                        fontSize: '0.9rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                    }}>
+                        <span>💾</span> Draft Status: <strong>Saved</strong>. Your work is safe even if you refresh.
+                    </div>
                     <ResultsGrid items={generatedBatch} onEditItem={handleEditItem} selectionMode={true} selectedIds={reviewSelectedIds} onToggleSelection={toggleReviewSelection} />
                 </>
             )}

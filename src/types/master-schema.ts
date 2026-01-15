@@ -5,13 +5,27 @@
 
 export type ImplementationStatus = 'Planned' | 'In Progress' | 'Completed';
 
+// --- TIER 4: STRICT TYPE REGISTRY ---
+export type StrictItemType =
+  | 'multiple-choice'
+  | 'multiple-response'
+  | 'matrix'
+  // NGN TYPES
+  | 'bow-tie'
+  | 'highlight'
+  | 'ordered-response'
+  | 'drop-cloze'
+  | 'case-study'
+  | 'trend'
+  | 'split-screen';
+
 export interface QuestionTypeDefinition {
-  typeId: string;
+  typeId: StrictItemType | string; // Use strict type, fallback to string
   typeName: string;
   description: string;
   status: ImplementationStatus;
   version: string;
-  lastUpdated: string;
+  lastUpdated: string; // 2026-01-02
   config?: QuestionTypeConfig;
 }
 
@@ -143,6 +157,7 @@ export interface TemperatureValue {
 export interface MasterQuestionItem {
   id: string;
   typeId: string; // The NGN Type
+  tags?: string[];
 
   // Metadata for Source & Generation
   metadata: {
@@ -158,6 +173,7 @@ export interface MasterQuestionItem {
     batchInfo?: BatchGenerationInfo;
     qualityScore?: number; // 0-100
     hasStudentPreview: boolean;
+    allowed_modes?: string[]; // e.g., ["tutor", "exam", "survival"]
   };
 
   // Standard NGN Attributes extended

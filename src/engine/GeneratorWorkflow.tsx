@@ -272,7 +272,7 @@ export const GeneratorWorkflow: React.FC<GeneratorWorkflowProps> = ({
 
                     <p style={{ fontSize: '0.85rem', color: '#94a3b8', maxWidth: '600px', textAlign: 'center', margin: 0 }}>
                         Use the <b>Quick Generator</b> to create batch items immediately using standard prompts,
-                        or <b>Import</b> existing datasets to populate your item bank.
+                        or <b>Import</b> existing datasets. (System V2.5 Active - Tier 4 Resilience)
                     </p>
                 </div>
             </div>

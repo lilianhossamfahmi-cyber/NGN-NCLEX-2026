@@ -1,17 +1,33 @@
 import React, { useState } from 'react';
 import { GenericRendererProps } from './types';
 import { useMediaQuery } from '../../../hooks/useMediaQuery';
+import { GripVertical, ArrowUp, ArrowDown, CheckCircle2, XCircle } from 'lucide-react';
 
 export const OrderedResponseRenderer: React.FC<GenericRendererProps> = ({ config, answers, setAnswers, isSubmitted }) => {
     const isMobile = useMediaQuery('(max-width: 640px)');
 
-    // 1. Initialize State
-    // Logic handled by parent initializeAnswers now.
-    const currentList = (answers as string[]) || [];
+    // Fix for P-01: Support orderedOptions (Prompt) vs options (Legacy)
+    const options = config.orderedOptions || config.options || [];
+
+    // 1. Initialize State (Assume answers is current list of IDs)
+    // SAFETY: Ensure currentList is always an array AND has items. If answers is [] (empty), shuffle default options
+    const currentList: string[] = React.useMemo(() => {
+        if (Array.isArray(answers) && answers.length > 0) return answers;
+        if (options.length > 0) {
+            // Shuffle the option IDs for initial display
+            const ids = options.map((o: any) => o.id);
+            for (let i = ids.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [ids[i], ids[j]] = [ids[j], ids[i]];
+            }
+            return ids;
+        }
+        return [];
+    }, [answers, options]); // Recalculate if props change, but stable otherwise
 
     // Helper to get Option Text by ID
     const getOptionText = (id: string) => {
-        const opt = config.options?.find((o: any) => o.id === id);
+        const opt = options.find((o: any) => o.id === id);
         if (opt && typeof opt.text === 'object') {
             return (opt.text as any).en || (opt.text as any).text || JSON.stringify(opt.text);
         }
@@ -25,6 +41,7 @@ export const OrderedResponseRenderer: React.FC<GenericRendererProps> = ({ config
         if (isSubmitted) return;
         setDraggedId(id);
         e.dataTransfer.effectAllowed = 'move';
+        // Add transparent drag image or styling here if desired
     };
 
     const handleDragOver = (e: React.DragEvent) => {
@@ -60,83 +77,67 @@ export const OrderedResponseRenderer: React.FC<GenericRendererProps> = ({ config
         setAnswers(newOrder);
     };
 
-    if (config.options?.length === 0) return <div>No options defined.</div>;
+    if (options.length === 0) return <div className="text-red-500">No options defined.</div>;
 
     return (
-        <div className="ordered-response-renderer">
-            <p style={{ marginBottom: '1rem', fontStyle: 'italic', fontSize: '0.9rem', color: '#64748b' }}>
+        <div className="flex flex-col gap-4 font-inter">
+            <div className={`text-sm italic text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-200 flex gap-2 items-center`}>
+                <span>ℹ️</span>
                 {isMobile
-                    ? "Use the arrows to reorder the items (1 being the first step)."
-                    : "Drag and drop the items to place them in the correct order (1 being the first step)."}
-            </p>
+                    ? "Use arrows to reorder items (1 is first)."
+                    : "Drag items to correct order (1 is first)."
+                }
+            </div>
 
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            <ul className="flex flex-col gap-3">
                 {currentList.map((id, index) => {
                     // Logic to determine feedback
-                    let itemStyle: React.CSSProperties = {
-                        background: '#f8fafc',
-                        border: '1px solid #e2e8f0',
-                        color: 'inherit'
-                    };
+                    let itemClass = "bg-white border-slate-200 text-slate-700 hover:border-blue-400 hover:shadow-sm";
                     let feedbackContent = null;
 
                     if (isSubmitted) {
-                        const correctIdAtThisIndex = config.options?.[index]?.id;
+                        const correctIdAtThisIndex = options[index]?.id;
                         const isCorrectPosition = correctIdAtThisIndex === id;
 
                         if (isCorrectPosition) {
-                            itemStyle = { border: '2px solid #16a34a', background: '#86efac', color: '#052e16' };
+                            itemClass = "bg-green-50 border-green-500 text-green-900";
                             feedbackContent = (
-                                <div style={{ color: '#166534', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '1.2rem', marginRight: '4px' }}>✔</span> Correct
+                                <div className="flex items-center gap-1 text-green-700 font-bold whitespace-nowrap">
+                                    <CheckCircle2 size={16} /> Correct
                                 </div>
                             );
                         } else {
-                            itemStyle = { border: '2px solid #dc2626', background: '#fca5a5', color: '#450a0a' };
-                            const correctIndex = config.options?.findIndex((o: any) => o.id === id);
+                            itemClass = "bg-red-50 border-red-500 text-red-900";
+                            const correctIndex = options.findIndex((o: any) => o.id === id);
                             feedbackContent = (
-                                <div style={{ color: '#991b1b', fontSize: '0.85rem', display: 'flex', flexDirection: 'column' }}>
-                                    <div style={{ fontWeight: 'bold' }}>✘ Incorrect</div>
-                                    <div>Should be step {correctIndex !== undefined ? correctIndex + 1 : '?'}</div>
+                                <div className="text-red-700 text-xs flex flex-col items-start whitespace-nowrap">
+                                    <div className="font-bold flex items-center gap-1"><XCircle size={14} /> Incorrect</div>
+                                    <div>Box {correctIndex !== undefined ? correctIndex + 1 : '?'}</div>
                                 </div>
                             );
                         }
                     }
 
                     return (
-                        <li key={id} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', gap: '8px' }}>
+                        <li key={id} className="flex items-center gap-3">
                             {/* Mobile Arrows */}
                             {isMobile && !isSubmitted && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <div className="flex flex-col gap-1">
                                     <button
                                         onClick={() => moveItem(index, -1)}
                                         disabled={index === 0}
-                                        style={{
-                                            padding: '8px',
-                                            borderRadius: '4px',
-                                            border: '1px solid #e2e8f0',
-                                            background: index === 0 ? '#f1f5f9' : '#fff',
-                                            opacity: index === 0 ? 0.5 : 1,
-                                            width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                        }}
+                                        className={`w-8 h-8 flex items-center justify-center rounded border ${index === 0 ? 'bg-slate-100 border-slate-200 text-slate-300' : 'bg-white border-slate-300 text-slate-600 active:bg-slate-100'}`}
                                         aria-label="Move Up"
                                     >
-                                        ▲
+                                        <ArrowUp size={16} />
                                     </button>
                                     <button
                                         onClick={() => moveItem(index, 1)}
                                         disabled={index === currentList.length - 1}
-                                        style={{
-                                            padding: '8px',
-                                            borderRadius: '4px',
-                                            border: '1px solid #e2e8f0',
-                                            background: index === currentList.length - 1 ? '#f1f5f9' : '#fff',
-                                            opacity: index === currentList.length - 1 ? 0.5 : 1,
-                                            width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                                        }}
+                                        className={`w-8 h-8 flex items-center justify-center rounded border ${index === currentList.length - 1 ? 'bg-slate-100 border-slate-200 text-slate-300' : 'bg-white border-slate-300 text-slate-600 active:bg-slate-100'}`}
                                         aria-label="Move Down"
                                     >
-                                        ▼
+                                        <ArrowDown size={16} />
                                     </button>
                                 </div>
                             )}
@@ -147,40 +148,28 @@ export const OrderedResponseRenderer: React.FC<GenericRendererProps> = ({ config
                                 onDragStart={(e) => handleDragStart(e, id)}
                                 onDragOver={handleDragOver}
                                 onDrop={(e) => handleDrop(e, index)}
-                                style={{
-                                    flex: 1,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    padding: '12px 16px',
-                                    borderRadius: '6px',
-                                    cursor: isSubmitted ? 'default' : (isMobile ? 'default' : 'grab'),
-                                    userSelect: 'none',
-                                    transition: 'all 0.2s',
-                                    ...itemStyle
-                                }}
+                                className={`
+                                    flex-1 flex items-center p-3 rounded-xl border-2 transition-all select-none
+                                    ${itemClass}
+                                    ${!isSubmitted && !isMobile ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}
+                                `}
                             >
-                                <span style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: '24px',
-                                    height: '24px',
-                                    background: '#3b82f6',
-                                    color: 'white',
-                                    borderRadius: '50%',
-                                    fontSize: '0.8rem',
-                                    marginRight: '12px',
-                                    fontWeight: 'bold',
-                                    flexShrink: 0
-                                }}>
+                                <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-600 mr-4 text-sm flex-shrink-0">
                                     {index + 1}
-                                </span>
-                                <span style={{ fontSize: '1rem' }}>{getOptionText(id)}</span>
+                                </div>
+                                <div className="flex-1 text-sm font-medium leading-normal">
+                                    {getOptionText(id)}
+                                </div>
+                                {!isSubmitted && !isMobile && (
+                                    <div className="text-slate-400 ml-2">
+                                        <GripVertical size={20} />
+                                    </div>
+                                )}
                             </div>
 
-                            {/* The Feedback */}
+                            {/* Feedback Side Panel */}
                             {feedbackContent && (
-                                <div style={{ marginLeft: '4px', minWidth: '100px' }}>
+                                <div className="min-w-[80px] hidden sm:block">
                                     {feedbackContent}
                                 </div>
                             )}

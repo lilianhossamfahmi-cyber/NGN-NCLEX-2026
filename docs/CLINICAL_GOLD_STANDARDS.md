@@ -193,6 +193,14 @@ Critical if < 65 mmHg
 *   **Order Parsing**: Broader key support for `holdReason` and `indication` to ensure all fields display correctly.
 *   **See Attached Filter**: Automatically removes "see attached" text from all clinical sections to maintain professionalism.
 
+#### 3. UX & Accessibility (Magnifier)
+*   **Hover Zoom**: Pop-out effect for active panels (EHR/Question/Dashboard) when Magnifier is active.
+*   **Scroll-to-Zoom**: Magnifier power controlled dynamically by mouse wheel (1.1x to 3.0x).
+
+#### 4. Medical Orders Redesign
+*   **Vertical Layout**: Redesigned Orders tab to `flex-col` for full visibility of long drug names and indications without truncation.
+*   **Schema Enforcement**: Enforced `indication` and `holdReason` in all AI generation prompts.
+
 
 ---
 

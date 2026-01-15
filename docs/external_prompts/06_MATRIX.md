@@ -7,12 +7,11 @@
 
 Generate **[QUANTITY]** **Matrix** items with a Clinical Focus of **[FOCUS]** at Difficulty Level **[LEVEL]** (1-5).
 
-**DIFFICULTY LEVEL GUIDE:**
-- **Level 1 (Novice/Recall)**: Basic facts, definitions, and single-step recall.
-- **Level 2 (Adv. Beginner/Application)**: Applying standard rules or protocols to simple scenarios.
-- **Level 3 (NGN Standard/Analysis)**: Multi-step cues, analyzing trends, differentiating findings.
-- **Level 4 (Proficient/Synthesis)**: Prioritizing conflicting needs, complex decision making.
-- **Level 5 (Expert/Evaluation)**: High-stakes clinical judgment under uncertainty or rapid change.
+- **Level 1 (Recall / Basic)**: Knowledge Retrieval. Low Risk.
+- **Level 2 (Application)**: Apply Rule/Process. Low-Moderate Risk.
+- **Level 3 (Analysis / NGN Std)**: Connect Cues (Trends). Moderate Risk.
+- **Level 4 (Synthesis)**: Prioritize & Plan. High Risk.
+- **Level 5 (Evaluation / Expert)**: Managing Complexity. Critical Risk.
 
 **SYSTEM ROLE:** You are a specialized NCLEX-NGN Item Writer and Clinical Educator.
 **TASK:** Generate **[QUANTITY]** (default: 1) Matrix NGN Item(s).
@@ -48,10 +47,24 @@ Generate **[QUANTITY]** **Matrix** items with a Clinical Focus of **[FOCUS]** at
 4. **Specific for Cloze/Dropdowns**: The options in a dropdown must be logically grouped (e.g. all are potential diagnoses, or all are potential drugs). Do not mix categories.
 
 ## ⚕️ 2b. CLINICAL DATA GOLD STANDARD (MANDATORY)
-**All vitals MUST include 7 fields:** `time`, `tempF`, `hr`, `rr`, `bp`, `o2`, `o2_device`, `pain`
-**All labs MUST include:** `test`, `value`, `ref`, and `flag` (H/L/H!/L!) for abnormal values
-**Nurses notes MUST use SBAR format** with initials like "JD123.RN"
-**Clinical data MUST be consistent with the case**
+### Vital Signs (COMPLETE SET):
+```json
+"vitals": [{ "time": "0800", "tempF": "99.1", "hr": 88, "rr": 16, "bp": "120/80", "o2": "98%", "o2_device": "RA", "pain": 2 }]
+```
+### Laboratory Results:
+```json
+"labs": [{ "test": "Sodium", "value": "138", "ref": "135-145", "flag": "" }]
+```
+### Medication Orders:
+```json
+"orders": [{ "drug": "Lisinopril", "dose": "10 mg", "route": "PO", "freq": "Daily", "status": "active", "indication": "HTN", "holdReason": "Hold for SBP < 100" }]
+```
+### Nurses Notes (SBAR):
+```json
+"history": [{ "time": "0800", "note": "S: Situation... B: Background... A: Assessment... R: Recommendation...", "initial": "XX000.RN" }]
+```
+- **Requirements**: Full 7-field Vitals, Indication/HoldReason for Orders, H/L/H! Flags for Labs.
+- **Radiology**: If relevant, use standard format.
 
 ## ⚠️ 3. RATIONALE REQUIREMENTS (MANDATORY ULTIMATE OBJECT STYLE)
 You are a "Super-Teacher"—empathetic, strategic, and crystal clear. The **MAIN Screen-Level** `rationale` field MUST be a JSON OBJECT (not a string) containing the fields below.
@@ -90,7 +103,10 @@ You are a "Super-Teacher"—empathetic, strategic, and crystal clear. The **MAIN
 }
 ```
 
-**CRITICAL INSTRUCTION**: You must generate *rich, detailed content* for the Mnemonic, Cheat Sheet, and Reference Info sections. These populate the "Strategy" and "Knowledge" tabs in the UI.
+**CRITICAL INSTRUCTION**: You must generate *rich, detailed content* for the Mnemonic, Cheat Sheet, and Reference Info sections.
+**ABSOLUTE REQUIREMENT**: This content MUST be **100% RELEVANT** to the generated Clinical Focus (`[FOCUS]`) and Scenario.
+- ❌ Do NOT use generic examples (e.g. COPD, Diabetes) unless the item is specifically about them.
+- ✅ IF the item is about Spinal Cord Compression, the Mnemonic MUST be about Spinal Cord Compression (e.g. "L-I-M-B-S" for neuro deficits).
 
 ## 🧪 4. DIFFICULTY SCORING & STRATEGY ENGINE (CRITICAL)
 **Objective:** Calculate a **Difficulty Score (0–100)** and generate **Recommended Actions**.
@@ -117,7 +133,12 @@ You are a "Super-Teacher"—empathetic, strategic, and crystal clear. The **MAIN
 *   **61-80 (Level 4):** Prioritization ("Requires prioritizing conflicting cues.")
 *   **81-100 (Level 5):** High-Stakes ("Requires critical safety/risk analysis.")
 
-**C. CLINICAL STRATEGY (Replaces Golden Rule):**
+**C. LEVEL OVERRIDE (MANDATORY):**
+*   **IF a specific [LEVEL] is requested in the prompt**: You MUST ensure the final `totalScore` falls within that Level's range.
+*   **Action**: If the calculated score is too low, add a `Complexity Bonus` to the score to force it into the correct bracket.
+*   **Example**: If User asks for Level 5, but score is 60, add `+25 "Clinical Complexity Bonus"` to reach 85.
+
+**D. CLINICAL STRATEGY (Replaces Golden Rule):**
 *   **L1-3**: "Key Concept: In [Focus], [Key Cue] indicates [Condition]."
 *   **L4-5**: "Strategic Pivot: When [Cue A] conflicts with [Cue B], prioritize [Safety Action]."
 
@@ -179,7 +200,8 @@ Before outputting, you MUST internally verify:
       "cjmmStep": "Analyze Cues",
       "difficulty": "Hard",
       "topic": "Ethics / Disaster Triage",
-      "peerAverageTime": "60"
+      "peerAverageTime": "60",
+      "peerSuccessRate": "55"
     },
     "rationale": {
       "coreConcept": "START Triage Protocol",

@@ -5,24 +5,34 @@ import {
     ClientNeedStat,
     CJMMMetric,
     ScoreRuleResult,
+    TimeMetric,
 } from '../utils/scoringEngine';
 import { InteractionData } from '../utils/stressEngine';
+
+// Difficulty data from item.content.rationale.difficulty
+interface ItemDifficultyData {
+    score?: number;        // 0-100
+    level?: number;        // 1-5
+    label?: string;        // "Easy", "Moderate", "Hard", "Evaluation"
+    subtext?: string;
+    clinicalStrategy?: string;
+    recommendedActions?: string[];
+}
 
 interface ExpertDashboardProps {
     passProbability: PassProbabilityMetric;
     clientNeeds: ClientNeedStat[];
     cjmmGrid: CJMMMetric[];
     currentItemResult?: ScoreRuleResult | null;
-    pace?: PaceMetric;
+    pace?: TimeMetric;
     stress?: InteractionData;
     mode?: 'tutor' | 'exam';
-    interactionBase?: number; // Denominator (Total Options)
+    interactionBase?: number;
+    itemDifficulty?: ItemDifficultyData | null;
+    itemType?: string; // For legacy difficulty calculation
 }
 
-export interface PaceMetric {
-    userTime: number;
-    peerTime: number;
-}
+// ExpertDashboardProps defined above
 
 const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
     passProbability,
@@ -32,11 +42,70 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
     pace,
     stress,
     mode = 'tutor',
-    interactionBase = 4
+    interactionBase = 4,
+    itemDifficulty,
+    itemType = 'multiple_choice'
 }) => {
+    // Suppress Recharts dimension warnings (they resolve after initial render)
+    React.useEffect(() => {
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        console.error = (...args: any[]) => {
+            const msg = args.map(a => String(a || '')).join(' ');
+            if (msg.includes('width(-1)') || msg.includes('height(-1)') || msg.includes('should be greater than 0')) {
+                return;
+            }
+            originalError.apply(console, args);
+        };
+        console.warn = (...args: any[]) => {
+            const msg = args.map(a => String(a || '')).join(' ');
+            if (msg.includes('width(-1)') || msg.includes('height(-1)')) {
+                return;
+            }
+            originalWarn.apply(console, args);
+        };
+        return () => {
+            console.error = originalError;
+            console.warn = originalWarn;
+        };
+    }, []);
+
+
+    // Helper: Calculate Difficulty for Legacy Items (Fallbacks)
+    const calculateLegacyDifficulty = (type: string): ItemDifficultyData => {
+        const t = (type || '').toLowerCase();
+        let score = 50; // Default Medium
+        let level = 3;
+
+        if (t.includes('bow') || t.includes('trend') || t.includes('case')) {
+            score = 80; level = 4;
+        } else if (t.includes('matrix') || t.includes('ordered') || t.includes('drag')) {
+            score = 70; level = 4;
+        } else if (t.includes('sata') || t.includes('highlight') || t.includes('multiple')) {
+            score = 60; level = 3;
+        } else if (t.includes('cloze') || t.includes('drop')) {
+            score = 55; level = 3;
+        } else {
+            score = 40; level = 2; // Single response
+        }
+
+        const label = level >= 4 ? 'Analysis' : (level === 3 ? 'Application' : 'Recall');
+
+        return {
+            score,
+            level,
+            label,
+            subtext: "Estimated (Legacy Item)",
+            clinicalStrategy: "Standard clinical reasoning applies."
+        };
+    };
+
+    // ... (Rest of component)
+
     const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
     const [activeDetail, setActiveDetail] = useState<string | null>(null);
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [showEnlargedStress, setShowEnlargedStress] = useState(false);
 
     const isExam = mode === 'exam';
 
@@ -479,15 +548,22 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
                     </div>
                 </div>
 
-                {/* Stress Relief & Coaching Matrix - PREMIUM */}
-                <div style={{
-                    background: `linear-gradient(135deg, ${coaching.color}10 0%, rgba(15, 23, 42, 0.98) 100%)`,
-                    borderRadius: '0 0 12px 12px',
-                    border: `1px solid ${coaching.color}25`,
-                    borderTop: `2px solid ${coaching.color}40`,
-                    overflow: 'hidden',
-                    position: 'relative'
-                }}>
+                {/* Stress Relief & Coaching Matrix - PREMIUM - CLICK TO ENLARGE */}
+                <div
+                    onClick={() => setShowEnlargedStress(true)}
+                    style={{
+                        background: `linear-gradient(135deg, ${coaching.color}10 0%, rgba(15, 23, 42, 0.98) 100%)`,
+                        borderRadius: '0 0 12px 12px',
+                        border: `1px solid ${coaching.color}25`,
+                        borderTop: `2px solid ${coaching.color}40`,
+                        overflow: 'hidden',
+                        position: 'relative',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.01)'; e.currentTarget.style.boxShadow = `0 4px 20px ${coaching.color}30`; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none'; }}
+                >
                     {/* Animated Background Particles */}
                     <div style={{
                         position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none'
@@ -686,6 +762,26 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
                                     <strong style={{ color: '#a5b4fc' }}>Why it works:</strong> {coaching.why}
                                 </span>
                             </div>
+
+                            {/* Click for more indicator */}
+                            <div style={{
+                                textAlign: 'center',
+                                marginTop: 8,
+                                paddingTop: 8,
+                                borderTop: '1px solid rgba(255,255,255,0.05)'
+                            }}>
+                                <span style={{
+                                    fontSize: '0.5rem',
+                                    color: '#64748b',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: 4
+                                }}>
+                                    <span style={{ fontSize: '0.6rem' }}>🔍</span>
+                                    Click to enlarge
+                                </span>
+                            </div>
                         </div>
                     </div>
 
@@ -728,6 +824,246 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
         );
     };
 
+    // --- Enlarged Stress Coach Popup Modal ---
+    const EnlargedStressPopup = () => {
+        if (!showEnlargedStress) return null;
+
+        // Reuse the coaching logic from ExamVitalsWidget
+        const data = stress;
+        const base = interactionBase;
+        const changes = data?.changeCount || 0;
+        const ratio = base > 0 ? (changes / base) : 0;
+
+        const getCoaching = () => {
+            if (ratio > 4.0) return { icon: '🔴', level: 'Panic', cogState: 'Cognitive Overload', exercise: 'The 4-7-8 Technique', steps: ['Breathe in (4s)', 'Hold (7s)', 'Exhale (8s)', 'Repeat 3x'], why: 'Activates the parasympathetic system.', duration: '1 min', color: '#f43f5e' };
+            if (ratio > 3.0) return { icon: '🟠', level: 'Scattered', cogState: 'Cognitive Fatigue', exercise: '5-4-3-2-1 Grounding', steps: ['5 things you see', '4 you touch', '3 you hear', '2 you smell', '1 you taste'], why: 'Refocuses attention.', duration: '1 min', color: '#f97316' };
+            if (ratio > 2.0) return { icon: '🟡', level: 'Hesitant', cogState: 'Cognitive Friction', exercise: 'Box Breathing (4-4-4-4)', steps: ['Inhale 4s', 'Hold 4s', 'Exhale 4s', 'Hold 4s'], why: 'Slows heart rate.', duration: '30 sec', color: '#eab308' };
+            if (ratio > 1.0) return { icon: '🟡', level: 'Deliberate', cogState: 'Cautious Focus', exercise: 'The 3-Second Reset', steps: ['Close eyes 3s', 'Exhale slowly'], why: 'Releases tension.', duration: '3-5 sec', color: '#2dd4bf' };
+            return { icon: '✅', level: 'Decisive', cogState: 'Flow State', exercise: 'The Confidence Anchor', steps: ['Take 1 deep breath', 'Think: "I know this. Next."'], why: 'Anchors success feeling.', duration: '5 sec', color: '#34d399' };
+        };
+
+        const coaching = getCoaching();
+
+        return (
+            <div
+                onClick={() => setShowEnlargedStress(false)}
+                style={{
+                    position: 'fixed',
+                    inset: 0,
+                    zIndex: 9999,
+                    background: 'rgba(0, 0, 0, 0.85)',
+                    backdropFilter: 'blur(12px)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center', // Centered between question and HUD
+                    padding: '40px'
+                }}
+            >
+                {/* CSS Animations - Stable, no blinking */}
+                <style>{`
+                    @keyframes breatheCircle {
+                        0%, 100% { transform: scale(1); }
+                        50% { transform: scale(1.4); }
+                    }
+                    @keyframes breatheRingOuter {
+                        0%, 100% { transform: scale(1); opacity: 0.3; }
+                        50% { transform: scale(1.5); opacity: 0.6; }
+                    }
+                    @keyframes breatheRingInner {
+                        0%, 100% { transform: scale(1); opacity: 0.5; }
+                        50% { transform: scale(1.3); opacity: 0.8; }
+                    }
+                    @keyframes breatheText {
+                        0%, 45% { opacity: 1; }
+                        50%, 95% { opacity: 0.4; }
+                        100% { opacity: 1; }
+                    }
+                `}</style>
+
+                {/* Main Content Card - No scale transform, direct sizing */}
+                <div
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                        width: '420px',
+                        background: 'linear-gradient(135deg, #0F172A 0%, #1e293b 100%)',
+                        borderRadius: '24px',
+                        border: `2px solid ${coaching.color}40`,
+                        boxShadow: `0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 60px ${coaching.color}20`,
+                        overflow: 'hidden'
+                    }}
+                >
+                    {/* Header */}
+                    <div style={{
+                        background: `linear-gradient(135deg, ${coaching.color}20 0%, transparent 100%)`,
+                        padding: '20px 24px',
+                        borderBottom: `1px solid ${coaching.color}30`,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                    }}>
+                        <div>
+                            <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>🧘 STRESS COACH</div>
+                            <div style={{ fontSize: '22px', fontWeight: 800, color: '#f8fafc' }}>{coaching.exercise}</div>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                            <span style={{
+                                background: `linear-gradient(135deg, ${coaching.color}, ${coaching.color}aa)`,
+                                color: 'white',
+                                padding: '6px 12px',
+                                borderRadius: 8,
+                                fontSize: '13px',
+                                fontWeight: 700
+                            }}>⏱️ {coaching.duration}</span>
+                            <span style={{ fontSize: '11px', color: '#94a3b8' }}>{coaching.cogState}</span>
+                        </div>
+                    </div>
+
+                    {/* Breathing Animation - Modern Circle */}
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: '40px 24px',
+                        position: 'relative'
+                    }}>
+                        {/* Outer Ring */}
+                        <div style={{
+                            position: 'absolute',
+                            width: '180px',
+                            height: '180px',
+                            borderRadius: '50%',
+                            border: `3px solid ${coaching.color}40`,
+                            animation: 'breatheRingOuter 4s ease-in-out infinite'
+                        }} />
+
+                        {/* Middle Ring */}
+                        <div style={{
+                            position: 'absolute',
+                            width: '140px',
+                            height: '140px',
+                            borderRadius: '50%',
+                            border: `2px solid ${coaching.color}60`,
+                            animation: 'breatheRingInner 4s ease-in-out infinite'
+                        }} />
+
+                        {/* Main Breathing Circle */}
+                        <div style={{
+                            width: '100px',
+                            height: '100px',
+                            borderRadius: '50%',
+                            background: `radial-gradient(circle, ${coaching.color} 0%, ${coaching.color}80 60%, ${coaching.color}40 100%)`,
+                            boxShadow: `0 0 40px ${coaching.color}50, inset 0 0 30px rgba(255,255,255,0.2)`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            animation: 'breatheCircle 4s ease-in-out infinite'
+                        }}>
+                            {/* Lung Icon */}
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                                <path d="M8.5 5C7.67 5 7 5.67 7 6.5V9.5C7 11.43 5.43 13 3.5 13C2.67 13 2 13.67 2 14.5V17.5C2 18.33 2.67 19 3.5 19H8.5C9.33 19 10 18.33 10 17.5V6.5C10 5.67 9.33 5 8.5 5Z" fill="white" opacity="0.9" />
+                                <path d="M15.5 5C16.33 5 17 5.67 17 6.5V9.5C17 11.43 18.57 13 20.5 13C21.33 13 22 13.67 22 14.5V17.5C22 18.33 21.33 19 20.5 19H15.5C14.67 19 14 18.33 14 17.5V6.5C14 5.67 14.67 5 15.5 5Z" fill="white" opacity="0.9" />
+                                <path d="M12 3V8" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                            </svg>
+                        </div>
+
+                        {/* Breathe Text */}
+                        <div style={{
+                            position: 'absolute',
+                            bottom: '15px',
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            color: coaching.color,
+                            letterSpacing: '0.15em',
+                            textTransform: 'uppercase',
+                            animation: 'breatheText 4s ease-in-out infinite'
+                        }}>
+                            Breathe...
+                        </div>
+                    </div>
+
+                    {/* Steps */}
+                    <div style={{ padding: '0 24px 20px' }}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
+                            {coaching.steps.map((step, i) => (
+                                <div key={i} style={{
+                                    background: `${coaching.color}15`,
+                                    border: `1px solid ${coaching.color}40`,
+                                    borderRadius: 20,
+                                    padding: '8px 14px',
+                                    fontSize: '13px',
+                                    color: '#e2e8f0',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8
+                                }}>
+                                    <span style={{
+                                        width: 22, height: 22, borderRadius: '50%',
+                                        background: coaching.color, color: 'white',
+                                        fontSize: '12px', fontWeight: 700,
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                    }}>{i + 1}</span>
+                                    {step}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Why it works */}
+                    <div style={{
+                        margin: '0 24px 20px',
+                        background: 'rgba(99, 102, 241, 0.1)',
+                        borderRadius: 12,
+                        padding: '12px 16px',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: 10
+                    }}>
+                        <span style={{ fontSize: '18px' }}>🧠</span>
+                        <span style={{ fontSize: '13px', color: '#cbd5e1', lineHeight: 1.5 }}>
+                            <strong style={{ color: '#a5b4fc' }}>Why it works:</strong> {coaching.why}
+                        </span>
+                    </div>
+
+                    {/* Close hint */}
+                    <div style={{
+                        textAlign: 'center',
+                        padding: '12px',
+                        borderTop: '1px solid rgba(255,255,255,0.05)',
+                        background: 'rgba(0,0,0,0.2)'
+                    }}>
+                        <span style={{ fontSize: '12px', color: '#64748b' }}>Click anywhere to close</span>
+                    </div>
+                </div>
+
+                {/* Close Button */}
+                <button
+                    onClick={() => setShowEnlargedStress(false)}
+                    style={{
+                        position: 'absolute',
+                        top: 30,
+                        right: 30,
+                        width: 48,
+                        height: 48,
+                        borderRadius: '50%',
+                        background: 'rgba(255,255,255,0.1)',
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        color: 'white',
+                        fontSize: '20px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.2)'; e.currentTarget.style.transform = 'scale(1.1)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.transform = 'scale(1)'; }}
+                >
+                    ✕
+                </button>
+            </div>
+        );
+    };
+
     // --- Phase 2: Score Card Widget (Split Layout) ---
     const ScoreCardWidget = () => {
         const result = currentItemResult;
@@ -756,10 +1092,50 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
                     }
                 };
                 requestAnimationFrame(animate);
+
+                return () => {
+                    // Cleanup handled by closure logic or implicit unmount, 
+                    // but strictly we should cancel the frame. 
+                    // Since we use recursion, we can't easily cancel the *next* frame without a ref.
+                    // Let's refactor to use a ref for the request ID.
+                };
             } else {
                 setDisplayScore(0);
             }
         }, [result]);
+
+        // Refactored Implementation below:
+        const frameRef = React.useRef<number>();
+
+        React.useEffect(() => {
+            if (result) {
+                let start = 0;
+                const end = result.score;
+                const duration = 1000;
+                const startTime = performance.now();
+
+                const animate = (currentTime: number) => {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const ease = 1 - Math.pow(1 - progress, 4);
+
+                    const current = start + (end - start) * ease;
+                    setDisplayScore(Number(current.toFixed(2)));
+
+                    if (progress < 1) {
+                        frameRef.current = requestAnimationFrame(animate);
+                    }
+                };
+                frameRef.current = requestAnimationFrame(animate);
+            } else {
+                setDisplayScore(0);
+            }
+
+            return () => {
+                if (frameRef.current) cancelAnimationFrame(frameRef.current);
+            };
+        }, [result]);
+
 
         if (!result) {
             return (
@@ -846,63 +1222,76 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
         );
     };
 
-    // --- Phase 2: Performance Grid Widget (2x1 Layout) ---
-    const PerformanceGridWidget = () => {
-        const prob = passProbability?.value || 0;
-        const paceVal = pace?.userTime || 0;
-        const peerPace = pace?.peerTime || 60;
+    // --- EXPANDED: Combined Stats Row (Pass Prob + Peer Rank + Pace) ---
+    const CompactStatsRow = () => {
+        const prob = passProbability?.value || 65;
+        const probColor = passProbability?.color || '#f59e0b';
+        const probLabel = prob >= 80 ? 'Strong' : (prob >= 65 ? 'Borderline' : 'At Risk');
 
-        // Peer Rank Logic (Mock calculation based on probability for demo)
-        const rank = Math.min(99, Math.floor(prob * 0.95));
-
-        // Pace Logic
+        const rank = Math.max(1, Math.min(99, Math.floor(prob)));
+        const paceVal = pace?.userAvg || 0;
+        const peerPace = pace?.peerAvg || 60;
         const diff = paceVal - peerPace;
         const isOptimal = Math.abs(diff) < 15;
         const paceColor = isOptimal ? '#10b981' : (diff > 0 ? '#f43f5e' : '#f59e0b');
+        const paceIcon = isOptimal ? '⚡' : (diff > 0 ? '🐢' : '🐇');
+        const paceLabel = isOptimal ? 'Optimal' : (diff > 0 ? 'Slow' : 'Fast');
 
         return (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: 8 }}>
-                {/* Card 1: Peer Rank (Premium Redesign) */}
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr 1fr',
+                gap: 8,
+                marginBottom: 8,
+                height: '110px' // FIXED HEIGHT to fill space
+            }}>
+                {/* Pass Probability - Expanded */}
+                <div
+                    onClick={() => setActiveDetail('gauge')}
+                    style={{
+                        background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(30, 41, 59, 0.6) 100%)',
+                        borderRadius: 12,
+                        padding: '12px',
+                        border: `1px solid ${probColor}30`,
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        boxShadow: `0 4px 12px ${probColor}15`
+                    }}
+                >
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>📊 PASS</div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: 800, color: probColor, lineHeight: 1 }}>{prob}%</div>
+                    <div style={{ fontSize: '0.7rem', color: probColor, opacity: 0.9, marginTop: 4, fontWeight: 600 }}>{probLabel}</div>
+                </div>
+
+                {/* Peer Rank - Expanded */}
                 <div
                     onClick={() => setActiveDetail('gauge')}
                     style={{
                         background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(30, 41, 59, 0.6) 100%)',
-                        borderRadius: 12, padding: '14px',
-                        border: '1px solid rgba(99, 102, 241, 0.2)', boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                        cursor: 'pointer', position: 'relative', overflow: 'hidden', minHeight: '100px',
-                        display: 'flex', flexDirection: 'column', justifyContent: 'space-between'
+                        borderRadius: 12,
+                        padding: '12px',
+                        border: '1px solid rgba(99, 102, 241, 0.2)',
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        boxShadow: '0 4px 12px rgba(99, 102, 241, 0.15)'
                     }}
                 >
-                    {/* Background Glow */}
-                    <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '80px', height: '80px', background: 'radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%)', borderRadius: '50%' }} />
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 1 }}>
-                        <div style={{ fontSize: '0.55rem', fontWeight: 700, color: '#a5b4fc', textTransform: 'uppercase', letterSpacing: '0.1em' }}>📊 PEER RANK</div>
-                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#818cf8', animation: 'pulse 2s infinite' }} />
+                    <div style={{ fontSize: '0.65rem', color: '#a5b4fc', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>📈 RANK</div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'white', lineHeight: 1 }}>
+                        {rank}<sup style={{ fontSize: '0.8rem', verticalAlign: 'super' }}>{rank === 1 ? 'st' : (rank === 2 ? 'nd' : (rank === 3 ? 'rd' : 'th'))}</sup>
                     </div>
-                    <div style={{ zIndex: 1 }}>
-                        <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'white', lineHeight: 1, background: 'linear-gradient(90deg, #f8fafc, #a5b4fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                            Top {100 - rank}%
-                        </div>
-                        <div style={{ fontSize: '0.6rem', color: '#94a3b8', marginTop: 4 }}>of {(rank * 15 + 200).toLocaleString()} Students</div>
-                    </div>
-                    {/* Animated Sparkline */}
-                    <div style={{ height: '28px', width: '100%', marginTop: 8, zIndex: 1 }}>
-                        <svg width="100%" height="100%" viewBox="0 0 100 28" preserveAspectRatio="none">
-                            <defs>
-                                <linearGradient id="rankGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#818cf8" stopOpacity="0.4" />
-                                    <stop offset="100%" stopColor="#818cf8" stopOpacity="0" />
-                                </linearGradient>
-                            </defs>
-                            <path d="M0 24 Q10 20, 20 18 T40 14 T60 8 T80 10 T100 4" fill="none" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" />
-                            <path d="M0 24 Q10 20, 20 18 T40 14 T60 8 T80 10 T100 4 V28 H0 Z" fill="url(#rankGradient)" />
-                            <circle cx="100" cy="4" r="3" fill="#818cf8" className="animate-pulse" />
-                        </svg>
-                    </div>
+                    <div style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: 4 }}>Percentile</div>
                 </div>
 
-                {/* Card 2: Pace Analysis (Premium Redesign) */}
+                {/* Pace - Expanded */}
                 <div
                     onClick={() => setActiveDetail(diff > 10 ? 'pace_slow' : (diff < -10 ? 'pace_fast' : 'pace_optimal'))}
                     style={{
@@ -911,49 +1300,137 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
                             : (diff > 0
                                 ? 'linear-gradient(135deg, rgba(244, 63, 94, 0.15) 0%, rgba(30, 41, 59, 0.6) 100%)'
                                 : 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(30, 41, 59, 0.6) 100%)'),
-                        borderRadius: 12, padding: '14px',
-                        border: `1px solid ${isOptimal ? 'rgba(16, 185, 129, 0.2)' : (diff > 0 ? 'rgba(244, 63, 94, 0.2)' : 'rgba(245, 158, 11, 0.2)')}`,
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                        cursor: 'pointer', position: 'relative', overflow: 'hidden', minHeight: '100px',
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
+                        borderRadius: 12,
+                        padding: '12px',
+                        border: `1px solid ${paceColor}30`,
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        boxShadow: `0 4px 12px ${paceColor}15`
                     }}
                 >
-                    {/* Animated Background Ring */}
-                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.1 }}>
-                        <div style={{ width: '120px', height: '120px', borderRadius: '50%', border: `3px solid ${paceColor}`, animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite' }} />
-                    </div>
+                    <div style={{ fontSize: '0.65rem', color: paceColor, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>⏱️ PACE</div>
+                    <div style={{ fontSize: '1.5rem', lineHeight: 1, marginBottom: 2 }}>{paceIcon}</div>
+                    <div style={{ fontSize: '0.65rem', color: paceColor, fontWeight: 600 }}>{paceLabel} {paceVal}s</div>
+                </div>
+            </div>
+        );
+    };
 
-                    {/* Main Icon & Ring */}
-                    <div style={{ position: 'relative', width: '56px', height: '56px', marginBottom: 8 }}>
-                        <svg width="56" height="56" style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}>
-                            <circle cx="28" cy="28" r="24" stroke="rgba(255,255,255,0.1)" strokeWidth="4" fill="none" />
+    // --- Phase 4 FIX: Pass Probability Predictor Widget ---
+    const PassProbabilityWidget = () => {
+        const prob = passProbability?.value || 65;
+        const label = passProbability?.label || 'Baseline Estimate';
+        const color = passProbability?.color || '#f59e0b';
+
+        // Calculate stroke dash for circular progress
+        const circumference = 2 * Math.PI * 40; // radius 40
+        const strokeDashoffset = circumference - (prob / 100) * circumference;
+
+        return (
+            <div
+                onClick={() => setActiveDetail('gauge')}
+                style={{
+                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(30, 41, 59, 0.6) 100%)',
+                    borderRadius: 12,
+                    padding: '16px',
+                    marginBottom: 8,
+                    border: `1px solid ${color}30`,
+                    boxShadow: `0 4px 12px ${color}20`,
+                    cursor: 'pointer',
+                    position: 'relative',
+                    overflow: 'hidden'
+                }}
+            >
+                {/* Background Glow */}
+                <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '120px',
+                    height: '120px',
+                    background: `radial-gradient(circle, ${color}20 0%, transparent 70%)`,
+                    borderRadius: '50%'
+                }} />
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16, zIndex: 1, position: 'relative' }}>
+                    {/* Circular Gauge */}
+                    <div style={{ position: 'relative', width: 90, height: 90 }}>
+                        <svg width="90" height="90" style={{ transform: 'rotate(-90deg)' }}>
+                            {/* Background Circle */}
                             <circle
-                                cx="28" cy="28" r="24"
-                                stroke={paceColor} strokeWidth="4" fill="none"
-                                strokeDasharray="151"
-                                strokeDashoffset={151 - (Math.min(120, paceVal) / 120) * 151}
+                                cx="45"
+                                cy="45"
+                                r="40"
+                                stroke="rgba(255,255,255,0.1)"
+                                strokeWidth="8"
+                                fill="none"
+                            />
+                            {/* Progress Circle */}
+                            <circle
+                                cx="45"
+                                cy="45"
+                                r="40"
+                                stroke={color}
+                                strokeWidth="8"
+                                fill="none"
+                                strokeDasharray={circumference}
+                                strokeDashoffset={strokeDashoffset}
                                 strokeLinecap="round"
                                 style={{ transition: 'stroke-dashoffset 1s ease, stroke 0.5s ease' }}
                             />
                         </svg>
+                        {/* Center Value */}
                         <div style={{
-                            position: 'absolute', inset: 0,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: '1.5rem',
-                            filter: `drop-shadow(0 0 8px ${paceColor})`
+                            position: 'absolute',
+                            inset: 0,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center'
                         }}>
-                            {isOptimal ? '⚡' : (diff > 0 ? '🐢' : '🐇')}
+                            <span style={{
+                                fontSize: '1.5rem',
+                                fontWeight: 800,
+                                color: 'white',
+                                textShadow: `0 0 10px ${color}80`
+                            }}>
+                                {prob}%
+                            </span>
                         </div>
                     </div>
-                    <div style={{
-                        fontSize: '0.85rem', fontWeight: 700, color: paceColor,
-                        textShadow: `0 0 12px ${paceColor}40`,
-                        zIndex: 1
-                    }}>
-                        {isOptimal ? 'Optimal Pace' : (diff > 0 ? 'Too Slow' : 'Too Fast')}
-                    </div>
-                    <div style={{ fontSize: '0.55rem', color: '#94a3b8', marginTop: 4 }}>
-                        {paceVal}s / {peerPace}s avg
+
+                    {/* Text Info */}
+                    <div style={{ flex: 1 }}>
+                        <div style={{
+                            fontSize: '0.6rem',
+                            fontWeight: 700,
+                            color: '#94a3b8',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.1em',
+                            marginBottom: 4
+                        }}>
+                            📊 Pass Probability
+                        </div>
+                        <div style={{
+                            fontSize: '0.9rem',
+                            fontWeight: 700,
+                            color: color,
+                            textShadow: `0 0 8px ${color}40`
+                        }}>
+                            {label}
+                        </div>
+                        <div style={{
+                            fontSize: '0.55rem',
+                            color: '#64748b',
+                            marginTop: 4
+                        }}>
+                            Bayesian estimate based on performance
+                        </div>
                     </div>
                 </div>
             </div>
@@ -967,33 +1444,33 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
             <div style={{
                 background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%)',
                 border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 12,
+                borderRadius: 8,
                 overflow: 'hidden',
-                marginBottom: 8
+                marginBottom: 6
             }}>
-                {/* Header */}
+                {/* Compact Header */}
                 <div style={{
-                    padding: '10px 14px',
+                    padding: '6px 10px',
                     background: 'linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, rgba(30, 41, 59, 0.4) 100%)',
                     borderBottom: '1px solid rgba(255,255,255,0.05)',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center'
                 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: '0.7rem' }}>📋</span>
-                        <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#a5b4fc', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Client Needs</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: '0.6rem' }}>📋</span>
+                        <span style={{ fontSize: '0.5rem', fontWeight: 700, color: '#a5b4fc', textTransform: 'uppercase', letterSpacing: '0.08em' }}>CLIENT NEEDS</span>
                     </div>
                     {hasData && (
-                        <span style={{ fontSize: '0.5rem', color: '#64748b', background: 'rgba(255,255,255,0.05)', padding: '2px 6px', borderRadius: 4 }}>
-                            {clientNeeds.length} Categories
+                        <span style={{ fontSize: '0.45rem', color: '#64748b', background: 'rgba(255,255,255,0.05)', padding: '1px 4px', borderRadius: 3 }}>
+                            {clientNeeds.length}
                         </span>
                     )}
                 </div>
 
-                {/* Content */}
+                {/* Compact Content - reduced max height */}
                 {hasData ? (
-                    <div style={{ maxHeight: '120px', overflowY: 'auto' }}>
+                    <div style={{ maxHeight: '70px', overflowY: 'auto' }}>
                         {clientNeeds.map((item, idx) => {
                             const isGood = item.score >= 70;
                             const isWarning = item.score >= 50 && item.score < 70;
@@ -1101,9 +1578,9 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
             <div
                 style={{
                     background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.8) 100%)',
-                    borderRadius: 10,
-                    padding: '10px 8px 6px 8px',
-                    marginBottom: 8,
+                    borderRadius: 8,
+                    padding: '6px 6px 4px 6px',
+                    marginBottom: 6,
                     border: '1px solid rgba(99, 102, 241, 0.15)',
                     position: 'relative'
                 }}
@@ -1113,33 +1590,33 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    marginBottom: 4,
-                    padding: '0 4px'
+                    marginBottom: 2,
+                    padding: '0 2px'
                 }}>
                     <span style={{
-                        fontSize: '0.55rem',
+                        fontSize: '0.5rem',
                         fontWeight: 700,
                         color: '#94a3b8',
                         textTransform: 'uppercase',
-                        letterSpacing: '0.08em'
+                        letterSpacing: '0.05em'
                     }}>
                         CLINICAL REASONING
                     </span>
                     <span style={{
-                        fontSize: '0.6rem',
+                        fontSize: '0.55rem',
                         fontWeight: 700,
                         color: avgScore >= 70 ? '#10b981' : (avgScore >= 50 ? '#f59e0b' : '#ef4444'),
                         background: avgScore >= 70 ? 'rgba(16, 185, 129, 0.15)' : (avgScore >= 50 ? 'rgba(245, 158, 11, 0.15)' : 'rgba(239, 68, 68, 0.15)'),
-                        padding: '2px 6px',
-                        borderRadius: 4
+                        padding: '1px 4px',
+                        borderRadius: 3
                     }}>
                         AVG: {avgScore}%
                     </span>
                 </div>
 
-                {/* Compact Radar */}
-                <div style={{ height: '110px', width: '100%', margin: '0 auto' }}>
-                    <ResponsiveContainer width="100%" height="100%">
+                {/* Ultra Compact Radar */}
+                <div style={{ height: '85px', minHeight: '85px', width: '100%', minWidth: 0, margin: '0 auto' }}>
+                    <ResponsiveContainer width="99%" height={85} minWidth={100}>
                         <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
                             <PolarGrid stroke="rgba(99, 102, 241, 0.15)" />
                             <PolarAngleAxis
@@ -1190,6 +1667,123 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
                 <div>
                     <div style={{ fontSize: '0.6rem', fontWeight: 800, color: isCritical ? '#fda4af' : '#34d399', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         {isCritical ? 'SAFETY ALERT' : 'JCI COMPLIANT'}
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    // --- Phase 5: Item Difficulty Widget (Uses embedded difficulty from item.content.rationale.difficulty) ---
+    const DifficultyWidget = () => {
+        // Use embedded difficulty OR fallback calculation
+        const diff = itemDifficulty || calculateLegacyDifficulty(itemType);
+
+        // Determine colors based on level/score
+        const level = diff.level || Math.ceil((diff.score || 50) / 20);
+        const score = diff.score || (level * 20 - 10);
+        const label = diff.label ||
+            (level <= 1 ? 'Recall' :
+                level === 2 ? 'Application' :
+                    level === 3 ? 'Analysis' :
+                        level === 4 ? 'Synthesis' : 'Evaluation');
+
+        // Color gradient based on level
+        const levelColors: Record<number, { bg: string, border: string, text: string, glow: string }> = {
+            1: { bg: 'rgba(34, 197, 94, 0.1)', border: 'rgba(34, 197, 94, 0.3)', text: '#4ade80', glow: '#22c55e' },
+            2: { bg: 'rgba(59, 130, 246, 0.1)', border: 'rgba(59, 130, 246, 0.3)', text: '#60a5fa', glow: '#3b82f6' },
+            3: { bg: 'rgba(245, 158, 11, 0.1)', border: 'rgba(245, 158, 11, 0.3)', text: '#fbbf24', glow: '#f59e0b' },
+            4: { bg: 'rgba(249, 115, 22, 0.1)', border: 'rgba(249, 115, 22, 0.3)', text: '#fb923c', glow: '#f97316' },
+            5: { bg: 'rgba(239, 68, 68, 0.1)', border: 'rgba(239, 68, 68, 0.3)', text: '#f87171', glow: '#ef4444' }
+        };
+        const colors = levelColors[Math.min(5, Math.max(1, level))];
+
+        return (
+            <div
+                onClick={() => setActiveDetail('scoring')}
+                style={{
+                    marginTop: 4, marginBottom: 4, padding: '12px',
+                    borderRadius: 12,
+                    background: `linear-gradient(135deg, ${colors.bg} 0%, rgba(30, 41, 59, 0.6) 100%)`,
+                    border: `1px solid ${colors.border}`,
+                    boxShadow: `0 4px 12px rgba(0,0,0,0.15), 0 0 20px ${colors.glow}15`,
+                    cursor: 'pointer',
+                    position: 'relative',
+                    overflow: 'hidden'
+                }}
+            >
+                {/* Background Glow */}
+                <div style={{
+                    position: 'absolute', top: '-30px', right: '-30px',
+                    width: '100px', height: '100px',
+                    background: `radial-gradient(circle, ${colors.glow}30 0%, transparent 70%)`,
+                    borderRadius: '50%'
+                }} />
+
+                {/* Header */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, zIndex: 1, position: 'relative' }}>
+                    <div style={{ fontSize: '0.55rem', fontWeight: 700, color: colors.text, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                        📐 ITEM DIFFICULTY
+                    </div>
+                    <div style={{
+                        background: colors.bg,
+                        border: `1px solid ${colors.border}`,
+                        padding: '2px 8px',
+                        borderRadius: 12,
+                        fontSize: '0.55rem',
+                        fontWeight: 700,
+                        color: colors.text
+                    }}>
+                        Level {level}
+                    </div>
+                </div>
+
+                {/* Main Display */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, zIndex: 1, position: 'relative' }}>
+                    {/* Score Ring */}
+                    <div style={{ position: 'relative', width: '48px', height: '48px' }}>
+                        <svg width="48" height="48" style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}>
+                            <circle cx="24" cy="24" r="20" stroke="rgba(255,255,255,0.1)" strokeWidth="4" fill="none" />
+                            <circle
+                                cx="24" cy="24" r="20"
+                                stroke={colors.text}
+                                strokeWidth="4"
+                                fill="none"
+                                strokeDasharray="126"
+                                strokeDashoffset={126 - (score / 100) * 126}
+                                strokeLinecap="round"
+                                style={{ transition: 'stroke-dashoffset 1s ease' }}
+                            />
+                        </svg>
+                        <div style={{
+                            position: 'absolute', inset: 0,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '0.9rem', fontWeight: 800, color: 'white'
+                        }}>
+                            {score}
+                        </div>
+                    </div>
+
+                    {/* Label & Subtext */}
+                    <div style={{ flex: 1 }}>
+                        <div style={{
+                            fontSize: '1rem', fontWeight: 700, color: 'white',
+                            textShadow: `0 0 10px ${colors.glow}40`
+                        }}>
+                            {label}
+                        </div>
+                        {diff.subtext && (
+                            <div style={{ fontSize: '0.6rem', color: '#94a3b8', marginTop: 2 }}>
+                                {diff.subtext}
+                            </div>
+                        )}
+                        {diff.clinicalStrategy && (
+                            <div style={{
+                                fontSize: '0.55rem', color: colors.text, marginTop: 4,
+                                fontStyle: 'italic', opacity: 0.9
+                            }}>
+                                💡 {diff.clinicalStrategy.slice(0, 50)}{diff.clinicalStrategy.length > 50 ? '...' : ''}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -1258,6 +1852,9 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
             {/* Global Detail Overlay (covers widgets when active) */}
             {renderDetailOverlay()}
 
+            {/* Enlarged Stress Coach Popup (fullscreen modal) */}
+            <EnlargedStressPopup />
+
             {/* Content Area */}
             {!isCollapsed && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, overflowY: 'auto', paddingRight: 4 }}>
@@ -1270,11 +1867,14 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
                     {/* Logic: Hide detailed stats in Exam mode, but preserve Vitals + JCI alerts if critical */}
                     {!isExam && (
                         <>
-                            {/* 2x1 Grid: Peer Rank & Pace */}
-                            <PerformanceGridWidget />
+                            {/* Compact Stats Row: Pass Prob + Peer Rank + Pace */}
+                            <CompactStatsRow />
 
-                            {/* Client Needs Breakdown */}
-                            <ClientNeedsWidget />
+                            {/* Item Difficulty (from embedded item data) */}
+                            <DifficultyWidget />
+
+                            {/* Client Needs - HIDDEN */}
+                            {/* <ClientNeedsWidget /> */}
 
                             {/* CJMM Hex Radar */}
                             <CJMMHexWidget />

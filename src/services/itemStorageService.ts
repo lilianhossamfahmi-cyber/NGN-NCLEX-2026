@@ -1,16 +1,19 @@
-import { MasterQuestionItem } from '../types/master-schema';
+import { MasterQuestionItem } from '../types/master-schema.ts';
+import { enrichItemWithQuality } from '../utils/autoQuality.ts';
 
 const STORAGE_KEY = 'ngn_item_bank';
 
 export const saveItemToBank = (item: MasterQuestionItem): boolean => {
     try {
         const bank = getBankItems();
+        // Enrich with quality score and status
+        const enriched = enrichItemWithQuality(item);
         // Check duplicate ID
-        const index = bank.findIndex(i => i.id === item.id);
+        const index = bank.findIndex(i => i.id === enriched.id);
         if (index >= 0) {
-            bank[index] = item; // Update existing
+            bank[index] = enriched; // Update existing
         } else {
-            bank.push(item);
+            bank.push(enriched);
         }
         localStorage.setItem(STORAGE_KEY, JSON.stringify(bank));
         return true;
@@ -25,11 +28,12 @@ export const saveBatchToBank = (items: MasterQuestionItem[]): number => {
         const bank = getBankItems();
         let addedCount = 0;
         items.forEach(item => {
-            const index = bank.findIndex(i => i.id === item.id);
+            const enriched = enrichItemWithQuality(item);
+            const index = bank.findIndex(i => i.id === enriched.id);
             if (index >= 0) {
-                bank[index] = item;
+                bank[index] = enriched;
             } else {
-                bank.push(item);
+                bank.push(enriched);
                 addedCount++;
             }
         });

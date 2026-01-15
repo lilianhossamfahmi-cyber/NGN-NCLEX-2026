@@ -19,9 +19,10 @@ interface FloatingDockProps {
 
 
 export const FloatingDock: React.FC<FloatingDockProps> = ({ activeTools, onToggle }) => {
+    const nodeRef = React.useRef(null);
     return (
-        <Draggable handle=".dock-drag-handle">
-            <div className="tool-dock" style={{ position: 'absolute', right: '110px', top: '16px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }}>
+        <Draggable handle=".dock-drag-handle" nodeRef={nodeRef}>
+            <div ref={nodeRef} className="tool-dock" style={{ position: 'absolute', right: '110px', top: '16px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }}>
                 {/* Drag Handle */}
                 <div className="dock-drag-handle" style={{ cursor: 'grab', display: 'flex', alignItems: 'center', padding: '0 4px', borderRight: '1px solid #cbd5e1', background: '#f8fafc', borderTopLeftRadius: '4px', borderBottomLeftRadius: '4px' }}>
                     <svg width="12" height="24" viewBox="0 0 12 24" fill="none" stroke="#94a3b8" strokeWidth="2">

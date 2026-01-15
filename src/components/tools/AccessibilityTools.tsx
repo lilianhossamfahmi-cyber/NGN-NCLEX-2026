@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './ToolSuite.css';
 
 // Global state for zoom synchronization
@@ -15,30 +15,32 @@ export const subscribeToZoom = (callback: (level: number) => void) => {
 export const AccessibilityTools: React.FC = () => {
     const [zoomLevel, setZoomLevel] = useState(100);
     const [isMagnifierActive, setIsMagnifierActive] = useState(false);
+    const [hoverZoomEnabled, setHoverZoomEnabled] = useState(false);
+    const [hoverZoomStrengthDisplay, setHoverZoomStrengthDisplay] = useState(1.25);
+
+    // Refs for performance (avoid re-attaching listeners on every zoom tick)
+    const zoomStrengthRef = useRef(1.25);
+    const activePanelRef = useRef<HTMLElement | null>(null);
 
     const applyZoom = useCallback((level: number) => {
         globalZoomLevel = level;
         const scale = level / 100;
 
-        // Target specific scrollable panels to preserve layout structure
         const panels = document.querySelectorAll('.ehr-panel, .question-section, .expert-dashboard');
 
         panels.forEach(el => {
             const hEl = el as HTMLElement;
             const style = hEl.style as any;
 
-            // Use CSS zoom property (standard in Chrome/Edge/modern browsers) for best reflow
             if (typeof style.zoom !== 'undefined') {
                 style.zoom = scale;
             } else {
-                // Fallback for Firefox
                 style.transform = level !== 100 ? `scale(${scale})` : '';
                 style.transformOrigin = 'top left';
                 style.width = level !== 100 ? `${100 / scale}%` : '';
             }
         });
 
-        // Use a fallback for the main container if individual panels aren't found
         if (panels.length === 0) {
             const container = document.querySelector('.split-layout-container') as HTMLElement;
             if (container) {
@@ -53,7 +55,6 @@ export const AccessibilityTools: React.FC = () => {
             }
         }
 
-        // Notify global listeners
         zoomListeners.forEach(listener => listener(level));
     }, []);
 
@@ -61,31 +62,129 @@ export const AccessibilityTools: React.FC = () => {
         applyZoom(zoomLevel);
     }, [zoomLevel, applyZoom]);
 
-    // Magnifier Tool Logic
+    // Magnifier & Scroll-Zoom Logic
     useEffect(() => {
-        const panels = document.querySelectorAll('.ehr-panel, .question-section, .expert-dashboard');
-
         if (!isMagnifierActive) {
+            const existingOverlay = document.getElementById('magnifier-overlay');
+            if (existingOverlay) existingOverlay.remove();
+
+            if (activePanelRef.current) {
+                activePanelRef.current.style.transform = '';
+                activePanelRef.current.style.zIndex = '';
+                activePanelRef.current.style.boxShadow = '';
+                activePanelRef.current.style.transition = '';
+                activePanelRef.current.style.position = '';
+                activePanelRef.current = null;
+            }
+
+            document.body.style.cursor = '';
+            const panels = document.querySelectorAll('.ehr-panel, .question-section, .expert-dashboard');
             panels.forEach(p => (p as HTMLElement).style.cursor = '');
             return;
         }
 
-        const handleMagnifyClick = (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            if (target.closest('.ehr-panel') || target.closest('.question-section') || target.closest('.expert-dashboard')) {
-                setZoomLevel(prev => prev > 100 ? 100 : 125);
+        const overlay = document.createElement('div');
+        overlay.id = 'magnifier-overlay';
+        Object.assign(overlay.style, {
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            width: '100vw',
+            height: '100vh',
+            pointerEvents: 'none',
+            zIndex: '9999',
+            mixBlendMode: 'multiply',
+            transition: 'background 0.1s ease',
+            background: 'rgba(0, 0, 0, 0.4)'
+        });
+        document.body.appendChild(overlay);
+
+        const handleMouseMove = (e: MouseEvent) => {
+            const { clientX, clientY } = e;
+            overlay.style.background = `radial-gradient(circle 120px at ${clientX}px ${clientY}px, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.8) 100%)`;
+
+            if (hoverZoomEnabled) {
+                const target = e.target as HTMLElement;
+                const panel = target.closest('.ehr-panel, .question-section, .expert-dashboard') as HTMLElement;
+
+                if (activePanelRef.current !== panel) {
+                    if (activePanelRef.current) {
+                        activePanelRef.current.style.transform = '';
+                        activePanelRef.current.style.zIndex = '';
+                        activePanelRef.current.style.boxShadow = '';
+                        activePanelRef.current.style.transition = '';
+                        activePanelRef.current.style.position = '';
+                    }
+
+                    if (panel) {
+                        panel.style.transition = 'all 0.1s cubic-bezier(0.4, 0, 0.2, 1)'; // Faster transition for scroll response
+                        panel.style.transform = `scale(${zoomStrengthRef.current})`;
+                        panel.style.zIndex = '10000';
+                        panel.style.boxShadow = '0 20px 50px rgba(0,0,0,0.5)';
+                        panel.style.position = 'relative';
+                    }
+                    activePanelRef.current = panel;
+                }
+            } else {
+                if (activePanelRef.current) {
+                    activePanelRef.current.style.transform = '';
+                    activePanelRef.current.style.zIndex = '';
+                    activePanelRef.current.style.boxShadow = '';
+                    activePanelRef.current.style.transition = '';
+                    activePanelRef.current.style.position = '';
+                    activePanelRef.current = null;
+                }
             }
         };
 
-        panels.forEach(p => (p as HTMLElement).style.cursor = 'zoom-in');
+        const handleWheel = (e: WheelEvent) => {
+            if (!hoverZoomEnabled || !activePanelRef.current) return;
 
-        document.addEventListener('click', handleMagnifyClick, true);
-        return () => {
-            document.removeEventListener('click', handleMagnifyClick, true);
-            panels.forEach(p => (p as HTMLElement).style.cursor = '');
+            // Prevent page scrolling when zooming a panel
+            e.preventDefault();
+
+            // Calculate new zoom
+            const delta = -Math.sign(e.deltaY) * 0.1; // 10% steps
+            const prev = zoomStrengthRef.current;
+            const next = Math.min(Math.max(prev + delta, 1.1), 3.0); // Limit 1.1x to 3.0x
+
+            zoomStrengthRef.current = next;
+            activePanelRef.current.style.transform = `scale(${next})`;
+
+            // Update UI (throttled naturally by React batching or can be debounced)
+            setHoverZoomStrengthDisplay(next);
         };
-    }, [isMagnifierActive]);
 
+        const style = document.createElement('style');
+        style.id = 'magnifier-style';
+        style.innerHTML = `
+            body, .ehr-panel, .question-section, .expert-dashboard {
+                cursor: crosshair !important;
+            }
+        `;
+        document.head.appendChild(style);
+
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('wheel', handleWheel, { passive: false }); // Non-passive to allow preventDefault
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('wheel', handleWheel);
+            overlay.remove();
+            const s = document.getElementById('magnifier-style');
+            if (s) s.remove();
+            document.body.style.cursor = '';
+
+            if (activePanelRef.current) {
+                activePanelRef.current.style.transform = '';
+                activePanelRef.current.style.zIndex = '';
+                activePanelRef.current.style.boxShadow = '';
+                activePanelRef.current.style.transition = '';
+                activePanelRef.current.style.position = '';
+                activePanelRef.current = null;
+            }
+        };
+    }, [isMagnifierActive, hoverZoomEnabled]); // No dependency on strength value to prevent reset
 
     const adjustZoom = (delta: number) => {
         setZoomLevel(prev => Math.min(Math.max(prev + delta, 75), 150));
@@ -120,74 +219,20 @@ export const AccessibilityTools: React.FC = () => {
                     letterSpacing: '0.1em',
                     marginTop: 4
                 }}>
-                    Current Zoom Level
+                    Global Text Size
                 </div>
             </div>
 
-            {/* Zoom Controls */}
+            {/* Global Zoom Controls */}
             <div style={{
                 display: 'flex',
                 gap: 8,
                 justifyContent: 'center',
                 marginBottom: 16
             }}>
-                <button
-                    onClick={() => adjustZoom(-10)}
-                    style={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: 10,
-                        border: 'none',
-                        background: 'linear-gradient(135deg, #334155, #1e293b)',
-                        color: '#f8fafc',
-                        fontSize: '1.2rem',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}
-                >
-                    A-
-                </button>
-                <button
-                    onClick={() => adjustZoom(10)}
-                    style={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: 10,
-                        border: 'none',
-                        background: 'linear-gradient(135deg, #334155, #1e293b)',
-                        color: '#f8fafc',
-                        fontSize: '1.2rem',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}
-                >
-                    A+
-                </button>
-                <button
-                    onClick={() => setZoomLevel(100)}
-                    style={{
-                        padding: '0 20px',
-                        height: 48,
-                        borderRadius: 10,
-                        border: 'none',
-                        background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-                        color: 'white',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        boxShadow: '0 4px 6px rgba(0,0,0,0.2)'
-                    }}
-                >
-                    Reset
-                </button>
+                <button onClick={() => adjustZoom(-10)} style={{ width: 48, height: 48, borderRadius: 10, border: 'none', background: 'linear-gradient(135deg, #334155, #1e293b)', color: '#f8fafc', fontSize: '1.2rem', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 6px rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>A-</button>
+                <button onClick={() => adjustZoom(10)} style={{ width: 48, height: 48, borderRadius: 10, border: 'none', background: 'linear-gradient(135deg, #334155, #1e293b)', color: '#f8fafc', fontSize: '1.2rem', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 6px rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>A+</button>
+                <button onClick={() => setZoomLevel(100)} style={{ padding: '0 20px', height: 48, borderRadius: 10, border: 'none', background: 'linear-gradient(135deg, #6366f1, #4f46e5)', color: 'white', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 6px rgba(0,0,0,0.2)' }}>Reset</button>
             </div>
 
             {/* Magnifier Toggle */}
@@ -221,6 +266,69 @@ export const AccessibilityTools: React.FC = () => {
                     <span style={{ fontSize: '1.2rem' }}>🔍</span>
                     {isMagnifierActive ? 'Magnifier Active' : 'Enable Magnifier'}
                 </button>
+
+                {/* Hover Zoom Controls */}
+                {isMagnifierActive && (
+                    <div style={{ marginTop: 12 }}>
+                        {/* Toggle */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                                <div style={{
+                                    width: 36, height: 20,
+                                    background: hoverZoomEnabled ? '#10b981' : '#475569',
+                                    borderRadius: 10, position: 'relative',
+                                    transition: '0.2s',
+                                    boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.3)'
+                                }}>
+                                    <div style={{
+                                        width: 16, height: 16, background: 'white', borderRadius: '50%',
+                                        position: 'absolute', top: 2,
+                                        left: hoverZoomEnabled ? 18 : 2,
+                                        transition: '0.2s',
+                                        boxShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                                    }} />
+                                </div>
+                                <input
+                                    type="checkbox"
+                                    checked={hoverZoomEnabled}
+                                    onChange={(e) => setHoverZoomEnabled(e.target.checked)}
+                                    style={{ display: 'none' }}
+                                />
+                                <span style={{ color: '#cbd5e1', fontSize: '0.8rem', fontWeight: 500 }}>
+                                    Enable Hover Zoom
+                                </span>
+                            </label>
+                        </div>
+
+                        {/* Zoom Strength Display (Scroll Info) */}
+                        {hoverZoomEnabled && (
+                            <div style={{ marginTop: 12, textAlign: 'center' }}>
+                                <div style={{
+                                    fontSize: '1.5rem',
+                                    fontWeight: 'bold',
+                                    color: '#fff',
+                                    textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                                }}>
+                                    {Math.round((hoverZoomStrengthDisplay - 1) * 100)}%
+                                </div>
+                                <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: 2 }}>
+                                    Magnification Power
+                                </div>
+                                <div style={{
+                                    marginTop: 8,
+                                    fontSize: '0.65rem',
+                                    color: '#60a5fa',
+                                    background: 'rgba(59, 130, 246, 0.1)',
+                                    padding: '4px 8px',
+                                    display: 'inline-block',
+                                    borderRadius: 4
+                                }}>
+                                    🖱️ Scroll mouse wheel to zoom in/out
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Help Text */}
@@ -234,8 +342,8 @@ export const AccessibilityTools: React.FC = () => {
                 borderRadius: 8
             }}>
                 {isMagnifierActive
-                    ? '👆 Click any area to toggle Zoom In/Out'
-                    : '📝 Applies to EHR and Question panels'}
+                    ? (hoverZoomEnabled ? '✨ Hover panels to pop-out • Scroll to zoom' : '💡 Enable "Hover Zoom" for advanced magnification')
+                    : '📝 Standard Zoom applies to EHR and Question panels'}
             </div>
         </div>
     );

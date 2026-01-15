@@ -1,0 +1,782 @@
+{
+    "type": "case-study",
+    "content": {
+        "metadata": {
+            "title": "Unstable Bradycardia: Dizziness Differential",
+            "clinicalFocus": "dizziness",
+            "level": 5,
+            "targetScore": 90,
+            "generator": "Golden NGN v3"
+        },
+        "patient": {
+            "name": "E.S.",
+            "age": 78,
+            "sex": "Female",
+            "allergies": "Codeine (Nausea)",
+            "weightKg": 65,
+            "history": [
+                "Coronary Artery Disease",
+                "Hypertension",
+                "Mild Cognitive Impairment"
+            ],
+            "homeMeds": [
+                {
+                    "name": "Metoprolol Succinate",
+                    "dose": "50mg",
+                    "route": "PO",
+                    "frequency": "Daily"
+                },
+                {
+                    "name": "Amlodipine",
+                    "dose": "5mg",
+                    "route": "PO",
+                    "frequency": "Daily"
+                },
+                {
+                    "name": "Aspirin",
+                    "dose": "81mg",
+                    "route": "PO",
+                    "frequency": "Daily"
+                }
+            ]
+        },
+        "setting": "Emergency Department",
+        "chiefComplaint": "Extreme dizziness and 'feeling like I'm going to pass out' since this morning.",
+        "historyPhysical": {
+            "chiefComplaint": "Near-syncope and generalized weakness.",
+            "hpi": "78-year-old female brought in by daughter. Patient reports waking up feeling 'woozy' and unable to stand without support. Describes sensation as 'lightheadedness,' denies room spinning (vertigo). Reports two episodes of 'greying out' while sitting for breakfast. Denies chest pain or shortness of breath. Daughter notes patient has been more confused than baseline.",
+            "pmh": [
+                "CAD (Stent x1 in 2018)",
+                "Hypertension",
+                "Hyperlipidemia"
+            ],
+            "psh": [
+                "Total Knee Arthroplasty (2020)",
+                "Cholecystectomy (1990)"
+            ],
+            "medications": [
+                "Metoprolol Succinate 50mg daily",
+                "Amlodipine 5mg daily",
+                "Atorvastatin 20mg HS"
+            ],
+            "allergies": "Codeine (Severe Nausea)",
+            "socialHistory": "Widowed. Lives with daughter. Nonsmoker.",
+            "familyHistory": "Mother had stroke at 80. Father had MI at 70.",
+            "reviewOfSystems": {
+                "constitutional": "Fatigue, weakness",
+                "cardiovascular": "Lightheadedness, no palpitations",
+                "neurological": "Mild confusion, no focal weakness",
+                "ent": "No tinnitus, no hearing loss"
+            },
+            "physicalExam": {
+                "general": "Pale, lethargic, slow to respond",
+                "vital signs": "See vitals tab",
+                "cardiovascular": "Profoundly bradycardic, regular rhythm, variable intensity S1 (Cannon a-waves)",
+                "respiratory": "Lungs clear bilaterally",
+                "neurological": "GCS 14 (Confused), CN II-XII intact, no nystagmus",
+                "extremities": "Cool to touch, 1+ pitting edema"
+            }
+        },
+        "nursesNotes": [
+            {
+                "time": "0800",
+                "author": "RN Triage",
+                "entry": "Patient presents with complaint of severe dizziness. States she feels like she is going to faint. Skin is cool and pale. Capillary refill is 4 seconds. Radial pulse is thready and very slow. Monitor applied immediately showing HR in 30s. Patient placed on stretcher."
+            },
+            {
+                "time": "0815",
+                "author": "RN Primary",
+                "entry": "Dr. Attending at bedside. 12-lead EKG obtained showing P waves dissociated from QRS complexes. Transcutaneous pacing pads applied to chest/back as a precaution. IV access established in right AC."
+            }
+        ],
+        "orders": [
+            {
+                "order": "Transcutaneous Pacing (Standby)",
+                "status": "Active",
+                "orderedBy": "Dr. Attending",
+                "time": "0810"
+            },
+            {
+                "order": "Atropine 1mg IV Push x1 PRN for symptomatic bradycardia",
+                "status": "Active",
+                "orderedBy": "Dr. Attending",
+                "time": "0812"
+            },
+            {
+                "order": "12-Lead EKG STAT",
+                "status": "Completed",
+                "orderedBy": "Dr. Attending",
+                "time": "0805"
+            },
+            {
+                "order": "Troponin, BMP, CBC, Mg, Phos",
+                "status": "Pending",
+                "orderedBy": "Dr. Attending",
+                "time": "0815"
+            },
+            {
+                "order": "Hold all AV nodal blocking agents (Beta Blockers/CCB)",
+                "status": "Active",
+                "orderedBy": "Dr. Attending",
+                "time": "0820"
+            },
+            {
+                "order": "Continuous Cardiac Monitoring",
+                "status": "Active",
+                "orderedBy": "RN Protocol",
+                "time": "0800"
+            }
+        ],
+        "radiology": [
+            {
+                "study": "12-Lead Electrocardiogram",
+                "date": "Current Date 0805",
+                "indication": "Bradycardia, Dizziness",
+                "findings": "Atrial rate 88 bpm. Ventricular rate 32 bpm. No relationship between P waves and QRS complexes. QRS duration 140ms (wide).",
+                "impression": "Third-Degree (Complete) Atrioventricular Block.",
+                "radiologist": "Dr. Cardio"
+            }
+        ],
+        "vitals": [
+            {
+                "time": "0800",
+                "tempF": "97.8",
+                "hr": 32,
+                "rr": 18,
+                "bp": "82/48",
+                "o2": "95",
+                "o2_device": "RA",
+                "pain": 0
+            },
+            {
+                "time": "0830",
+                "tempF": "98.0",
+                "hr": 34,
+                "rr": 16,
+                "bp": "84/50",
+                "o2": "96",
+                "o2_device": "RA",
+                "pain": 0
+            }
+        ],
+        "labs": [
+            {
+                "test": "Potassium",
+                "value": "4.1",
+                "unit": "mEq/L",
+                "flag": "",
+                "reference": "3.5-5.0"
+            },
+            {
+                "test": "Magnesium",
+                "value": "1.9",
+                "unit": "mg/dL",
+                "flag": "",
+                "reference": "1.7-2.2"
+            },
+            {
+                "test": "Troponin I",
+                "value": "0.02",
+                "unit": "ng/mL",
+                "flag": "",
+                "reference": "<0.04"
+            },
+            {
+                "test": "Digoxin Level",
+                "value": "0.0",
+                "unit": "ng/mL",
+                "flag": "",
+                "reference": "0.8-2.0"
+            }
+        ],
+        "assessmentData": {
+            "screening": {
+                "tool": "Orthostatic Vitals",
+                "score": 0,
+                "interpretation": "Unable to perform due to severe hypotension/dizziness while supine."
+            }
+        },
+        "rationale": {
+            "coreConcept": "Differentiation and management of dizziness caused by unstable cardiac arrhythmias (Third-Degree Heart Block).",
+            "caseSummary": "78-year-old female presents with presyncope (lightheadedness) and profound bradycardia (HR 30s). The dizziness is a symptom of cerebral hypoperfusion due to low cardiac output. The cause is Complete Heart Block, requiring pacing.",
+            "answerAnalysis": "Symptoms of 'dizziness' must be categorized: Vertigo (Vestibular) vs Presyncope (Cardiovascular/Perfusion) vs Disequilibrium (Neuro). This patient has Presyncope signs (hypotension, pallor, bradycardia).",
+            "trap": "Confusing 'dizziness' with 'vertigo'. This patient does not have room-spinning sensation; she has low flow state.",
+            "goldenRule": "Unstable Bradycardia (Hypotension + AMS) requires Electricity (Pacing), not just Drugs.",
+            "steps": [
+                {
+                    "tag": "Recognize",
+                    "description": "Identify signs of instability (BP < 90, AMS)."
+                },
+                {
+                    "tag": "Analyze",
+                    "description": "Interpret ECG: P waves dissociated from QRS = 3rd Degree Block."
+                },
+                {
+                    "tag": "Take Action",
+                    "description": "Apply pacing pads and prepare to pace."
+                }
+            ],
+            "mnemonic": {
+                "title": "PACE",
+                "content": "P-Pads on, A-Atropine (try), C-Consult Cardio, E-Electricity (Transvenous)",
+                "explanation": "Management of heart block."
+            },
+            "cheatSheet": {
+                "title": "Heart Block Types",
+                "points": [
+                    "1st Deg: Long PR, no drops.",
+                    "2nd Deg T1: Longer, Longer, Drop.",
+                    "2nd Deg T2: Constant PR, Drop (Dangerous).",
+                    "3rd Deg: Ps and Qs don't agree (Deadly)."
+                ]
+            },
+            "referenceInfo": {
+                "anatomy": "AV Node and Bundle of His.",
+                "physiology": "In 3rd degree block, no atrial impulses reach ventricles. Ventricles beat at intrinsic rate (20-40 bpm), which is often insufficient to maintain Cardiac Output (CO = HR x SV).",
+                "pharm": "Atropine works at the SA/AV node. It may not work in 3rd degree block if the escape rhythm is infra-nodal (wide QRS)."
+            },
+            "difficulty": {
+                "score": 90,
+                "level": 5,
+                "label": "Expert",
+                "clinicalStrategy": "Recognize that 'dizziness' in the elderly is often a cardiac sentinel event.",
+                "recommendedActions": [
+                    "Check pulse immediately for any complaint of dizziness."
+                ]
+            }
+        }
+    },
+    "structure": {
+        "type": "case-study",
+        "screens": [
+            {
+                "type": "highlight",
+                "cjmmStep": "Recognize Cues",
+                "prompt": "Click to highlight the findings that indicate hemodynamic instability requiring immediate intervention.",
+                "text": "The nurse assesses the patient. She reports <span id='h1'>feeling lightheaded</span>. Vital signs show <span id='h2'>blood pressure 82/48 mmHg</span> and <span id='h3'>heart rate 32 bpm</span>. Patient is <span id='h4'>slow to respond to questions</span>. Skin is <span id='h5'>pale and cool</span>. She states she <span id='h6'>forgot her reading glasses</span>. Capillary refill is <span id='h7'>4 seconds</span>. She has <span id='h8'>chronic knee pain</span>.",
+                "correct": [
+                    "h2",
+                    "h3",
+                    "h4",
+                    "h5",
+                    "h7"
+                ],
+                "decoys": [
+                    "h1",
+                    "h6",
+                    "h8"
+                ],
+                "rationale": {
+                    "coreConcept": "Identification of Unstable Bradycardia.",
+                    "caseSummary": "Patient has HR 32 and hypotension. This is 'Unstable' by ACLS definitions.",
+                    "answerAnalysis": "BP 82/48 (Hypotension), HR 32 (Severe Bradycardia), Slow to respond (Altered Mental Status), Pale/Cool skin (Poor perfusion), Cap refill 4s (Poor perfusion). Lightheadedness is a symptom, but the *signs* of instability are the vitals/exam. Glasses and knee pain are irrelevant.",
+                    "trap": "Thinking HR 32 is acceptable in an athlete. In a 78-year-old with AMS, it is critical.",
+                    "goldenRule": "Bradycardia + Hypotension/AMS = Unstable. Treat immediately.",
+                    "steps": [
+                        {
+                            "tag": "Recognize",
+                            "description": "Assess perfusion (BP, Skin, Brain)."
+                        },
+                        {
+                            "tag": "Analyze",
+                            "description": "Determine if rate is the cause of the instability."
+                        },
+                        {
+                            "tag": "Take Action",
+                            "description": "Activate emergency response."
+                        }
+                    ],
+                    "mnemonic": {
+                        "title": "CASH",
+                        "content": "C-Chest pain, A-Altered Mental Status, S-Short of breath, H-Hypotension",
+                        "explanation": "Signs of instability in arrhythmias."
+                    },
+                    "cheatSheet": {
+                        "title": "Dizziness Types",
+                        "points": [
+                            "Vertigo: Spinning (Inner Ear).",
+                            "Presyncope: Fainting feeling (Cardiac/BP).",
+                            "Disequilibrium: Off-balance (Neuro/Sensory)."
+                        ]
+                    },
+                    "referenceInfo": {
+                        "anatomy": "Cerebral Cortex.",
+                        "physiology": "MAP < 60-65 mmHg reduces Cerebral Perfusion Pressure, leading to confusion and syncope.",
+                        "pharm": "N/A"
+                    },
+                    "difficulty": {
+                        "score": 90,
+                        "level": 5,
+                        "label": "Expert",
+                        "clinicalStrategy": "Prioritize the finding that kills the fastest: Hypotension + Bradycardia.",
+                        "recommendedActions": [
+                            "Get the pacer pads ready immediately."
+                        ]
+                    }
+                }
+            },
+            {
+                "type": "matrix",
+                "cjmmStep": "Analyze Cues",
+                "prompt": "For each finding, indicate if it is consistent with Complete Heart Block, Benign Paroxysmal Positional Vertigo (BPPV), or Acute Stroke.",
+                "columns": [
+                    {
+                        "id": "c1",
+                        "text": "Complete Heart Block"
+                    },
+                    {
+                        "id": "c2",
+                        "text": "BPPV (Vestibular)"
+                    },
+                    {
+                        "id": "c3",
+                        "text": "Acute Stroke"
+                    }
+                ],
+                "rows": [
+                    {
+                        "id": "r1",
+                        "text": "Profound bradycardia (HR < 40)",
+                        "correctColumnId": "c1"
+                    },
+                    {
+                        "id": "r2",
+                        "text": "Room-spinning sensation triggered by head movement",
+                        "correctColumnId": "c2"
+                    },
+                    {
+                        "id": "r3",
+                        "text": "Presyncope (feeling of impending faint)",
+                        "correctColumnId": "c1"
+                    },
+                    {
+                        "id": "r4",
+                        "text": "Unilateral facial droop",
+                        "correctColumnId": "c3"
+                    },
+                    {
+                        "id": "r5",
+                        "text": "AV dissociation on EKG",
+                        "correctColumnId": "c1"
+                    },
+                    {
+                        "id": "r6",
+                        "text": "Nystagmus",
+                        "correctColumnId": "c2"
+                    }
+                ],
+                "rationale": {
+                    "coreConcept": "Differential diagnosis of dizziness.",
+                    "caseSummary": "Dizziness is a vague term. Specific cues point to the etiology.",
+                    "answerAnalysis": "Heart Block: HR < 40, Presyncope (low flow), AV dissociation. BPPV: Room spinning (Vertigo), Nystagmus. Stroke: Focal neurological deficits (Face droop).",
+                    "trap": "Assuming 'dizziness' implies stroke in the elderly. Check the heart rate first!",
+                    "goldenRule": "Vertigo = Room spins. Presyncope = Patient spins/fades out.",
+                    "steps": [
+                        {
+                            "tag": "Recognize",
+                            "description": "Differentiate sensation types."
+                        },
+                        {
+                            "tag": "Analyze",
+                            "description": "Match vitals to the sensation (Bradycardia matches Presyncope)."
+                        },
+                        {
+                            "tag": "Take Action",
+                            "description": "Focus assessment on cardiac system."
+                        }
+                    ],
+                    "mnemonic": {
+                        "title": "ATTEST",
+                        "content": "A-Associated symptoms, T-Timing, T-Triggers, E-Exam (Neuro/Cardiac), S-Sugar (Hypoglycemia), T-Trauma",
+                        "explanation": "Dizziness assessment."
+                    },
+                    "cheatSheet": {
+                        "title": "The 3 D's of Dizziness",
+                        "points": [
+                            "Dizziness (Vague)",
+                            "Diplopia (Stroke?)",
+                            "Dysarthria (Stroke?)"
+                        ]
+                    },
+                    "referenceInfo": {
+                        "anatomy": "Vestibular system vs Cardiovascular system.",
+                        "physiology": "Inner ear crystals (otoconia) cause BPPV. Electrical block causes Heart Block.",
+                        "pharm": "Meclizine treats BPPV dizziness but worsens Heart Block (anticholinergic effects/sedation)."
+                    },
+                    "difficulty": {
+                        "score": 90,
+                        "level": 5,
+                        "label": "Expert",
+                        "clinicalStrategy": "If the patient is pale/hypotensive, it is rarely just 'vertigo'.",
+                        "recommendedActions": [
+                            "Obtain 12-lead EKG for all 'dizzy' elderly patients."
+                        ]
+                    }
+                }
+            },
+            {
+                "type": "ordered-response",
+                "cjmmStep": "Prioritize Hypotheses",
+                "prompt": "Drag the nursing priorities into the correct order for this unstable patient.",
+                "orderedOptions": [
+                    {
+                        "id": "s1",
+                        "text": "Apply Transcutaneous Pacing (TCP) pads"
+                    },
+                    {
+                        "id": "s2",
+                        "text": "Establish IV access"
+                    },
+                    {
+                        "id": "s3",
+                        "text": "Administer Atropine 1mg IV"
+                    },
+                    {
+                        "id": "s4",
+                        "text": "Prepare for Transvenous Pacing insertion"
+                    },
+                    {
+                        "id": "s5",
+                        "text": "Educate patient on pacemaker lifestyle"
+                    }
+                ],
+                "rationale": {
+                    "coreConcept": "ACLS Bradycardia Algorithm prioritization.",
+                    "caseSummary": "Unstable patient (Hypotensive/AMS). Safety net (Pads) comes before drugs.",
+                    "answerAnalysis": "1. Pads (Safety net first - can be done while IV is started, but is priority for survival). 2. IV access (Needed for drugs). 3. Atropine (First line drug, though may not work in 3rd degree). 4. Transvenous Pacing (Invasive, takes time, definitive bridge). 5. Education (Last).",
+                    "trap": "Giving Atropine before putting pads on. If Atropine fails (likely in 3rd degree), you need the pacer *now*.",
+                    "goldenRule": "Pads on Patient. Before Pushing Meds.",
+                    "steps": [
+                        {
+                            "tag": "Recognize",
+                            "description": "Instability requires electrical backup."
+                        },
+                        {
+                            "tag": "Analyze",
+                            "description": "Atropine is a bridge, Pacing is the destination."
+                        },
+                        {
+                            "tag": "Take Action",
+                            "description": "Secure the safety net."
+                        }
+                    ],
+                    "mnemonic": {
+                        "title": "TCP-First",
+                        "content": "Transcutaneous Pacing First",
+                        "explanation": "Priority in unstable block."
+                    },
+                    "cheatSheet": {
+                        "title": "Atropine Dosing",
+                        "points": [
+                            "1mg IV push every 3-5 mins.",
+                            "Max dose 3mg.",
+                            "Ineffective in Mobitz II and 3rd Degree Block."
+                        ]
+                    },
+                    "referenceInfo": {
+                        "anatomy": "Skin impedance.",
+                        "physiology": "TCP delivers current through chest wall to depolarize myocardium. Requires high current (mA).",
+                        "pharm": "Atropine blocks vagal tone. 3rd degree block is often below the AV node, where vagal tone has less influence."
+                    },
+                    "difficulty": {
+                        "score": 90,
+                        "level": 5,
+                        "label": "Expert",
+                        "clinicalStrategy": "Don't delay electricity for an IV line. Pads go on in seconds.",
+                        "recommendedActions": [
+                            "Turn pacer on to 'Demand' mode immediately."
+                        ]
+                    }
+                }
+            },
+            {
+                "type": "bow-tie",
+                "cjmmStep": "Generate Solutions",
+                "prompt": "Complete the diagram: Select actions, the condition, and parameters to monitor.",
+                "actions": [
+                    {
+                        "id": "a1",
+                        "text": "Initiate Transcutaneous Pacing (TCP)",
+                        "isCorrect": true
+                    },
+                    {
+                        "id": "a2",
+                        "text": "Administer IV Atropine as bridge",
+                        "isCorrect": true
+                    },
+                    {
+                        "id": "a3",
+                        "text": "Perform Epley Maneuver",
+                        "isCorrect": false
+                    },
+                    {
+                        "id": "a4",
+                        "text": "Withhold Beta-Blockers",
+                        "isCorrect": true
+                    },
+                    {
+                        "id": "a5",
+                        "text": "Administer IV tPA",
+                        "isCorrect": false
+                    }
+                ],
+                "conditions": [
+                    {
+                        "id": "c1",
+                        "text": "Third-Degree AV Block",
+                        "isCorrect": true
+                    },
+                    {
+                        "id": "c2",
+                        "text": "Acute Ischemic Stroke"
+                    },
+                    {
+                        "id": "c3",
+                        "text": "Vestibular Neuritis"
+                    },
+                    {
+                        "id": "c4",
+                        "text": "Sinus Bradycardia"
+                    }
+                ],
+                "parameters": [
+                    {
+                        "id": "p1",
+                        "text": "Electrical and Mechanical Capture",
+                        "isCorrect": true
+                    },
+                    {
+                        "id": "p2",
+                        "text": "Mean Arterial Pressure (MAP)",
+                        "isCorrect": true
+                    },
+                    {
+                        "id": "p3",
+                        "text": "Mental Status",
+                        "isCorrect": true
+                    },
+                    {
+                        "id": "p4",
+                        "text": "Pupillary reaction"
+                    },
+                    {
+                        "id": "p5",
+                        "text": "Dix-Hallpike Test results"
+                    }
+                ],
+                "rationale": {
+                    "coreConcept": "Definitive management of Complete Heart Block.",
+                    "caseSummary": "Patient has AV dissociation and hemodynamic instability. Requires pacing and holding rate-slowing meds.",
+                    "answerAnalysis": "Condition: 3rd Degree Block. Actions: Pace (definitive treatment for instability), Atropine (attempted bridge), Hold Beta Blockers (removing the cause/exacerbating factor). Epley is for BPPV. tPA is for Stroke. Parameters: Capture (is the pacer working?), MAP (is perfusion adequate?), Mental Status (is brain perfused?).",
+                    "trap": "Selecting 'Sinus Bradycardia'. Sinus Brady implies the P waves drive the QRS. Here they are dissociated.",
+                    "goldenRule": "In Pacing: Electrical Capture (Spike + Complex) does NOT equal Pulse. You must feel for Mechanical Capture.",
+                    "steps": [
+                        {
+                            "tag": "Recognize",
+                            "description": "ECG pattern of dissociation."
+                        },
+                        {
+                            "tag": "Analyze",
+                            "description": "Need to increase rate to increase Cardiac Output."
+                        },
+                        {
+                            "tag": "Take Action",
+                            "description": "Pace and monitor capture."
+                        }
+                    ],
+                    "mnemonic": {
+                        "title": "PM-PM",
+                        "content": "Pace Maker - Pulse Match",
+                        "explanation": "Check pulse with pacer."
+                    },
+                    "cheatSheet": {
+                        "title": "Pacing Thresholds",
+                        "points": [
+                            "Set Rate (e.g., 70).",
+                            "Dial up Current (mA) until capture seen.",
+                            "Add safety margin (+2-5 mA)."
+                        ]
+                    },
+                    "referenceInfo": {
+                        "anatomy": "Myocardium.",
+                        "physiology": "Electrical depolarization (QRS) causes Calcium release -> Muscle Contraction. In dying hearts, you can have electrical activity without contraction (PEA).",
+                        "pharm": "Sedation/Analgesia is required for TCP if patient is awake (it hurts!)."
+                    },
+                    "difficulty": {
+                        "score": 90,
+                        "level": 5,
+                        "label": "Expert",
+                        "clinicalStrategy": "Sedate the patient if BP allows. TCP is painful.",
+                        "recommendedActions": [
+                            "Use femoral pulse to check capture (avoids muscle twitch confusion)."
+                        ]
+                    }
+                }
+            },
+            {
+                "type": "drop-cloze",
+                "cjmmStep": "Take Action",
+                "prompt": "Complete the nursing understanding of pharmacology.",
+                "text": "The nurse recognizes that Atropine may be ineffective because the blockage is likely located at the %{d1}, requiring %{d2} as the priority intervention.",
+                "dropdowns": [
+                    {
+                        "id": "d1",
+                        "options": [
+                            {
+                                "id": "o1",
+                                "text": "AV Node or Bundle of His (Infra-nodal)",
+                                "isCorrect": true
+                            },
+                            {
+                                "id": "o2",
+                                "text": "Sinoatrial (SA) Node"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "d2",
+                        "options": [
+                            {
+                                "id": "o3",
+                                "text": "Pacing",
+                                "isCorrect": true
+                            },
+                            {
+                                "id": "o4",
+                                "text": "Defibrillation"
+                            }
+                        ]
+                    }
+                ],
+                "rationale": {
+                    "coreConcept": "Limitations of Atropine in High-Degree Blocks.",
+                    "caseSummary": "Understanding why we don't just rely on drugs for this patient.",
+                    "answerAnalysis": "Atropine works by inhibiting the Vagus nerve (Vagolytic), which innervates the SA and AV nodes. In 3rd degree block with wide QRS, the escape rhythm is ventricular (Infra-nodal), below where the Vagus nerve reaches. Therefore, Atropine often does nothing. Pacing is the only way to drive the ventricles.",
+                    "trap": "Thinking Atropine fixes all slow heart rates.",
+                    "goldenRule": "Wide QRS Bradycardia = Atropine likely fails. Go to Pacing.",
+                    "steps": [
+                        {
+                            "tag": "Recognize",
+                            "description": "Wide QRS = Distal block."
+                        },
+                        {
+                            "tag": "Analyze",
+                            "description": "Vagus nerve doesn't reach distal ventricles."
+                        },
+                        {
+                            "tag": "Take Action",
+                            "description": "Prepare alternate therapy (Pacing/Dopamine/Epi)."
+                        }
+                    ],
+                    "mnemonic": {
+                        "title": "Wide-Wait-Pace",
+                        "content": "Wide QRS? Wait on Atropine? No, Pace.",
+                        "explanation": "Decision tool."
+                    },
+                    "cheatSheet": {
+                        "title": "Bradycardia Drugs",
+                        "points": [
+                            "Atropine: 1st line.",
+                            "Dopamine infusion: 2nd line.",
+                            "Epinephrine infusion: 2nd line."
+                        ]
+                    },
+                    "referenceInfo": {
+                        "anatomy": "Conduction system innervation.",
+                        "physiology": "Parasympathetic (Vagus) innervation decreases as you go down the conduction system. Ventricles have minimal vagal control.",
+                        "pharm": "Atropine is an anticholinergic."
+                    },
+                    "difficulty": {
+                        "score": 90,
+                        "level": 5,
+                        "label": "Expert",
+                        "clinicalStrategy": "Look at the QRS width. Narrow? Atropine might work. Wide? Probably not.",
+                        "recommendedActions": [
+                            "Have Epi push dose ready."
+                        ]
+                    }
+                }
+            },
+            {
+                "type": "multiple-response",
+                "cjmmStep": "Evaluate Outcomes",
+                "prompt": "Which findings indicate the pacing is effective and the patient's status is improving? Select all that apply.",
+                "options": [
+                    {
+                        "id": "o1",
+                        "text": "Palpable femoral pulse matches the set pacer rate",
+                        "isCorrect": true
+                    },
+                    {
+                        "id": "o2",
+                        "text": "Mental status improves to baseline",
+                        "isCorrect": true
+                    },
+                    {
+                        "id": "o3",
+                        "text": "Monitor shows pacer spikes followed by wide QRS complexes",
+                        "isCorrect": true
+                    },
+                    {
+                        "id": "o4",
+                        "text": "Blood pressure increases to 110/70 mmHg",
+                        "isCorrect": true
+                    },
+                    {
+                        "id": "o5",
+                        "text": "Patient complains of chest discomfort with each impulse",
+                        "isCorrect": false
+                    }
+                ],
+                "rationale": {
+                    "coreConcept": "Verifying capture and perfusion.",
+                    "caseSummary": "Ensuring the machine is actually saving the patient.",
+                    "answerAnalysis": "Palpable pulse matching rate = Mechanical Capture (Essential). Mental status/BP improvement = Perfusion success. Spikes + QRS = Electrical Capture. Chest discomfort is a side effect/expected finding of TCP (muscle contraction), not a sign of 'improvement' or 'effectiveness' of the cardiac output itself (it's actually a nuisance finding we treat with sedation).",
+                    "trap": "Selecting chest pain. While it confirms current is being delivered, it's not a sign of *clinical improvement*.",
+                    "goldenRule": "Electrical Capture is on the screen. Mechanical Capture is on the pulse.",
+                    "steps": [
+                        {
+                            "tag": "Recognize",
+                            "description": "Look for spikes."
+                        },
+                        {
+                            "tag": "Analyze",
+                            "description": "Feel for pulse."
+                        },
+                        {
+                            "tag": "Take Action",
+                            "description": "Assess end organs (Brain/Kidneys)."
+                        }
+                    ],
+                    "mnemonic": {
+                        "title": "SPIKE",
+                        "content": "S-Spike visible, P-Pulse palpable, I-Improved BP, K-Kidneys (urine), E-Extremities warm",
+                        "explanation": "Signs of pacing success."
+                    },
+                    "cheatSheet": {
+                        "title": "Checking Capture",
+                        "points": [
+                            "Don't use carotid (muscle twitch mimics pulse).",
+                            "Use Femoral pulse.",
+                            "Use Pulse Oximetry waveform (if good signal)."
+                        ]
+                    },
+                    "referenceInfo": {
+                        "anatomy": "Skeletal vs Cardiac muscle.",
+                        "physiology": "TCP stimulates pectoralis muscles (pain/twitch) AND heart muscle. Sedation is humane.",
+                        "pharm": "Midazolam/Fentanyl for pacer tolerance."
+                    },
+                    "difficulty": {
+                        "score": 90,
+                        "level": 5,
+                        "label": "Expert",
+                        "clinicalStrategy": "Always confirm mechanical capture. Electrical capture alone does not generate blood pressure (PEA).",
+                        "recommendedActions": [
+                            "Sedate patient once BP stabilizes."
+                        ]
+                    }
+                }
+            }
+        ]
+    }
+}

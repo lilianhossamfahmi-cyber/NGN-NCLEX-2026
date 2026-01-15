@@ -1,0 +1,324 @@
+[
+    {
+        "id": "gen-matrix-cardio-lvl1-001",
+        "typeId": "matrix",
+        "metadata": {
+            "title": "Cardiac Terms Basic",
+            "authorId": "system-ai",
+            "status": "published",
+            "sourceOrigin": "batch-gen",
+            "sourceReferences": [],
+            "hasStudentPreview": true,
+            "createdAt": "2026-01-13T12:00:00Z",
+            "updatedAt": "2026-01-13T12:00:00Z"
+        },
+        "pedagogy": {
+            "difficultyLevel": 1,
+            "clinicalFocus": "Cardiology",
+            "cjmmPhase": "Recognize Cues",
+            "bloom": "Recall"
+        },
+        "content": {
+            "prompt": "For each heart rate value below, identify the correct clinical terminology.",
+            "columns": [
+                {
+                    "id": "c1",
+                    "label": "Bradycardia"
+                },
+                {
+                    "id": "c2",
+                    "label": "Normal Rate"
+                },
+                {
+                    "id": "c3",
+                    "label": "Tachycardia"
+                }
+            ],
+            "rows": [
+                {
+                    "id": "r1",
+                    "text": "Heart Rate 52 bpm"
+                },
+                {
+                    "id": "r2",
+                    "text": "Heart Rate 88 bpm"
+                },
+                {
+                    "id": "r3",
+                    "text": "Heart Rate 115 bpm"
+                },
+                {
+                    "id": "r4",
+                    "text": "Heart Rate 40 bpm"
+                }
+            ],
+            "answers": {
+                "r1": "c1",
+                "r2": "c2",
+                "r3": "c3",
+                "r4": "c1"
+            },
+            "rationales": {
+                "general": "A heart rate less than 60 bpm is classified as Bradycardia. A rate between 60-100 bpm is Normal. A rate greater than 100 bpm is Tachycardia."
+            }
+        }
+    },
+    {
+        "id": "gen-bowtie-cardio-lvl2-001",
+        "typeId": "bow-tie",
+        "metadata": {
+            "title": "Left Sided Heart Failure",
+            "authorId": "system-ai",
+            "status": "published",
+            "sourceOrigin": "batch-gen",
+            "sourceReferences": [],
+            "hasStudentPreview": true,
+            "createdAt": "2026-01-13T12:05:00Z",
+            "updatedAt": "2026-01-13T12:05:00Z"
+        },
+        "pedagogy": {
+            "difficultyLevel": 2,
+            "clinicalFocus": "Cardiology",
+            "cjmmPhase": "Analyze Cues",
+            "bloom": "Comprehension"
+        },
+        "content": {
+            "scenario": "A 72-year-old client presents to the ED reporting shortness of breath that worsens when lying down. Assessment reveals bi-basal crackles and an O2 sat of 89% on room air.",
+            "condition": {
+                "label": "Condition",
+                "correctId": "cond1",
+                "pool": [
+                    {
+                        "id": "cond1",
+                        "label": "Left-Sided Heart Failure"
+                    },
+                    {
+                        "id": "cond2",
+                        "label": "Right-Sided Heart Failure"
+                    },
+                    {
+                        "id": "cond3",
+                        "label": "Pulmonary Embolism"
+                    },
+                    {
+                        "id": "cond4",
+                        "label": "Pneumonia"
+                    }
+                ]
+            },
+            "actions": {
+                "label": "Actions to Take",
+                "correctIds": [
+                    "act1",
+                    "act2"
+                ],
+                "pool": [
+                    {
+                        "id": "act1",
+                        "label": "Administer Furosemide IV"
+                    },
+                    {
+                        "id": "act2",
+                        "label": "Place client in High Fowler's"
+                    },
+                    {
+                        "id": "act3",
+                        "label": "Administer IV Fluids"
+                    },
+                    {
+                        "id": "act4",
+                        "label": "Perform leg exercises"
+                    },
+                    {
+                        "id": "act5",
+                        "label": "Lay patient flat"
+                    }
+                ]
+            },
+            "parameters": {
+                "label": "Parameters to Monitor",
+                "correctIds": [
+                    "param1",
+                    "param2"
+                ],
+                "pool": [
+                    {
+                        "id": "param1",
+                        "label": "Oxygen Saturation"
+                    },
+                    {
+                        "id": "param2",
+                        "label": "Lung Sounds"
+                    },
+                    {
+                        "id": "param3",
+                        "label": "Temperature"
+                    },
+                    {
+                        "id": "param4",
+                        "label": "Blood Glucose"
+                    }
+                ]
+            },
+            "rationales": {
+                "general": "The client exhibits classic signs of Left-Sided Heart Failure (Crackles, Orthopnea, Hypoxia). The priority is to maximize chest expansion (High Fowler's) and remove fluid from the lungs (Furosemide). Monitoring O2 sats and Lung sounds evaluates effectiveness."
+            }
+        }
+    },
+    {
+        "id": "gen-trend-cardio-lvl3-001",
+        "typeId": "trend",
+        "metadata": {
+            "title": "Lasix Effectiveness",
+            "authorId": "system-ai",
+            "status": "published",
+            "sourceOrigin": "batch-gen",
+            "sourceReferences": [],
+            "hasStudentPreview": true,
+            "createdAt": "2026-01-13T12:10:00Z",
+            "updatedAt": "2026-01-13T12:10:00Z"
+        },
+        "pedagogy": {
+            "difficultyLevel": 3,
+            "clinicalFocus": "Cardiology",
+            "cjmmPhase": "Evaluate Outcomes",
+            "bloom": "Application"
+        },
+        "content": {
+            "prompt": "Review the client's data over the last 24 hours. Click to select the findings that indicate the diuretic therapy is effective.",
+            "uistyle": "trend-chart",
+            "trendData": {
+                "timePoints": [
+                    "0800",
+                    "1200",
+                    "1600"
+                ],
+                "dataPoints": [
+                    {
+                        "label": "Weight (kg)",
+                        "values": [
+                            "90.2",
+                            "89.8",
+                            "89.1"
+                        ]
+                    },
+                    {
+                        "label": "Breath Sounds",
+                        "values": [
+                            "Coarse Crackles",
+                            "Diminishing",
+                            "Clear Bases"
+                        ]
+                    },
+                    {
+                        "label": "Urine Output",
+                        "values": [
+                            "50 mL",
+                            "400 mL",
+                            "550 mL"
+                        ]
+                    }
+                ]
+            },
+            "questionText": "Select findings indicating effectiveness.",
+            "options": [
+                {
+                    "id": "o1",
+                    "text": "Weight Trend: 90.2 -> 89.1",
+                    "correct": true
+                },
+                {
+                    "id": "o2",
+                    "text": "Breath Sounds: Crackles -> Clear",
+                    "correct": true
+                },
+                {
+                    "id": "o3",
+                    "text": "Urine Output: Increasing",
+                    "correct": true
+                }
+            ],
+            "rationales": {
+                "general": "Effectiveness of diuretic therapy in HF is shown by removal of fluid volume: Weight loss, clearing of lung sounds, and significant diuresis."
+            }
+        }
+    },
+    {
+        "id": "gen-calc-cardio-lvl4-001",
+        "typeId": "numeric-entry",
+        "metadata": {
+            "title": "Heparin Protocol",
+            "authorId": "system-ai",
+            "status": "published",
+            "sourceOrigin": "batch-gen",
+            "sourceReferences": [],
+            "hasStudentPreview": true,
+            "createdAt": "2026-01-13T12:15:00Z",
+            "updatedAt": "2026-01-13T12:15:00Z"
+        },
+        "pedagogy": {
+            "difficultyLevel": 4,
+            "clinicalFocus": "Cardiology",
+            "cjmmPhase": "Generate Solutions",
+            "bloom": "Analysis"
+        },
+        "content": {
+            "prompt": "The client weighs 80 kg and is on a Heparin drip. The current PTT is 40 seconds (Subtherapeutic). The protocol states: 'Re-bolus with 40 units/kg and increase infusion rate by 2 units/kg/hr'. \n\nCalculate the bolus dose in UNITS.",
+            "correctValue": 3200,
+            "tolerance": 0,
+            "unit": "units",
+            "rationales": {
+                "general": "80 kg * 40 units/kg = 3,200 units."
+            }
+        }
+    },
+    {
+        "id": "gen-highlight-cardio-lvl5-001",
+        "typeId": "highlight",
+        "metadata": {
+            "title": "Cardiogenic Shock Cues",
+            "authorId": "system-ai",
+            "status": "published",
+            "sourceOrigin": "batch-gen",
+            "sourceReferences": [],
+            "hasStudentPreview": true,
+            "createdAt": "2026-01-13T12:20:00Z",
+            "updatedAt": "2026-01-13T12:20:00Z"
+        },
+        "pedagogy": {
+            "difficultyLevel": 5,
+            "clinicalFocus": "Cardiology",
+            "cjmmPhase": "Recognize Cues",
+            "bloom": "Synthesis"
+        },
+        "content": {
+            "text": "Assessment Note 1400: Client is id='h1'confused/id and lethargic. Extremities are id='h2'cool and mottled/id. HR 125 (Sinus Tach). BP id='h3'82/50/id mmHg. Urine output for last 2 hours is id='h4'15 mL total/id.",
+            "tokens": [
+                {
+                    "id": "h1",
+                    "text": "confused",
+                    "correct": true
+                },
+                {
+                    "id": "h2",
+                    "text": "cool and mottled",
+                    "correct": true
+                },
+                {
+                    "id": "h3",
+                    "text": "82/50",
+                    "correct": true
+                },
+                {
+                    "id": "h4",
+                    "text": "15 mL total",
+                    "correct": true
+                }
+            ],
+            "prompt": "Highlight the findings that indicate organ hypoperfusion consistent with Cardiogenic Shock.",
+            "rationales": {
+                "general": "Signs of shock (hypoperfusion) include Altered Mental Status (confused), Poor peripheral perfusion (cool/mottled), Hypotension (82/50), and Oliguria (15mL/2hr). Tachycardia is a compensatory mechanism."
+            }
+        }
+    }
+]

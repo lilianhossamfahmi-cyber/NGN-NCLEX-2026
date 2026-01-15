@@ -116,7 +116,7 @@ export const OptionReviewV2: React.FC<OptionReviewV2Props> = ({ units }) => {
                     </div>
                 )}
 
-                {filteredUnits.map((unit) => {
+                {filteredUnits.map((unit, idx) => {
                     const isExpanded = expandedIds.has(unit.id);
 
                     // Determine Style based on Status
@@ -179,7 +179,7 @@ export const OptionReviewV2: React.FC<OptionReviewV2Props> = ({ units }) => {
 
                     return (
                         <div
-                            key={unit.id}
+                            key={unit.id || idx}
                             className={`rounded-xl border transition-all duration-200 overflow-hidden ${cardClass}`}
                         >
                             <div
