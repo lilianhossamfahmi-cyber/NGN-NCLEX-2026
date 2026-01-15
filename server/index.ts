@@ -16,8 +16,15 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 
-// Ensure DB is ready before handling requests
-initDb().then(() => console.log('DB initialized'));
+// Health Check Endpoint (Vital for Railway)
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ status: 'ok', uptime: process.uptime() });
+});
+
+// Ensure DB is ready before handling requests (Non-blocking)
+initDb()
+    .then(() => console.log('✅ DB initialized successfully'))
+    .catch(err => console.error('❌ DB Initialization Failed (Server will continue):', err));
 
 // GET all items (with optional query params for filtering)
 app.get('/api/items', async (req: Request, res: Response) => {
