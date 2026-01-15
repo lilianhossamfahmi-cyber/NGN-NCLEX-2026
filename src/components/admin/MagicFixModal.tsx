@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MasterQuestionItem } from '../../types/master-schema';
 import { API_BASE } from '../../services/itemApiService';
-import { Wand2, X, Check, Loader2, AlertCircle, User, FileText, Gauge, Image as ImageIcon, ChevronDown, ChevronRight, Sparkles, CheckCircle, Brain, RefreshCw, PenTool, ClipboardCheck, Activity, Stethoscope } from 'lucide-react';
+import { Wand2, X, Check, Loader2, AlertCircle, User, FileText, Gauge, Image as ImageIcon, ChevronDown, ChevronRight, Sparkles } from 'lucide-react';
 import { updateItem } from '../../services/itemApiService';
 import { syncItemToSupabase } from '../../services/itemSyncService';
 

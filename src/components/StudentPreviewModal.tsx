@@ -266,7 +266,7 @@ import {
     hasCriticalRadiologyFinding
 } from '../utils/ClinicalHelpers';
 
-export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: rawItem, onClose, hideRationales, onNextQuestion, enableAdminEditing = false }) => {
+export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: rawItem, onClose, hideRationales, enableAdminEditing = false }) => {
     // Force EXAM mode if hideRationales is true (External Control)
     const initialMode = hideRationales ? 'exam' : 'tutor';
     const [mode, setMode] = useState<'tutor' | 'exam'>(initialMode); // 'tutor' = show rationale, 'exam' = hide rationale
@@ -333,7 +333,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                 ...newItemJson,
                 id: internalItem.id,
                 typeId: internalItem.typeId, // Force preserve type
-                type: internalItem.type      // Force preserve type alias
+                type: (internalItem as any).type      // Force preserve type alias
             };
 
             // Normalize status
