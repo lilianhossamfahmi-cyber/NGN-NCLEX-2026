@@ -269,17 +269,22 @@ export const MasterCreatorEngine: React.FC = () => {
             : generatedBatch;
 
         (async () => {
-            const count = await saveBatchToBank(toSave);
-            const items = await getBankItems();
-            setBankItems(items.items || []);
-            setSuccessMsg(`Saved ${count} items to Bank.`);
-            setTimeout(() => setSuccessMsg(null), 3000);
+            try {
+                const count = await saveBatchToBank(toSave);
+                const items = await getBankItems();
+                setBankItems(items.items || []);
+                setSuccessMsg(`Saved ${count} items to Bank.`);
+                setTimeout(() => setSuccessMsg(null), 3000);
 
-            // [PER-01] Cleanup draft after successful save
-            sessionStorage.removeItem('ngn_creator_draft');
-            setGeneratedBatch([]); // Clear buffer
-            setReviewSelectedIds([]);
-            setViewState('dashboard'); // Go back to start
+                // [PER-01] Cleanup draft after successful save
+                sessionStorage.removeItem('ngn_creator_draft');
+                setGeneratedBatch([]); // Clear buffer
+                setReviewSelectedIds([]);
+                setViewState('dashboard'); // Go back to start
+            } catch (e: any) {
+                console.error("Save Error:", e);
+                setError(`Failed to save items: ${e.message}. (Did you run the Supabase SQL script?)`);
+            }
         })();
     };
 
