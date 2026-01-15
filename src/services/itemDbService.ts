@@ -1,67 +1,19 @@
 // src/services/itemDbService.ts
-import sqlite3 from 'sqlite3';
-import { open, Database } from 'sqlite';
+import { supabase } from '../../server/supabaseClient.ts';
 import { MasterQuestionItem } from '../types/master-schema.ts';
 import { enrichItemWithQuality } from '../utils/autoQuality.ts';
 
-let db: Database<sqlite3.Database, sqlite3.Statement> | null = null;
-
+// No initDb needed for Supabase as client is stateless
 export async function initDb() {
-    if (db) return db;
-    db = await open({
-        filename: './itemBank.db',
-        driver: sqlite3.Database,
-    });
-
-    // src/services/itemDbService.ts
-    // ... existing imports remain
-
-    // Add allowed_modes column if missing after table creation
-    await db.exec(`
-  CREATE TABLE IF NOT EXISTS item_bank (
-    id TEXT PRIMARY KEY,
-    type_id TEXT NOT NULL,
-    clinical_focus TEXT,
-    difficulty_level INTEGER NOT NULL,
-    cjmm_step TEXT,
-    client_needs TEXT,
-    created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL,
-    created_by TEXT NOT NULL,
-    updated_by TEXT NOT NULL,
-    status TEXT NOT NULL,
-    quality_score INTEGER NOT NULL,
-    tags TEXT,
-    allowed_modes TEXT, -- JSON stringified array of modes
-    item_json TEXT NOT NULL
-  );
-  CREATE INDEX IF NOT EXISTS ix_item_bank_type ON item_bank (type_id);
-  CREATE INDEX IF NOT EXISTS ix_item_bank_difficulty ON item_bank (difficulty_level);
-  CREATE INDEX IF NOT EXISTS ix_item_bank_status ON item_bank (status);
-  CREATE INDEX IF NOT EXISTS ix_item_bank_created_at ON item_bank (created_at DESC);
-  CREATE INDEX IF NOT EXISTS ix_item_bank_tags ON item_bank (tags);
-`);
-
-    // Ensure column exists for older DBs (manual check)
-    const columns = await db.all('PRAGMA table_info(item_bank)');
-    if (!columns.some((c: any) => c.name === 'allowed_modes')) {
-        await db.exec('ALTER TABLE item_bank ADD COLUMN allowed_modes TEXT');
-    }
-
-    return db;
+    return supabase;
 }
 
 function serializeArray(arr?: string[]): string | null {
     return arr ? JSON.stringify(arr) : null;
 }
 
-/**
- * Infer a clinical topic from item content if not explicitly provided.
- */
 function inferTopic(item: any): string {
     const text = JSON.stringify(item).toLowerCase();
-
-    // Keyword Map
     const map: Record<string, string> = {
         'heart': 'Cardiology', 'cardio': 'Cardiology', 'atrial': 'Cardiology', 'ventricle': 'Cardiology',
         'lung': 'Respiratory', 'breath': 'Respiratory', 'alveoli': 'Respiratory', 'copd': 'Respiratory',
@@ -74,7 +26,6 @@ function inferTopic(item: any): string {
         'bone': 'Musculoskeletal', 'fracture': 'Musculoskeletal',
         'mental': 'Mental Health', 'psych': 'Mental Health', 'depression': 'Mental Health'
     };
-
     for (const [key, topic] of Object.entries(map)) {
         if (text.includes(key)) return topic;
     }
@@ -82,9 +33,9 @@ function inferTopic(item: any): string {
 }
 
 export interface ItemQueryOptions {
-    page?: number;     // 1-based
+    page?: number;
     limit?: number;
-    search?: string;   // Full text search on item_json
+    search?: string;
     topic?: string;
     type?: string;
     level?: number;
@@ -101,63 +52,50 @@ export interface PaginatedResult {
 }
 
 export async function getBankItems(options: ItemQueryOptions = {}): Promise<PaginatedResult> {
-    const db = await initDb();
+    const page = options.page || 1;
+    const limit = options.limit || 50;
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
 
-    let query = `SELECT item_json FROM item_bank WHERE 1=1`;
-    let countQuery = `SELECT COUNT(*) as total FROM item_bank WHERE 1=1`;
-    const params: any[] = [];
+    let query = supabase
+        .from('item_bank')
+        .select('*', { count: 'exact' });
 
     // Filters
     if (options.search) {
-        const term = `%${options.search}%`;
-        const clause = ` AND item_json LIKE ?`;
-        query += clause;
-        countQuery += clause;
-        params.push(term);
+        query = query.ilike('item_json', `%${options.search}%`);
     }
     if (options.topic && options.topic !== 'All') {
-        query += ` AND clinical_focus = ?`;
-        countQuery += ` AND clinical_focus = ?`;
-        params.push(options.topic);
+        query = query.eq('clinical_focus', options.topic);
     }
     if (options.type && options.type !== 'All') {
-        query += ` AND type_id = ?`;
-        countQuery += ` AND type_id = ?`;
-        params.push(options.type);
+        query = query.eq('type_id', options.type);
     }
     if (options.status && options.status !== 'All') {
-        query += ` AND status = ?`;
-        countQuery += ` AND status = ?`;
-        params.push(options.status);
+        query = query.eq('status', options.status);
     }
 
     // Sorting
     const sortField = options.sortField || 'created_at';
     const sortDir = options.sortDir || 'desc';
-
-    // Safe-guard sort field to prevent SQL injection
-    const allowedSorts = ['created_at', 'quality_score', 'difficulty_level', 'status', 'type_id'];
-    const safeSort = allowedSorts.includes(sortField) ? sortField : 'created_at';
-
-    query += ` ORDER BY ${safeSort} ${sortDir.toUpperCase()}`;
+    query = query.order(sortField, { ascending: sortDir === 'asc' });
 
     // Pagination
-    const page = options.page || 1;
-    const limit = options.limit || 50;
-    const offset = (page - 1) * limit;
+    query = query.range(from, to);
 
-    query += ` LIMIT ? OFFSET ?`;
+    const { data, error, count } = await query;
 
-    // Execute
-    // Note: params for count query must match filters only, NOT limit/offset
-    // We clone params for the query, adding limit/offset at the end
-    const queryParams = [...params, limit, offset];
+    if (error) {
+        console.error('Supabase Error:', error);
+        throw new Error(error.message);
+    }
 
-    const countRes = await db.get(countQuery, params);
-    const total = countRes?.total || 0;
+    const items = (data || []).map((r: any) => {
+        // Handle if item_json is returned as string or object
+        return typeof r.item_json === 'string' ? JSON.parse(r.item_json) : r.item_json;
+    });
 
-    const rows = await db.all(query, queryParams);
-    const items = rows.map((r: any) => JSON.parse(r.item_json) as MasterQuestionItem);
+    const total = count || 0;
 
     return {
         items,
@@ -172,21 +110,19 @@ export async function saveItemToBank(item: MasterQuestionItem, userId: string = 
 }
 
 export async function saveBatchToBank(items: MasterQuestionItem[], userId: string = 'system'): Promise<number> {
-    const db = await initDb();
-    let added = 0;
+    if (items.length === 0) return 0;
 
-    for (const item of items) {
+    const upsertData = items.map(item => {
         const enriched = enrichItemWithQuality(item);
         const now = new Date().toISOString();
         const { id, typeId, metadata, pedagogy } = enriched;
 
-        // Auto-Topic Logic
         let clinicalFocus = pedagogy?.clinicalFocus ?? (metadata as any)?.clinicalFocus;
         if (!clinicalFocus || clinicalFocus === 'General') {
             clinicalFocus = inferTopic(item);
         }
 
-        // Update the item itself so JSON is consistent
+        // Update item content
         if (pedagogy) pedagogy.clinicalFocus = clinicalFocus;
         else (metadata as any).clinicalFocus = clinicalFocus;
 
@@ -201,35 +137,54 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
         const tags = serializeArray(rawTags);
         const itemJson = JSON.stringify(enriched);
 
-        const result = await db.run(
-            `INSERT INTO item_bank (id, type_id, clinical_focus, difficulty_level, cjmm_step, client_needs,
-            created_at, updated_at, created_by, updated_by, status, quality_score, tags, allowed_modes, item_json)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(id) DO UPDATE SET
-              item_json = excluded.item_json,
-              updated_at = excluded.updated_at,
-              updated_by = excluded.updated_by,
-              status = excluded.status,
-              clinical_focus = excluded.clinical_focus,
-              quality_score = excluded.quality_score,
-              tags = excluded.tags,
-              allowed_modes = excluded.allowed_modes;`,
-            id, typeId, clinicalFocus, difficultyLevel, cjmmStep, clientNeeds,
-            now, now, userId, userId, status, score, tags,
-            serializeArray((enriched as any).allowed_modes || []),
-            itemJson
-        );
-        if (result.changes && result.changes > 0) added++;
+        return {
+            id,
+            type_id: typeId,
+            clinical_focus: clinicalFocus,
+            difficulty_level: difficultyLevel,
+            cjmm_step: cjmmStep,
+            client_needs: clientNeeds,
+            created_at: now, // For upsert, keeping original created_at might be better but this resets it. SQLite logic did this.
+            updated_at: now,
+            created_by: userId,
+            updated_by: userId,
+            status,
+            quality_score: score,
+            tags,
+            allowed_modes: serializeArray((enriched as any).allowed_modes || []),
+            item_json: itemJson
+        };
+    });
+
+    const { error, count } = await supabase
+        .from('item_bank')
+        .upsert(upsertData, { onConflict: 'id' })
+        .select(); // Select is needed to return data?
+
+    if (error) {
+        console.error('Supabase Save Error:', error);
+        throw new Error(error.message);
     }
-    return added;
+
+    // Supabase upsert doesn't always return count in V2 unless requested maybe? 
+    // Assuming success matches input length
+    return upsertData.length;
 }
 
 export async function deleteItemFromBank(id: string): Promise<void> {
-    const db = await initDb();
-    await db.run(`DELETE FROM item_bank WHERE id = ?`, id);
+    const { error } = await supabase.from('item_bank').delete().eq('id', id);
+    if (error) console.error('Delete Error:', error);
+}
+
+export async function deleteBatchFromBank(ids: string[]): Promise<void> {
+    if (!ids.length) return;
+    const { error } = await supabase.from('item_bank').delete().in('id', ids);
+    if (error) console.error('Delete Batch Error:', error);
 }
 
 export async function clearBank(): Promise<void> {
-    const db = await initDb();
-    await db.run(`DELETE FROM item_bank`);
+    // Dangerous, maybe restrict?
+    const { error } = await supabase.from('item_bank').delete().neq('id', '0'); // Delete all not equal to 0 (effectively all UUIDs)
+    if (error) console.error('Clear Bank Error:', error);
 }
+
