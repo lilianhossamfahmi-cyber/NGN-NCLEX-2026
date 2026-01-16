@@ -107,6 +107,55 @@ BOWTIE SCHEMA (content.bowtie or content.structure):
 REQUIREMENTS:
 - Use this structure for BowTie items specifically.
 - "isCorrect" boolean must mark the valid keys.
+`,
+    matrix: `
+MATRIX SCHEMA (content.structure):
+{
+  "type": "matrix",
+  "prompt": "For each finding, indicate if it is consistent with [Column 1] or [Column 2].",
+  "columns": [
+    { "id": "c1", "text": "Condition A" },
+    { "id": "c2", "text": "Condition B" }
+  ],
+  "rows": [
+    { "id": "r1", "text": "Finding 1", "correctColumnId": "c1", "rationale": "Explanation..." },
+    { "id": "r2", "text": "Finding 2", "correctColumnId": "c2", "rationale": "Explanation..." }
+  ]
+}
+REQUIREMENTS:
+- Columns must be mutually exclusive options.
+- Rows must represent patient findings.
+- correctColumnId MUST match one of the column IDs.
+`,
+    highlight: `
+HIGHLIGHT SCHEMA (content.structure):
+{
+  "type": "highlight",
+  "prompt": "Highlight the findings that require immediate intervention.",
+  "text": "The patient reports <span id='h1'>sudden chest pain</span>...",
+  "correct": ["h1"],
+  "decoys": ["h2"],
+  "tokenMap": {
+    "h1": { "isCorrect": true, "whyCorrect": "...", "whyIncorrect": "N/A" },
+    "h2": { "isCorrect": false, "whyCorrect": "N/A", "whyIncorrect": "..." }
+  }
+}
+REQUIREMENTS:
+- Use <span id='hX'> wrappers in text.
+- Provide tokenMap for ALL spans.
+`,
+    orderedResponse: `
+ORDERED RESPONSE SCHEMA (content.structure):
+{
+  "type": "ordered-response",
+  "prompt": "Drag steps into order.",
+  "orderedOptions": [
+    { "id": "s1", "text": "First Action", "rationale": "..." },
+    { "id": "s2", "text": "Second Action", "rationale": "..." }
+  ]
+}
+REQUIREMENTS:
+- orderedOptions MUST be in the CORRECT order.
 `
 };
 
@@ -117,9 +166,15 @@ function buildPrompt(item: any, instruction: string): string {
     const isFullCase = instructionLower.includes("full") ||
         instructionLower.includes("complete") ||
         instructionLower.includes("generate all") ||
-        instructionLower.includes("bowtie");
+        instructionLower.includes("bowtie") ||
+        instructionLower.includes("matrix") ||
+        instructionLower.includes("highlight");
 
-    const isBowTieItem = item.typeId === 'bowtie' || instructionLower.includes('bowtie');
+    const typeId = item.typeId || "case-study";
+    const isBowTieItem = typeId === 'bowtie' || instructionLower.includes('bowtie');
+    const isMatrixItem = typeId === 'matrix' || instructionLower.includes('matrix');
+    const isHighlightItem = typeId === 'highlight' || instructionLower.includes('highlight');
+    const isOrderedItem = typeId === 'ordered-response' || instructionLower.includes('ordered');
 
     // Mandatory schemas that MUST be present for full cases
     let mandatorySchemas = [
@@ -127,9 +182,15 @@ function buildPrompt(item: any, instruction: string): string {
         GOLDEN_SCHEMAS.questionStem
     ];
 
-    // Swap Answer Options for BowTie Structure if it's a BowTie item
+    // Swap Answer Options for specific structures
     if (isBowTieItem) {
         mandatorySchemas.push(GOLDEN_SCHEMAS.bowtie);
+    } else if (isMatrixItem) {
+        mandatorySchemas.push(GOLDEN_SCHEMAS.matrix);
+    } else if (isHighlightItem) {
+        mandatorySchemas.push(GOLDEN_SCHEMAS.highlight);
+    } else if (isOrderedItem) {
+        mandatorySchemas.push(GOLDEN_SCHEMAS.orderedResponse);
     } else {
         mandatorySchemas.push(GOLDEN_SCHEMAS.answerOptions);
     }
@@ -137,68 +198,54 @@ function buildPrompt(item: any, instruction: string): string {
     const mandatorySchemaString = mandatorySchemas.join("\n\n");
 
     let schemaContext = "";
-    let detectedTasks: string[] = [];
 
     if (isFullCase) {
         // If full case, include EVERYTHING + Mandatory block
         // FILTER out conflicting schemas for cleaner prompt
         const allSchemas = Object.entries(GOLDEN_SCHEMAS)
             .filter(([key]) => {
-                if (isBowTieItem && key === 'answerOptions') return false; // Don't show generic options for BowTie
-                if (!isBowTieItem && key === 'bowtie') return false; // Don't show BowTie for generic
+                if (isBowTieItem && (key === 'answerOptions' || key === 'matrix' || key === 'highlight' || key === 'orderedResponse')) return false;
+                if (isMatrixItem && (key === 'answerOptions' || key === 'bowtie' || key === 'highlight' || key === 'orderedResponse')) return false;
+                if (isHighlightItem && (key === 'answerOptions' || key === 'bowtie' || key === 'matrix' || key === 'orderedResponse')) return false;
+                if (isOrderedItem && (key === 'answerOptions' || key === 'bowtie' || key === 'matrix' || key === 'highlight')) return false;
+                if (!isBowTieItem && !isMatrixItem && !isHighlightItem && !isOrderedItem && (key === 'bowtie' || key === 'matrix' || key === 'highlight' || key === 'orderedResponse')) return false;
                 return true;
             })
             .map(([_, val]) => val)
             .join("\n\n");
-
         schemaContext = mandatorySchemaString + "\n\n" + allSchemas;
-        detectedTasks = ["FULL CONTENT"];
     } else {
         // Selective schemas based on instruction
-        if (instructionLower.includes("nurse") || instructionLower.includes("notes")) {
-            schemaContext += GOLDEN_SCHEMAS.nursesNotes + "\n\n";
-            detectedTasks.push("Nurses Notes");
-        }
-        if (instructionLower.includes("vital")) {
-            schemaContext += GOLDEN_SCHEMAS.vitals + "\n\n";
-            detectedTasks.push("Vitals");
-        }
-        if (instructionLower.includes("lab")) {
-            schemaContext += GOLDEN_SCHEMAS.labs + "\n\n";
-            detectedTasks.push("Labs");
-        }
-        if (instructionLower.includes("order")) {
-            schemaContext += GOLDEN_SCHEMAS.orders + "\n\n";
-            detectedTasks.push("Orders");
-        }
-        if (instructionLower.includes("rationale")) {
-            schemaContext += GOLDEN_SCHEMAS.rationale + "\n\n";
-            detectedTasks.push("Rationale");
-        }
-        if (instructionLower.includes("stem")) {
-            schemaContext += GOLDEN_SCHEMAS.questionStem + "\n\n";
-            detectedTasks.push("Question Stem");
-        }
+        if (instructionLower.includes("nurse") || instructionLower.includes("notes")) schemaContext += GOLDEN_SCHEMAS.nursesNotes + "\n\n";
+        if (instructionLower.includes("vital")) schemaContext += GOLDEN_SCHEMAS.vitals + "\n\n";
+        if (instructionLower.includes("lab")) schemaContext += GOLDEN_SCHEMAS.labs + "\n\n";
+        if (instructionLower.includes("order")) schemaContext += GOLDEN_SCHEMAS.orders + "\n\n";
+        if (instructionLower.includes("rationale")) schemaContext += GOLDEN_SCHEMAS.rationale + "\n\n";
+        if (instructionLower.includes("stem")) schemaContext += GOLDEN_SCHEMAS.questionStem + "\n\n";
 
-        // Smart switching for options
-        if (instructionLower.includes("option") || instructionLower.includes("answer") || instructionLower.includes("choices")) {
-            if (isBowTieItem) {
-                schemaContext += GOLDEN_SCHEMAS.bowtie + "\n\n";
-                detectedTasks.push("BowTie Structure");
-            } else {
-                schemaContext += GOLDEN_SCHEMAS.answerOptions + "\n\n";
-                detectedTasks.push("Answer Options");
-            }
+        // Smart switching for options/structure
+        if (instructionLower.includes("option") || instructionLower.includes("answer") || instructionLower.includes("structure")) {
+            if (isBowTieItem) schemaContext += GOLDEN_SCHEMAS.bowtie + "\n\n";
+            else if (isMatrixItem) schemaContext += GOLDEN_SCHEMAS.matrix + "\n\n";
+            else if (isHighlightItem) schemaContext += GOLDEN_SCHEMAS.highlight + "\n\n";
+            else if (isOrderedItem) schemaContext += GOLDEN_SCHEMAS.orderedResponse + "\n\n";
+            else schemaContext += GOLDEN_SCHEMAS.answerOptions + "\n\n";
         }
     }
 
-    // Extract metadata from item to guide AI
-    // We prioritize text-based metadata to give AI better context
+    // Extract metadata
     const topic = item.metadata?.subTopic || item.metadata?.topic || "General Medical";
     const level = item.metadata?.difficultyLevel || item.metadata?.level || "Standard";
     const clientNeeds = item.metadata?.clientNeeds || "Not Specified";
     const qStyle = item.metadata?.qStyle || "N/A";
     const demographics = item.content?.patientDemographics || {};
+
+    let specificInstruction = "";
+    if (isBowTieItem) specificInstruction = "Generate BowTie structure (actions, conditions, parameters).";
+    else if (isMatrixItem) specificInstruction = "Generate Matrix structure (columns, rows with correctColumnId).";
+    else if (isHighlightItem) specificInstruction = "Generate Highlight structure (text with spans and tokenMap).";
+    else if (isOrderedItem) specificInstruction = "Generate Ordered Response structure (orderedOptions).";
+    else specificInstruction = "Generate Answer Options array.";
 
     return `
 You are an expert NCLEX-RN Clinical Content Generator.
@@ -223,7 +270,7 @@ ${schemaContext || "Generate standard clinical content."}
 3. NO Markdown fences.
 4. Use standard keys provided in schemas.
 5. Preserve existing data structure.
-6. ${isFullCase ? "IMPORTANT: You MUST generate content for nursesNotes, questionStem, and " + (isBowTieItem ? "BowTie structure (actions, conditions, parameters)." : "answerOptions.") : ""}
+6. ${isFullCase ? `IMPORTANT: You MUST generate content for nursesNotes, questionStem, and ${specificInstruction}` : ""}
 
 === CURRENT JSON ===
 ${JSON.stringify(item, null, 2)}
@@ -276,18 +323,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         let result;
         if (image) {
-            // Expecting image as base64 string (without data URI prefix if possible, or strip it)
+            // Check basic size limit (approx 4MB in base64 is ~3MB binary)
+            if (image.length > 5 * 1024 * 1024) {
+                console.error("Image too large");
+                return res.status(413).json({ error: 'Image too large. Please resize to under 4MB.' });
+            }
+
+            // Expecting image as base64 string
+            // Some browsers send data:image/jpeg;base64,... prefix. We need to strip it.
             const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
 
-            result = await model.generateContent([
-                prompt,
-                {
-                    inlineData: {
-                        data: base64Data,
-                        mimeType: "image/png" // Assuming PNG or JPEG, Gemini is flexible
+            try {
+                result = await model.generateContent([
+                    prompt,
+                    {
+                        inlineData: {
+                            data: base64Data,
+                            mimeType: "image/png" // Gemini is flexible with mimeType generally
+                        }
                     }
-                }
-            ]);
+                ]);
+            } catch (genError: any) {
+                console.error("Gemini Generation Error:", genError);
+                return res.status(502).json({ error: 'AI Generation Failed', details: genError.message });
+            }
         } else {
             result = await model.generateContent(prompt);
         }
