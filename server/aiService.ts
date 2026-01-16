@@ -141,42 +141,66 @@ function buildEnhancedPrompt(item: any, instruction: string): string {
   let schemaContext = "";
   let detectedTasks: string[] = [];
 
+  // Add Question Stem schema
+  const QUESTION_STEM_SCHEMA = `
+QUESTION STEM SCHEMA (content.questionStem as string):
+"What is the most appropriate next step for the patient?"
+REQUIREMENTS:
+- Provide a clear, single-sentence question stem.
+`;
+
+  // Extend GOLDEN_SCHEMAS with questionStem
+  const EXTENDED_GOLDEN_SCHEMAS = {
+    ...GOLDEN_SCHEMAS,
+    questionStem: QUESTION_STEM_SCHEMA,
+  };
+
   // Quick heuristic for tasks (same as before but simplified for brevity)
   if (instructionLower.includes("nurse") || instructionLower.includes("notes")) {
-    schemaContext += GOLDEN_SCHEMAS.nursesNotes + "\n\n";
+    schemaContext += EXTENDED_GOLDEN_SCHEMAS.nursesNotes + "\n\n";
     detectedTasks.push("Nurses Notes");
   }
   if (instructionLower.includes("vital")) {
-    schemaContext += GOLDEN_SCHEMAS.vitals + "\n\n";
+    schemaContext += EXTENDED_GOLDEN_SCHEMAS.vitals + "\n\n";
     detectedTasks.push("Vitals");
   }
   if (instructionLower.includes("lab")) {
-    schemaContext += GOLDEN_SCHEMAS.labs + "\n\n";
+    schemaContext += EXTENDED_GOLDEN_SCHEMAS.labs + "\n\n";
     detectedTasks.push("Labs");
   }
   if (instructionLower.includes("order")) {
-    schemaContext += GOLDEN_SCHEMAS.orders + "\n\n";
+    schemaContext += EXTENDED_GOLDEN_SCHEMAS.orders + "\n\n";
     detectedTasks.push("Orders");
   }
   if (instructionLower.includes("h&p") || instructionLower.match(/history.*physical/)) {
-    schemaContext += GOLDEN_SCHEMAS.historyPhysical + "\n\n";
+    schemaContext += EXTENDED_GOLDEN_SCHEMAS.historyPhysical + "\n\n";
     detectedTasks.push("H&P");
   }
   if (instructionLower.includes("rationale")) {
-    schemaContext += GOLDEN_SCHEMAS.rationale + "\n\n";
+    schemaContext += EXTENDED_GOLDEN_SCHEMAS.rationale + "\n\n";
     detectedTasks.push("Rationale");
   }
   if (instructionLower.includes("case") || instructionLower.includes("scenario")) {
-    schemaContext += GOLDEN_SCHEMAS.caseScenario + "\n\n";
+    schemaContext += EXTENDED_GOLDEN_SCHEMAS.caseScenario + "\n\n";
     detectedTasks.push("Case Scenario");
   }
-  if (instructionLower.includes("full") || instructionLower.includes("complete") || instructionLower.includes("generate all")) {
-    schemaContext = Object.values(GOLDEN_SCHEMAS).join("\n\n");
-    detectedTasks.push("FULL CONTENT");
+  if (instructionLower.includes("question stem") || instructionLower.includes("stem")) {
+    schemaContext += EXTENDED_GOLDEN_SCHEMAS.questionStem + "\n\n";
+    detectedTasks.push("Question Stem");
+  }
+  // If user explicitly asks for full content or mentions BowTie, include everything
+  if (instructionLower.includes("full") || instructionLower.includes("complete") || instructionLower.includes("generate all") || instructionLower.includes("bowtie")) {
+    schemaContext = Object.values(EXTENDED_GOLDEN_SCHEMAS).join("\n\n");
+    detectedTasks = ["FULL CONTENT"]; // reset to indicate all sections
   }
 
-  const topic = item.metadata?.subTopic || item.metadata?.topic || item.metadata?.title || "General Medical";
-  console.log(`📋 Detected Tasks: ${detectedTasks.join(", ")}`);
+  // Extract metadata from item to guide AI
+  // We prioritize text-based metadata to give AI better context
+  const topic = item.metadata?.subTopic || item.metadata?.topic || "General Medical";
+  const level = item.metadata?.difficultyLevel || item.metadata?.level || "Standard";
+  const clientNeeds = item.metadata?.clientNeeds || "Not Specified";
+  const qStyle = item.metadata?.qStyle || "N/A";
+  const demographics = item.content?.patientDemographics || {};
 
   return `
 You are an expert NCLEX-RN Clinical Content Generator.
@@ -187,22 +211,27 @@ ${instruction}
 === CONTEXT ===
 Topic: ${topic}
 Type: ${item.typeId || "case-study"}
+Difficulty Level: ${level}
+Client Needs: ${clientNeeds}
+Style: ${qStyle}
+Patient: ${JSON.stringify(demographics)}
 
 === SCHEMAS ===
 ${schemaContext || "Generate standard clinical content."}
 
 === RULES ===
 1. Return VALID JSON only.
-2. NO COMMENTS inside the JSON (// or /* */).
-3. NO Markdown fences (\`\`\`).
+2. NO COMMENTS inside the JSON.
+3. NO Markdown fences.
 4. Use standard keys provided in schemas.
-5. PRESERVE existing data.
+5. Preserve existing data.
+6. ALWAYS include nursesNotes, questionStem, and answerOptions when applicable.
 
 === CURRENT JSON ===
 ${JSON.stringify(item, null, 2)}
 
 === RESPONSE ===
-Return the modified JSON object.
+Return the complete modified JSON object.
 `;
 }
 

@@ -5,7 +5,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Golden Schema definitions for AI guidance
-const GOLDEN_SCHEMAS = {
+// Golden Schema definitions for AI guidance
+const GOLDEN_SCHEMAS: any = {
     nursesNotes: `
 NURSES NOTES SCHEMA (content.nursesNotes as array):
 [
@@ -59,34 +60,89 @@ RATIONALE SCHEMA (content.rationale as object):
   "answerAnalysis": "Correct answer addresses fluid overload...",
   "trap": "Common mistake is...",
   "goldenRule": "Assess before treating..."
-}`
+}`,
+    questionStem: `
+QUESTION STEM SCHEMA (content.questionStem as string):
+"What is the most appropriate next step for the patient?"
+REQUIREMENTS:
+- Provide a clear, single-sentence question stem.
+`,
+    answerOptions: `
+ANSWER OPTIONS SCHEMA (content.answerOptions as array):
+[
+  { "id": "A", "text": "Option A" },
+  { "id": "B", "text": "Option B" },
+  { "id": "C", "text": "Option C" },
+  { "id": "D", "text": "Option D" }
+]
+REQUIREMENTS:
+- Provide at least 4 options.
+- Mark the correct answer(s) with a separate "correctAnswer" array.
+`
 };
 
 function buildPrompt(item: any, instruction: string): string {
     const instructionLower = instruction.toLowerCase();
+
+    // Check if this is a "full case" generation request
+    const isFullCase = instructionLower.includes("full") ||
+        instructionLower.includes("complete") ||
+        instructionLower.includes("generate all") ||
+        instructionLower.includes("bowtie");
+
+    // Mandatory schemas that MUST be present for full cases
+    const mandatorySchemas = [
+        GOLDEN_SCHEMAS.nursesNotes,
+        GOLDEN_SCHEMAS.questionStem,
+        GOLDEN_SCHEMAS.answerOptions
+    ].join("\n\n");
+
     let schemaContext = "";
+    let detectedTasks: string[] = [];
 
-    // Detect which schemas are relevant
-    if (instructionLower.includes("nurse") || instructionLower.includes("notes")) {
-        schemaContext += GOLDEN_SCHEMAS.nursesNotes + "\n\n";
-    }
-    if (instructionLower.includes("vital")) {
-        schemaContext += GOLDEN_SCHEMAS.vitals + "\n\n";
-    }
-    if (instructionLower.includes("lab")) {
-        schemaContext += GOLDEN_SCHEMAS.labs + "\n\n";
-    }
-    if (instructionLower.includes("order")) {
-        schemaContext += GOLDEN_SCHEMAS.orders + "\n\n";
-    }
-    if (instructionLower.includes("rationale")) {
-        schemaContext += GOLDEN_SCHEMAS.rationale + "\n\n";
-    }
-    if (instructionLower.includes("full") || instructionLower.includes("complete")) {
-        schemaContext = Object.values(GOLDEN_SCHEMAS).join("\n\n");
+    if (isFullCase) {
+        // If full case, include EVERYTHING + Mandatory block
+        schemaContext = mandatorySchemas + "\n\n" + Object.values(GOLDEN_SCHEMAS).join("\n\n");
+        detectedTasks = ["FULL CONTENT"];
+    } else {
+        // Selective schemas based on instruction
+        if (instructionLower.includes("nurse") || instructionLower.includes("notes")) {
+            schemaContext += GOLDEN_SCHEMAS.nursesNotes + "\n\n";
+            detectedTasks.push("Nurses Notes");
+        }
+        if (instructionLower.includes("vital")) {
+            schemaContext += GOLDEN_SCHEMAS.vitals + "\n\n";
+            detectedTasks.push("Vitals");
+        }
+        if (instructionLower.includes("lab")) {
+            schemaContext += GOLDEN_SCHEMAS.labs + "\n\n";
+            detectedTasks.push("Labs");
+        }
+        if (instructionLower.includes("order")) {
+            schemaContext += GOLDEN_SCHEMAS.orders + "\n\n";
+            detectedTasks.push("Orders");
+        }
+        if (instructionLower.includes("rationale")) {
+            schemaContext += GOLDEN_SCHEMAS.rationale + "\n\n";
+            detectedTasks.push("Rationale");
+        }
+        if (instructionLower.includes("stem")) {
+            schemaContext += GOLDEN_SCHEMAS.questionStem + "\n\n";
+            detectedTasks.push("Question Stem");
+        }
+        if (instructionLower.includes("option") || instructionLower.includes("answer")) {
+            schemaContext += GOLDEN_SCHEMAS.answerOptions + "\n\n";
+            detectedTasks.push("Answer Options");
+        }
     }
 
+    // Extract metadata from item to guide AI
+    // We prioritize text-based metadata to give AI better context
     const topic = item.metadata?.subTopic || item.metadata?.topic || "General Medical";
+    const level = item.metadata?.difficultyLevel || item.metadata?.level || "Standard";
+    const clientNeeds = item.metadata?.clientNeeds || "Not Specified";
+    const qStyle = item.metadata?.qStyle || "N/A";
+    const demographics = item.content?.patientDemographics || {};
 
     return `
 You are an expert NCLEX-RN Clinical Content Generator.
@@ -97,6 +153,10 @@ ${instruction}
 === CONTEXT ===
 Topic: ${topic}
 Type: ${item.typeId || "case-study"}
+Difficulty Level: ${level}
+Client Needs: ${clientNeeds}
+Style: ${qStyle}
+Patient: ${JSON.stringify(demographics)}
 
 === SCHEMAS ===
 ${schemaContext || "Generate standard clinical content."}
@@ -105,8 +165,9 @@ ${schemaContext || "Generate standard clinical content."}
 1. Return VALID JSON only.
 2. NO COMMENTS inside the JSON.
 3. NO Markdown fences.
-4. PRESERVE existing data structure.
-5. Only modify what the instruction asks.
+4. Use standard keys provided in schemas.
+5. Preserve existing data structure.
+6. ${isFullCase ? "IMPORTANT: You MUST generate content for nursesNotes, questionStem, and answerOptions." : ""}
 
 === CURRENT JSON ===
 ${JSON.stringify(item, null, 2)}
