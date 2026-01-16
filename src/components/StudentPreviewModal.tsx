@@ -13,7 +13,7 @@ import { FloatingPatientHeader } from './FloatingPatientHeader';
 // FloatingControls removed - using custom footer controls
 import * as RationalePipeline from '../services/RationalePipeline';
 import { Wand2, X, Loader2 } from 'lucide-react';
-import { updateItem, API_BASE } from '../services/itemApiService';
+import { updateItem } from '../services/itemApiService';
 import { syncItemToSupabase } from '../services/itemSyncService';
 
 interface StudentPreviewModalProps {
@@ -316,43 +316,16 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
         if (!internalItem) return;
         setIsApplyingFix(true);
         try {
-            const prompt = `CONTEXT: The user selected this text segment from the item content: "${selectedText}".\nINSTRUCTION: ${instruction}.\n\nTASK: Locate the selected context in the item JSON and modify ONLY that section to satisfy the instruction. Ensure the item validation status remains valid (lowercase). Return the FULL updated item JSON.`;
-
-            const response = await fetch(`${API_BASE}/ai/magic-fix`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ item: internalItem, instruction: prompt })
-            });
-
-            if (!response.ok) throw new Error('AI Fix Failed');
-
-            const newItemJson = await response.json();
-
-            // Restore ID and ensure integrity (AI sometimes drops fields)
-            const newItemProp = {
-                ...newItemJson,
-                id: internalItem.id,
-                typeId: internalItem.typeId, // Force preserve type
-                type: (internalItem as any).type      // Force preserve type alias
-            };
-
-            // Normalize status
-            const safeStatus = (newItemProp.metadata?.status || 'draft').toLowerCase();
-            newItemProp.metadata = { ...newItemProp.metadata, status: ['draft', 'published', 'archived'].includes(safeStatus) ? safeStatus : 'draft' };
-
-            // Update DBs
-            await updateItem(newItemProp);
-            await syncItemToSupabase(newItemProp);
-
-            setInternalItem(newItemProp);
-            setShowMagicBubble(false);
-            setIsFixing(false);
-            window.getSelection()?.removeAllRanges();
-
+            // TEMPORARY: AI Magic Fix requires backend - show alert
+            // TODO: Migrate to Supabase Edge Functions
+            alert('AI Magic Fix is temporarily unavailable. The feature is being migrated. Please edit items manually.');
         } catch (err: any) {
             console.error(err);
             alert('Magic Fix Failed: ' + err.message);
         } finally {
+            setShowMagicBubble(false);
+            setIsFixing(false);
+            window.getSelection()?.removeAllRanges();
             setIsApplyingFix(false);
         }
     };

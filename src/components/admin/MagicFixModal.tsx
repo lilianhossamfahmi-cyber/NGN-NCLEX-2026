@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { MasterQuestionItem } from '../../types/master-schema';
-import { API_BASE } from '../../services/itemApiService';
 import { Wand2, X, Check, Loader2, AlertCircle, User, FileText, Gauge, Image as ImageIcon, ChevronDown, ChevronRight, Sparkles } from 'lucide-react';
 import { updateItem } from '../../services/itemApiService';
 import { syncItemToSupabase } from '../../services/itemSyncService';
@@ -142,28 +141,9 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
         setError(null);
 
         try {
-            // Call Backend API
-            const response = await fetch(`${API_BASE} /ai/magic - fix`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ item, instruction: fullInstruction })
-            });
-
-            const contentType = response.headers.get("content-type");
-            if (!contentType || !contentType.includes("application/json")) {
-                const text = await response.text();
-                console.error("Non-JSON API Response:", text);
-                throw new Error("Server Error: API returned non-JSON response (Check Server Console)");
-            }
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'AI Request Failed');
-            }
-
-            setNewItem(data.item);
-            setStep('preview');
+            // TEMPORARY: AI Magic Fix requires backend - show message
+            // TODO: Migrate to Supabase Edge Functions
+            throw new Error('AI Magic Fix is temporarily unavailable. The feature is being migrated to a new architecture. Please edit items manually for now.');
 
         } catch (err: any) {
             setError(err.message);
