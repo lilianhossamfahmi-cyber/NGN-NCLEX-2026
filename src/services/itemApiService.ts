@@ -1,28 +1,9 @@
 // src/services/itemApiService.ts
+// DIRECT SUPABASE - No Railway Backend Required!
+
 import { MasterQuestionItem } from '../types/master-schema.ts';
-import { syncItemToSupabase } from './itemSyncService';
 import { supabase } from '../lib/supabase';
-
-// Detect environment for API URL
-const getApiBase = () => {
-    // Check for Node.js process.env
-    if (typeof process !== 'undefined' && process.env && process.env.API_URL) {
-        return process.env.API_URL;
-    }
-    // Check for Vite import.meta.env (suppress TS error for Node context)
-    try {
-        // @ts-ignore
-        if (import.meta && import.meta.env && import.meta.env.VITE_API_URL) {
-            // @ts-ignore
-            return import.meta.env.VITE_API_URL;
-        }
-    } catch (e) {
-        // ignore
-    }
-    return 'http://localhost:4000/api';
-};
-
-export const API_BASE = getApiBase();
+import { enrichItemWithQuality } from '../utils/autoQuality.ts';
 
 export interface ItemQueryOptions {
     page?: number;     // 1-based
@@ -43,82 +24,170 @@ export interface PaginatedResult {
     totalPages: number;
 }
 
-export async function updateItem(item: MasterQuestionItem): Promise<boolean> {
-    const res = await fetch(`${API_BASE}/items/${item.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(item),
-    });
-    if (res.ok) {
-        await syncItemToSupabase(item);
+// Helper to infer topic from item content
+function inferTopic(item: any): string {
+    const text = JSON.stringify(item).toLowerCase();
+    const map: Record<string, string> = {
+        'heart': 'Cardiology', 'cardio': 'Cardiology', 'atrial': 'Cardiology',
+        'lung': 'Respiratory', 'breath': 'Respiratory', 'copd': 'Respiratory',
+        'kidney': 'Renal', 'renal': 'Renal',
+        'neuro': 'Neurology', 'brain': 'Neurology', 'stroke': 'Neurology',
+        'baby': 'Pediatrics', 'pediatric': 'Pediatrics', 'child': 'Pediatrics',
+        'pregnant': 'Maternal', 'maternity': 'Maternal', 'labor': 'Maternal',
+        'drug': 'Pharmacology', 'medication': 'Pharmacology',
+        'mental': 'Mental Health', 'psych': 'Mental Health'
+    };
+    for (const [key, topic] of Object.entries(map)) {
+        if (text.includes(key)) return topic;
     }
-    return res.ok;
+    return 'General';
 }
+
+function serializeArray(arr?: string[]): string | null {
+    return arr ? JSON.stringify(arr) : null;
+}
+
+// ==================== DIRECT SUPABASE OPERATIONS ====================
 
 export async function getBankItems(options: ItemQueryOptions = {}): Promise<PaginatedResult> {
-    const params = new URLSearchParams();
-    if (options.page) params.append('page', String(options.page));
-    if (options.limit) params.append('limit', String(options.limit));
-    if (options.search) params.append('search', options.search);
-    if (options.topic) params.append('topic', options.topic);
-    if (options.type) params.append('type', options.type);
-    if (options.status) params.append('status', options.status);
-    if (options.sortField) params.append('sortField', options.sortField);
-    if (options.sortDir) params.append('sortDir', options.sortDir);
+    const page = options.page || 1;
+    const limit = options.limit || 50;
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
 
-    const res = await fetch(`${API_BASE}/items?${params.toString()}`);
-    if (!res.ok) throw new Error('Failed to fetch items');
-    return res.json();
+    let query = supabase.from('item_bank').select('*', { count: 'exact' });
+
+    // Apply filters
+    if (options.search) query = query.ilike('item_json', `%${options.search}%`);
+    if (options.topic && options.topic !== 'All') query = query.eq('clinical_focus', options.topic);
+    if (options.type && options.type !== 'All') query = query.eq('type_id', options.type);
+    if (options.status && options.status !== 'All') query = query.eq('status', options.status);
+
+    // Sorting
+    const sortField = options.sortField || 'created_at';
+    const sortDir = options.sortDir || 'desc';
+    query = query.order(sortField, { ascending: sortDir === 'asc' });
+
+    // Pagination
+    query = query.range(from, to);
+
+    const { data, error, count } = await query;
+
+    if (error) {
+        console.error('Supabase getBankItems Error:', error);
+        throw new Error(`Failed to fetch items: ${error.message}`);
+    }
+
+    // Parse item_json back to objects
+    const items = (data || []).map((row: any) => {
+        try {
+            return typeof row.item_json === 'string'
+                ? JSON.parse(row.item_json)
+                : row.item_json;
+        } catch {
+            return row;
+        }
+    });
+
+    return {
+        items,
+        total: count || 0,
+        page,
+        totalPages: Math.ceil((count || 0) / limit)
+    };
 }
 
-export async function saveItemToBank(item: MasterQuestionItem): Promise<boolean> {
-    const res = await fetch(`${API_BASE}/items`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(item),
-    });
-    if (res.ok) {
-        // Sync to Supabase
-        await syncItemToSupabase(item);
-    }
-    return res.ok;
+export async function saveItemToBank(item: MasterQuestionItem, userId: string = 'system'): Promise<boolean> {
+    const count = await saveBatchToBank([item], userId);
+    return count > 0;
 }
 
-export async function saveBatchToBank(items: MasterQuestionItem[]): Promise<number> {
-    const res = await fetch(`${API_BASE}/items/batch`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(items),
+export async function saveBatchToBank(items: MasterQuestionItem[], userId: string = 'system'): Promise<number> {
+    if (items.length === 0) return 0;
+
+    const upsertData = items.map(item => {
+        const enriched = enrichItemWithQuality(item);
+        const now = new Date().toISOString();
+        const { id, typeId, metadata, pedagogy } = enriched;
+
+        let clinicalFocus = pedagogy?.clinicalFocus ?? (metadata as any)?.clinicalFocus;
+        if (!clinicalFocus || clinicalFocus === 'General') {
+            clinicalFocus = inferTopic(item);
+        }
+
+        const difficultyLevel = pedagogy?.difficultyLevel ?? 1;
+        const cjmmStep = (pedagogy as any)?.cjmmPhase ?? (metadata as any)?.cjmmStep ?? null;
+        const clientNeeds = (metadata as any)?.clientNeeds ? JSON.stringify((metadata as any).clientNeeds) : null;
+        const tags = serializeArray(pedagogy?.clinicalFocusTopics ?? (metadata as any)?.tags);
+        const itemJson = JSON.stringify(enriched);
+
+        return {
+            id,
+            type_id: typeId,
+            clinical_focus: clinicalFocus,
+            difficulty_level: difficultyLevel,
+            cjmm_step: cjmmStep,
+            client_needs: clientNeeds,
+            created_at: now,
+            updated_at: now,
+            created_by: userId,
+            updated_by: userId,
+            status: metadata?.status ?? 'draft',
+            quality_score: metadata?.qualityScore ?? 0,
+            tags,
+            allowed_modes: serializeArray((enriched as any).allowed_modes || []),
+            item_json: itemJson
+        };
     });
-    if (!res.ok) throw new Error('Batch save failed');
-    const data = await res.json();
-    // Sync each item to Supabase
-    for (const it of items) {
-        await syncItemToSupabase(it);
+
+    const { error } = await supabase
+        .from('item_bank')
+        .upsert(upsertData, { onConflict: 'id' });
+
+    if (error) {
+        console.error('Supabase saveBatchToBank Error:', error);
+        throw new Error(`Failed to save items: ${error.message}`);
     }
-    return data.added ?? 0;
+
+    console.log(`✅ Saved ${upsertData.length} items to Supabase`);
+    return upsertData.length;
+}
+
+export async function updateItem(item: MasterQuestionItem): Promise<boolean> {
+    return saveItemToBank(item, 'system');
 }
 
 export async function deleteItemFromBank(id: string): Promise<void> {
-    await fetch(`${API_BASE}/items/${id}`, { method: 'DELETE' });
-    // Delete from Supabase as well
-    await supabase.from('ngn_items').delete().eq('id', id);
-}
+    const { error } = await supabase
+        .from('item_bank')
+        .delete()
+        .eq('id', id);
 
-export async function clearBank(): Promise<void> {
-    await fetch(`${API_BASE}/clear`, { method: 'DELETE' });
-    // Clear Supabase table
-    await supabase.from('ngn_items').delete().neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all rows
+    if (error) {
+        console.error('Supabase deleteItem Error:', error);
+    }
 }
 
 export async function deleteBatchFromBank(ids: string[]): Promise<void> {
-    await fetch(`${API_BASE}/items`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(ids),
-    });
-    // Delete each from Supabase
-    for (const id of ids) {
-        await supabase.from('ngn_items').delete().eq('id', id);
+    if (!ids.length) return;
+
+    const { error } = await supabase
+        .from('item_bank')
+        .delete()
+        .in('id', ids);
+
+    if (error) {
+        console.error('Supabase deleteBatch Error:', error);
+    }
+}
+
+export async function clearBank(): Promise<void> {
+    const { error } = await supabase
+        .from('item_bank')
+        .delete()
+        .neq('id', '0'); // Delete all rows
+
+    if (error) {
+        console.error('Supabase clearBank Error:', error);
     }
 }

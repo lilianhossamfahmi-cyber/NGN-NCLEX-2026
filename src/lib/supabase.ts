@@ -17,6 +17,7 @@ export const supabase = createClient(
 // Helper for typed table access (optional but recommended)
 // You can expand this type based on your schema
 export type Tables = {
+    item_bank: any;
     ngn_items: any;
     ngn_students: any;
     ngn_sessions: any;
