@@ -2,6 +2,15 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+process.on('uncaughtException', (err) => {
+    console.error('CRITIAL: UNCAUGHT EXCEPTION:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('CRITICAL: UNHANDLED REJECTION:', reason);
+});
+
+
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { initDb, getBankItems, saveItemToBank, saveBatchToBank, deleteItemFromBank, clearBank, ItemQueryOptions } from '../src/services/itemDbService.ts';
