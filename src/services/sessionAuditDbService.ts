@@ -1,7 +1,22 @@
 // src/services/sessionAuditDbService.ts
 // REFACTORED: SQLite removed to prevent server crash on Railway.
-// TODO: Migrate to Supabase if audit logging is needed.
+// All functions are no-ops. TODO: Migrate to Supabase if needed.
 
+// Types expected by SessionGeneratorService
+export interface DriftMetrics {
+    totalDrift: number;
+    maxSingleDrift: number;
+    driftWarnings: string[];
+}
+
+export interface FallbackEvent {
+    type: string;
+    targetLevel: number;
+    actualLevel: number;
+    reason: string;
+}
+
+// Audit Log Entry
 interface SessionAuditLog {
     sessionId: string;
     timestamp: string;
@@ -14,8 +29,19 @@ export async function initAuditDb() {
     return null;
 }
 
+// Main audit function used by SessionGeneratorService
+export async function logSessionAudit(
+    sessionId: string,
+    action: string,
+    driftMetrics?: DriftMetrics,
+    fallbackEvents?: FallbackEvent[],
+    details?: any
+) {
+    // console.log(`[AUDIT] ${sessionId}: ${action}`, { driftMetrics, fallbackEvents, details });
+    return; // No-op for now
+}
+
 export async function logSessionAction(sessionId: string, action: string, details?: any) {
-    // console.log(`[AUDIT] ${sessionId}: ${action}`, details);
     return; // No-op
 }
 
