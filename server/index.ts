@@ -16,7 +16,7 @@ import cors from 'cors';
 import { initDb, getBankItems, saveItemToBank, saveBatchToBank, deleteItemFromBank, clearBank, ItemQueryOptions } from '../src/services/itemDbService.ts';
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = parseInt(process.env.PORT || '4000', 10);
 
 app.use(cors({
     origin: '*', // Allow all origins (for now)
@@ -247,7 +247,7 @@ app.post('/api/ai/magic-fix', async (req: Request, res: Response) => {
     }
 });
 
-app.listen(Number(PORT), '0.0.0.0', () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Item‑bank API listening on http://0.0.0.0:${PORT}`);
 });
 
