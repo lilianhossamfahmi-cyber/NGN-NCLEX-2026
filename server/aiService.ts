@@ -149,13 +149,60 @@ REQUIREMENTS:
 - Provide a clear, single-sentence question stem.
 `;
 
-  // Extend GOLDEN_SCHEMAS with questionStem
+  const ANSWER_OPTIONS_SCHEMA = `
+ANSWER OPTIONS SCHEMA (content.answerOptions as array):
+[
+  { "id": "A", "text": "Option A" },
+  { "id": "B", "text": "Option B" },
+  { "id": "C", "text": "Option C" },
+  { "id": "D", "text": "Option D" }
+]
+REQUIREMENTS:
+- Provide at least 4 options.
+- Mark the correct answer(s) with a separate "correctAnswer" array.
+`;
+
+  const BOWTIE_SCHEMA = `
+BOWTIE SCHEMA (content.bowtie or content.structure):
+{
+  "actions": [
+    { "id": "a1", "text": "Administer Oxygen", "isCorrect": true },
+    { "id": "a2", "text": "Discharge Patient", "isCorrect": false },
+    { "id": "a3", "text": "Start IV Fluids", "isCorrect": true },
+    { "id": "a4", "text": "Call Chaplain", "isCorrect": false }
+    // Provide 4-5 options
+  ],
+  "conditions": [
+    { "id": "c1", "text": "Heart Failure", "isCorrect": true },
+    { "id": "c2", "text": "Pneumonia", "isCorrect": false },
+    { "id": "c3", "text": "Sepsis", "isCorrect": false },
+    { "id": "c4", "text": "Asthma", "isCorrect": false }
+    // Provide 4 options, only 1 correct
+  ],
+  "parameters": [
+    { "id": "p1", "text": "Pulse Oximetry", "isCorrect": true },
+    { "id": "p2", "text": "Urine Output", "isCorrect": true },
+    { "id": "p3", "text": "Blood Glucose", "isCorrect": false },
+    { "id": "p4", "text": "Deep Tendon Reflexes", "isCorrect": false }
+    // Provide 4-5 options
+  ]
+}
+REQUIREMENTS:
+- Use this structure for BowTie items specifically.
+- "isCorrect" boolean must mark the valid keys.
+`;
+
+  // Extend GOLDEN_SCHEMAS
   const EXTENDED_GOLDEN_SCHEMAS = {
     ...GOLDEN_SCHEMAS,
     questionStem: QUESTION_STEM_SCHEMA,
+    answerOptions: ANSWER_OPTIONS_SCHEMA,
+    bowtie: BOWTIE_SCHEMA
   };
 
-  // Quick heuristic for tasks (same as before but simplified for brevity)
+  const isBowTieItem = item.typeId === 'bowtie' || instructionLower.includes('bowtie');
+
+  // Quick heuristic for tasks
   if (instructionLower.includes("nurse") || instructionLower.includes("notes")) {
     schemaContext += EXTENDED_GOLDEN_SCHEMAS.nursesNotes + "\n\n";
     detectedTasks.push("Nurses Notes");
@@ -184,14 +231,50 @@ REQUIREMENTS:
     schemaContext += EXTENDED_GOLDEN_SCHEMAS.caseScenario + "\n\n";
     detectedTasks.push("Case Scenario");
   }
-  if (instructionLower.includes("question stem") || instructionLower.includes("stem")) {
+  if (instructionLower.includes("stem")) {
     schemaContext += EXTENDED_GOLDEN_SCHEMAS.questionStem + "\n\n";
     detectedTasks.push("Question Stem");
   }
+
+  // Smart switching for options
+  if (instructionLower.includes("option") || instructionLower.includes("answer") || instructionLower.includes("choices")) {
+    if (isBowTieItem) {
+      schemaContext += EXTENDED_GOLDEN_SCHEMAS.bowtie + "\n\n";
+      detectedTasks.push("BowTie Structure");
+    } else {
+      schemaContext += EXTENDED_GOLDEN_SCHEMAS.answerOptions + "\n\n";
+      detectedTasks.push("Answer Options");
+    }
+  }
+
   // If user explicitly asks for full content or mentions BowTie, include everything
   if (instructionLower.includes("full") || instructionLower.includes("complete") || instructionLower.includes("generate all") || instructionLower.includes("bowtie")) {
-    schemaContext = Object.values(EXTENDED_GOLDEN_SCHEMAS).join("\n\n");
-    detectedTasks = ["FULL CONTENT"]; // reset to indicate all sections
+    // Inject mandatory schemas
+    const mandatorySchemas = [
+      EXTENDED_GOLDEN_SCHEMAS.nursesNotes,
+      EXTENDED_GOLDEN_SCHEMAS.questionStem
+    ];
+
+    if (isBowTieItem) {
+      mandatorySchemas.push(EXTENDED_GOLDEN_SCHEMAS.bowtie);
+    } else {
+      mandatorySchemas.push(EXTENDED_GOLDEN_SCHEMAS.answerOptions);
+    }
+
+    const mandatoryString = mandatorySchemas.join("\n\n");
+    const otherSchemas = Object.entries(EXTENDED_GOLDEN_SCHEMAS)
+      .filter(([key]) => {
+        // Avoid duplication and conflicts
+        if (key === 'nursesNotes' || key === 'questionStem') return false;
+        if (isBowTieItem && key === 'answerOptions') return false;
+        if (!isBowTieItem && key === 'bowtie') return false;
+        return true;
+      })
+      .map(([_, val]) => val)
+      .join("\n\n");
+
+    schemaContext = mandatoryString + "\n\n" + otherSchemas;
+    detectedTasks = ["FULL CONTENT"];
   }
 
   // Extract metadata from item to guide AI
@@ -225,7 +308,7 @@ ${schemaContext || "Generate standard clinical content."}
 3. NO Markdown fences.
 4. Use standard keys provided in schemas.
 5. Preserve existing data.
-6. ALWAYS include nursesNotes, questionStem, and answerOptions when applicable.
+6. ${"IMPORTANT: You MUST generate content for nursesNotes, questionStem, and " + (isBowTieItem ? "BowTie structure (actions, conditions, parameters)." : "answerOptions.")}
 
 === CURRENT JSON ===
 ${JSON.stringify(item, null, 2)}

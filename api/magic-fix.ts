@@ -78,6 +78,35 @@ ANSWER OPTIONS SCHEMA (content.answerOptions as array):
 REQUIREMENTS:
 - Provide at least 4 options.
 - Mark the correct answer(s) with a separate "correctAnswer" array.
+`,
+    bowtie: `
+BOWTIE SCHEMA (content.bowtie or content.structure):
+{
+  "actions": [
+    { "id": "a1", "text": "Administer Oxygen", "isCorrect": true },
+    { "id": "a2", "text": "Discharge Patient", "isCorrect": false },
+    { "id": "a3", "text": "Start IV Fluids", "isCorrect": true },
+    { "id": "a4", "text": "Call Chaplain", "isCorrect": false }
+    // Provide 4-5 options
+  ],
+  "conditions": [
+    { "id": "c1", "text": "Heart Failure", "isCorrect": true },
+    { "id": "c2", "text": "Pneumonia", "isCorrect": false },
+    { "id": "c3", "text": "Sepsis", "isCorrect": false },
+    { "id": "c4", "text": "Asthma", "isCorrect": false }
+    // Provide 4 options, only 1 correct
+  ],
+  "parameters": [
+    { "id": "p1", "text": "Pulse Oximetry", "isCorrect": true },
+    { "id": "p2", "text": "Urine Output", "isCorrect": true },
+    { "id": "p3", "text": "Blood Glucose", "isCorrect": false },
+    { "id": "p4", "text": "Deep Tendon Reflexes", "isCorrect": false }
+    // Provide 4-5 options
+  ]
+}
+REQUIREMENTS:
+- Use this structure for BowTie items specifically.
+- "isCorrect" boolean must mark the valid keys.
 `
 };
 
@@ -90,19 +119,39 @@ function buildPrompt(item: any, instruction: string): string {
         instructionLower.includes("generate all") ||
         instructionLower.includes("bowtie");
 
+    const isBowTieItem = item.typeId === 'bowtie' || instructionLower.includes('bowtie');
+
     // Mandatory schemas that MUST be present for full cases
-    const mandatorySchemas = [
+    let mandatorySchemas = [
         GOLDEN_SCHEMAS.nursesNotes,
-        GOLDEN_SCHEMAS.questionStem,
-        GOLDEN_SCHEMAS.answerOptions
-    ].join("\n\n");
+        GOLDEN_SCHEMAS.questionStem
+    ];
+
+    // Swap Answer Options for BowTie Structure if it's a BowTie item
+    if (isBowTieItem) {
+        mandatorySchemas.push(GOLDEN_SCHEMAS.bowtie);
+    } else {
+        mandatorySchemas.push(GOLDEN_SCHEMAS.answerOptions);
+    }
+
+    const mandatorySchemaString = mandatorySchemas.join("\n\n");
 
     let schemaContext = "";
     let detectedTasks: string[] = [];
 
     if (isFullCase) {
         // If full case, include EVERYTHING + Mandatory block
-        schemaContext = mandatorySchemas + "\n\n" + Object.values(GOLDEN_SCHEMAS).join("\n\n");
+        // FILTER out conflicting schemas for cleaner prompt
+        const allSchemas = Object.entries(GOLDEN_SCHEMAS)
+            .filter(([key]) => {
+                if (isBowTieItem && key === 'answerOptions') return false; // Don't show generic options for BowTie
+                if (!isBowTieItem && key === 'bowtie') return false; // Don't show BowTie for generic
+                return true;
+            })
+            .map(([_, val]) => val)
+            .join("\n\n");
+
+        schemaContext = mandatorySchemaString + "\n\n" + allSchemas;
         detectedTasks = ["FULL CONTENT"];
     } else {
         // Selective schemas based on instruction
@@ -130,9 +179,16 @@ function buildPrompt(item: any, instruction: string): string {
             schemaContext += GOLDEN_SCHEMAS.questionStem + "\n\n";
             detectedTasks.push("Question Stem");
         }
-        if (instructionLower.includes("option") || instructionLower.includes("answer")) {
-            schemaContext += GOLDEN_SCHEMAS.answerOptions + "\n\n";
-            detectedTasks.push("Answer Options");
+
+        // Smart switching for options
+        if (instructionLower.includes("option") || instructionLower.includes("answer") || instructionLower.includes("choices")) {
+            if (isBowTieItem) {
+                schemaContext += GOLDEN_SCHEMAS.bowtie + "\n\n";
+                detectedTasks.push("BowTie Structure");
+            } else {
+                schemaContext += GOLDEN_SCHEMAS.answerOptions + "\n\n";
+                detectedTasks.push("Answer Options");
+            }
         }
     }
 
@@ -167,7 +223,7 @@ ${schemaContext || "Generate standard clinical content."}
 3. NO Markdown fences.
 4. Use standard keys provided in schemas.
 5. Preserve existing data structure.
-6. ${isFullCase ? "IMPORTANT: You MUST generate content for nursesNotes, questionStem, and answerOptions." : ""}
+6. ${isFullCase ? "IMPORTANT: You MUST generate content for nursesNotes, questionStem, and " + (isBowTieItem ? "BowTie structure (actions, conditions, parameters)." : "answerOptions.") : ""}
 
 === CURRENT JSON ===
 ${JSON.stringify(item, null, 2)}
