@@ -263,7 +263,7 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
             ? imagePrompts.join(', ') + '. ' + instruction
             : instruction;
 
-        const context = `Medical educational content for: ${item.metadata?.topic || 'NCLEX nursing exam'}`;
+        const context = `Medical educational content for: ${(item.metadata as any)?.topic || 'NCLEX nursing exam'}`;
 
         setImageLoading(true);
         setError(null);
