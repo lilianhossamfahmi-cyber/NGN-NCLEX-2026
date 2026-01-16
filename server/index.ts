@@ -27,7 +27,22 @@ app.use(express.json({ limit: '10mb' }));
 
 // Health Check Endpoint (Vital for Railway)
 app.get('/api/health', (req, res) => {
-    res.status(200).json({ status: 'ok', uptime: process.uptime() });
+    try {
+        res.status(200).json({
+            status: 'ok',
+            uptime: process.uptime(),
+            timestamp: new Date().toISOString(),
+            port: PORT
+        });
+    } catch (e) {
+        console.error('Health check error:', e);
+        res.status(500).json({ status: 'error', message: String(e) });
+    }
+});
+
+// Root endpoint for simple testing
+app.get('/', (req, res) => {
+    res.send('NGN Item Bank API is running');
 });
 
 // Ensure DB is ready before handling requests (Non-blocking)
@@ -232,8 +247,8 @@ app.post('/api/ai/magic-fix', async (req: Request, res: Response) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Item‑bank API listening on http://localhost:${PORT}`);
+app.listen(Number(PORT), '0.0.0.0', () => {
+    console.log(`🚀 Item‑bank API listening on http://0.0.0.0:${PORT}`);
 });
 
 // Keep-alive to prevent tsx from exiting
