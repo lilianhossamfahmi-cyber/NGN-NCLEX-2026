@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MasterQuestionItem } from '../../types/master-schema';
-import { Wand2, X, Check, Loader2, AlertCircle, User, FileText, Gauge, Image as ImageIcon, ChevronDown, ChevronRight, Sparkles } from 'lucide-react';
+import { Wand2, X, Check, Loader2, AlertCircle, User, FileText, Gauge, Image as ImageIcon, ChevronDown, ChevronRight, Sparkles, Upload, FileUp, Trash2, Zap } from 'lucide-react';
 import { updateItem } from '../../services/itemApiService';
 import { syncItemToSupabase } from '../../services/itemSyncService';
 
@@ -112,6 +112,9 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
     const [step, setStep] = useState<'input' | 'preview'>('input');
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(CHECKLIST_GROUPS.map(g => g.title)));
 
+    // Image Upload State
+    const [uploadImage, setUploadImage] = useState<string | null>(null);
+
     const toggleOption = (option: string) => {
         const next = new Set(checkedOptions);
         if (next.has(option)) next.delete(option);
@@ -126,10 +129,45 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
         setExpandedGroups(next);
     };
 
+    // Quick Action Handler
+    const handleQuickAction = (action: string) => {
+        if (action === 'full_case') {
+            setInstruction("Generate a complete full case including Nurses Notes, History & Physical, Vitals, Labs, Orders, Question Stem, Answer Options and Rationale. Ensure all fields are filled.");
+        }
+    };
+
+    // Image Handlers
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setUploadImage(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handlePaste = (e: React.ClipboardEvent) => {
+        const items = e.clipboardData.items;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const blob = items[i].getAsFile();
+                if (blob) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        setUploadImage(reader.result as string);
+                    };
+                    reader.readAsDataURL(blob);
+                }
+            }
+        }
+    };
+
     const handleMagicFix = async () => {
         // Construct the full prompt
         const selectedList = Array.from(checkedOptions);
-        if (!instruction.trim() && selectedList.length === 0) return;
+        if (!instruction.trim() && selectedList.length === 0 && !uploadImage) return;
 
         const fullInstruction = [
             instruction.trim(),
@@ -145,7 +183,11 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
             const response = await fetch('/api/magic-fix', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ item, instruction: fullInstruction })
+                body: JSON.stringify({
+                    item,
+                    instruction: fullInstruction,
+                    image: uploadImage // Send image if present
+                })
             });
 
             const contentType = response.headers.get("content-type");
@@ -297,6 +339,18 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
 
                     {step === 'input' ? (
                         <div className="space-y-6">
+
+                            {/* Quick Actions */}
+                            <div className="flex gap-2 mb-2">
+                                <button
+                                    onClick={() => handleQuickAction('full_case')}
+                                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg shadow hover:shadow-lg transition-all text-sm font-bold w-full justify-center"
+                                >
+                                    <Sparkles size={16} className="text-yellow-300" />
+                                    Generate Full Case (Golden Standard)
+                                </button>
+                            </div>
+
                             {/* Free Text Input */}
                             <div className="bg-white p-4 rounded-lg border shadow-sm">
                                 <label className="block text-sm font-bold text-gray-700 mb-2">Custom Instructions (Optional)</label>
@@ -305,7 +359,40 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
                                     placeholder="e.g. 'Ensure the patient history mentions diabetes'..."
                                     value={instruction}
                                     onChange={(e) => setInstruction(e.target.value)}
+                                    onPaste={handlePaste}
                                 />
+                                {/* Image Upload Widget */}
+                                <div className="mt-3 flex items-center gap-2">
+                                    <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-xs font-semibold transition-colors">
+                                        <ImageIcon size={14} />
+                                        {uploadImage ? 'Change Image' : 'Upload Image'}
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            accept="image/*"
+                                            onChange={handleImageUpload}
+                                        />
+                                    </label>
+                                    <span className="text-xs text-gray-400">or paste image (Ctrl+V)</span>
+
+                                    {uploadImage && (
+                                        <div className="ml-auto flex items-center gap-2 bg-blue-50 px-2 py-1 rounded border border-blue-100">
+                                            <ImageIcon size={14} className="text-blue-500" />
+                                            <span className="text-xs text-blue-700 font-medium">Image Ready</span>
+                                            <button
+                                                onClick={() => setUploadImage(null)}
+                                                className="text-red-400 hover:text-red-600 p-1"
+                                            >
+                                                <Trash2 size={12} />
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                                {uploadImage && (
+                                    <div className="mt-2 relative group w-20 h-20 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                                        <img src={uploadImage} alt="Preview" className="w-full h-full object-cover" />
+                                    </div>
+                                )}
                             </div>
 
                             {/* Checklist Groups */}

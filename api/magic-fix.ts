@@ -192,7 +192,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const { item, instruction } = req.body;
+        const { item, instruction, image } = req.body;
 
         if (!item || !instruction) {
             return res.status(400).json({ error: 'Missing item or instruction' });
@@ -218,7 +218,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const prompt = buildPrompt(item, instruction);
         console.log(`🤖 Magic Fix Request: ${instruction.substring(0, 50)}...`);
 
-        const result = await model.generateContent(prompt);
+        let result;
+        if (image) {
+            // Expecting image as base64 string (without data URI prefix if possible, or strip it)
+            const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
+
+            result = await model.generateContent([
+                prompt,
+                {
+                    inlineData: {
+                        data: base64Data,
+                        mimeType: "image/png" // Assuming PNG or JPEG, Gemini is flexible
+                    }
+                }
+            ]);
+        } else {
+            result = await model.generateContent(prompt);
+        }
+
         const text = result.response.text();
 
         // Clean markdown fences if present
