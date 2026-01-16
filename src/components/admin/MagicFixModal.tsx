@@ -202,6 +202,58 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
         }
     };
 
+    // Image Generation Handler
+    const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+    const [imageDescription, setImageDescription] = useState<string | null>(null);
+    const [imageLoading, setImageLoading] = useState(false);
+
+    const handleGenerateImage = async () => {
+        const imagePrompts = Array.from(checkedOptions).filter(opt =>
+            opt.includes('X-RAY') || opt.includes('Image')
+        );
+
+        if (imagePrompts.length === 0 && !instruction) {
+            setError('Please select an image option or describe what image you need');
+            return;
+        }
+
+        const prompt = imagePrompts.length > 0
+            ? imagePrompts.join(', ') + '. ' + instruction
+            : instruction;
+
+        const context = `Medical educational content for: ${item.metadata?.topic || 'NCLEX nursing exam'}`;
+
+        setImageLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch('/api/generate-image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt, context })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Image generation failed');
+            }
+
+            if (data.type === 'description') {
+                // Fallback: Show description
+                setImageDescription(data.description);
+                setError(`Image model unavailable. Use this description:\n\n${data.description}\n\nSuggested: ${data.suggestedServices?.join(', ')}`);
+            } else if (data.image) {
+                setGeneratedImage(data.image);
+            }
+
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setImageLoading(false);
+        }
+    };
+
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden border border-purple-100 flex flex-col max-h-[90vh]">
@@ -222,7 +274,24 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
                     {error && (
                         <div className="mb-4 bg-red-50 text-red-700 p-3 rounded-lg flex items-center gap-2 border border-red-200">
                             <AlertCircle size={18} />
-                            <span className="text-sm font-medium">{error}</span>
+                            <span className="text-sm font-medium whitespace-pre-wrap">{error}</span>
+                        </div>
+                    )}
+
+                    {/* Generated Image Display */}
+                    {generatedImage && (
+                        <div className="mb-4 bg-pink-50 p-4 rounded-lg border border-pink-200">
+                            <h4 className="font-bold text-pink-700 mb-2 flex items-center gap-2">
+                                🎨 Generated Image
+                            </h4>
+                            <img
+                                src={generatedImage}
+                                alt="AI Generated"
+                                className="max-w-full h-auto rounded-lg shadow-md border"
+                            />
+                            <p className="text-xs text-pink-600 mt-2">
+                                Right-click to save, or copy this image URL to use in the item.
+                            </p>
                         </div>
                     )}
 
@@ -314,6 +383,14 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
                     {step === 'input' ? (
                         <>
                             <button onClick={onClose} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium">Cancel</button>
+                            <button
+                                onClick={handleGenerateImage}
+                                disabled={imageLoading}
+                                className="px-4 py-2 bg-pink-600 text-white rounded-lg font-bold hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg hover:shadow-pink-200 transition-all"
+                            >
+                                {imageLoading && <Loader2 size={18} className="animate-spin" />}
+                                {imageLoading ? 'Generating...' : '🎨 Generate Image'}
+                            </button>
                             <button
                                 onClick={handleMagicFix}
                                 disabled={(!instruction.trim() && checkedOptions.size === 0) || loading}
