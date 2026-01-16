@@ -5,9 +5,9 @@ FROM node:22-alpine
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY package.json ./
 
-# Install dependencies (including dev for tsx)
+# Install dependencies (Force fresh install)
 RUN npm install
 
 # Copy source code
