@@ -141,9 +141,28 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
         setError(null);
 
         try {
-            // TEMPORARY: AI Magic Fix requires backend - show message
-            // TODO: Migrate to Supabase Edge Functions
-            throw new Error('AI Magic Fix is temporarily unavailable. The feature is being migrated to a new architecture. Please edit items manually for now.');
+            // Call Vercel Serverless Function for AI Magic Fix
+            const response = await fetch('/api/magic-fix', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ item, instruction: fullInstruction })
+            });
+
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                const text = await response.text();
+                console.error("Non-JSON API Response:", text);
+                throw new Error("Server Error: API returned non-JSON response");
+            }
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'AI Request Failed');
+            }
+
+            setNewItem(data.item);
+            setStep('preview');
 
         } catch (err: any) {
             setError(err.message);

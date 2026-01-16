@@ -316,9 +316,43 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
         if (!internalItem) return;
         setIsApplyingFix(true);
         try {
-            // TEMPORARY: AI Magic Fix requires backend - show alert
-            // TODO: Migrate to Supabase Edge Functions
-            alert('AI Magic Fix is temporarily unavailable. The feature is being migrated. Please edit items manually.');
+            const prompt = `CONTEXT: The user selected this text segment from the item content: "${selectedText}".\nINSTRUCTION: ${instruction}.\n\nTASK: Locate the selected context in the item JSON and modify ONLY that section to satisfy the instruction. Ensure the item validation status remains valid (lowercase). Return the FULL updated item JSON.`;
+
+            // Call Vercel Serverless Function
+            const response = await fetch('/api/magic-fix', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ item: internalItem, instruction: prompt })
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error || 'AI Fix Failed');
+            }
+
+            const data = await response.json();
+
+            // Restore ID and ensure integrity
+            const newItemProp = {
+                ...data.item,
+                id: internalItem.id,
+                typeId: internalItem.typeId,
+                type: (internalItem as any).type
+            };
+
+            // Normalize status
+            const safeStatus = (newItemProp.metadata?.status || 'draft').toLowerCase();
+            newItemProp.metadata = { ...newItemProp.metadata, status: ['draft', 'published', 'archived'].includes(safeStatus) ? safeStatus : 'draft' };
+
+            // Update DBs
+            await updateItem(newItemProp);
+            await syncItemToSupabase(newItemProp);
+
+            setInternalItem(newItemProp);
+            setShowMagicBubble(false);
+            setIsFixing(false);
+            window.getSelection()?.removeAllRanges();
+
         } catch (err: any) {
             console.error(err);
             alert('Magic Fix Failed: ' + err.message);
