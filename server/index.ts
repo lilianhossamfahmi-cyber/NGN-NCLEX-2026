@@ -248,8 +248,8 @@ app.post('/api/ai/magic-fix', async (req: Request, res: Response) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Item‑bank API listening on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Item‑bank API listening on 0.0.0.0:${PORT}`);
 });
 
 // Keep-alive to prevent tsx from exiting
