@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { MasterQuestionItem } from '../../types/master-schema';
-import { Wand2, X, Check, Loader2, AlertCircle, User, FileText, Gauge, Image as ImageIcon, ChevronDown, ChevronRight, Sparkles, Upload, FileUp, Trash2, Zap } from 'lucide-react';
+import { Wand2, X, Check, Loader2, AlertCircle, User, FileText, Gauge, Image as ImageIcon, ChevronDown, ChevronRight, Sparkles, Trash2 } from 'lucide-react';
 import { updateItem } from '../../services/itemApiService';
 import { syncItemToSupabase } from '../../services/itemSyncService';
 
@@ -303,7 +304,7 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
 
     // Image Generation Handler
     const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-    const [imageDescription, setImageDescription] = useState<string | null>(null);
+
     const [imageLoading, setImageLoading] = useState(false);
 
     const handleGenerateImage = async () => {
@@ -320,7 +321,7 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
             ? imagePrompts.join(', ') + '. ' + instruction
             : instruction;
 
-        const context = `Medical educational content for: ${(item.metadata as any)?.topic || 'NCLEX nursing exam'}`;
+        const context = `Medical educational content for: ${(item.metadata as any)?.topic || 'NCLEX nursing exam'} `;
 
         setImageLoading(true);
         setError(null);
@@ -340,8 +341,8 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
 
             if (data.type === 'description') {
                 // Fallback: Show description
-                setImageDescription(data.description);
-                setError(`Image model unavailable. Use this description:\n\n${data.description}\n\nSuggested: ${data.suggestedServices?.join(', ')}`);
+
+                setError(`Image model unavailable.Use this description: \n\n${data.description} \n\nSuggested: ${data.suggestedServices?.join(', ')} `);
             } else if (data.image) {
                 setGeneratedImage(data.image);
             }
