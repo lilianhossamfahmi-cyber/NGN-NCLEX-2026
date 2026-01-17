@@ -45,7 +45,7 @@ export class ItemIngestionService {
      * The "Migrator" Logic.
      * Moves data around, fixes typos, flattens structures.
      */
-    private static normalize(raw: any): any {
+    public static normalize(raw: any): any {
         let norm = { ...raw };
 
         // 0. Flatten 'structure' and 'content' layers aggressively
