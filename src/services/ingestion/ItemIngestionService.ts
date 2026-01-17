@@ -53,6 +53,19 @@ export class ItemIngestionService {
         if (norm.structure) Object.assign(norm, norm.structure);
         if (norm.content?.content) Object.assign(norm, norm.content.content); // [FIX] Double-nested content flattening
 
+        // [GOLDEN SCHEMA ADAPTER]
+        // Explicitly map keys from AI Golden Schemas to our Internal Normalization
+        if (norm.content?.bowtie) Object.assign(norm, norm.content.bowtie); // Hoist BowTie structure
+        if (norm.content?.orderedResponse) Object.assign(norm, norm.content.orderedResponse); // Hoist Ordered
+        if (norm.content?.matrix) Object.assign(norm, norm.content.matrix); // Hoist Matrix
+        if (norm.content?.highlight) Object.assign(norm, norm.content.highlight);
+        if (norm.content?.dropCloze) Object.assign(norm, norm.content.dropCloze);
+        if (norm.content?.hotSpot) Object.assign(norm, norm.content.hotSpot);
+        if (norm.content?.calculation) Object.assign(norm, norm.content.calculation);
+
+        if (norm.content?.questionStem) norm.prompt = norm.content.questionStem;
+        if (norm.content?.answerOptions) norm.structure = { ...norm.structure, options: norm.content.answerOptions };
+
         // Lift Rationale if nested in content
         if (norm.content?.rationale) norm.rationale = norm.content.rationale;
 

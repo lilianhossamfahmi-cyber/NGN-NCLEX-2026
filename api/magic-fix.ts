@@ -302,11 +302,12 @@ function buildPrompt(item: any, instruction: string): string {
   } else {
     // Selective schemas based on instruction
     if (instructionLower.includes("nurse") || instructionLower.includes("notes")) schemaContext += GOLDEN_SCHEMAS.nursesNotes + "\n\n";
-    if (instructionLower.includes("vital")) schemaContext += GOLDEN_SCHEMAS.vitals + "\n\n";
-    if (instructionLower.includes("lab")) schemaContext += GOLDEN_SCHEMAS.labs + "\n\n";
-    if (instructionLower.includes("order")) schemaContext += GOLDEN_SCHEMAS.orders + "\n\n";
-    if (instructionLower.includes("rationale")) schemaContext += GOLDEN_SCHEMAS.rationale + "\n\n";
-    if (instructionLower.includes("stem")) schemaContext += GOLDEN_SCHEMAS.questionStem + "\n\n";
+    if (instructionLower.includes("vital") || instructionLower.includes("pain") || instructionLower.includes("temp") || instructionLower.includes("bp") || instructionLower.includes("signs")) schemaContext += GOLDEN_SCHEMAS.vitals + "\n\n";
+    if (instructionLower.includes("lab") || instructionLower.includes("result") || instructionLower.includes("panel")) schemaContext += GOLDEN_SCHEMAS.labs + "\n\n";
+    if (instructionLower.includes("order") || instructionLower.includes("med") || instructionLower.includes("drug")) schemaContext += GOLDEN_SCHEMAS.orders + "\n\n";
+    if (instructionLower.includes("rationale") || instructionLower.includes("reason") || instructionLower.includes("explanation")) schemaContext += GOLDEN_SCHEMAS.rationale + "\n\n";
+    if (instructionLower.includes("stem") || instructionLower.includes("question")) schemaContext += GOLDEN_SCHEMAS.questionStem + "\n\n";
+    if (instructionLower.includes("highlight") || instructionLower.includes("token")) schemaContext += GOLDEN_SCHEMAS.highlight + "\n\n";
 
     // Smart switching for options/structure
     if (instructionLower.includes("option") || instructionLower.includes("answer") || instructionLower.includes("structure")) {
@@ -447,20 +448,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     });
 
-    // Parse JSON
-    let parsedItem;
+    // Parse JSON with robust fallback
+    let parsedItem: any = null;
     try {
       parsedItem = JSON.parse(cleanText);
     } catch (parseError) {
-      // Try extracting JSON object
+      // Try extracting a JSON object from the text
       const start = cleanText.indexOf('{');
       const end = cleanText.lastIndexOf('}');
       if (start >= 0 && end > start) {
-        cleanText = cleanText.substring(start, end + 1);
-        cleanText = cleanText.replace(/\/\/.*$/gm, ""); // Remove comments
-        parsedItem = JSON.parse(cleanText);
-      } else {
-        throw parseError;
+        const candidate = cleanText.substring(start, end + 1);
+        try {
+          parsedItem = JSON.parse(candidate);
+        } catch (_) {
+          // still failed – fall through
+        }
+      }
+      if (!parsedItem) {
+        // Return the raw AI output for debugging
+        console.error('❌ Failed to parse JSON from AI response');
+        return res.status(502).json({
+          error: 'AI returned non‑JSON response',
+          raw: cleanText
+        });
       }
     }
 

@@ -213,8 +213,65 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
         }
     };
 
+    // Helper – shallow diff check for stem / options / highlight
+    const hasMeaningfulChanges = (original: any, updated: any): boolean => {
+        if (original.prompt !== updated.prompt) return true;
+        if (JSON.stringify(original.structure?.options) !== JSON.stringify(updated.structure?.options)) return true;
+        if (JSON.stringify(original.structure?.highlight) !== JSON.stringify(updated.structure?.highlight)) return true;
+        return false;
+    };
+
+    // Push Highlight endpoint (only needed for Highlight items)
+    const handlePushHighlight = async () => {
+        if (!newItem) return;
+        setLoading(true);
+        try {
+            const resp = await fetch('/api/push-highlight', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ item: newItem })
+            });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'Push failed');
+            setNewItem(data.item); // refreshed normalized version
+            // Auto-apply after push
+            // Remove SKELETON tag on save
+            const updatedTags = (data.item.tags || []).filter((t: string) => t !== 'SKELETON');
+
+            // Normalize status to prevent check constraint errors
+            const normalizedItem = {
+                ...data.item,
+                tags: updatedTags,
+                metadata: {
+                    ...data.item.metadata,
+                    status: (data.item.metadata?.status || 'draft').toLowerCase() as any
+                }
+            };
+
+            // Save to Local DB
+            await updateItem(normalizedItem);
+            // Sync to Supabase
+            await syncItemToSupabase(normalizedItem);
+
+            onSuccess();
+            onClose();
+
+        } catch (e: any) {
+            setError(e.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleApply = async () => {
         if (!newItem) return;
+
+        // Optional: Warn if no changes
+        if (!hasMeaningfulChanges(item, newItem)) {
+            const confirm = window.confirm('No changes detected in Stem, Options, or Highlight. Apply anyway?');
+            if (!confirm) return;
+        }
+
         setLoading(true);
         try {
             // Remove SKELETON tag on save
@@ -490,6 +547,19 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
                     ) : (
                         <>
                             <button onClick={() => setStep('input')} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium">Back to Edit</button>
+
+                            {/* Push Highlight Button */}
+                            {newItem?.typeId === 'highlight' && (
+                                <button
+                                    onClick={handlePushHighlight}
+                                    disabled={loading}
+                                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 flex items-center gap-2 shadow-sm transition-all mr-2"
+                                >
+                                    {loading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                                    Push Highlight Changes
+                                </button>
+                            )}
+
                             <button
                                 onClick={handleApply}
                                 disabled={loading}
