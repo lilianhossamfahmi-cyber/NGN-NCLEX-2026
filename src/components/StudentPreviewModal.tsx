@@ -332,9 +332,30 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
 
             const data = await response.json();
 
-            // Restore ID and ensure integrity
-            const newItemProp = {
-                ...data.item,
+            // Restore ID and ensure integrity with ROBUST MERGE
+            // We merge content and structure carefully to avoid data loss if AI returns partials
+            const newContent = {
+                ...internalItem.content,
+                ...(data.item.content || {})
+            };
+
+            // Structure might be at root or under content (legacy vs new)
+            const oldStructure = (internalItem as any).structure || (internalItem as any).content?.structure || {};
+            const newStructure = {
+                ...oldStructure,
+                ...(data.item.structure || {})
+            };
+
+            // Fix Structure Hoisting if AI put it in content.structure but we want root structure
+            if (data.item.content?.structure) {
+                Object.assign(newStructure, data.item.content.structure);
+            }
+
+            const newItemProp: any = {
+                ...internalItem, // Start with original
+                ...data.item,    // Overlay AI changes
+                content: newContent,
+                structure: newStructure,
                 id: internalItem.id,
                 typeId: internalItem.typeId,
                 type: (internalItem as any).type
