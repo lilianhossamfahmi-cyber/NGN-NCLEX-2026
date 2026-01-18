@@ -116,28 +116,28 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
         }
 
         const difficultyLevel = pedagogy?.difficultyLevel ?? 1;
-        const cjmmStep = (pedagogy as any)?.cjmmPhase ?? (metadata as any)?.cjmmStep ?? null;
+        const cjmmStep = (pedagogy as any)?.cjmmPhase ?? (metadata as any)?.cjmmStep ?? 'Analyze Cues'; // Default for NOT NULL
         const clientNeeds = (metadata as any)?.clientNeeds
             ? JSON.stringify((metadata as any).clientNeeds)
             : JSON.stringify('Physiological Integrity'); // Default for NOT NULL constraint
-        const tags = serializeArray(pedagogy?.clinicalFocusTopics ?? (metadata as any)?.tags);
+        const tags = serializeArray(pedagogy?.clinicalFocusTopics ?? (metadata as any)?.tags) || '[]'; // Default empty array
         const itemJson = JSON.stringify(enriched);
 
         return {
             id,
-            type_id: typeId,
-            clinical_focus: clinicalFocus,
+            type_id: typeId || 'multiple-choice', // Default for NOT NULL
+            clinical_focus: clinicalFocus || 'General', // Default for NOT NULL
             difficulty_level: difficultyLevel,
             cjmm_step: cjmmStep,
             client_needs: clientNeeds,
             created_at: now,
             updated_at: now,
-            created_by: userId,
-            updated_by: userId,
+            created_by: userId || 'system', // Default for NOT NULL
+            updated_by: userId || 'system', // Default for NOT NULL
             status: metadata?.status ?? 'draft',
             quality_score: metadata?.qualityScore ?? 0,
-            tags,
-            allowed_modes: serializeArray((enriched as any).allowed_modes || []),
+            tags: tags,
+            allowed_modes: serializeArray((enriched as any).allowed_modes || []) || '[]', // Default empty
             item_json: itemJson
         };
     });
