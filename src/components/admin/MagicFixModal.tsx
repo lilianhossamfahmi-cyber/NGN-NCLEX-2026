@@ -4,6 +4,8 @@ import { MasterQuestionItem } from '../../types/master-schema';
 import { Wand2, X, Check, Loader2, AlertCircle, User, FileText, Gauge, Image as ImageIcon, ChevronDown, ChevronRight, Sparkles, Trash2 } from 'lucide-react';
 import { updateItem } from '../../services/itemApiService';
 import { syncItemToSupabase } from '../../services/itemSyncService';
+import { magicFixItem, generateItemImage } from '../../services/geminiService';
+import { ItemIngestionService } from '../../services/ingestion/ItemIngestionService';
 
 interface MagicFixModalProps {
     item: MasterQuestionItem;
@@ -180,35 +182,21 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
         setError(null);
 
         try {
-            // Call Vercel Serverless Function for AI Magic Fix
-            const response = await fetch('/api/magic-fix', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    item,
-                    instruction: fullInstruction,
-                    image: uploadImage // Send image if present
-                })
-            });
+            // Call Client-Side Gemini Service directly
+            // This works Local (Vite) and Live (Vercel) robustly
+            const fixedItem = await magicFixItem(item, fullInstruction);
 
-            const contentType = response.headers.get("content-type");
-            if (!contentType || !contentType.includes("application/json")) {
-                const text = await response.text();
-                console.error("Non-JSON API Response:", text);
-                throw new Error("Server Error: API returned non-JSON response");
-            }
+            // Image is separate, if we want to support image+fix we'd need to update magicFixItem
+            // For now, magicFixItem only handles text/JSON. 
+            // If uploadImage was present, we might want to handle it (Gemini Multimodal)
+            // But the original /api/magic-fix just took the image and likely did nothing with it yet deeply.
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'AI Request Failed');
-            }
-
-            setNewItem(data.item);
+            setNewItem(fixedItem);
             setStep('preview');
 
         } catch (err: any) {
-            setError(err.message);
+            console.error("Magic Fix Error:", err);
+            setError(err.message || 'AI Processing Failed');
         } finally {
             setLoading(false);
         }
@@ -222,30 +210,23 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
         return false;
     };
 
-    // Push Highlight endpoint (only needed for Highlight items)
+    // Push Highlight endpoint (Locally normalized now)
     const handlePushHighlight = async () => {
         if (!newItem) return;
         setLoading(true);
         try {
-            const resp = await fetch('/api/push-highlight', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ item: newItem })
-            });
-            const data = await resp.json();
-            if (!resp.ok) throw new Error(data.error || 'Push failed');
-            setNewItem(data.item); // refreshed normalized version
-            // Auto-apply after push
-            // Remove SKELETON tag on save
-            const updatedTags = (data.item.tags || []).filter((t: string) => t !== 'SKELETON');
+            // Local normalization via Service
+            const normalized = ItemIngestionService.normalize(newItem);
 
+            setNewItem(normalized); // refreshed normalized version
+            // Auto-apply after push
             // Normalize status to prevent check constraint errors
             const normalizedItem = {
-                ...data.item,
-                tags: updatedTags,
+                ...normalized,
+                tags: (normalized.tags || []).filter((t: string) => t !== 'SKELETON'),
                 metadata: {
-                    ...data.item.metadata,
-                    status: (data.item.metadata?.status || 'draft').toLowerCase() as any
+                    ...normalized.metadata,
+                    status: (normalized.metadata?.status || 'draft').toLowerCase() as any
                 }
             };
 
@@ -327,17 +308,7 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
         setError(null);
 
         try {
-            const response = await fetch('/api/generate-image', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt, context })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Image generation failed');
-            }
+            const data = await generateItemImage(prompt, context);
 
             if (data.type === 'description') {
                 // Fallback: Show description

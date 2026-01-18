@@ -15,6 +15,7 @@ import * as RationalePipeline from '../services/RationalePipeline';
 import { Wand2, X, Loader2 } from 'lucide-react';
 import { updateItem } from '../services/itemApiService';
 import { syncItemToSupabase } from '../services/itemSyncService';
+import { magicFixItem } from '../services/geminiService';
 
 interface StudentPreviewModalProps {
     item: MasterQuestionItem;
@@ -318,42 +319,31 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
         try {
             const prompt = `CONTEXT: The user selected this text segment from the item content: "${selectedText}".\nINSTRUCTION: ${instruction}.\n\nTASK: Locate the selected context in the item JSON and modify ONLY that section to satisfy the instruction. Ensure the item validation status remains valid (lowercase). Return the FULL updated item JSON.`;
 
-            // Call Vercel Serverless Function
-            const response = await fetch('/api/magic-fix', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ item: internalItem, instruction: prompt })
-            });
-
-            if (!response.ok) {
-                const err = await response.json();
-                throw new Error(err.error || 'AI Fix Failed');
-            }
-
-            const data = await response.json();
+            // Call Client-Side Service
+            const fixedItem = await magicFixItem(internalItem, prompt);
 
             // Restore ID and ensure integrity with ROBUST MERGE
             // We merge content and structure carefully to avoid data loss if AI returns partials
             const newContent = {
                 ...internalItem.content,
-                ...(data.item.content || {})
+                ...(fixedItem.content || {})
             };
 
             // Structure might be at root or under content (legacy vs new)
             const oldStructure = (internalItem as any).structure || (internalItem as any).content?.structure || {};
             const newStructure = {
                 ...oldStructure,
-                ...(data.item.structure || {})
+                ...(fixedItem.structure || {})
             };
 
             // Fix Structure Hoisting if AI put it in content.structure but we want root structure
-            if (data.item.content?.structure) {
-                Object.assign(newStructure, data.item.content.structure);
+            if (fixedItem.content?.structure) {
+                Object.assign(newStructure, fixedItem.content.structure);
             }
 
             const newItemProp: any = {
                 ...internalItem, // Start with original
-                ...data.item,    // Overlay AI changes
+                ...fixedItem,    // Overlay AI changes
                 content: newContent,
                 structure: newStructure,
                 id: internalItem.id,
