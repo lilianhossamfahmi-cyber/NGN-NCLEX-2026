@@ -350,37 +350,61 @@ ${instruction}
     const handleApply = async () => {
         if (!newItem) return;
 
-        // Optional: Warn if no changes
-        if (!hasMeaningfulChanges(item, newItem)) {
-            const confirm = window.confirm('No changes detected in Stem, Options, or Highlight. Apply anyway?');
+        // Optional: Warn if no changes (Basic Diff Check)
+        const isDifferent = JSON.stringify(item.content) !== JSON.stringify(newItem.content) ||
+            JSON.stringify((item as any).structure) !== JSON.stringify((newItem as any).structure) ||
+            JSON.stringify((item as any).rationale) !== JSON.stringify((newItem as any).rationale);
+
+        if (!isDifferent) {
+            const confirm = window.confirm('No significant changes detected. Apply anyway?');
             if (!confirm) return;
         }
 
         setLoading(true);
         try {
-            // Remove SKELETON tag on save
-            const updatedTags = (newItem.tags || []).filter(t => t !== 'SKELETON');
+            // 1. Remove Temporary AI Tags
+            const updatedTags = (item.tags || []).filter(t => t !== 'SKELETON');
 
-            // Normalize status to prevent check constraint errors
-            const normalizedItem = {
-                ...newItem,
+            // 2. Validate & Sanitize Status (Database Constraint: 'draft', 'published', 'archived')
+            let status = (item.metadata?.status || 'draft').toLowerCase();
+            if (!['draft', 'published', 'archived', 'in-review'].includes(status)) {
+                status = 'draft';
+            }
+
+            // 3. Construct Normalized Item Payload
+            // We use 'item' (original) as base to preserve IDs, then overlay 'newItem' (AI)
+            const normalizedItem: any = {
+                ...item,
                 tags: updatedTags,
                 metadata: {
+                    ...item.metadata,
                     ...newItem.metadata,
-                    status: (newItem.metadata?.status || 'draft').toLowerCase() as any
-                }
+                    status: status as any
+                },
+                // Merge content intelligently (AI changes overlay original)
+                content: {
+                    ...item.content,
+                    ...(newItem.content || {})
+                },
+                // Structure & Rationale might be top-level or in content (handle both)
+                structure: (newItem as any).structure || (item as any).structure || {},
+                rationale: (newItem as any).rationale || (item as any).rationale || {}
             };
+
+            // 4. Critical: Ensure ID matches original item to force UPDATE not INSERT
+            normalizedItem.id = item.id;
 
             // Save to Local DB
             await updateItem(normalizedItem);
+
             // Sync to Supabase
             await syncItemToSupabase(normalizedItem);
 
             onSuccess();
             onClose();
-        } catch (err) {
-            console.error(err);
-            setError("Failed to save changes.");
+        } catch (err: any) {
+            console.error("Save Error:", err);
+            setError(`Failed to save changes: ${err.message || 'Unknown Validation Error'}`);
             setLoading(false);
         }
     };
@@ -474,8 +498,8 @@ ${instruction}
                                                 key={sec.id}
                                                 onClick={() => handleToggleSection(sec.id)}
                                                 className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all flex items-center gap-2 ${selectedSections.includes(sec.id)
-                                                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                                                        : 'bg-white text-gray-500 border-gray-200 hover:border-indigo-300'
+                                                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                                                    : 'bg-white text-gray-500 border-gray-200 hover:border-indigo-300'
                                                     }`}
                                             >
                                                 {selectedSections.includes(sec.id) && <Check size={12} />}
