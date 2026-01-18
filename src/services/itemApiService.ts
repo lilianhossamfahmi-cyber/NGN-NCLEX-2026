@@ -106,44 +106,50 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
     if (items.length === 0) return 0;
 
     const upsertData = items.map(item => {
-        // CRITICAL: Preserve original ID before any transformation
-        const originalId = item.id;
+        // 1. DUAL-LAYER ID PRESERVATION
+        // Use property 'id' or '_id', or generate a timestamp-based fallback if all fail
+        const rawId = item.id || (item as any)._id || (item as any).item_id;
+        const backupId = `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        let finalId = rawId || backupId;
+
+        // Try native crypto if available, but don't crash if not
+        try { if (!rawId && typeof crypto !== 'undefined' && crypto.randomUUID) finalId = crypto.randomUUID(); } catch (e) { }
 
         const enriched = enrichItemWithQuality(item);
         const now = new Date().toISOString();
         const { typeId, metadata, pedagogy } = enriched;
 
-        // Use original ID, or enriched ID, or generate a new UUID
-        const finalId = originalId || enriched.id || crypto.randomUUID();
+        // 2. PEDAGOGY & METADATA DEFAULTS
+        const difficultyLevel = pedagogy?.difficultyLevel ?? (item.pedagogy as any)?.difficultyLevel ?? 1;
+        const cjmmStep = (pedagogy as any)?.cjmmPhase ?? (metadata as any)?.cjmmStep ?? (item.pedagogy as any)?.cjmmStep ?? 'Analyze Cues';
 
-        let clinicalFocus = pedagogy?.clinicalFocus ?? (metadata as any)?.clinicalFocus;
+        let clinicalFocus = pedagogy?.clinicalFocus || (item as any)?.clinical_focus || 'General';
         if (!clinicalFocus || clinicalFocus === 'General') {
             clinicalFocus = inferTopic(item);
         }
 
-        const difficultyLevel = pedagogy?.difficultyLevel ?? 1;
-        const cjmmStep = (pedagogy as any)?.cjmmPhase ?? (metadata as any)?.cjmmStep ?? 'Analyze Cues'; // Default for NOT NULL
-        const clientNeeds = (metadata as any)?.clientNeeds
-            ? JSON.stringify((metadata as any).clientNeeds)
-            : JSON.stringify('Physiological Integrity'); // Default for NOT NULL constraint
-        const tags = serializeArray(pedagogy?.clinicalFocusTopics ?? (metadata as any)?.tags) || '[]'; // Default empty array
-        const itemJson = JSON.stringify({ ...enriched, id: finalId }); // Ensure ID in JSON too
+        const clientNeedsVal = (metadata as any)?.clientNeeds || (item.metadata as any)?.clientNeeds || 'Physiological Integrity';
+        const clientNeeds = JSON.stringify(clientNeedsVal);
+        const tags = serializeArray(pedagogy?.clinicalFocusTopics || (metadata as any)?.tags) || '[]';
+
+        // 3. SECURE JSON PAYLOAD
+        const itemJson = JSON.stringify({ ...enriched, id: finalId });
 
         return {
-            id: finalId, // GUARANTEED non-null
-            type_id: typeId || 'multiple-choice', // Default for NOT NULL
-            clinical_focus: clinicalFocus || 'General', // Default for NOT NULL
+            id: finalId, // PRIMARY KEY - GUARANTEED NON-NULL
+            type_id: typeId || item.typeId || 'multiple-choice',
+            clinical_focus: clinicalFocus,
             difficulty_level: difficultyLevel,
             cjmm_step: cjmmStep,
             client_needs: clientNeeds,
-            created_at: now,
+            created_at: (item as any).created_at || now,
             updated_at: now,
-            created_by: userId || 'system', // Default for NOT NULL
-            updated_by: userId || 'system', // Default for NOT NULL
-            status: metadata?.status ?? 'draft',
-            quality_score: metadata?.qualityScore ?? 0,
+            created_by: userId || 'system',
+            updated_by: userId || 'system',
+            status: (metadata?.status || item.metadata?.status || 'draft').toLowerCase(),
+            quality_score: metadata?.qualityScore || 0,
             tags: tags,
-            allowed_modes: serializeArray((enriched as any).allowed_modes || []) || '[]', // Default empty
+            allowed_modes: serializeArray((enriched as any).allowed_modes || []) || '[]',
             item_json: itemJson
         };
     });
