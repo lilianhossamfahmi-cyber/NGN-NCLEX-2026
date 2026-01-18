@@ -106,9 +106,15 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
     if (items.length === 0) return 0;
 
     const upsertData = items.map(item => {
+        // CRITICAL: Preserve original ID before any transformation
+        const originalId = item.id;
+
         const enriched = enrichItemWithQuality(item);
         const now = new Date().toISOString();
-        const { id, typeId, metadata, pedagogy } = enriched;
+        const { typeId, metadata, pedagogy } = enriched;
+
+        // Use original ID, or enriched ID, or generate a new UUID
+        const finalId = originalId || enriched.id || crypto.randomUUID();
 
         let clinicalFocus = pedagogy?.clinicalFocus ?? (metadata as any)?.clinicalFocus;
         if (!clinicalFocus || clinicalFocus === 'General') {
@@ -121,10 +127,10 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
             ? JSON.stringify((metadata as any).clientNeeds)
             : JSON.stringify('Physiological Integrity'); // Default for NOT NULL constraint
         const tags = serializeArray(pedagogy?.clinicalFocusTopics ?? (metadata as any)?.tags) || '[]'; // Default empty array
-        const itemJson = JSON.stringify(enriched);
+        const itemJson = JSON.stringify({ ...enriched, id: finalId }); // Ensure ID in JSON too
 
         return {
-            id,
+            id: finalId, // GUARANTEED non-null
             type_id: typeId || 'multiple-choice', // Default for NOT NULL
             clinical_focus: clinicalFocus || 'General', // Default for NOT NULL
             difficulty_level: difficultyLevel,
