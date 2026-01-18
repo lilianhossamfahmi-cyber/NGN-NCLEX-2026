@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { MasterQuestionItem } from '../../types/master-schema';
 import { Wand2, X, Check, Loader2, AlertCircle, User, FileText, Gauge, Image as ImageIcon, ChevronDown, ChevronRight, Sparkles, Trash2 } from 'lucide-react';
 import { updateItem } from '../../services/itemApiService';
 import { syncItemToSupabase } from '../../services/itemSyncService';
-import { magicFixItem, generateItemImage } from '../../services/geminiService';
+import { magicFixItem, magicPlanItem, generateItemImage } from '../../services/geminiService';
 import { ItemIngestionService } from '../../services/ingestion/ItemIngestionService';
 
 interface MagicFixModalProps {
@@ -12,6 +11,12 @@ interface MagicFixModalProps {
     onClose: () => void;
     onSuccess: () => void;
 }
+
+const SECTIONS = [
+    { id: 'scenario', label: '1. Clinical Scenario (Notes, Vitals, Labs)' },
+    { id: 'structure', label: '2. Question Structure (Stem, Options)' },
+    { id: 'rationale', label: '3. Clinical Reasoning (Rationale)' }
+];
 
 const CHECKLIST_GROUPS = [
     {
@@ -112,11 +117,19 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
     const [loading, setLoading] = useState(false);
     const [newItem, setNewItem] = useState<MasterQuestionItem | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [step, setStep] = useState<'input' | 'preview'>('input');
+    
+    // New State for Smart Workflow
+    const [planningMode, setPlanningMode] = useState(false);
+    const [step, setStep] = useState<'input' | 'planning' | 'preview'>('input');
+    const [plan, setPlan] = useState('');
+    const [selectedSections, setSelectedSections] = useState<string[]>(['scenario', 'structure', 'rationale']);
+
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(CHECKLIST_GROUPS.map(g => g.title)));
 
     // Image Upload State
     const [uploadImage, setUploadImage] = useState<string | null>(null);
+    const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+    const [imageLoading, setImageLoading] = useState(false);
 
     const toggleOption = (option: string) => {
         const next = new Set(checkedOptions);
@@ -136,6 +149,14 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
     const handleQuickAction = (action: string) => {
         if (action === 'full_case') {
             setInstruction("Generate a complete full case including Nurses Notes, History & Physical, Vitals, Labs, Orders, Question Stem, Answer Options and Rationale. Ensure all fields are filled.");
+        }
+    };
+
+    const handleToggleSection = (id: string) => {
+        if (selectedSections.includes(id)) {
+            setSelectedSections(selectedSections.filter(s => s !== id));
+        } else {
+            setSelectedSections([...selectedSections, id]);
         }
     };
 
@@ -167,8 +188,96 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
         }
     };
 
+    // Image Generation Handler
+    const handleGenerateImage = async () => {
+        const imagePrompts = Array.from(checkedOptions).filter(opt =>
+            opt.includes('X-RAY') || opt.includes('Image')
+        );
+
+        if (imagePrompts.length === 0 && !instruction) {
+            setError('Please select an image option or describe what image you need');
+            return;
+        }
+
+        const prompt = imagePrompts.length > 0
+            ? imagePrompts.join(', ') + '. ' + instruction
+            : instruction;
+
+        const context = `Medical educational content for: ${(item.metadata as any)?.topic || 'NCLEX nursing exam'} `;
+
+        setImageLoading(true);
+        setError(null);
+
+        try {
+            const data = await generateItemImage(prompt, context);
+
+            if (data.type === 'description') {
+                // Fallback: Show description
+                setError(`Image model unavailable. Use this description: \n\n${data.description} \n\nSuggested: ${data.suggestedServices?.join(', ')} `);
+            } else if (data.image) {
+                setGeneratedImage(data.image);
+            }
+
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setImageLoading(false);
+        }
+    };
+
+    const handlePlan = async () => {
+        const selectedList = Array.from(checkedOptions);
+        const fullInstruction = [
+            instruction.trim(),
+            selectedList.length > 0 ? "\nContext:" : "",
+            ...selectedList.map(opt => `- ${opt} `)
+        ].filter(Boolean).join('\n');
+
+        if (!fullInstruction && !instruction) {
+            setError("Please provide instructions or select options.");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const planText = await magicPlanItem(item, fullInstruction, selectedSections);
+            setPlan(planText);
+            setStep('planning');
+        } catch (e: any) {
+            setError(e.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleExecute = async () => {
+        setLoading(true);
+        try {
+            // Use the approved plan as the main instruction
+            const finalInstruction = `
+APPROVED PLAN:
+${plan}
+
+ORIGINAL INSTRUCTION:
+${instruction}
+`;
+            const fixedItem = await magicFixItem(item, finalInstruction, selectedSections);
+            setNewItem(fixedItem);
+            setStep('preview');
+        } catch (e: any) {
+            setError(e.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleMagicFix = async () => {
-        // Construct the full prompt
+        if (planningMode) {
+            handlePlan();
+            return;
+        }
+
+        // Fast Fix Logic
         const selectedList = Array.from(checkedOptions);
         if (!instruction.trim() && selectedList.length === 0 && !uploadImage) return;
 
@@ -182,18 +291,9 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
         setError(null);
 
         try {
-            // Call Client-Side Gemini Service directly
-            // This works Local (Vite) and Live (Vercel) robustly
-            const fixedItem = await magicFixItem(item, fullInstruction);
-
-            // Image is separate, if we want to support image+fix we'd need to update magicFixItem
-            // For now, magicFixItem only handles text/JSON. 
-            // If uploadImage was present, we might want to handle it (Gemini Multimodal)
-            // But the original /api/magic-fix just took the image and likely did nothing with it yet deeply.
-
+            const fixedItem = await magicFixItem(item, fullInstruction, selectedSections);
             setNewItem(fixedItem);
             setStep('preview');
-
         } catch (err: any) {
             console.error("Magic Fix Error:", err);
             setError(err.message || 'AI Processing Failed');
@@ -202,15 +302,18 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
         }
     };
 
-    // Helper – shallow diff check for stem / options / highlight
-    const hasMeaningfulChanges = (original: any, updated: any): boolean => {
-        if (original.prompt !== updated.prompt) return true;
-        if (JSON.stringify(original.structure?.options) !== JSON.stringify(updated.structure?.options)) return true;
-        if (JSON.stringify(original.structure?.highlight) !== JSON.stringify(updated.structure?.highlight)) return true;
+     // Helper – shallow diff check
+     const hasMeaningfulChanges = (original: any, updated: any): boolean => {
+        // Use type assertions to avoid TS errors on dynamic properties
+        const origAny = original as any;
+        const updAny = updated as any;
+        
+        if (origAny.prompt !== updAny.prompt) return true;
+        if (JSON.stringify(origAny.structure?.options) !== JSON.stringify(updAny.structure?.options)) return true;
+        if (JSON.stringify(origAny.structure?.highlight) !== JSON.stringify(updAny.structure?.highlight)) return true;
         return false;
     };
 
-    // Push Highlight endpoint (Locally normalized now)
     const handlePushHighlight = async () => {
         if (!newItem) return;
         setLoading(true);
@@ -219,8 +322,7 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
             const normalized = ItemIngestionService.normalize(newItem);
 
             setNewItem(normalized); // refreshed normalized version
-            // Auto-apply after push
-            // Normalize status to prevent check constraint errors
+            
             const normalizedItem = {
                 ...normalized,
                 tags: (normalized.tags || []).filter((t: string) => t !== 'SKELETON'),
@@ -283,48 +385,6 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
         }
     };
 
-    // Image Generation Handler
-    const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-
-    const [imageLoading, setImageLoading] = useState(false);
-
-    const handleGenerateImage = async () => {
-        const imagePrompts = Array.from(checkedOptions).filter(opt =>
-            opt.includes('X-RAY') || opt.includes('Image')
-        );
-
-        if (imagePrompts.length === 0 && !instruction) {
-            setError('Please select an image option or describe what image you need');
-            return;
-        }
-
-        const prompt = imagePrompts.length > 0
-            ? imagePrompts.join(', ') + '. ' + instruction
-            : instruction;
-
-        const context = `Medical educational content for: ${(item.metadata as any)?.topic || 'NCLEX nursing exam'} `;
-
-        setImageLoading(true);
-        setError(null);
-
-        try {
-            const data = await generateItemImage(prompt, context);
-
-            if (data.type === 'description') {
-                // Fallback: Show description
-
-                setError(`Image model unavailable.Use this description: \n\n${data.description} \n\nSuggested: ${data.suggestedServices?.join(', ')} `);
-            } else if (data.image) {
-                setGeneratedImage(data.image);
-            }
-
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setImageLoading(false);
-        }
-    };
-
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden border border-purple-100 flex flex-col max-h-[90vh]">
@@ -333,8 +393,27 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
                 <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 flex justify-between items-center text-white shrink-0">
                     <div className="flex items-center gap-2">
                         <Wand2 className="text-yellow-300" />
-                        <h2 className="font-bold text-lg">Magic AI Fixer</h2>
+                        <h2 className="font-bold text-lg">
+                            {step === 'planning' ? 'Review & Approve Plan' : 'Magic AI Fixer'}
+                        </h2>
                     </div>
+                     {/* Toggle Smart Mode */}
+                     {step === 'input' && (
+                        <div className="flex bg-purple-800/50 rounded-lg p-1">
+                            <button 
+                                onClick={() => setPlanningMode(false)}
+                                className={`px-3 py-1 rounded text-xs font-bold transition-all ${!planningMode ? 'bg-white text-purple-700 shadow' : 'text-purple-200 hover:text-white'}`}
+                            >
+                                Quick Fix
+                            </button>
+                            <button 
+                                onClick={() => setPlanningMode(true)}
+                                className={`px-3 py-1 rounded text-xs font-bold transition-all ${planningMode ? 'bg-white text-purple-700 shadow' : 'text-purple-200 hover:text-white'}`}
+                            >
+                                Smart Agent
+                            </button>
+                        </div>
+                    )}
                     <button onClick={onClose} className="hover:bg-white/20 p-1 rounded-full transition-colors">
                         <X size={20} />
                     </button>
@@ -366,8 +445,47 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
                         </div>
                     )}
 
-                    {step === 'input' ? (
+                    {step === 'planning' && (
+                        <div className="space-y-4 h-full flex flex-col">
+                            <div className="bg-blue-50 text-blue-800 p-3 rounded-lg border border-blue-200 flex items-center gap-2">
+                                <Sparkles size={18} />
+                                <span className="font-bold">Proposed Fix Plan</span>
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-xs text-gray-500 mb-2">Review and edit the AI's proposed plan before execution:</p>
+                                <textarea 
+                                    value={plan}
+                                    onChange={(e) => setPlan(e.target.value)}
+                                    className="w-full h-full min-h-[300px] p-4 font-mono text-sm border rounded-lg shadow-inner bg-white focus:ring-2 focus:ring-purple-500 outline-none"
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {step === 'input' && (
                         <div className="space-y-6">
+                            {/* Smart Sections Selector */}
+                            {planningMode && (
+                                <div className="bg-indigo-50 border border-indigo-100 p-3 rounded-lg">
+                                    <p className="text-xs font-bold text-indigo-800 uppercase tracking-wider mb-2">Scope of Changes</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {SECTIONS.map(sec => (
+                                            <button
+                                                key={sec.id}
+                                                onClick={() => handleToggleSection(sec.id)}
+                                                className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all flex items-center gap-2 ${
+                                                    selectedSections.includes(sec.id) 
+                                                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                                                    : 'bg-white text-gray-500 border-gray-200 hover:border-indigo-300'
+                                                }`}
+                                            >
+                                                {selectedSections.includes(sec.id) && <Check size={12} />}
+                                                {sec.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Quick Actions */}
                             <div className="flex gap-2 mb-2">
@@ -385,12 +503,12 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
                                 <label className="block text-sm font-bold text-gray-700 mb-2">Custom Instructions (Optional)</label>
                                 <textarea
                                     className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-gray-700 min-h-[80px]"
-                                    placeholder="e.g. 'Ensure the patient history mentions diabetes'..."
+                                    placeholder={planningMode ? "e.g., 'Update the patient to be in septic shock and fix the rationale'" : "e.g., 'Ensure the patient history mentions diabetes'..."}
                                     value={instruction}
                                     onChange={(e) => setInstruction(e.target.value)}
                                     onPaste={handlePaste}
                                 />
-                                {/* Image Upload Widget */}
+                                 {/* Image Upload Widget */}
                                 <div className="mt-3 flex items-center gap-2">
                                     <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-xs font-semibold transition-colors">
                                         <ImageIcon size={14} />
@@ -467,7 +585,7 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
                             </div>
                         </div>
                     ) : (
-                        <div className="space-y-4 h-full flex flex-col">
+                         <div className="space-y-4 h-full flex flex-col">
                             <div className="bg-green-50 text-green-800 p-3 rounded-lg border border-green-200 flex items-center gap-2">
                                 <Check size={18} />
                                 <span className="font-bold">AI Changes Generated!</span>
@@ -482,7 +600,11 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
                                     <pre className="whitespace-pre-wrap text-blue-800 break-words">
                                         {JSON.stringify({
                                             content: newItem?.content,
-                                            metadata: newItem?.metadata
+                                            metadata: newItem?.metadata,
+                                             // Cast to any to display extra fields
+                                            structure: (newItem as any)?.structure,
+                                            rationale: (newItem as any)?.rationale,
+                                            prompt: (newItem as any)?.prompt
                                         }, null, 2)}
                                     </pre>
                                 </div>
@@ -496,7 +618,19 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
 
                 {/* Footer */}
                 <div className="p-4 border-t bg-white flex justify-end gap-3 shrink-0">
-                    {step === 'input' ? (
+                    {step === 'planning' ? (
+                            <>
+                            <button onClick={() => setStep('input')} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium">Back</button>
+                            <button 
+                                onClick={handleExecute}
+                                disabled={loading}
+                                className="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-bold shadow-lg hover:shadow-purple-200 transition-all flex items-center gap-2"
+                            >
+                                {loading ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+                                Approve & Execute
+                            </button>
+                            </>
+                    ) : step === 'input' ? (
                         <>
                             <button onClick={onClose} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium">Cancel</button>
                             <button
@@ -513,7 +647,7 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
                                 className="px-6 py-2 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg hover:shadow-purple-200 transition-all"
                             >
                                 {loading && <Loader2 size={18} className="animate-spin" />}
-                                {loading ? 'Processing...' : 'Generate Fix'}
+                                {loading ? 'Processing...' : (planningMode ? 'Analyze & Plan' : 'Generate Fix')}
                             </button>
                         </>
                     ) : (
