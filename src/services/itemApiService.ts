@@ -117,7 +117,9 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
 
         const difficultyLevel = pedagogy?.difficultyLevel ?? 1;
         const cjmmStep = (pedagogy as any)?.cjmmPhase ?? (metadata as any)?.cjmmStep ?? null;
-        const clientNeeds = (metadata as any)?.clientNeeds ? JSON.stringify((metadata as any).clientNeeds) : null;
+        const clientNeeds = (metadata as any)?.clientNeeds
+            ? JSON.stringify((metadata as any).clientNeeds)
+            : JSON.stringify('Physiological Integrity'); // Default for NOT NULL constraint
         const tags = serializeArray(pedagogy?.clinicalFocusTopics ?? (metadata as any)?.tags);
         const itemJson = JSON.stringify(enriched);
 
