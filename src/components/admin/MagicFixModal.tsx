@@ -117,7 +117,7 @@ export const MagicFixModal: React.FC<MagicFixModalProps> = ({ item, onClose, onS
     const [loading, setLoading] = useState(false);
     const [newItem, setNewItem] = useState<MasterQuestionItem | null>(null);
     const [error, setError] = useState<string | null>(null);
-    
+
     // New State for Smart Workflow
     const [planningMode, setPlanningMode] = useState(false);
     const [step, setStep] = useState<'input' | 'planning' | 'preview'>('input');
@@ -302,12 +302,12 @@ ${instruction}
         }
     };
 
-     // Helper – shallow diff check
-     const hasMeaningfulChanges = (original: any, updated: any): boolean => {
+    // Helper – shallow diff check
+    const hasMeaningfulChanges = (original: any, updated: any): boolean => {
         // Use type assertions to avoid TS errors on dynamic properties
         const origAny = original as any;
         const updAny = updated as any;
-        
+
         if (origAny.prompt !== updAny.prompt) return true;
         if (JSON.stringify(origAny.structure?.options) !== JSON.stringify(updAny.structure?.options)) return true;
         if (JSON.stringify(origAny.structure?.highlight) !== JSON.stringify(updAny.structure?.highlight)) return true;
@@ -322,7 +322,7 @@ ${instruction}
             const normalized = ItemIngestionService.normalize(newItem);
 
             setNewItem(normalized); // refreshed normalized version
-            
+
             const normalizedItem = {
                 ...normalized,
                 tags: (normalized.tags || []).filter((t: string) => t !== 'SKELETON'),
@@ -397,16 +397,16 @@ ${instruction}
                             {step === 'planning' ? 'Review & Approve Plan' : 'Magic AI Fixer'}
                         </h2>
                     </div>
-                     {/* Toggle Smart Mode */}
-                     {step === 'input' && (
+                    {/* Toggle Smart Mode */}
+                    {step === 'input' && (
                         <div className="flex bg-purple-800/50 rounded-lg p-1">
-                            <button 
+                            <button
                                 onClick={() => setPlanningMode(false)}
                                 className={`px-3 py-1 rounded text-xs font-bold transition-all ${!planningMode ? 'bg-white text-purple-700 shadow' : 'text-purple-200 hover:text-white'}`}
                             >
                                 Quick Fix
                             </button>
-                            <button 
+                            <button
                                 onClick={() => setPlanningMode(true)}
                                 className={`px-3 py-1 rounded text-xs font-bold transition-all ${planningMode ? 'bg-white text-purple-700 shadow' : 'text-purple-200 hover:text-white'}`}
                             >
@@ -453,7 +453,7 @@ ${instruction}
                             </div>
                             <div className="flex-1">
                                 <p className="text-xs text-gray-500 mb-2">Review and edit the AI's proposed plan before execution:</p>
-                                <textarea 
+                                <textarea
                                     value={plan}
                                     onChange={(e) => setPlan(e.target.value)}
                                     className="w-full h-full min-h-[300px] p-4 font-mono text-sm border rounded-lg shadow-inner bg-white focus:ring-2 focus:ring-purple-500 outline-none"
@@ -473,11 +473,10 @@ ${instruction}
                                             <button
                                                 key={sec.id}
                                                 onClick={() => handleToggleSection(sec.id)}
-                                                className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all flex items-center gap-2 ${
-                                                    selectedSections.includes(sec.id) 
-                                                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                                                    : 'bg-white text-gray-500 border-gray-200 hover:border-indigo-300'
-                                                }`}
+                                                className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all flex items-center gap-2 ${selectedSections.includes(sec.id)
+                                                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                                                        : 'bg-white text-gray-500 border-gray-200 hover:border-indigo-300'
+                                                    }`}
                                             >
                                                 {selectedSections.includes(sec.id) && <Check size={12} />}
                                                 {sec.label}
@@ -508,7 +507,7 @@ ${instruction}
                                     onChange={(e) => setInstruction(e.target.value)}
                                     onPaste={handlePaste}
                                 />
-                                 {/* Image Upload Widget */}
+                                {/* Image Upload Widget */}
                                 <div className="mt-3 flex items-center gap-2">
                                     <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-xs font-semibold transition-colors">
                                         <ImageIcon size={14} />
@@ -584,8 +583,10 @@ ${instruction}
                                 })}
                             </div>
                         </div>
-                    ) : (
-                         <div className="space-y-4 h-full flex flex-col">
+                    )}
+
+                    {step === 'preview' && (
+                        <div className="space-y-4 h-full flex flex-col">
                             <div className="bg-green-50 text-green-800 p-3 rounded-lg border border-green-200 flex items-center gap-2">
                                 <Check size={18} />
                                 <span className="font-bold">AI Changes Generated!</span>
@@ -601,7 +602,7 @@ ${instruction}
                                         {JSON.stringify({
                                             content: newItem?.content,
                                             metadata: newItem?.metadata,
-                                             // Cast to any to display extra fields
+                                            // Cast to any to display extra fields
                                             structure: (newItem as any)?.structure,
                                             rationale: (newItem as any)?.rationale,
                                             prompt: (newItem as any)?.prompt
@@ -619,9 +620,9 @@ ${instruction}
                 {/* Footer */}
                 <div className="p-4 border-t bg-white flex justify-end gap-3 shrink-0">
                     {step === 'planning' ? (
-                            <>
+                        <>
                             <button onClick={() => setStep('input')} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium">Back</button>
-                            <button 
+                            <button
                                 onClick={handleExecute}
                                 disabled={loading}
                                 className="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-bold shadow-lg hover:shadow-purple-200 transition-all flex items-center gap-2"
@@ -629,7 +630,7 @@ ${instruction}
                                 {loading ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
                                 Approve & Execute
                             </button>
-                            </>
+                        </>
                     ) : step === 'input' ? (
                         <>
                             <button onClick={onClose} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium">Cancel</button>
