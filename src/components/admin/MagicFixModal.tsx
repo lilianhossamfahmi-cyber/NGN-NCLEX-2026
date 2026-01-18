@@ -371,24 +371,47 @@ ${instruction}
                 status = 'draft';
             }
 
-            // 3. Construct Normalized Item Payload
-            // We use 'item' (original) as base to preserve IDs, then overlay 'newItem' (AI)
+            // 3. Construct Normalized Item Payload (Iron-Clad Defaults for NOT NULL columns)
             const normalizedItem: any = {
                 ...item,
-                tags: updatedTags,
+                // Required Columns for Postgres (error=23502 fix)
+                id: item.id, // Explicit ID
+                type_id: item.typeId || newItem.typeId || 'multiple-choice',
+
+                // Pedagogy Defaults (Cannot be null)
+                pedagogy: {
+                    ...item.pedagogy,
+                    ...newItem.pedagogy,
+                    clinicalFocus: newItem.pedagogy?.clinicalFocus || item.pedagogy?.clinicalFocus || 'General Nursing',
+                    difficultyLevel: newItem.pedagogy?.difficultyLevel || item.pedagogy?.difficultyLevel || 3,
+                    clientNeeds: (item.metadata as any)?.clientNeeds || 'Physiological Integrity', // Fallback
+                },
+
+                // Metadata Defaults
                 metadata: {
                     ...item.metadata,
                     ...newItem.metadata,
-                    status: status as any
+                    status: status as any,
+                    // Ensure created_by/updated_by exist if missing
+                    authorId: item.metadata?.authorId || 'system',
+                    updatedAt: new Date().toISOString()
                 },
-                // Merge content intelligently (AI changes overlay original)
+
+                tags: updatedTags,
+
+                // Content Merge
                 content: {
                     ...item.content,
                     ...(newItem.content || {})
                 },
-                // Structure & Rationale might be top-level or in content (handle both)
                 structure: (newItem as any).structure || (item as any).structure || {},
-                rationale: (newItem as any).rationale || (item as any).rationale || {}
+                rationale: (newItem as any).rationale || (item as any).rationale || {},
+
+                // Root Level Hoisting for Supabase Flattening (Legacy Support)
+                clinical_focus: newItem.pedagogy?.clinicalFocus || item.pedagogy?.clinicalFocus || 'General Nursing',
+                difficulty_level: newItem.pedagogy?.difficultyLevel || item.pedagogy?.difficultyLevel || 3,
+                client_needs: (item.metadata as any)?.clientNeeds || 'Physiological Integrity',
+                cjmm_step: (newItem.pedagogy as any)?.cjmmStep || (item.pedagogy as any)?.cjmmStep || 'Analyze Cues'
             };
 
             // 4. Critical: Ensure ID matches original item to force UPDATE not INSERT
