@@ -627,7 +627,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                         const tempTrend = prev ? calculateDelta(parseFloat(v.tempF), parseFloat(prev.tempF)) : null;
 
                         // Pain value with fallback
-                        const painValue = v.pain !== undefined ? v.pain : (v.painScore !== undefined ? v.painScore : null);
+                        const painValue = v.pain !== undefined ? v.pain : (v.painScore !== undefined ? v.painScore : (v.painLevel !== undefined ? v.painLevel : null));
 
                         return (
                             <div key={i} className={`grid grid-cols-7 border-b border-slate-100 last:border-0 hover:bg-slate-50/50 ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}`}>

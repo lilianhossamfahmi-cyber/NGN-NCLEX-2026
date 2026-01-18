@@ -119,11 +119,255 @@ MATRIX SCHEMA (content.matrix as object):
 }
 `,
   orderedResponse: `
-ORDERED RESPONSE SCHEMA (content.orderedResponse as array of ids):
-["opt3", "opt1", "opt4"] (Correct order of option IDs)
+ORDERED RESPONSE SCHEMA (content.structure):
+{
+  "type": "ordered-response",
+  "prompt": "Drag steps into order.",
+  "orderedOptions": [
+    { "id": "s1", "text": "First Action", "rationale": "..." },
+    { "id": "s2", "text": "Second Action", "rationale": "..." }
+  ]
+}
+REQUIREMENTS:
+- orderedOptions MUST be in the CORRECT order.
+`,
+  dropCloze: `
+DROP-CLOZE SCHEMA (content.structure):
+{
+  "type": "drop-cloze",
+  "prompt": "Complete the sentence.",
+  "text": "The nurse should administer %{d1} because the onset is %{d2} minutes.",
+  "dropdowns": [
+    {
+      "id": "d1",
+      "options": [
+        { "id": "o1", "text": "Option A", "isCorrect": true },
+        { "id": "o2", "text": "Option B", "isCorrect": false }
+      ]
+    },
+    { "id": "d2", "options": [ ... ] }
+  ],
+  "blankMap": {
+    "d1": {
+      "correctOptionId": "o1",
+      "whyCorrect": "Explain why correct...",
+      "distractorRationales": { "o2": "Explain why incorrect..." }
+    }
+  }
+}
+REQUIREMENTS:
+- matching %{id} in text and dropdowns id
+- provide blankMap for rationale
+`,
+  hotSpot: `
+HOT SPOT SCHEMA (content.structure):
+{
+  "type": "hot_spot",
+  "prompt": "Click on the correct location.",
+  "imageGenerationPrompt": "Detailed description of the image to generate...",
+  "targetArea": {
+    "x": 50,
+    "y": 50,
+    "radius": 10
+  }
+}
+REQUIREMENTS:
+- imageGenerationPrompt is crucial.
+`,
+  trend: `
+TREND ITEM SCHEMA (content.structure):
+{
+  "type": "trend",
+  "prompt": "Based on the client's trend data, which actions are indicated? Select all that apply.",
+  "trendData": {
+    "title": "Vital Signs Graph",
+    "timePoints": [
+      { "timeLabel": "08:00" }, { "timeLabel": "09:00" }, { "timeLabel": "10:00" }
+    ],
+    "parameters": [
+      { "name": "HR", "values": ["80", "110", "130"] },
+      { "name": "BP", "values": ["120/80", "110/70", "90/60"] }
+    ]
+  },
+  "answerOptions": [
+    { "id": "o1", "text": "Administer IV Fluids", "isCorrect": true, "rationale": "Indicated for hypotension and tachycardia." },
+    { "id": "o2", "text": "Prepare for Intubation", "isCorrect": false, "rationale": "Not indicated yet." },
+    { "id": "o3", "text": "Trendelenburg Position", "isCorrect": true, "rationale": "Improves venous return." },
+    { "id": "o4", "text": "Administer Beta Blocker", "isCorrect": false, "rationale": "Contraindicated in hypotension." },
+    { "id": "o5", "text": "Call Provider", "isCorrect": true, "rationale": "Significant change in status." }
+  ]
+}
+REQUIREMENTS:
+- "trendData" defines the chart.
+- "answerOptions" IS MANDATORY. Provide 5-6 options.
+- Mark correct answers with "isCorrect": true.
+`,
+
+  calculation: `
+CALCULATION SCHEMA(content.structure):
+{
+  "type": "calculation",
+    "prompt": "Calculate the infusion rate.",
+      "correctValue": 125,
+        "units": "mL/hr",
+          "acceptableRange": [124, 126]
+}
+REQUIREMENTS:
+- correctValue must be a number.
+- units must be a string.
 `
 };
 
+function buildPrompt(item: any, instruction: string): string {
+  const instructionLower = instruction.toLowerCase();
+
+  // Check if this is a "full case" generation request
+  const isFullCase = instructionLower.includes("full") ||
+    instructionLower.includes("complete") ||
+    instructionLower.includes("generate all") ||
+    instructionLower.includes("bowtie") ||
+    instructionLower.includes("matrix") ||
+    instructionLower.includes("highlight") ||
+    instructionLower.includes("cloze") ||
+    instructionLower.includes("calculation") ||
+    instructionLower.includes("hot spot") ||
+    instructionLower.includes("ordered") ||
+    instructionLower.includes("priority");
+
+  const typeId = item.typeId || "case-study";
+  const isBowTieItem = typeId === 'bowtie' || instructionLower.includes('bowtie');
+  const isMatrixItem = typeId === 'matrix' || instructionLower.includes('matrix');
+  const isHighlightItem = typeId === 'highlight' || instructionLower.includes('highlight');
+  const isOrderedItem = typeId === 'ordered-response' || instructionLower.includes('ordered');
+  const isDropClozeItem = typeId === 'drop-cloze' || instructionLower.includes('cloze') || instructionLower.includes('drop');
+  const isHotSpotItem = typeId === 'hot_spot' || typeId === 'hot-spot' || instructionLower.includes('hot');
+  const isCalculationItem = typeId === 'calculation' || instructionLower.includes('calc') || instructionLower.includes('math');
+  const isTrendItem = typeId.includes('trend') || instructionLower.includes('trend');
+
+  // Mandatory schemas that MUST be present for full cases
+  let mandatorySchemas = [
+    GOLDEN_SCHEMAS.nursesNotes,
+    GOLDEN_SCHEMAS.questionStem
+  ];
+
+  let specificSchemaKey = 'answerOptions';
+  let specificInstruction = "Generate Answer Options array.";
+
+  // Swap Answer Options for specific structures
+  if (isBowTieItem) {
+    specificSchemaKey = 'bowtie';
+    specificInstruction = "Generate BowTie structure (actions, conditions, parameters).";
+  } else if (isMatrixItem) {
+    specificSchemaKey = 'matrix';
+    specificInstruction = "Generate Matrix structure (columns, rows with correctColumnId).";
+  } else if (isHighlightItem) {
+    specificSchemaKey = 'highlight';
+    specificInstruction = "Generate Highlight structure (text with spans and tokenMap).";
+  } else if (isOrderedItem) {
+    specificSchemaKey = 'orderedResponse';
+    specificInstruction = "Generate Ordered Response structure (orderedOptions).";
+  } else if (isDropClozeItem) {
+    specificSchemaKey = 'dropCloze';
+    specificInstruction = "Generate Drop-Cloze structure (text with %{id}, dropdowns, blankMap).";
+  } else if (isHotSpotItem) {
+    specificSchemaKey = 'hotSpot';
+    specificInstruction = "Generate Hot Spot structure (targetArea, imageGenerationPrompt).";
+  } else if (isCalculationItem) {
+    specificSchemaKey = 'calculation';
+    specificInstruction = "Generate Calculation structure (correctValue, units, acceptableRange).";
+  } else if (isTrendItem) {
+    specificSchemaKey = 'trend';
+    specificInstruction = "Generate Trend structure (trendData, answerOptions).";
+  }
+
+  if (GOLDEN_SCHEMAS[specificSchemaKey]) {
+    mandatorySchemas.push(GOLDEN_SCHEMAS[specificSchemaKey]);
+  } else {
+    // Fallback or generic
+    mandatorySchemas.push(GOLDEN_SCHEMAS.answerOptions);
+  }
+
+  const mandatorySchemaString = mandatorySchemas.join("\n\n");
+
+  let schemaContext = "";
+
+  if (isFullCase) {
+    // If full case, include EVERYTHING + Mandatory block
+    // FILTER out conflicting schemas for cleaner prompt
+    const allSchemas = Object.entries(GOLDEN_SCHEMAS)
+      .filter(([key]) => {
+        // Keep generic context schemas (nurses, vitals, labs, etc.)
+        if (['nursesNotes', 'vitals', 'labs', 'orders', 'rationale', 'questionStem', 'historyPhysical'].includes(key)) return true;
+
+        // Only keep the SPECIFIC schema for this item type
+        return key === specificSchemaKey;
+      })
+      .map(([_, val]) => val)
+      .join("\n\n");
+    schemaContext = mandatorySchemaString + "\n\n" + allSchemas;
+  } else {
+    // Selective schemas based on instruction
+    if (instructionLower.includes("nurse") || instructionLower.includes("notes")) schemaContext += GOLDEN_SCHEMAS.nursesNotes + "\n\n";
+    if (instructionLower.includes("vital") || instructionLower.includes("pain") || instructionLower.includes("temp") || instructionLower.includes("bp") || instructionLower.includes("signs")) schemaContext += GOLDEN_SCHEMAS.vitals + "\n\n";
+    if (instructionLower.includes("lab") || instructionLower.includes("result") || instructionLower.includes("panel")) schemaContext += GOLDEN_SCHEMAS.labs + "\n\n";
+    if (instructionLower.includes("order") || instructionLower.includes("med") || instructionLower.includes("drug")) schemaContext += GOLDEN_SCHEMAS.orders + "\n\n";
+    if (instructionLower.includes("rationale") || instructionLower.includes("reason") || instructionLower.includes("explanation")) schemaContext += GOLDEN_SCHEMAS.rationale + "\n\n";
+    if (instructionLower.includes("stem") || instructionLower.includes("question")) schemaContext += GOLDEN_SCHEMAS.questionStem + "\n\n";
+    if (instructionLower.includes("highlight") || instructionLower.includes("token")) schemaContext += GOLDEN_SCHEMAS.highlight + "\n\n";
+
+    // Smart switching for options/structure
+    if (instructionLower.includes("option") || instructionLower.includes("answer") || instructionLower.includes("structure")) {
+      if (isBowTieItem) schemaContext += GOLDEN_SCHEMAS.bowtie + "\n\n";
+      else if (isMatrixItem) schemaContext += GOLDEN_SCHEMAS.matrix + "\n\n";
+      else if (isHighlightItem) schemaContext += GOLDEN_SCHEMAS.highlight + "\n\n";
+      else if (isOrderedItem) schemaContext += GOLDEN_SCHEMAS.orderedResponse + "\n\n";
+      else schemaContext += GOLDEN_SCHEMAS.answerOptions + "\n\n";
+    }
+  }
+
+  // Extract metadata
+  const topic = item.metadata?.subTopic || item.metadata?.topic || "General Medical";
+  const level = item.metadata?.difficultyLevel || item.metadata?.level || "Standard";
+  const clientNeeds = item.metadata?.clientNeeds || "Not Specified";
+  const qStyle = item.metadata?.qStyle || "N/A";
+  const demographics = item.content?.patientDemographics || {};
+
+
+
+  return `
+You are an expert NCLEX - RN Clinical Content Generator.
+
+=== TASK ===
+  ${instruction}
+
+=== CONTEXT ===
+  Topic: ${topic}
+Type: ${item.typeId || "case-study"}
+Difficulty Level: ${level}
+Client Needs: ${clientNeeds}
+Style: ${qStyle}
+Patient: ${JSON.stringify(demographics)}
+
+=== SCHEMAS ===
+  ${schemaContext || "Generate standard clinical content."}
+
+=== RULES ===
+  1. Return VALID JSON only.
+2. NO COMMENTS inside the JSON.
+3. NO Markdown fences.
+4. Use standard keys provided in schemas.
+5. Preserve existing data structure.
+6. ${isFullCase ? `IMPORTANT: You MUST generate content for nursesNotes, questionStem, and ${specificInstruction}` : ""}
+
+=== CURRENT JSON ===
+  ${JSON.stringify(item, null, 2)}
+
+=== RESPONSE ===
+  Return the complete modified JSON object.
+`;
+}
+
+>>>>>>> a3208d41 (chore: remove railway backend and migrate to direct supabase)
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS setup
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -155,7 +399,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     // --- PROMPT ENGINEERING START ---
-    
+
     const typeId = item.typeId || 'unknown';
     const isBowTieItem = typeId === 'bowtie';
     const isHighlightItem = typeId === 'highlight';
@@ -163,29 +407,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const isOrderedItem = typeId === 'ordered-response';
 
     const instructionLower = instruction.toLowerCase();
-    
+
     // Determine context (Full Case vs Specific Field)
     // If instruction asks for "full case", "generate everything", or implies a full generation
     const isFullCase = instructionLower.includes("full") || instructionLower.includes("generate all") || instructionLower.includes("complete item");
 
     // Build the Prompt Schema Context
     let schemaContext = "";
-    
+
     // Always include Rationale schema if missing, as it's often needed
     const needsRationale = !item.content?.rationale;
 
     // MANDATORY SCHEMAS based on Item Type
     let mandatorySchemaString = "";
-    
+
     // For specific item types, we MUST include their structure schema
     if (isBowTieItem) mandatorySchemaString += GOLDEN_SCHEMAS.bowtie + "\n\n";
     else if (isMatrixItem) mandatorySchemaString += GOLDEN_SCHEMAS.matrix + "\n\n";
     else if (isHighlightItem) mandatorySchemaString += GOLDEN_SCHEMAS.highlight + "\n\n";
     else if (isOrderedItem) mandatorySchemaString += GOLDEN_SCHEMAS.orderedResponse + "\n\n";
     else {
-        // Standard items need stem and options
-        mandatorySchemaString += GOLDEN_SCHEMAS.questionStem + "\n\n";
-        mandatorySchemaString += GOLDEN_SCHEMAS.answerOptions + "\n\n";
+      // Standard items need stem and options
+      mandatorySchemaString += GOLDEN_SCHEMAS.questionStem + "\n\n";
+      mandatorySchemaString += GOLDEN_SCHEMAS.answerOptions + "\n\n";
     }
 
     if (isFullCase) {
@@ -195,14 +439,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .join("\n\n");
       schemaContext = mandatorySchemaString + "\n\n" + allSchemas;
     } else {
-    // Selective schemas based on instruction
-    if (instructionLower.includes("nurse") || instructionLower.includes("notes")) schemaContext += GOLDEN_SCHEMAS.nursesNotes + "\n\n";
-    if (instructionLower.includes("vital") || instructionLower.includes("pain") || instructionLower.includes("temp") || instructionLower.includes("bp") || instructionLower.includes("signs")) schemaContext += GOLDEN_SCHEMAS.vitals + "\n\n";
-    if (instructionLower.includes("lab") || instructionLower.includes("result") || instructionLower.includes("panel")) schemaContext += GOLDEN_SCHEMAS.labs + "\n\n";
-    if (instructionLower.includes("order") || instructionLower.includes("med") || instructionLower.includes("drug")) schemaContext += GOLDEN_SCHEMAS.orders + "\n\n";
-    if (instructionLower.includes("rationale") || instructionLower.includes("reason") || instructionLower.includes("explanation")) schemaContext += GOLDEN_SCHEMAS.rationale + "\n\n";
-    if (instructionLower.includes("stem")) schemaContext += GOLDEN_SCHEMAS.questionStem + "\n\n";
-    if (instructionLower.includes("highlight") || instructionLower.includes("token")) schemaContext += GOLDEN_SCHEMAS.highlight + "\n\n";
+      // Selective schemas based on instruction
+      if (instructionLower.includes("nurse") || instructionLower.includes("notes")) schemaContext += GOLDEN_SCHEMAS.nursesNotes + "\n\n";
+      if (instructionLower.includes("vital") || instructionLower.includes("pain") || instructionLower.includes("temp") || instructionLower.includes("bp") || instructionLower.includes("signs")) schemaContext += GOLDEN_SCHEMAS.vitals + "\n\n";
+      if (instructionLower.includes("lab") || instructionLower.includes("result") || instructionLower.includes("panel")) schemaContext += GOLDEN_SCHEMAS.labs + "\n\n";
+      if (instructionLower.includes("order") || instructionLower.includes("med") || instructionLower.includes("drug")) schemaContext += GOLDEN_SCHEMAS.orders + "\n\n";
+      if (instructionLower.includes("rationale") || instructionLower.includes("reason") || instructionLower.includes("explanation")) schemaContext += GOLDEN_SCHEMAS.rationale + "\n\n";
+      if (instructionLower.includes("stem")) schemaContext += GOLDEN_SCHEMAS.questionStem + "\n\n";
+      if (instructionLower.includes("highlight") || instructionLower.includes("token")) schemaContext += GOLDEN_SCHEMAS.highlight + "\n\n";
 
       // Smart switching for options/structure
       if (instructionLower.includes("option") || instructionLower.includes("answer") || instructionLower.includes("structure")) {
@@ -216,8 +460,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Fallback: If no specific schema triggered but instructions are vague, provide relevant ones
     if (schemaContext === "") {
-        schemaContext = mandatorySchemaString; 
-        if (needsRationale) schemaContext += GOLDEN_SCHEMAS.rationale + "\n\n";
+      schemaContext = mandatorySchemaString;
+      if (needsRationale) schemaContext += GOLDEN_SCHEMAS.rationale + "\n\n";
     }
 
 
@@ -259,8 +503,19 @@ RETURN ONLY THE JSON OBJECT.
 
     console.log('✨ AI Response Preview:', text.substring(0, 100) + '...');
 
-    // Clean Markdown
-    const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    // Clean markdown fences if present
+    let cleanText = text.replace(/```json\s * /gi, '').replace(/```\s*/g, '').trim();
+
+    // Sanitize control characters
+    cleanText = cleanText.replace(/"(?:[^"\\]|\\.)*"/g, (match) => {
+      return match.replace(/[\x00-\x1f]/g, (char) => {
+        const code = char.charCodeAt(0);
+        if (code === 0x09) return '\\t';
+        if (code === 0x0a) return '\\n';
+        if (code === 0x0d) return '\\r';
+        return `\\u${code.toString(16).padStart(4, '0')} `;
+      });
+    });
 
     // Parse JSON with robust fallback
     let parsedItem: any = null;
@@ -294,32 +549,32 @@ RETURN ONLY THE JSON OBJECT.
     // Ensure critical fields are hoisted so the UI sees them immediately
     // ---------------------------------------------------------------------------
     if (parsedItem) {
-        // 1. Hoist Question Stem
-        if (parsedItem.content?.questionStem) {
-             parsedItem.prompt = parsedItem.content.questionStem;
-             // Ensure structure also has it if needed (redundancy ok)
-             if (parsedItem.structure) parsedItem.structure.prompt = parsedItem.content.questionStem;
-        }
+      // 1. Hoist Question Stem
+      if (parsedItem.content?.questionStem) {
+        parsedItem.prompt = parsedItem.content.questionStem;
+        // Ensure structure also has it if needed (redundancy ok)
+        if (parsedItem.structure) parsedItem.structure.prompt = parsedItem.content.questionStem;
+      }
 
-        // 2. Hoist Answer Options
-        if (parsedItem.content?.answerOptions) {
-             parsedItem.structure = { ...(parsedItem.structure || {}), options: parsedItem.content.answerOptions };
-        }
+      // 2. Hoist Answer Options
+      if (parsedItem.content?.answerOptions) {
+        parsedItem.structure = { ...(parsedItem.structure || {}), options: parsedItem.content.answerOptions };
+      }
 
-        // 3. Hoist Highlight Structure
-        if (parsedItem.content?.highlight) {
-             parsedItem.structure = { ...(parsedItem.structure || {}), highlight: parsedItem.content.highlight };
-        }
-        
-        // 4. Hoist BowTie
-        if (parsedItem.content?.bowtie) {
-            parsedItem.structure = { ...(parsedItem.structure || {}), ...parsedItem.content.bowtie };
-        }
+      // 3. Hoist Highlight Structure
+      if (parsedItem.content?.highlight) {
+        parsedItem.structure = { ...(parsedItem.structure || {}), highlight: parsedItem.content.highlight };
+      }
 
-        // 5. Hoist Matrix
-        if (parsedItem.content?.matrix) {
-            parsedItem.structure = { ...(parsedItem.structure || {}), ...parsedItem.content.matrix };
-        }
+      // 4. Hoist BowTie
+      if (parsedItem.content?.bowtie) {
+        parsedItem.structure = { ...(parsedItem.structure || {}), ...parsedItem.content.bowtie };
+      }
+
+      // 5. Hoist Matrix
+      if (parsedItem.content?.matrix) {
+        parsedItem.structure = { ...(parsedItem.structure || {}), ...parsedItem.content.matrix };
+      }
     }
 
     console.log(`✅ Magic Fix completed successfully`);
@@ -327,9 +582,9 @@ RETURN ONLY THE JSON OBJECT.
 
   } catch (error: any) {
     console.error('❌ Magic Fix Error:', error);
-    return res.status(500).json({ 
-        error: error.message || 'Internal Server Error',
-        details: error.toString() 
+    return res.status(500).json({
+      error: error.message || 'Internal Server Error',
+      details: error.toString()
     });
   }
 }
