@@ -665,8 +665,8 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
     // Fallback strings - prioritize item data
     const displayTrap = trap || (isCalculation ? CALC_DEFAULTS.trap : GENERIC_DEFAULTS.trap);
     const displayAnalysis = isCalculation
-        ? (answerAnalysis && answerAnalysis.trim().startsWith('<h3') ? answerAnalysis : CALC_DEFAULTS.answerAnalysis)
-        : (answerAnalysis || GENERIC_DEFAULTS.answerAnalysis);
+        ? (answerAnalysis && typeof answerAnalysis === 'string' && answerAnalysis.trim().startsWith('<h3') ? answerAnalysis : CALC_DEFAULTS.answerAnalysis)
+        : (typeof answerAnalysis === 'string' ? answerAnalysis : (answerAnalysis ? String(answerAnalysis) : GENERIC_DEFAULTS.answerAnalysis));
     const displayGoldenRule = goldenRule || (isCalculation ? CALC_DEFAULTS.goldenRule : GENERIC_DEFAULTS.goldenRule);
 
     const [show, setShow] = useState(isOpen);
@@ -854,6 +854,7 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
     ];
 
     const getStepContent = (phase: string) => {
+        if (!phase || typeof phase !== 'string') return null;
         const keyword = phase.split(' ')[0].toLowerCase();
         const match = steps.find(s => s.tag && s.tag.toLowerCase().includes(keyword));
         if (match) return match.description;
@@ -868,10 +869,10 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
         // This ensures Calculation items show meaningful content instead of "Not applicable"
         if (formulaMethod || dimensionalAnalysis || (answerAnalysis && answerAnalysis.includes('Step'))) {
             const calcContent: Record<string, string> = {
-                'recognize': formulaMethod
+                'recognize': typeof formulaMethod === 'string'
                     ? `Identify the calculation type and gather required values: ${formulaMethod.split('.')[0]}.`
                     : 'Identify relevant clinical values from the patient record (weight, lab results, current rate, medication concentration).',
-                'analyze': dimensionalAnalysis
+                'analyze': typeof dimensionalAnalysis === 'string'
                     ? `Apply dimensional analysis: ${dimensionalAnalysis.split('.')[0]}.`
                     : 'Analyze the relationship between values and determine which formula applies based on the clinical context.',
                 'prioritize': 'Prioritize accuracy in calculation - verify units match and conversion factors are correct before proceeding.',
@@ -1605,7 +1606,7 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                                                                         </div>
 
                                                                         {/* Check if answerAnalysis is HTML (starts with <h3) */}
-                                                                        {displayAnalysis.trim().startsWith('<h3') ? (
+                                                                        {(typeof displayAnalysis === 'string' ? displayAnalysis : '').trim().startsWith('<h3') ? (
                                                                             <div
                                                                                 className="calculation-html-review prose prose-invert max-w-none text-sm"
                                                                                 dangerouslySetInnerHTML={{ __html: displayAnalysis }}
@@ -1614,8 +1615,8 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                                                                                 }}
                                                                             />
                                                                         ) : (
-                                                                            <div className="space-y-3">
-                                                                                {(displayAnalysis).split(/(?=Step \d+:|Method \d:)/g).map((step: string, idx: number) => {
+                                                                            <div className="space-y-4">
+                                                                                {(typeof displayAnalysis === 'string' ? displayAnalysis : '').split(/(?=Step \d+:|Method \d:)/g).map((step: string, idx: number) => {
                                                                                     const cleanStep = step.trim();
                                                                                     if (!cleanStep) return null;
                                                                                     const isStep = cleanStep.match(/^Step \d+:/);

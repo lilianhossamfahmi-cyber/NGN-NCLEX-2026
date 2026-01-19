@@ -230,7 +230,7 @@ export const ResultsGrid: React.FC<ResultsGridProps> = ({
                                 {/* Metadata Grid - Compact */}
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: '#64748b', background: '#f8fafc', padding: '4px 8px', borderRadius: '4px', marginBottom: '10px', border: '1px solid #f1f5f9' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <span>📅 {formatDateTime(item.metadata?.createdAt || '').split(',')[0]}</span>
+                                        <span>📅 {String(formatDateTime(item.metadata?.createdAt || '')).split(',')[0]}</span>
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                                         <span style={{

@@ -7,9 +7,11 @@ export interface DiffResult {
  * A simple word-level diffing utility to show changes between old and new text.
  * For production, consider using 'diff-match-patch' for better character-level diffs.
  */
-export function diffTexts(oldText: string, newText: string): DiffResult[] {
-    const oldWords = oldText.split(/(\s+)/);
-    const newWords = newText.split(/(\s+)/);
+export function diffTexts(oldText: any, newText: any): DiffResult[] {
+    const sOld = String(oldText || '');
+    const sNew = String(newText || '');
+    const oldWords = sOld.split(/(\s+)/);
+    const newWords = sNew.split(/(\s+)/);
 
     // Using a basic LCS or simple comparison for speed
     // This is a naive implementation; for NGN data it works well for word changes.
