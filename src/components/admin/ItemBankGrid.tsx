@@ -5,7 +5,7 @@ import { syncItemToSupabase } from '../../services/itemSyncService';
 import { enrichItemWithQuality } from '../../utils/autoQuality';
 import { StudentPreviewModal } from '../../components/StudentPreviewModal';
 import { Eye, Copy, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, ArrowUpDown, Wand2, RefreshCcw, Trash2, Archive, CheckCircle, Download, Plus } from 'lucide-react';
-import { MagicFixModal } from './MagicFixModal';
+import { UltraFixerModal } from './UltraFixerModal';
 import { AddItemModal } from './AddItemModal';
 
 /**
@@ -675,9 +675,9 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
                 </div>
             )}
 
-            {/* Magic Fix Modal */}
+            {/* UltraFixer Neural Hub (Full Authority) */}
             {fixItem && (
-                <MagicFixModal
+                <UltraFixerModal
                     item={fixItem}
                     onClose={() => setFixItem(null)}
                     onSuccess={() => {
