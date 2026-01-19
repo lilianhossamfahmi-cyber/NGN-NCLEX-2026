@@ -215,7 +215,7 @@ export const parseJsonInput = (input: string): { success: boolean, data?: Master
 
 export const parseCsvInput = (csvText: string): { success: boolean, data?: MasterQuestionItem[], error?: string } => {
     try {
-        const lines = csvText.split('\n').filter(l => l.trim().length > 0);
+        const lines = String(csvText).split('\n').filter(l => l.trim().length > 0);
         if (lines.length < 2) return { success: false, error: "Empty or invalid CSV" };
 
 
@@ -225,7 +225,7 @@ export const parseCsvInput = (csvText: string): { success: boolean, data?: Maste
         // Minimal: Type, Prompt, Options... 
 
         for (let i = 1; i < lines.length; i++) {
-            const values = lines[i].split(','); // Naive split (fails on commas in quotes, but good enough for MVP)
+            const values = String(lines[i]).split(','); // Naive split (fails on commas in quotes, but good enough for MVP)
 
             // Map to Structure... this is very brittle for complex NGN. 
             // I'll create a basic MCQ placeholder.

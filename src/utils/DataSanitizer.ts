@@ -93,9 +93,9 @@ export const DataSanitizer = {
 
             // B. Try to extract from HTML Table first (if it exists)
             if (raw.includes('<tr')) {
-                const trs = raw.split(/<tr[^>]*>/i).slice(1);
+                const trs = String(raw).split(/<tr[^>]*>/i).slice(1);
                 trs.forEach(tr => {
-                    const tds = tr.split(/<td[^>]*>/i).slice(1).map(td => {
+                    const tds = String(tr).split(/<td[^>]*>/i).slice(1).map(td => {
                         return td.replace(/<\/td>[\s\S]*/i, '').replace(/<[^>]+>/g, ' ').trim();
                     });
                     if (tds.length >= 2) {
@@ -111,7 +111,7 @@ export const DataSanitizer = {
 
             // C. Text / Markdown Parser
             const cleanText = raw.replace(/<br\s*\/?>/gi, '\n').replace(/<\/p>/gi, '\n');
-            const lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
+            const lines = String(cleanText).split('\n').map(l => l.trim()).filter(Boolean);
 
             const timeRegex = /^(?:\*\*|__)?(\d{4}|\d{1,2}:\d{2})(?:\*\*|__)?\s*[:\-]?\s*(.*)/;
 
@@ -287,7 +287,7 @@ export const DataSanitizer = {
         if (listMatches) {
             listMatches.forEach(match => {
                 const content = match.replace(/<\/?li>/gi, '').trim();
-                const parts = content.split(':').map(p => p.trim());
+                const parts = String(content).split(':').map(p => p.trim());
                 if (parts.length >= 2) {
                     labs.push({
                         test: parts[0],
@@ -302,9 +302,9 @@ export const DataSanitizer = {
 
         // Try simple "Test: Value" format
         if (labs.length === 0) {
-            const lines = text.split(/[\n,;]/).filter(Boolean);
+            const lines = String(text).split(/[\n,;]/).filter(Boolean);
             lines.forEach(line => {
-                const parts = line.split(':').map(p => p.trim());
+                const parts = String(line).split(':').map(p => p.trim());
                 if (parts.length >= 2) {
                     labs.push({
                         test: parts[0].replace(/<[^>]+>/g, ''),
@@ -418,7 +418,7 @@ export const DataSanitizer = {
      */
     parseOrdersFromText: (text: string): StructuredOrder[] => {
         const orders: StructuredOrder[] = [];
-        const lines = text.split(/[\n]/).filter(Boolean);
+        const lines = String(text).split(/[\n]/).filter(Boolean);
 
         lines.forEach(line => {
             // Try to extract medication name and details
@@ -427,7 +427,7 @@ export const DataSanitizer = {
                 // Simple parsing - look for dose patterns
                 const match = cleaned.match(/(\d+\.?\d*)\s*(mg|mcg|g|mL|units?)/i);
                 orders.push({
-                    drug: cleaned.split(/\d/)[0].trim() || cleaned,
+                    drug: String(cleaned).split(/\d/)[0].trim() || cleaned,
                     dose: match ? `${match[1]} ${match[2]}` : "",
                     route: /IV|IM|SubQ|PO|SL/i.test(cleaned) ? cleaned.match(/IV|IM|SubQ|PO|SL/i)?.[0] || "PO" : "PO",
                     freq: /BID|TID|QID|Q\d+H|PRN|daily/i.test(cleaned) ? cleaned.match(/BID|TID|QID|Q\d+H|PRN|daily/i)?.[0] || "Daily" : "Daily",
@@ -528,7 +528,7 @@ export const DataSanitizer = {
         if (sections.length === 0) {
             // Remove HTML tags for plain text parsing
             const plainText = raw.replace(/<[^>]+>/g, '\n').replace(/\n+/g, '\n');
-            const lines = plainText.split('\n').filter(l => l.trim());
+            const lines = String(plainText).split('\n').filter(l => l.trim());
 
             let currentSection = "General Assessment";
             let currentContent: string[] = [];

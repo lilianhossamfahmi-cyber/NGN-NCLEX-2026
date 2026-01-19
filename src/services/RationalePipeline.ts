@@ -1716,7 +1716,7 @@ export function generateRationale(
             let beforeText = '';
             let afterText = '';
             const placeholderPattern = new RegExp(`\\[${dd.id}\\]|\\{${dd.id}\\}|%\\{${dd.id}\\}|___`, 'gi');
-            const parts = originalSentence.split(placeholderPattern);
+            const parts = String(originalSentence || '').split(placeholderPattern);
             if (parts.length >= 2) {
                 beforeText = parts[0].slice(-50); // Last 50 chars before
                 afterText = parts[1].slice(0, 50); // First 50 chars after

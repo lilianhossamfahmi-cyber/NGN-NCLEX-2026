@@ -239,7 +239,7 @@ const JsonEditor = ({ value, onChange }: any) => {
 
 // --- UTILS ---
 const setNestedValue = (obj: any, path: string, value: any) => {
-    const keys = path.split(/[\.\[\]\'\"]/).filter(p => p);
+    const keys = String(path || '').split(/[\.\[\]\'\"]/).filter(p => p);
     let current = obj;
     for (let i = 0; i < keys.length - 1; i++) {
         const key = keys[i];
