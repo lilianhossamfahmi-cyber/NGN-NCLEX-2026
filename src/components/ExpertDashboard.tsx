@@ -1564,7 +1564,7 @@ const ExpertDashboard: React.FC<ExpertDashboardProps> = ({
 
         // Shorten Labels for Radar
         const data = cjmmGrid.map(item => ({
-            label: item.step.split(' ')[0], // "Recognize", "Analyze"
+            label: (typeof item.step === 'string' ? item.step : String(item.step || '')).split(' ')[0] || 'Unknown', // "Recognize", "Analyze"
             fullLabel: item.step,
             value: item.score,
             fullMark: 100
