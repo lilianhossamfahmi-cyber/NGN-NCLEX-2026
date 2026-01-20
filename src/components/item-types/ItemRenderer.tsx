@@ -55,9 +55,10 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
 
     if (raw._unifiedPipelineProcessed) {
         const config = raw.content?.structure || raw;
-        console.log('[ItemRenderer] Item already processed by UnifiedDataPipeline, using structure directly');
+        console.log(`[ItemRenderer] Pre-processed item detected. Hoisting ID: ${raw.id}`);
         return {
             ...config,
+            id: raw.id || config.id, // ENSURE ID PERSISTS
             type: raw.type || config.type || 'unknown',
             // Lift BowTie data to root for renderer compatibility
             actions: config.actions || raw.actions,
