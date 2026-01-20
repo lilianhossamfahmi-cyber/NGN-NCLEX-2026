@@ -4,8 +4,8 @@ import { getBankItems, deleteItemFromBank, saveItemToBank, updateItem, deleteBat
 import { syncItemToSupabase } from '../../services/itemSyncService';
 import { enrichItemWithQuality } from '../../utils/autoQuality';
 import { StudentPreviewModal } from '../../components/StudentPreviewModal';
-import { Eye, Copy, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, ArrowUpDown, Zap, RefreshCcw, Trash2, Archive, CheckCircle, Download, Plus } from 'lucide-react';
-import { UltraFixerModal } from './UltraFixerModal';
+import { Eye, Copy, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, ArrowUpDown, Zap, RefreshCcw, Trash2, Archive, CheckCircle, Download, Plus, Wand2 } from 'lucide-react';
+import { AIBookFixerModal } from './AIBookFixerModal';
 import { AddItemModal } from './AddItemModal';
 
 /**
@@ -612,8 +612,8 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
                                         >
                                             {(item as any).metadata?.status === 'published' ? 'Republish' : 'Publish'}
                                         </button>
-                                        <button onClick={() => setFixItem(item)} className="p-1 hover:bg-purple-100 rounded text-purple-600" title="UltraFixer Hub">
-                                            <Zap size={16} />
+                                        <button onClick={() => setFixItem(item)} className="p-1 hover:bg-purple-100 rounded text-purple-600" title="AI BookFixer">
+                                            <Wand2 size={16} />
                                         </button>
                                         <button onClick={() => handleDelete(String(item.id))} className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded hover:bg-red-100">
                                             Del
@@ -675,9 +675,9 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
                 </div>
             )}
 
-            {/* UltraFixer Neural Hub (Full Authority) */}
+            {/* AI BookFixer Modal */}
             {fixItem && (
-                <UltraFixerModal
+                <AIBookFixerModal
                     item={fixItem}
                     onClose={() => setFixItem(null)}
                     onSuccess={() => {
