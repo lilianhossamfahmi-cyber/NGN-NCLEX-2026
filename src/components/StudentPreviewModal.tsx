@@ -23,6 +23,7 @@ interface StudentPreviewModalProps {
     hideRationales?: boolean;
     onNextQuestion?: () => void;
     enableAdminEditing?: boolean;
+    onItemChange?: (item: MasterQuestionItem) => void;
 }
 
 // Icons
@@ -360,6 +361,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
             await syncItemToSupabase(newItemProp);
 
             setInternalItem(newItemProp);
+            if (onItemChange) onItemChange(newItemProp); // Notify parent
             setShowMagicBubble(false);
             setIsFixing(false);
             window.getSelection()?.removeAllRanges();
