@@ -10,13 +10,30 @@ import {
 import { updateItem } from '../../services/itemApiService';
 import { syncItemToSupabase } from '../../services/itemSyncService';
 import { magicFixItem } from '../../services/geminiService';
-import { DataSanitizer } from '../../utils/DataSanitizer';
 
 interface AIBookFixerModalProps {
     item: MasterQuestionItem;
     onClose: () => void;
     onSuccess: () => void;
 }
+
+const CLINICAL_TOPICS = [
+    "General Mix",
+    "Cardiology",
+    "Respiratory",
+    "Neurology",
+    "Pediatrics",
+    "Pharmacology",
+    "Mental Health",
+    "Maternal",
+    "Critical Care",
+    "Fundamentals",
+    "Leadership",
+    "Gastrointestinal",
+    "Endocrine",
+    "Renal",
+    "Musculoskeletal"
+];
 
 // History Hook
 function useHistoryState<T>(initialState: T) {
@@ -157,32 +174,39 @@ export const AIBookFixerModal: React.FC<AIBookFixerModalProps> = ({ item: initia
         setIsDragging(false);
         setDragStart(null);
 
-        // Identify target area based on "activeSection" and "subSection"
-        // In a real DOM mapping, we'd check elements under the box. 
-        // For now, we default to the currently viewed section content.
+        // Determine target field based on current view
         let target = '';
-        if (activeSection === 'clinical') target = `content.clinicalData.${subSection === 'notes' ? 'history' : subSection}`;
-        if (activeSection === 'question') target = 'content.structure.prompt'; // Default to prompt
-        if (activeSection === 'rationale') target = 'pedagogy.rationale';
+        if (activeSection === 'clinical') {
+            // Map subsection ID to data path key
+            const keyMap: { [key: string]: string } = {
+                'notes': 'history',
+                'vitals': 'vitals',
+                'labs': 'labs',
+                'orders': 'orders',
+                'hp': 'hp',
+                'radiology': 'radiology'
+            };
+            target = `content.clinicalData.${keyMap[subSection] || 'history'}`;
+        }
+        else if (activeSection === 'question') target = 'content.structure.prompt';
+        else if (activeSection === 'rationale') target = 'pedagogy.rationale';
+        else target = 'content.clinicalData.history'; // Fallback
 
         setMediaTargetField(target);
-        if (selectionBox && selectionBox.w > 20 && selectionBox.h > 20) {
-            setShowMediaModal(true);
-        } else {
-            // Click without drag - cancel selection mode or just default?
-            // Let's allow click to select too
-            setShowMediaModal(true);
-        }
+        setShowMediaModal(true);
         setIsSelectionMode(false); // Turn off after selection
     };
 
     // --- MEDIA INSERTION ---
     const handleInsertMedia = (type: 'upload' | 'ai', content: string) => {
-        if (!mediaTargetField) return;
+        if (!mediaTargetField) {
+            alert("Error: No target field selected. Please try selecting an area again.");
+            return;
+        }
 
         let snippet = '';
         if (type === 'upload') {
-            snippet = `\n\n![Uploaded Image](${content || 'https://via.placeholder.com/600x400?text=Uploaded+Asset'})\n\n`;
+            snippet = `\n\n![Uploaded Image](${content})\n\n`;
         } else {
             // AI Generation Placeholder
             snippet = `\n\n![AI GENERATED: ${content}](https://via.placeholder.com/600x400?text=AI+Gen:+${encodeURIComponent(content)})\n\n`;
@@ -192,12 +216,18 @@ export const AIBookFixerModal: React.FC<AIBookFixerModalProps> = ({ item: initia
         const updated = JSON.parse(JSON.stringify(liveItem));
         const keys = mediaTargetField.split('.');
         let obj: any = updated;
-        for (let i = 0; i < keys.length - 1; i++) obj = obj[keys[i]];
 
-        const currentVal = obj[keys[keys.length - 1]] || '';
-        obj[keys[keys.length - 1]] = currentVal + snippet;
+        // Navigate to the parent object
+        for (let i = 0; i < keys.length - 1; i++) {
+            if (!obj[keys[i]]) obj[keys[i]] = {}; // Create if missing
+            obj = obj[keys[i]];
+        }
+
+        const lastKey = keys[keys.length - 1];
+        const currentVal = obj[lastKey] || '';
+        obj[lastKey] = currentVal + snippet;
+
         setLiveItem(updated);
-
         setShowMediaModal(false);
         setSelectionBox(null);
     };
@@ -263,7 +293,6 @@ export const AIBookFixerModal: React.FC<AIBookFixerModalProps> = ({ item: initia
     };
 
     // ========== RENDERERS (Clinical, Question, Rationale) ==========
-    // ... [Previous Render Functions kept similar but using EditableField] ...
     const renderClinicalArea = () => {
         const ehrTabs = [
             { id: 'notes', label: 'Notes', icon: <ClipboardList size={16} /> },
@@ -366,6 +395,47 @@ export const AIBookFixerModal: React.FC<AIBookFixerModalProps> = ({ item: initia
         );
     };
 
+    // ========== RENDER: METADATA & TOPIC DROPDOWN ==========
+    const renderMetadataArea = () => {
+        return (
+            <div className="space-y-8 animate-in zoom-in-95">
+                <div className="bg-slate-950 text-white rounded-[3rem] p-16 shadow-2xl relative overflow-hidden">
+                    <h3 className="text-xs font-black text-slate-600 uppercase tracking-[0.5em] mb-12">Universal Metadata Context</h3>
+                    <div className="grid grid-cols-2 gap-16 relative z-10">
+                        <div>
+                            <label className="text-[10px] font-black text-slate-500 uppercase mb-6 block tracking-widest">Difficulty Index</label>
+                            <div className="flex gap-3">
+                                {[1, 2, 3, 4, 5].map(lvl => (
+                                    <button
+                                        key={lvl}
+                                        onClick={() => updateField('pedagogy.difficultyLevel', lvl)}
+                                        className={`flex-1 py-10 rounded-[2rem] font-black text-2xl transition-all ${liveItem.pedagogy?.difficultyLevel === lvl ? 'bg-blue-600 text-white scale-110 shadow-2xl' : 'bg-slate-900 text-slate-600 hover:bg-slate-800'}`}
+                                    >
+                                        {lvl}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <div>
+                            <label className="text-[10px] font-black text-slate-500 uppercase mb-6 block tracking-widest">Clinical Topic Area</label>
+                            <div className="bg-slate-900 p-2 rounded-[2rem] border border-slate-800 flex items-center shadow-inner h-[120px]">
+                                <select
+                                    value={liveItem.pedagogy?.clinicalFocus || 'General Mix'}
+                                    onChange={(e) => updateField('pedagogy.clinicalFocus', e.target.value)}
+                                    className="w-full h-full bg-transparent text-blue-400 font-black text-3xl px-6 outline-none appearance-none cursor-pointer text-center"
+                                >
+                                    {CLINICAL_TOPICS.map(topic => (
+                                        <option key={topic} value={topic} className="bg-slate-900 text-lg">{topic}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div
             className="fixed inset-0 z-[100] bg-slate-50 flex flex-col font-sans h-screen overflow-hidden select-none"
@@ -435,17 +505,7 @@ export const AIBookFixerModal: React.FC<AIBookFixerModalProps> = ({ item: initia
                         {activeSection === 'clinical' && renderClinicalArea()}
                         {activeSection === 'question' && renderQuestionArea()}
                         {activeSection === 'rationale' && renderRationaleArea()}
-                        {activeSection === 'metadata' && (
-                            <div className="space-y-8 animate-in zoom-in-95">
-                                <div className="bg-slate-950 text-white rounded-[3rem] p-16 shadow-2xl relative overflow-hidden">
-                                    <h3 className="text-xs font-black text-slate-600 uppercase tracking-[0.5em] mb-12">Universal Metadata Context</h3>
-                                    <div className="grid grid-cols-2 gap-16 relative z-10">
-                                        <div><label className="text-[10px] font-black text-slate-500 uppercase mb-6 block tracking-widest">Difficulty Index</label><div className="flex gap-3">{[1, 2, 3, 4, 5].map(lvl => (<button key={lvl} onClick={() => updateField('pedagogy.difficultyLevel', lvl)} className={`flex-1 py-10 rounded-[2rem] font-black text-2xl transition-all ${liveItem.pedagogy?.difficultyLevel === lvl ? 'bg-blue-600 text-white scale-110' : 'bg-slate-900 text-slate-600'}`}>{lvl}</button>))}</div></div>
-                                        <div><label className="text-[10px] font-black text-slate-500 uppercase mb-6 block tracking-widest">Clinical Topic Area</label><EditableField value={liveItem.pedagogy?.clinicalFocus} path="pedagogy.clinicalFocus" className="bg-slate-900 p-8 rounded-[2rem] text-blue-400 font-black text-xl border border-slate-800 h-[120px] flex items-center shadow-inner" /></div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                        {activeSection === 'metadata' && renderMetadataArea()}
                     </div>
                 </div>
             </div>
@@ -456,11 +516,14 @@ export const AIBookFixerModal: React.FC<AIBookFixerModalProps> = ({ item: initia
                     <div className="bg-white rounded-3xl p-8 w-[500px] shadow-2xl animate-in zoom-in-95">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-xl font-black text-slate-900 uppercase">Insert Rich Media</h3>
-                            <button onClick={() => { setShowMediaModal(false); setIsSelectionMode(false); }}><X /></button>
+                            <button onClick={() => { setShowMediaModal(false); setIsSelectionMode(false); }} className="p-2 hover:bg-slate-100 rounded-full"><X size={20} /></button>
                         </div>
                         <div className="grid grid-cols-2 gap-4 mb-6">
                             <button
-                                onClick={() => { handleInsertMedia('upload', 'https://via.placeholder.com/600x400?text=Uploaded+Chart'); }}
+                                onClick={() => {
+                                    const url = prompt("Enter Image URL or File Path:");
+                                    if (url) handleInsertMedia('upload', url);
+                                }}
                                 className="bg-blue-50 hover:bg-blue-100 p-6 rounded-2xl flex flex-col items-center gap-2 transition-all border-2 border-transparent hover:border-blue-500"
                             >
                                 <Upload size={32} className="text-blue-600" />
