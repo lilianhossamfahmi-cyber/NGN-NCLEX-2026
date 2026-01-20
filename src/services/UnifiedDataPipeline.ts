@@ -181,12 +181,16 @@ export class UnifiedDataPipeline {
         UnifiedDataPipeline.ensureBasicStructure(item);
 
         // [MANDATORY] Normalize ID (hoist to root to prevent cache collisions)
-        if (!item.id) {
-            item.id = raw.id || raw.metadata?.id || raw.content?.id || raw._itemId;
+        let resolvedId = raw.id || raw.metadata?.id || raw.content?.id || raw._itemId;
+
+        // If ID is found but generic (like 'pharmeco' or 'unified') or missing, make it unique
+        if (!resolvedId || resolvedId === 'unknown' || resolvedId.length < 5) {
+            resolvedId = `NGN-${Math.random().toString(16).slice(2, 8).toUpperCase()}`;
+        } else {
+            // Append a small entropy suffix to ensure batch uniqueness even if AI reuses IDs
+            resolvedId = `${resolvedId}-${Math.random().toString(16).slice(2, 6).toUpperCase()}`;
         }
-        if (!item.id || item.id === 'unknown') {
-            item.id = `UNIFIED-${Math.random().toString(16).slice(2, 6).toUpperCase()}`;
-        }
+        item.id = resolvedId;
 
         // Step 2: Detect and normalize item type
         item.type = UnifiedDataPipeline.detectType(item);

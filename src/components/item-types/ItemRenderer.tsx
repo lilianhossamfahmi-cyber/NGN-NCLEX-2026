@@ -461,8 +461,10 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
         return newArr;
     };
 
-    // Get stable item ID for caching
-    const itemId = norm.id || norm.metadata?.id || norm.content?.id || norm._itemId || 'unknown';
+    // Get stable item ID for caching - USE SIGNATURE TO PREVENT COLLISSIONS ON DUPLICATE IDs
+    const baseId = norm.id || norm.metadata?.id || norm.content?.id || norm._itemId || 'unknown';
+    const promptSig = typeof norm.prompt === 'string' ? norm.prompt.slice(0, 20).replace(/[^a-z0-9]/gi, '') : '';
+    const itemId = `${baseId}_${promptSig}`;
 
     // Apply Randomization to Options (Standard Types & Trend) - CACHED
     // We check for 'multiple-choice' explicitly as it's a common alias for single-response in our prompt templates
