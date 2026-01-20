@@ -26,6 +26,11 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 - Double quotes only.
 - NO trailing commas.
 
+### 2. ID GENERATION & METADATA (CRITICAL)
+- **ID Format:** You MUST generate a root-level `id` using the pattern: `[FOCUS]-[TYPE]-[HEX]`.
+  - Example: `"id": "RESP-MTX-8B2A"`
+- **Topic Mapping:** Map the [FOCUS] to one of: Cardiology, Respiratory, Gastrointestinal, etc.
+
 ### 2. MATRIX RULES
 - **Columns:** 2-3 mutually exclusive choices (e.g., "Sepsis", "Heart Failure", "Neither").
 - **Rows:** 4-6 patient findings to sort.
@@ -83,6 +88,15 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 **✅ REQUIRED:** "Left-sided heart failure causes pulmonary backflow..."
 
 ---
+
+---
+
+## ✅ VALIDATION CHECKLIST
+- [ ] `id` is present and matches the `TOPIC-MTX-HEX` format.
+- [ ] `structure` contains `rows` and `columns`.
+- [ ] Every row has a `correctColumnId`.
+- [ ] `vitals` are an Array of Objects.
+- [ ] `nursesNotes` are an Array of Objects.
 
 ## 📦 JSON STRUCTURE (STRICT)
 

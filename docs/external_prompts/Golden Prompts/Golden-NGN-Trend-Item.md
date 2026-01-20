@@ -26,6 +26,12 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 - All keys and string values: Double quotes only.
 - NO trailing commas.
 
+### 2. ID GENERATION & METADATA (CRITICAL)
+- **ID Format:** You MUST generate a root-level `id` using the pattern: `[FOCUS]-[TYPE]-[HEX]`.
+  - Example: `"id": "CRIT-TRD-L2M3"`
+- **Topic Mapping:** Map the [FOCUS] to one of: Critical Care, Cardiology, etc.
+
+
 ### 2. TREND SPECIFIC RULES
 - **Time Points:** You MUST provide at least 3 distinct time points in the `vitals` array.
 - **Trajectory:** The values must show a clear clinical progression (e.g., deteriorating sepsis, improving respiratory status).
@@ -78,6 +84,13 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 **✅ REQUIRED:** "As cardiac output falls in shock, heart rate increases to compensate..."
 
 ---
+
+---
+
+## ✅ VALIDATION CHECKLIST
+- [ ] `id` is present (`TOPIC-TRD-HEX`).
+- [ ] `vitals` has at least 3 time points.
+- [ ] The scenario shows a clear clinical trend.
 
 ## 📦 JSON STRUCTURE (STRICT)
 

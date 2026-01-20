@@ -26,6 +26,12 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 - Double quotes only.
 - NO trailing commas.
 
+### 2. ID GENERATION & METADATA (CRITICAL)
+- **ID Format:** You MUST generate a root-level `id` using the pattern: `[FOCUS]-[TYPE]-[HEX]`.
+  - Example: `"id": "NEURO-CLZ-C3D4"`
+- **Topic Mapping:** Map the [FOCUS] to one of: General, Cardiology, Respiratory, Neurology, Endocrine, etc.
+
+
 ### 2. DROP-CLOZE RULES
 - **Format:** MUST use "Text + Placeholders" (`%{id}`) format.
 - **Forbidden:** Do NOT use the old `sentences` array format.
@@ -94,6 +100,14 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 **✅ REQUIRED:** "Insulin aspart is a rapid-acting insulin..."
 
 ---
+
+---
+
+## ✅ VALIDATION CHECKLIST
+- [ ] `id` is present (`TOPIC-CLZ-HEX`).
+- [ ] `structure.text` uses `%{id}` placeholders.
+- [ ] `structure.blankMap` maps every placeholder.
+- [ ] Every distractor has a clinical rationale.
 
 ## 📦 JSON STRUCTURE (STRICT)
 

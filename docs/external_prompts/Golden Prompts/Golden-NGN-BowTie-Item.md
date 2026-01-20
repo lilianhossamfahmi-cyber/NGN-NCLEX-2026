@@ -26,6 +26,12 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 - **Type Field:** `"type": "bow-tie"`
 - **Syntax:** Double quotes only. No trailing commas. Escape newlines as "\n".
 
+### 2. ID GENERATION & METADATA (CRITICAL)
+- **ID Format:** You MUST generate a root-level `id` using the pattern: `[FOCUS]-[TYPE]-[HEX]`.
+  - Example: `"id": "CARDIO-BOW-A1B9"`
+- **Topic Mapping:** Map the [FOCUS] to one of: General, Cardiology, Respiratory, Neurology, Endocrine, Gastrointestinal, Musculoskeletal, Renal, Hematology, Integumentary, Reproductive, Mental Health, Pediatrics, Critical Care.
+
+
 ### 2. BOW-TIE GAME MECHANICS (STRICT)
 You must generate a `structure` object with exactly:
 - **Actions (Left):** Total **5** options (2 Correct, 3 Distractors).
@@ -112,7 +118,14 @@ Rationale MUST be an object with these 4 keys: `general`, `pathophysiology`, `sa
 
 ---
 
-## � JSON STRUCTURE (STRICT TEMPLATE)
+## ✅ VALIDATION CHECKLIST (MUST PASS)
+- [ ] `id` is present and follows format (e.g., "NEURO-BOW-99X1").
+- [ ] `type` is exactly "bow-tie".
+- [ ] `structure` contains exactly 3 arrays: `actions` (5 items), `conditions` (4 items), `parameters` (5 items).
+- [ ] All `vitals` are Objects, NOT strings.
+- [ ] `mnemonic` object is present in `rationale`.
+
+## 🧠 JSON STRUCTURE (STRICT TEMPLATE)
 
 ```json
 {

@@ -27,6 +27,11 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 - NO trailing commas.
 - HTML attributes using Single Quotes -> `<span id='h1'>`
 
+### 2. ID GENERATION & METADATA (CRITICAL)
+- **ID Format:** You MUST generate a root-level `id` using the pattern: `[FOCUS]-[TYPE]-[HEX]`.
+  - Example: `"id": "RENAL-HLT-22X9"`
+- **Topic Mapping:** Map the [FOCUS] to one of: Cardiology, Respiratory, Gastrointestinal, etc.
+
 ### 2. HIGHLIGHT SPECIFIC RULES
 - **Spans:** You MUST include at least 6-8 distinct spans (`h1`...`h8`) in the text.
 - **Mix:** Include both CORRECT items (abnormal/relevant) and DECOYS (normal/irrelevant).
@@ -98,6 +103,14 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 **✅ REQUIRED:** "Fever and tachycardia are classic signs of systemic inflammatory response..."
 
 ---
+
+---
+
+## ✅ VALIDATION CHECKLIST
+- [ ] `id` is present (`TOPIC-HLT-HEX`).
+- [ ] `structure.text` contains valid `<span>` tags with IDs.
+- [ ] `structure.tokenMap` is present and maps EVERY span ID.
+- [ ] `correct` array matches `isCorrect: true` in tokenMap.
 
 ## 📦 JSON STRUCTURE (STRICT)
 

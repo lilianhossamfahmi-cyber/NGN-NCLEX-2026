@@ -461,7 +461,7 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
     };
 
     // Get stable item ID for caching
-    const itemId = norm.id || norm._itemId || 'unknown';
+    const itemId = norm.id || norm.metadata?.id || norm.content?.id || norm._itemId || 'unknown';
 
     // Apply Randomization to Options (Standard Types & Trend) - CACHED
     // We check for 'multiple-choice' explicitly as it's a common alias for single-response in our prompt templates

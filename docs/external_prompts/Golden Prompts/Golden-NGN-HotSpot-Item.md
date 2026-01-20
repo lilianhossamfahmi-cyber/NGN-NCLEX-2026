@@ -26,6 +26,12 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 - Double quotes only.
 - NO trailing commas.
 
+### 2. ID GENERATION & METADATA (CRITICAL)
+- **ID Format:** You MUST generate a root-level `id` using the pattern: `[FOCUS]-[TYPE]-[HEX]`.
+  - Example: `"id": "SKIN-HOT-B2C3"`
+- **Topic Mapping:** Map the [FOCUS] to appropriate topic.
+
+
 ### 2. HOT SPOT RULES
 - **Coordinates:** `x`, `y` (0-100%), `radius`.
 - **Image:** Provide valid URL or detailed generation prompt.
@@ -73,6 +79,13 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 **✅ REQUIRED:** "The vastus lateralis is located on the anterolateral aspect of the thigh..."
 
 ---
+
+---
+
+## ✅ VALIDATION CHECKLIST
+- [ ] `id` is present (`TOPIC-HOT-HEX`).
+- [ ] `targetArea` coordinates are numerically valid (0-100).
+- [ ] `imageUrl` or `imageGenerationPrompt` is provided.
 
 ## 📦 JSON STRUCTURE (STRICT)
 

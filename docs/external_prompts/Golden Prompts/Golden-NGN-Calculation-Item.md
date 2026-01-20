@@ -26,6 +26,12 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 - All keys and string values: Double quotes only.
 - NO trailing commas.
 - Newlines inside strings: Escape as "\n".
+
+### 2. ID GENERATION & METADATA (CRITICAL)
+- **ID Format:** You MUST generate a root-level `id` using the pattern: `[FOCUS]-[TYPE]-[HEX]`.
+  - Example: `"id": "PHARM-CALC-A1B9"`
+- **Topic Mapping:** Map the [FOCUS] to one of: General, Cardiology, Respiratory, Neurology, Endocrine, Gastrointestinal, Musculoskeletal, Renal, Hematology, Integumentary, Reproductive, Mental Health, Pediatrics, Critical Care.
+
 - HTML attributes inside strings: Single quotes.
 
 ### 2. CLINICAL REQUIREMENTS
@@ -182,6 +188,15 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 **✅ REQUIRED:** "Amoxicillin is a beta-lactam antibiotic..."
 
 ---
+
+---
+
+## ✅ VALIDATION CHECKLIST
+- [ ] `id` is present (`TOPIC-CALC-HEX`).
+- [ ] `structure.correctValue` is a number.
+- [ ] `structure.units` matches the prompt.
+- [ ] `answerAnalysis` follows the structured Markdown template.
+- [ ] Both `formulaMethod` and `dimensionalAnalysis` exist.
 
 ## 📦 JSON STRUCTURE (STRICT)
 

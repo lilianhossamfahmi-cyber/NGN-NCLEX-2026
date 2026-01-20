@@ -26,6 +26,12 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 - Double quotes only.
 - NO trailing commas.
 
+### 2. ID GENERATION & METADATA (CRITICAL)
+- **ID Format:** You MUST generate a root-level `id` using the pattern: `[FOCUS]-[TYPE]-[HEX]`.
+  - Example: `"id": "SYST-ORD-A1B2"`
+- **Topic Mapping:** Map the [FOCUS] to appropriate topic.
+
+
 ### 2. ORDERED RESPONSE RULES
 - **Sequence:** The `orderedOptions` array MUST be in the correct Answer Key order.
 - **Scoring:** The system assumes the provided order is the correct order.
@@ -82,6 +88,13 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 **✅ REQUIRED:** "Donning PPE sequence protects the healthcare worker..."
 
 ---
+
+---
+
+## ✅ VALIDATION CHECKLIST
+- [ ] `id` is present (`TOPIC-ORD-HEX`).
+- [ ] `orderedOptions` are in the correct sequence.
+- [ ] Each step has a rationale.
 
 ## 📦 JSON STRUCTURE (STRICT)
 

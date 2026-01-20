@@ -26,6 +26,12 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 - Double quotes only.
 - NO trailing commas.
 
+### 2. ID GENERATION & METADATA (CRITICAL)
+- **ID Format:** You MUST generate a root-level `id` using the pattern: `[FOCUS]-[TYPE]-[HEX]`.
+  - Example: `"id": "PSYCH-MCQ-F9G0"`
+- **Topic Mapping:** Map the [FOCUS] to appropriate topic.
+
+
 ### 2. SINGLE RESPONSE RULES
 - **Options:** Exactly 4.
 - **Answer:** Exactly ONE correct option.
@@ -82,6 +88,13 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 **✅ REQUIRED:** "Prioritize Airway: Stridor indicates upper airway obstruction..."
 
 ---
+
+---
+
+## ✅ VALIDATION CHECKLIST
+- [ ] `id` is present (`TOPIC-MCQ-HEX`).
+- [ ] Exactly one option is correct.
+- [ ] Exactly 4 options are provided.
 
 ## 📦 JSON STRUCTURE (STRICT)
 

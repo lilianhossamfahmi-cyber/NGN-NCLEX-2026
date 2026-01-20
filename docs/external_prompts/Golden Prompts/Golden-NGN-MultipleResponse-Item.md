@@ -26,6 +26,12 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 - Double quotes only.
 - NO trailing commas.
 
+### 2. ID GENERATION & METADATA (CRITICAL)
+- **ID Format:** You MUST generate a root-level `id` using the pattern: `[FOCUS]-[TYPE]-[HEX]`.
+  - Example: `"id": "ENDO-SATA-X7Y8"`
+- **Topic Mapping:** Map the [FOCUS] to one of: Cardiology, Respiratory, etc.
+
+
 ### 2. SATA RULES
 - **Options:** 5-6 items.
 - **Correct:** Min 2, Max N-1 correct.
@@ -83,6 +89,13 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 **✅ REQUIRED:** "Hyperkalemia causes peaked T-waves due to rapid repolarization..."
 
 ---
+
+---
+
+## ✅ VALIDATION CHECKLIST
+- [ ] `id` is present (`TOPIC-SATA-HEX`).
+- [ ] At least 2 options are correct.
+- [ ] Every option has an individual rationale.
 
 ## 📦 JSON STRUCTURE (STRICT)
 

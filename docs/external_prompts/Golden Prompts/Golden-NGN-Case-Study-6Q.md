@@ -29,6 +29,11 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 - HTML attributes inside strings: Single quotes (e.g., style='color:red').
 - All HTML tags must close properly.
 
+### 2. ID GENERATION & METADATA (CRITICAL)
+- **ID Format:** You MUST generate a root-level `id` using the pattern: `[FOCUS]-[TYPE]-[HEX]`.
+  - Example: `"id": "NEURO-CS-99F1"`
+- **Topic Mapping:** Map the [FOCUS] to one of: Cardiology, Respiratory, etc.
+
 ### 2. ITEM TYPE SEQUENCE (FIXED ORDER)
 You MUST generate exactly 6 screens. Do not skip. Do not reorder.
 
@@ -383,6 +388,7 @@ Use this EXACT schema for `content.rationale` (global) AND `structure.screens[i]
 
 ## ✅ FINAL VALIDATION CHECKLIST
 Before you output, verify:
+- `id` is present and matches `TOPIC-CS-HEX` format.
 - Exactly 6 screens generated.
 - Screen 1 = highlight (type: "highlight").
 - Screen 2 = matrix (type: "matrix").

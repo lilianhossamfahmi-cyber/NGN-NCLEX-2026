@@ -180,6 +180,14 @@ export class UnifiedDataPipeline {
         // Step 1: Ensure basic structure exists
         UnifiedDataPipeline.ensureBasicStructure(item);
 
+        // [MANDATORY] Normalize ID (hoist to root to prevent cache collisions)
+        if (!item.id) {
+            item.id = raw.id || raw.metadata?.id || raw.content?.id || raw._itemId;
+        }
+        if (!item.id || item.id === 'unknown') {
+            item.id = `UNIFIED-${Math.random().toString(16).slice(2, 6).toUpperCase()}`;
+        }
+
         // Step 2: Detect and normalize item type
         item.type = UnifiedDataPipeline.detectType(item);
 
@@ -211,14 +219,14 @@ export class UnifiedDataPipeline {
         // CRITICAL: Ensure pedagogy.clinicalFocus exists (DB Requirement)
         if (!item.pedagogy.clinicalFocus) {
             // Try to infer from metadata or content
-            item.pedagogy.clinicalFocus = item.metadata?.clinicalFocus || item.content?.topic || 'General';
+            item.pedagogy.clinicalFocus = item.metadata?.clinicalFocus || item.metadata?.topic || item.content?.topic || 'General';
         }
         if (!item.pedagogy.difficultyLevel) {
             item.pedagogy.difficultyLevel = difficulty;
         }
 
         // Step 9: Ensure metadata structure
-        UnifiedDataPipeline.ensureMetadata(item, difficulty);
+        UnifiedDataPipeline.ensureMetadata(item);
 
         // Step 10: Mark as processed
         item._unifiedPipelineProcessed = true;
@@ -712,8 +720,6 @@ export class UnifiedDataPipeline {
      * CRITICAL: Inject difficulty into ALL locations where components read it
      */
     private static injectDifficultyEverywhere(item: any, difficulty: number): void {
-        const def = DIFFICULTY_DEFINITIONS[difficulty] || DIFFICULTY_DEFINITIONS[3];
-
         // Metadata
         item.metadata.difficulty = difficulty;
         item.metadata.difficultyLevel = difficulty;
@@ -740,7 +746,7 @@ export class UnifiedDataPipeline {
     /**
      * Ensure metadata is complete
      */
-    private static ensureMetadata(item: any, difficulty: number): void {
+    private static ensureMetadata(item: any): void {
         const m = item.metadata;
 
         m.title = m.title || item.content?.metadata?.title || "Clinical Assessment Item";
