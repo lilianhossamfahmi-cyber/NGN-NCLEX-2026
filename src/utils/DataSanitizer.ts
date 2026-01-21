@@ -398,19 +398,67 @@ export const DataSanitizer = {
             return [];
         }
 
-        return orders.map(ord => ({
-            // FIX: Golden Prompt uses 'order' field for the full order text
-            drug: ord.drug || ord.medication || ord.name || ord.med || ord.order || "Unknown",
-            dose: ord.dose || ord.dosage || "",
-            route: ord.route || "PO",
-            freq: ord.freq || ord.frequency || ord.schedule || "Daily",
-            status: (ord.status || "active").toLowerCase(),
-            indication: ord.indication || ord.reason || (ord.orderedBy ? `Ordered by: ${ord.orderedBy}` : "Standard Care"),
-            holdReason: ord.holdReason || ord.hold_reason || undefined,
-            // Preserve additional Golden fields
-            time: ord.time,
-            orderedBy: ord.orderedBy
-        }));
+        return orders.map(ord => {
+            // FIX: Handle orders that are plain strings (e.g., "IV fluids maintenance")
+            if (typeof ord === 'string') {
+                return {
+                    drug: ord, // Use the full string as the order/drug name
+                    dose: "",
+                    route: DataSanitizer.extractRouteFromOrder(ord),
+                    freq: DataSanitizer.extractFrequencyFromOrder(ord),
+                    status: "active",
+                    indication: "As ordered"
+                };
+            }
+
+            // Handle object format with properties
+            return {
+                // FIX: Golden Prompt uses 'order' field for the full order text
+                drug: ord.drug || ord.medication || ord.name || ord.med || ord.order || "Unknown",
+                dose: ord.dose || ord.dosage || "",
+                route: ord.route || "PO",
+                freq: ord.freq || ord.frequency || ord.schedule || "Daily",
+                status: (ord.status || "active").toLowerCase(),
+                indication: ord.indication || ord.reason || (ord.orderedBy ? `Ordered by: ${ord.orderedBy}` : "Standard Care"),
+                holdReason: ord.holdReason || ord.hold_reason || undefined,
+                // Preserve additional Golden fields
+                time: ord.time,
+                orderedBy: ord.orderedBy
+            };
+        });
+    },
+
+    /**
+     * Extract route from order string (e.g., "Morphine 2mg IV" -> "IV")
+     */
+    extractRouteFromOrder: (order: string): string => {
+        const routes = ['IV', 'PO', 'IM', 'SubQ', 'SQ', 'SL', 'PR', 'INH', 'TOP', 'NG', 'GT'];
+        const upper = order.toUpperCase();
+        for (const route of routes) {
+            if (upper.includes(` ${route} `) || upper.includes(` ${route}`) || upper.endsWith(route)) {
+                return route;
+            }
+        }
+        return "";
+    },
+
+    /**
+     * Extract frequency from order string (e.g., "Tylenol 650mg q4h" -> "q4h")
+     */
+    extractFrequencyFromOrder: (order: string): string => {
+        const freqPatterns = [
+            /\b(q\d+h)\b/i,      // q4h, q6h, etc.
+            /\b(BID|TID|QID)\b/i,
+            /\b(PRN)\b/i,
+            /\b(daily)\b/i,
+            /\b(once)\b/i,
+            /\b(stat)\b/i
+        ];
+        for (const pattern of freqPatterns) {
+            const match = order.match(pattern);
+            if (match) return match[1];
+        }
+        return "";
     },
 
     /**
