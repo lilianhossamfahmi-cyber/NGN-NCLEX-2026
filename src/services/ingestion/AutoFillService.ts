@@ -42,12 +42,13 @@ export class AutoFillService {
 
         // 1. Detect Missing Fields using Zod safeParse
         const result = schema.safeParse(item);
-        if (result.success) return item; // Item is already valid, skip
 
-        const missingPaths = this.extractMissingPaths(result.error);
-        if (missingPaths.length === 0) return item; // No actionable missing fields
+        // 2. Identify Gaps or Generic Placeholders (John Doe, Medication, etc.)
+        const missingPaths = this.extractMissingPaths(result.error || { issues: [] } as any, item);
 
-        console.log(`[AutoFill] Detected missing fields for ${type}:`, missingPaths);
+        if (result.success && missingPaths.length === 0) return item; // Genuinely valid and high-fidelity
+
+        console.log(`[AutoFill] Detected gaps or placeholders for ${type}:`, missingPaths);
 
         // 2. Build Targeted AI Prompt
         const prompt = this.buildPrompt(item, type, missingPaths);
@@ -71,18 +72,35 @@ export class AutoFillService {
     }
 
     /**
-     * Extracts dot-paths of fields that failed 'required' validation.
+     * Extracts dot-paths of fields that are missing, null, or generic placeholders.
      */
-    private static extractMissingPaths(error: ZodError): string[] {
+    private static extractMissingPaths(error: ZodError, item: any): string[] {
         const paths: string[] = [];
+
+        // 1. Zod Identified Missing/Invalid Fields
         for (const issue of error.issues) {
-            // Check for missing fields (invalid_type with received undefined)
-            if (issue.code === 'invalid_type' && (issue as any).received === 'undefined') {
-                paths.push(issue.path.join('.'));
-            }
+            paths.push(issue.path.join('.'));
         }
-        // Deduplicate paths
-        return Array.from(new Set(paths));
+
+        // 2. Heuristic Check: Find generic placeholders that Zod might miss
+        // e.g. "Rationale not generated", "Medication", "Order"
+        const checkPlaceholders = (obj: any, currentPath: string = '') => {
+            if (obj === null || obj === undefined) {
+                if (currentPath) paths.push(currentPath);
+                return;
+            }
+            if (typeof obj === 'string') {
+                const genericRe = /^(Medication|Order|Drug|Rationale not generated|Fallback|Review the case study).*$/i;
+                if (genericRe.test(obj)) paths.push(currentPath);
+            } else if (Array.isArray(obj)) {
+                obj.forEach((item, i) => checkPlaceholders(item, `${currentPath}.${i}`));
+            } else if (typeof obj === 'object') {
+                Object.keys(obj).forEach(key => checkPlaceholders(obj[key], currentPath ? `${currentPath}.${key}` : key));
+            }
+        };
+        checkPlaceholders(item);
+
+        return Array.from(new Set(paths.filter(p => p !== '')));
     }
 
     /**
@@ -92,26 +110,39 @@ export class AutoFillService {
         const context = JSON.stringify(item, null, 2);
 
         return `
-You are an expert NCLEX-RN Content Developer.
-TASK: Complete a partially generated NGN ${type} item.
+You are an expert NCLEX-RN Content Developer and Medical Writer.
+TASK: Repair and complete a partially generated NGN ${type} item.
 
-CONTEXT (Current Item Data):
+CONTEXT (Current Case Data + Item Partial):
 ${context}
 
-MISSING FIELDS TO FILL:
+CRITICAL REQUIREMENT:
+The item is missing or has generic "PLACEHOLDER" content for:
 ${missing.map(p => `- ${p}`).join('\n')}
 
 INSTRUCTIONS:
-1. Use the existing clinical context (patient data, vitals, history) to generate these fields.
-2. Ensure content is highly case-specific. NEVER use generic placeholders like "N/A", "medication", or "missing".
-3. For 'rationale', provide deep clinical reasoning (pathophysiology, safety, takeaways).
-4. For 'options' or 'structure' arrays, ensure IDs are unique and 'isCorrect' logic aligns with the scenario.
-5. Return ONLY a JSON fragment containing the missing fields. No introductory or closing text.
+1. ANALYZE the clinical context (vitals, history, notes, age, gender) to create HIGH-FIDELITY, case-specific content.
+2. DO NOT USE GENERIC TERMS. 
+   - Instead of "Medication", use a specific drug name (e.g., "Furosemide 40mg IV", "Lisinopril 10mg PO").
+   - Instead of "Action", use a specific nursing intervention (e.g., "Place the patient in High-Fowler's position").
+   - Instead of "Rationale", provide the specific pathophysiology or safety rationale for THIS SPECIFIC patient.
+3. CONSTRAINTS:
+   - For BowTie actions/conditions/parameters: Generate the EXACT number required for the schema if missing.
+   - For Patient data: If age is missing, infer a typical age based on the condition (e.g., bronchiolitis -> 6 months).
+4. OUTPUT: Return ONLY a JSON fragment containing the missing or repaired fields.
+5. NO MARKDOWN: Just the raw JSON object.
 
-Example Fragment:
+Example Output Structure:
 {
-  "rationale": { "general": "...", "pathophysiology": "...", "safetyCheck": "..." },
-  "structure": { "options": [ ... ] }
+  "prompt": "Based on the assessment findings, which medication should the nurse anticipate?",
+  "content": {
+    "patient": { "age": "45", "gender": "Male", "name": "Mr. S." },
+    "orders": [{ "order": "Morphine 2mg IV push every 4 hours PRN pain", "time": "08:15" }]
+  },
+  "structure": {
+    "actions": [ ... ],
+    "conditions": [ ... ]
+  }
 }
 `;
     }

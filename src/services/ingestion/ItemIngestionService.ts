@@ -148,8 +148,9 @@ export class ItemIngestionService {
                 const orders = Array.isArray(cd.orders) ? cd.orders : [cd.orders];
                 norm.content.orders = orders.map((o: any) => ({
                     time: o.time || "0800",
-                    // CRITICAL: Check 'order' first - Golden prompts use 'order' not 'drug'
-                    order: o.order || o.drug || o.medication || "Order",
+                    // FAVOR SPECIFICITY: If the AI output generic "Medication" or "Order", we prefer null 
+                    // so the Ingestion Pipeline can attempt to repair it from context.
+                    order: (o.order || o.drug || o.medication || "").replace(/^(Medication|Order|Drug)$/i, "") || null,
                     provider: o.provider || "MD",
                     status: o.status || "active"
                 }));
@@ -327,7 +328,7 @@ export class ItemIngestionService {
             else if (norm.task?.instruction) norm.prompt = norm.task.instruction;
             else if (norm.stimulus?.prompt?.en) norm.prompt = norm.stimulus.prompt.en;
             else if (norm.structure?.prompt) norm.prompt = norm.structure.prompt;
-            else norm.prompt = "Review the case study and answer the question."; // Safe Fallback
+            // REMOVED SAFE FALLBACK: Let AutoFillService repair the prompt from clinical context
         }
 
         // 5. Unified Rationale Normalization
@@ -403,35 +404,8 @@ export class ItemIngestionService {
                 }
             });
 
-            // [FALLBACK] If still missing (AI completely failed), inject Dummy Data to prevent Crash
-            // This allows us to debug the layout even if AI fails the content.
-            if (!norm.structure.actions) {
-                console.warn('[Ingestion] Missing Actions! Injecting Fallback.');
-                norm.structure.actions = [
-                    { id: 'a1', text: 'Fallback Action 1', isCorrect: true },
-                    { id: 'a2', text: 'Fallback Action 2', isCorrect: false },
-                    { id: 'a3', text: 'Fallback Action 3', isCorrect: true },
-                    { id: 'a4', text: 'Fallback Action 4', isCorrect: false },
-                    { id: 'a5', text: 'Fallback Action 5', isCorrect: false }
-                ];
-            }
-            if (!norm.structure.conditions) {
-                norm.structure.conditions = [
-                    { id: 'c1', text: 'Fallback Condition 1', isCorrect: true },
-                    { id: 'c2', text: 'Fallback Condition 2', isCorrect: false },
-                    { id: 'c3', text: 'Fallback Condition 3', isCorrect: false },
-                    { id: 'c4', text: 'Fallback Condition 4', isCorrect: false }
-                ];
-            }
-            if (!norm.structure.parameters) {
-                norm.structure.parameters = [
-                    { id: 'p1', text: 'Fallback Param 1', isCorrect: true },
-                    { id: 'p2', text: 'Fallback Param 2', isCorrect: false },
-                    { id: 'p3', text: 'Fallback Param 3', isCorrect: true },
-                    { id: 'p4', text: 'Fallback Param 4', isCorrect: false },
-                    { id: 'p5', text: 'Fallback Param 5', isCorrect: false }
-                ];
-            }
+            // REMOVED FALLBACKS: We now allow these to be undefined so AutoFillService 
+            // can generate case-specific actions/conditions/parameters using Gemini.
         }
 
         // 7.5 Other Item Specific Migrations (Matrix, Ordered, etc.)
@@ -517,10 +491,7 @@ export class ItemIngestionService {
         if (norm.content?.patient) {
             const p = norm.content.patient;
             if (p.sex && !p.gender) p.gender = p.sex;
-            if (!p.gender) p.gender = 'Male'; // Default
-            if (!p.age) p.age = 30;
-            if (!p.name) p.name = "John Doe";
-            if (!p.allergies) p.allergies = "NKDA";
+            // REMOVED DEFAULTS: Let AutoFillService infer age/gender/name from history
         }
 
         return norm;
