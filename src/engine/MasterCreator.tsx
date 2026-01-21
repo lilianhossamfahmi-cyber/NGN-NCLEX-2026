@@ -13,17 +13,15 @@ import { saveBatchToBank, getBankItems, deleteItemFromBank, deleteBatchFromBank 
 import { getQuestionType } from '../registry';
 import { AnalyticsDashboard } from '../components/analytics/AnalyticsDashboard';
 import { HeaderProgressBar } from '../components/analytics/HeaderProgressBar';
-import { getMockAnalytics } from '../services/analyticsService';
+import { getRealAnalytics } from '../services/analyticsService';
 import { AnalyticsSummary } from '../types/analytics-schema';
 import { ThemeToggle } from '../components/common/ThemeToggle';
 import { EmptyState } from '../components/common/EmptyState';
-import { MobileNavBar } from '../components/mobile/MobileNavBar';
-
-
 import { AdminDashboard } from '../components/admin/AdminDashboard';
 import { GeneratorWorkflow } from './GeneratorWorkflow';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { StudentDashboard } from '../student/components/dashboard/StudentDashboard';
+import { ItemIngestionService } from '../services/ingestion/ItemIngestionService';
 
 /**
  * MASTER NGN CREATOR ENGINE v2.2
@@ -88,7 +86,11 @@ export const MasterCreatorEngine: React.FC = () => {
 
     useEffect(() => {
         // Load initial analytics
-        setAnalyticsData(getMockAnalytics());
+        const load = async () => {
+            const res = await getRealAnalytics();
+            setAnalyticsData(res);
+        };
+        load();
     }, []);
 
     // Session Restore
@@ -237,21 +239,36 @@ export const MasterCreatorEngine: React.FC = () => {
         setGenSettings(prev => ({ ...prev, selectedReferenceIds: activeIds }));
     };
 
-    const handleImportSuccess = (items: MasterQuestionItem[]) => {
-        const processed = items.map(i => ({
-            ...i,
-            id: i.id ? String(i.id) : crypto.randomUUID(),
-            metadata: {
-                ...i.metadata,
-                createdAt: i.metadata.createdAt || new Date().toISOString()
-            }
-        }));
-        setGeneratedBatch(processed);
-        setReviewSelectedIds([]);
-        setViewState('review');
-        setError(null);
-        setSuccessMsg(`Imported ${items.length} items.`);
-        setTimeout(() => setSuccessMsg(null), 4000);
+    const handleImportSuccess = async (items: any[]) => {
+        setViewState('generating');
+        setProgressMsg(`Validating and Auto-Repairing ${items.length} items...`);
+
+        try {
+            const ingested = await Promise.all(items.map(async (item) => {
+                // Run through strict Ingestion Service (Normalizes + AI Auto-Fill)
+                const result = await ItemIngestionService.ingest(item);
+
+                return {
+                    ...result,
+                    id: result.id || item.id || (typeof crypto !== 'undefined' ? crypto.randomUUID() : `item_${Date.now()}_${Math.random()}`),
+                    metadata: {
+                        ...result.metadata,
+                        createdAt: result.metadata?.createdAt || item.metadata?.createdAt || new Date().toISOString()
+                    }
+                };
+            }));
+
+            setGeneratedBatch(ingested as MasterQuestionItem[]);
+            setReviewSelectedIds([]);
+            setViewState('review');
+            setError(null);
+            setSuccessMsg(`Imported and Auto-Repaired ${items.length} items.`);
+            setTimeout(() => setSuccessMsg(null), 4000);
+        } catch (err: any) {
+            console.error("Import Processing Failed:", err);
+            setError(`Import Processing Failed: ${err.message}`);
+            setViewState('dashboard');
+        }
     };
 
     const toggleReviewSelection = (id: string) => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MasterQuestionItem } from '../types/master-schema';
 import { validateItemContent } from '../services/validationService';
-// import { getQuestionType } from '../registry';
+import { ItemIngestionService } from '../services/ingestion/ItemIngestionService';
 
 interface ItemAuthoringProps {
     item: MasterQuestionItem;
@@ -20,6 +20,8 @@ export const ItemAuthoring: React.FC<ItemAuthoringProps> = ({ item, onSave }) =>
     const uniqueIssues = Array.from(new Set(allIssues.map(i => i.message))).map(msg => allIssues.find(i => i.message === msg));
     const currentStatus = hasErrors ? 'Warnings' : (localItem.aiSafetyChecks?.validationStatus || 'Pass');
 
+    const [isAutoFixing, setIsAutoFixing] = useState(false);
+
     // Auto-save debounce effect
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -36,6 +38,21 @@ export const ItemAuthoring: React.FC<ItemAuthoringProps> = ({ item, onSave }) =>
             setLocalItem(item);
         }
     }, [item]);
+
+    const handleAutoFix = async () => {
+        setIsAutoFixing(true);
+        try {
+            const result = await ItemIngestionService.ingest(localItem);
+            setLocalItem(result);
+            // Save immediately after fix
+            onSave(result);
+        } catch (error) {
+            console.error("AutoFix Error:", error);
+            alert("Auto-Fix failed. Check connectivity or API key.");
+        } finally {
+            setIsAutoFixing(false);
+        }
+    };
 
     const handleContentChange = (path: string, value: any) => {
         setLocalItem(prev => {
@@ -167,8 +184,17 @@ export const ItemAuthoring: React.FC<ItemAuthoringProps> = ({ item, onSave }) =>
                         </div>
 
                         <div style={{ display: 'flex', gap: '1rem' }}>
-                            <button style={{ flex: 1, padding: '1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
-                                🤖 Run AI Auto-Fix
+                            <button
+                                onClick={handleAutoFix}
+                                disabled={isAutoFixing}
+                                style={{
+                                    flex: 1, padding: '1rem', background: '#3b82f6', color: 'white',
+                                    border: 'none', borderRadius: '6px', cursor: 'pointer',
+                                    opacity: isAutoFixing ? 0.7 : 1,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
+                                }}
+                            >
+                                {isAutoFixing ? '✨ Repairing...' : '🤖 Run AI Auto-Fix'}
                             </button>
                             <button style={{ flex: 1, padding: '1rem', background: '#10b981', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}>
                                 ✓ Approve Item

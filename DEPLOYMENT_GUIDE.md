@@ -52,13 +52,22 @@ In Vercel Dashboard → Project Settings → Environment Variables:
 | Variable | Value | Environment |
 |----------|-------|-------------|
 | `VITE_GEMINI_API_KEY` | `AIzaSyDE2C4P0TlzUamCN7dnwhF1psD6QEEk94M` | Production |
+| `VITE_SUPABASE_URL` | `https://your-project.supabase.co` | Production |
+| `VITE_SUPABASE_ANON_KEY` | `your-anon-key` | Production |
 | `VITE_FEATURE_AI` | `true` | Production |
 | `VITE_FEATURE_EXPORT` | `true` | Production |
 | `VITE_FEATURE_DEDUPE` | `true` | Production |
 
 **Important:** Check "Automatically expose System Environment Variables"
 
-### Step 4: Deploy
+### Step 4: Supabase Database Setup
+
+1. Log in to [Supabase](https://supabase.com)
+2. Go to your Project → SQL Editor
+3. Run the migrations found in `supabase/migrations/*.sql`
+4. Specifically ensure `20260121_add_item_bank.sql` is run to enable local analytics.
+
+### Step 5: Deploy
 
 1. Click "Deploy"
 2. Wait for build to complete (~1-2 minutes)

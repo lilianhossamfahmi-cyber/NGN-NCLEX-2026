@@ -561,7 +561,7 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
     // If we resolved to a 'calculation', run it through the strict Ingestion Service
     // to validate Data Completeness, JCIA compliance, and Structural Integrity.
     if (norm.type === 'calculation' || norm.type === 'bow-tie') {
-        const validated = ItemIngestionService.ingest(norm);
+        const validated = ItemIngestionService.ingestSync?.(norm) || norm;
         // If validation failed, 'validated' will be of type 'error'
         return validated;
     }

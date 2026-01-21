@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { MasterQuestionItem } from '../../types/master-schema';
-import { X, Plus, Sparkles, BookOpen, Layers, Activity, Copy, Shuffle } from 'lucide-react';
+import { X, Plus, Sparkles, Layers, Activity, Copy, Shuffle } from 'lucide-react';
 import { NCLEX_TOPICS } from '../../data/nclexTopics';
-import { updateItem, saveItemToBank } from '../../services/itemApiService';
-import { v4 as uuidv4 } from 'uuid';
+import { saveItemToBank } from '../../services/itemApiService';
 
 interface AddItemModalProps {
     onClose: () => void;

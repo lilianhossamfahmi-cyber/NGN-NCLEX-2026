@@ -2,6 +2,7 @@
 import { GenerationSettings, MasterQuestionItem, ReferenceSource } from '../types/master-schema.ts';
 import { AppConfig, getGenAI, limiter } from '../config/apiConfig.ts';
 import { getQuestionType } from '../registry/index.ts';
+import { ItemIngestionService } from './ingestion/ItemIngestionService';
 
 /**
  * Question Generation Service v2.2
@@ -117,8 +118,11 @@ export const generateQuestions = async (
             return { success: false, error: "AI produced invalid JSON structure." };
         }
 
-        // Post-Process & Validate
-        const processed = generatedItems.map(item => processGeneratedItem(item, settings));
+        // 2. Post-Process, Hydrate, and strictly Ingest (Normalizes + AI Auto-Fill)
+        const processed = await Promise.all(generatedItems.map(async item => {
+            const hydrated = processGeneratedItem(item, settings);
+            return ItemIngestionService.ingest(hydrated);
+        }));
 
         return { success: true, data: processed };
 

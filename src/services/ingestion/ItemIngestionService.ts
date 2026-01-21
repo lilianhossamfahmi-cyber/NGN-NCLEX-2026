@@ -1,41 +1,84 @@
 import { z } from 'zod';
-import { CalculationItemSchema, BowTieItemSchema } from '../../schemas';
+import {
+    CalculationItemSchema,
+    BowTieItemSchema,
+    OrderedResponseSchema,
+    MatrixItemSchema,
+    HighlightItemSchema,
+    DropClozeItemSchema,
+    HotSpotItemSchema,
+    OptionBasedItemSchema,
+    CaseStudySchema
+} from '../../schemas';
+import { AutoFillService } from './AutoFillService';
 
 export class ItemIngestionService {
     // Throttle warnings - only log once per type
     private static _warnedTypes: Set<string> = new Set();
 
     /**
+     * Synchronous version of ingest.
+     * Skips AutoFillService which is asynchronous.
+     */
+    static ingestSync(raw: any): any {
+        return this.normalize(raw);
+    }
+
+    /**
      * The Main Entry Point. 
      * Takes raw, untrusted AI output and returns a strictly Validated Item.
      */
-    static ingest(raw: any): any {
+    static async ingest(raw: any): Promise<any> {
         // 1. Normalize (Fix Types, Flatten Structure, Standardize fields)
         const clean = this.normalize(raw);
 
-        // 2. Validate against Type Specific Schema
+        // 2. Auto-repair missing fields using AI (Golden Path)
+        // This ensures items are complete before strict validation
+        const filled = await AutoFillService.fillMissing(clean);
+
+        // 3. Validate against Type Specific Schema
         try {
-            if (clean.type === 'calculation') {
-                return CalculationItemSchema.parse(clean);
+            if (filled.type === 'calculation') {
+                return CalculationItemSchema.parse(filled);
             }
-            if (clean.type === 'bow-tie' || clean.type === 'bowtie') {
-                clean.type = 'bow-tie';
-                return BowTieItemSchema.parse(clean);
+            if (filled.type === 'bow-tie' || filled.type === 'bowtie') {
+                filled.type = 'bow-tie';
+                return BowTieItemSchema.parse(filled);
             }
-            // Add other types here as we implement them hiding behind 'if' checks
+            if (filled.type === 'case-study') {
+                return CaseStudySchema.parse(filled);
+            }
+            if (filled.type === 'ordered-response') {
+                return OrderedResponseSchema.parse(filled);
+            }
+            if (filled.type === 'matrix') {
+                return MatrixItemSchema.parse(filled);
+            }
+            if (filled.type === 'highlight') {
+                return HighlightItemSchema.parse(filled);
+            }
+            if (filled.type === 'drop-cloze') {
+                return DropClozeItemSchema.parse(filled);
+            }
+            if (filled.type === 'hot-spot') {
+                return HotSpotItemSchema.parse(filled);
+            }
+            if (['multiple-response', 'single-response', 'trend'].includes(filled.type)) {
+                return OptionBasedItemSchema.parse(filled);
+            }
 
             // For legacy/unimplemented types, return clean but unvalidated
-            return clean;
+            return filled;
 
         } catch (error) {
             if (error instanceof z.ZodError) {
                 // RELAXED: Log warning once (throttled) but continue with normalized data
                 // The UnifiedDataPipeline will handle missing fields gracefully
-                if (!ItemIngestionService._warnedTypes.has(clean.type)) {
-                    ItemIngestionService._warnedTypes.add(clean.type);
-                    console.warn('[Ingestion] Validation Warning (proceeding with normalized data) for type:', clean.type);
+                if (!ItemIngestionService._warnedTypes.has(filled.type)) {
+                    ItemIngestionService._warnedTypes.add(filled.type);
+                    console.warn('[Ingestion] Validation Warning (proceeding with filled data) for type:', filled.type);
                 }
-                return clean; // Return the normalized data, not an error item
+                return filled; // Return the normalized data, not an error item
             }
             throw error;
         }

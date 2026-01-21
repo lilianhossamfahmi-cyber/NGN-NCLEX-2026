@@ -14,9 +14,13 @@ export const ImportPanel: React.FC<ImportPanelProps> = ({ onImport, onCancel }) 
     const [isFixing, setIsFixing] = useState(false);
 
     const handleLocalFix = () => {
-        const fixed = aggressiveRepairJson(textInput);
-        setTextInput(fixed);
-        setError("Local Auto-Fix applied. Please try 'Parse & Import' again.");
+        try {
+            const fixed = aggressiveRepairJson(textInput);
+            setTextInput(fixed);
+            setError("🪄 Local Auto-Fix applied! We've cleaned syntax, unescaped quotes, and fixed common AI errors. Please click 'Parse & Import' to try again.");
+        } catch (e: any) {
+            setError("Local Auto-Fix encountered an error: " + e.message);
+        }
     };
 
     const handleImport = async () => {
@@ -48,8 +52,8 @@ export const ImportPanel: React.FC<ImportPanelProps> = ({ onImport, onCancel }) 
             if (aiResult.success && aiResult.data) {
                 onImport(aiResult.data);
             } else {
-                // If AI also fails, we show the standard error + a mention that Local Fix is available
-                const msg = `JSON Error: ${result.error}.\n\nAI Repair also failed: ${aiResult.error}.\n\nTip: Try clicking 'Local Auto-Fix' to manually clean common syntax errors.`;
+                // If AI also fails, we show a detailed error with a direct call to action
+                const msg = `⚠️ JSON Parse Failed\n\n- Local Status: ${result.error}\n- AI Status: ${aiResult.error}\n\nOur '🪄 Local Auto-Fix' (top right) can often fix these structural issues by force-escaping clinical text. Give it a try!`;
                 setError(msg);
             }
         } catch (e: any) {

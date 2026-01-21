@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { AnalyticsSummary } from '../../types/analytics-schema';
-import { getMockAnalytics } from '../../services/analyticsService';
+import { getRealAnalytics } from '../../services/analyticsService';
 
 export const AnalyticsDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const [data, setData] = useState<AnalyticsSummary | null>(null);
     const [animated, setAnimated] = useState(false);
 
     useEffect(() => {
-        // Load data
-        setData(getMockAnalytics());
-        // Stagger animation
-        setTimeout(() => setAnimated(true), 100);
+        const load = async () => {
+            const res = await getRealAnalytics();
+            setData(res);
+            // Stagger animation
+            setTimeout(() => setAnimated(true), 100);
+        };
+        load();
     }, []);
 
     if (!data) return <div>Loading Analytics...</div>;

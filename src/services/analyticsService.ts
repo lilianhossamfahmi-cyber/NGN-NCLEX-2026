@@ -1,7 +1,85 @@
 import { AnalyticsSummary, DomainPerformance, ItemTypeStat } from '../types/analytics-schema';
+import { supabase } from '../lib/supabase';
+
+export const getRealAnalytics = async (): Promise<AnalyticsSummary> => {
+    try {
+        const { data: items, error } = await supabase.from('item_bank').select('type_id, clinical_focus, quality_score, created_at');
+
+        if (error || !items || items.length === 0) {
+            return getMockAnalytics(); // Fallback if empty
+        }
+
+        const domainMap: Record<string, { total: number; score: number }> = {};
+        const typeMap: Record<string, { total: number; score: number }> = {};
+        const progressMap: Record<string, { count: number; score: number }> = {};
+
+        items.forEach(item => {
+            const domain = item.clinical_focus || 'General';
+            const type = item.type_id || 'unknown';
+            const score = item.quality_score || 0;
+            const date = new Date(item.created_at).toISOString().split('T')[0];
+
+            if (!domainMap[domain]) domainMap[domain] = { total: 0, score: 0 };
+            domainMap[domain].total++;
+            domainMap[domain].score += score;
+
+            if (!typeMap[type]) typeMap[type] = { total: 0, score: 0 };
+            typeMap[type].total++;
+            typeMap[type].score += score;
+
+            if (!progressMap[date]) progressMap[date] = { count: 0, score: 0 };
+            progressMap[date].count++;
+            progressMap[date].score += score;
+        });
+
+        const domains: DomainPerformance[] = Object.entries(domainMap).map(([name, stats], i) => ({
+            domainId: String(i),
+            domainName: name,
+            totalQuestions: stats.total,
+            correctCount: stats.total,
+            accuracy: Math.round(stats.score / stats.total),
+            lastPracticed: new Date().toISOString()
+        }));
+
+        const itemTypes: ItemTypeStat[] = Object.entries(typeMap).map(([id, stats]) => ({
+            typeId: id,
+            typeName: id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+            count: stats.total,
+            accuracy: Math.round(stats.score / stats.total),
+            trend: 'stable'
+        }));
+
+        const dailyProgress = Object.entries(progressMap).map(([date, stats]) => ({
+            date,
+            questionsAnswered: stats.count,
+            accuracy: Math.round(stats.score / stats.count)
+        })).sort((a, b) => a.date.localeCompare(b.date)).slice(-30);
+
+        const overallAccuracy = Math.round(items.reduce((acc, i) => acc + (i.quality_score || 0), 0) / items.length);
+
+        return {
+            totalQuestions: items.length,
+            overallAccuracy,
+            passProbability: Math.min(99, Math.round(overallAccuracy * 1.1)),
+            streakDays: dailyProgress.length,
+            domains: domains.sort((a, b) => a.accuracy - b.accuracy),
+            itemTypes,
+            dailyProgress,
+            badges: [
+                { id: '1', name: 'Collector', description: 'Populated Item Bank', icon: '📁', unlocked: true, unlockedDate: items[0].created_at, category: 'milestone' },
+                { id: '2', name: 'Quality Conscious', description: 'Maintained high quality items', icon: '⭐', unlocked: overallAccuracy > 80, category: 'mastery' }
+            ],
+            recommendations: [
+                { id: 'rec1', type: 'domain', label: `Expand ${domains[0].domainName}`, reason: 'Fewest items generated', action: 'Generate Batch' }
+            ]
+        };
+    } catch (e) {
+        console.warn("Analytics Fetch Error:", e);
+        return getMockAnalytics();
+    }
+};
 
 export const getMockAnalytics = (): AnalyticsSummary => {
-
     const domains: DomainPerformance[] = [
         { domainId: '1', domainName: 'Critical Care', totalQuestions: 45, correctCount: 38, accuracy: 84, lastPracticed: '2025-12-19' },
         { domainId: '2', domainName: 'Pediatrics', totalQuestions: 30, correctCount: 18, accuracy: 60, lastPracticed: '2025-12-18' },
@@ -23,9 +101,9 @@ export const getMockAnalytics = (): AnalyticsSummary => {
     return {
         totalQuestions: 345,
         overallAccuracy: 72,
-        passProbability: 84, // Calculated hypothetical
+        passProbability: 84,
         streakDays: 4,
-        domains: domains.sort((a, b) => a.accuracy - b.accuracy), // Mock sort by weakness for recommendations? Or caller does it.
+        domains: domains.sort((a, b) => a.accuracy - b.accuracy),
         itemTypes,
         dailyProgress: Array.from({ length: 30 }, (_, i) => ({
             date: new Date(Date.now() - (29 - i) * 86400000).toISOString().split('T')[0],

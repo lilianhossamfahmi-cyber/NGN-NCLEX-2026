@@ -1,7 +1,13 @@
 node_modules
+dist
 .env
 .env.local
+.vscode
 .DS_Store
-
-node_modules
-node_modules
+*.log
+itemBank.db
+backups/
+_backups/
+debug_dump.json
+dump_all_items.json
+*.mjs
