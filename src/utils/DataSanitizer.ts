@@ -419,7 +419,7 @@ export const DataSanitizer = {
                 route: ord.route || "PO",
                 freq: ord.freq || ord.frequency || ord.schedule || "Daily",
                 status: (ord.status || "active").toLowerCase(),
-                indication: ord.indication || ord.reason || (ord.orderedBy ? `Ordered by: ${ord.orderedBy}` : "Standard Care"),
+                indication: ord.indication || ord.reason || (ord.orderedBy ? `Ordered by: ${ord.orderedBy}` : ""),
                 holdReason: ord.holdReason || ord.hold_reason || undefined,
                 // Preserve additional Golden fields
                 time: ord.time,
@@ -480,7 +480,7 @@ export const DataSanitizer = {
                     route: /IV|IM|SubQ|PO|SL/i.test(cleaned) ? cleaned.match(/IV|IM|SubQ|PO|SL/i)?.[0] || "PO" : "PO",
                     freq: /BID|TID|QID|Q\d+H|PRN|daily/i.test(cleaned) ? cleaned.match(/BID|TID|QID|Q\d+H|PRN|daily/i)?.[0] || "Daily" : "Daily",
                     status: "active",
-                    indication: "Standard Care"
+                    indication: ""
                 });
             }
         });

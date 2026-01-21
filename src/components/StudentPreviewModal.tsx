@@ -853,7 +853,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                     </div>
 
                                     <div className="text-xs text-slate-500">
-                                        Indication: <span className="font-semibold text-slate-700">{ord.indication || 'Standard Care'}</span>
+                                        Indication: <span className="font-semibold text-slate-700">{ord.indication || 'Provided in EHR'}</span>
                                     </div>
                                 </div>
 

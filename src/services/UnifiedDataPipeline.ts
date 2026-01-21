@@ -829,16 +829,32 @@ export class UnifiedDataPipeline {
 
         const arr = Array.isArray(data) ? data : [data];
 
-        return arr.map((o: any) => ({
-            // CRITICAL: Check 'order' field first - Golden prompts use this instead of 'drug'
-            drug: o.order || o.drug || o.medication || o.name || "Medication",
-            dose: o.dose || o.dosage || "As ordered",
-            route: o.route || "IV", // IV is more common in clinical settings
-            freq: o.freq || o.frequency || "Per protocol",
-            status: (o.status || "active").toLowerCase(),
-            indication: o.indication || o.reason || "",
-            holdReason: o.holdReason
-        }));
+        return arr.map((o: any) => {
+            // Handle plain string orders
+            if (typeof o === 'string') {
+                return {
+                    drug: o,
+                    dose: "As ordered",
+                    route: "IV",
+                    freq: "Per protocol",
+                    status: "active",
+                    indication: "As ordered"
+                };
+            }
+
+            // Handle object orders
+            return {
+                // CRITICAL: Check 'order' field first - Golden prompts use this instead of 'drug'
+                // CRITICAL: Check all possible field names for the order content
+                drug: o.order || o.text || o.drug || o.medication || o.name || o.description || o.note || o.item || o.entry || o.value || o.content || "Medication",
+                dose: o.dose || o.dosage || "As ordered",
+                route: o.route || "IV",
+                freq: o.freq || o.frequency || "Per protocol",
+                status: (o.status || "active").toLowerCase(),
+                indication: o.indication || o.reason || "",
+                holdReason: o.holdReason
+            };
+        });
     }
 
     private static normalizeHistory(data: any, chiefComplaint?: string): any[] {
