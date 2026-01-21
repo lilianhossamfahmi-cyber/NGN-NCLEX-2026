@@ -1127,14 +1127,18 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
         if (isCaseStudy) {
             const screen = screens[currentScreenIndex];
             // If screen doesn't have its own clinicalData, provide the parent one
+            // CRITICAL FIX: Include item.id to ensure unique key for component remounting
             return {
                 ...screen,
+                id: screen.id || `${item.id}_screen_${currentScreenIndex}`, // Ensure unique ID per screen
                 clinicalData: screen.clinicalData || item.content.clinicalData
             };
         }
         // For single items, merge sibling rationale/metadata into the structure
+        // CRITICAL FIX: Include item.id to ensure unique key for component remounting
         return {
             ...item.content.structure,
+            id: item.id, // CRITICAL: Propagate item ID for unique keys
             clinicalData: item.content.clinicalData, // CRITICAL: Ensure clinical data (patientInfo, etc) is preserved
             type: item.type || (item.content as any).type,
             rationale: item.content.rationale,
@@ -1143,7 +1147,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                 ...item.content.structure?.metadata
             }
         };
-    }, [isCaseStudy, screens, currentScreenIndex, item.content, item.type]);
+    }, [isCaseStudy, screens, currentScreenIndex, item.content, item.type, item.id]);
 
     // Normalize ONCE to ensure IDs and structure are consistent between Renderer and Rationale
     const currentQ = useMemo(() => normalizeConfig(rawCurrentQ), [rawCurrentQ]);

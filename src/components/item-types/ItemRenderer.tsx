@@ -23,20 +23,41 @@ interface QuestionConfig {
 }
 
 // --- SHUFFLE CACHE (Prevents re-shuffling on every render) ---
-// Key: itemId, Value: { options: shuffled[], bowTie: { actions, conditions, parameters } }
-const shuffleCache = new Map<string, any>();
+// Key: itemId_field, Value: { data: shuffled[], timestamp: number }
+const shuffleCache = new Map<string, { data: any[], timestamp: number }>();
+const CACHE_TTL_MS = 60000; // 1 minute cache TTL
+
+// Clear cache for specific item or all items
+export const clearShuffleCache = (itemId?: string) => {
+    if (itemId) {
+        // Clear entries for specific item
+        for (const key of shuffleCache.keys()) {
+            if (key.startsWith(`${itemId}_`)) {
+                shuffleCache.delete(key);
+            }
+        }
+        console.log(`[ItemRenderer] Cleared shuffle cache for item: ${itemId}`);
+    } else {
+        // Clear entire cache
+        shuffleCache.clear();
+        console.log('[ItemRenderer] Cleared entire shuffle cache');
+    }
+};
 
 // Helper to get or create cached shuffle
 const getCachedShuffle = (itemId: string, key: string, array: any[], shuffleFn: (arr: any[]) => any[]): any[] => {
     if (!itemId || !array || array.length <= 1) return array;
 
     const cacheKey = `${itemId}_${key}`;
-    if (shuffleCache.has(cacheKey)) {
-        return shuffleCache.get(cacheKey);
+    const cached = shuffleCache.get(cacheKey);
+
+    // Check if cached entry exists and is still valid
+    if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS)) {
+        return cached.data;
     }
 
     const shuffled = shuffleFn(array);
-    shuffleCache.set(cacheKey, shuffled);
+    shuffleCache.set(cacheKey, { data: shuffled, timestamp: Date.now() });
     return shuffled;
 };
 
@@ -888,9 +909,12 @@ export const renderQuestion = (
     hideFooter?: boolean,
     scale?: number
 ) => {
-    // Debug log removed to prevent console flooding
+    // CRITICAL FIX: Use item ID as key to force React to remount when switching items
+    // This ensures BowTie options, answers, and all state resets properly
+    const itemKey = config.id || `item_${JSON.stringify(config.prompt || config.stem || '').slice(0, 50)}`;
 
     return <QuestionRuntime
+        key={itemKey}  // Force remount when item changes
         config={config}
         mode={mode}
         onComplete={onComplete}

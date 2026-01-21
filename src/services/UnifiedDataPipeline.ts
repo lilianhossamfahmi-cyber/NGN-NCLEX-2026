@@ -183,13 +183,19 @@ export class UnifiedDataPipeline {
         // [MANDATORY] Normalize ID (hoist to root to prevent cache collisions)
         let resolvedId = raw.id || raw.metadata?.id || raw.content?.id || raw._itemId;
 
-        // If ID is found but generic (like 'pharmeco' or 'unified') or missing, make it unique
-        if (!resolvedId || resolvedId === 'unknown' || resolvedId.length < 5) {
-            resolvedId = `NGN-${Math.random().toString(16).slice(2, 8).toUpperCase()}`;
-        } else {
-            // Append a small entropy suffix to ensure batch uniqueness even if AI reuses IDs
-            resolvedId = `${resolvedId}-${Math.random().toString(16).slice(2, 6).toUpperCase()}`;
+        // Define truly generic IDs that need entropy
+        const genericIds = ['unknown', 'item', 'test', 'pharmeco', 'unified', 'sample', 'demo'];
+        const isGenericId = !resolvedId ||
+            resolvedId.length < 5 ||
+            genericIds.includes(resolvedId.toLowerCase());
+
+        if (isGenericId) {
+            // Only generate random ID when truly needed
+            resolvedId = `NGN-${Math.random().toString(16).slice(2, 10).toUpperCase()}`;
+            console.log('[UnifiedDataPipeline] Generated new ID:', resolvedId);
         }
+        // PRESERVE original IDs that look unique (like "pediatric-bow-A1B2")
+        // Do NOT add random suffixes to valid IDs!
         item.id = resolvedId;
 
         // Step 2: Detect and normalize item type

@@ -22,6 +22,7 @@ import { GeneratorWorkflow } from './GeneratorWorkflow';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { StudentDashboard } from '../student/components/dashboard/StudentDashboard';
 import { ItemIngestionService } from '../services/ingestion/ItemIngestionService';
+import { clearShuffleCache } from '../components/item-types/ItemRenderer';
 
 /**
  * MASTER NGN CREATOR ENGINE v2.2
@@ -243,14 +244,37 @@ export const MasterCreatorEngine: React.FC = () => {
         setViewState('generating');
         setProgressMsg(`Validating and Auto-Repairing ${items.length} items...`);
 
+        // Clear any stale shuffle cache to prevent content display issues
+        clearShuffleCache();
+
         try {
-            const ingested = await Promise.all(items.map(async (item) => {
+            // DEBUG: Log raw input items
+            console.log('[handleImportSuccess] Raw input items:', items.map((item, i) => ({
+                index: i,
+                rawId: item.id || item._id,
+                rawPrompt: (item.prompt || item.stem || item.content?.structure?.prompt || '').substring(0, 50),
+                rawType: item.type || item.typeId
+            })));
+
+            const ingested = await Promise.all(items.map(async (item, index) => {
                 // Run through strict Ingestion Service (Normalizes + AI Auto-Fill)
                 const result = await ItemIngestionService.ingest(item);
 
+                // Generate unique ID
+                const finalId = result.id || item.id || (typeof crypto !== 'undefined' ? crypto.randomUUID() : `item_${Date.now()}_${index}_${Math.random()}`);
+
+                // DEBUG: Log each ingested item
+                console.log(`[handleImportSuccess] Item ${index}:`, {
+                    originalId: item.id,
+                    resultId: result.id,
+                    finalId,
+                    promptPreview: (result.prompt || result.stem || result.content?.structure?.prompt || '').substring(0, 50),
+                    type: result.type || result.typeId
+                });
+
                 return {
                     ...result,
-                    id: result.id || item.id || (typeof crypto !== 'undefined' ? crypto.randomUUID() : `item_${Date.now()}_${Math.random()}`),
+                    id: finalId,
                     metadata: {
                         ...result.metadata,
                         createdAt: result.metadata?.createdAt || item.metadata?.createdAt || new Date().toISOString()

@@ -89,6 +89,14 @@ export async function getBankItems(options: ItemQueryOptions = {}): Promise<Pagi
         }
     });
 
+    // DEBUG: Log retrieved items
+    console.log('[getBankItems] Retrieved items:', items.map((item: any, i: number) => ({
+        index: i,
+        id: item?.id,
+        prompt: (item?.prompt || item?.stem || item?.content?.structure?.prompt || '').substring(0, 50),
+        type: item?.type || item?.typeId
+    })));
+
     return {
         items,
         total: count || 0,
@@ -104,6 +112,14 @@ export async function saveItemToBank(item: MasterQuestionItem, userId: string = 
 
 export async function saveBatchToBank(items: MasterQuestionItem[], userId: string = 'system'): Promise<number> {
     if (items.length === 0) return 0;
+
+    // DEBUG: Log items being saved
+    console.log('[saveBatchToBank] Items to save:', items.map((item, i) => ({
+        index: i,
+        id: item.id || (item as any)._id,
+        prompt: ((item as any).prompt || (item as any).stem || (item as any).content?.structure?.prompt || '').substring(0, 50),
+        type: (item as any).type || (item as any).typeId
+    })));
 
     const upsertData = items.map(item => {
         // 1. DUAL-LAYER ID PRESERVATION
