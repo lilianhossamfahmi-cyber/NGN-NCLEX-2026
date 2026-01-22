@@ -155,22 +155,57 @@ Example Output Structure:
         if (!apiKey) throw new Error("Missing AI API Key");
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-        const result = await model.generateContent(prompt);
-        const text = result.response.text();
+        // Use a more capable model list for repairs
+        const candidateModels = [
+            "gemini-2.0-flash",
+            "gemini-1.5-pro",
+            "gemini-1.5-flash",
+            "gemini-pro"
+        ];
 
-        // Sanitize and Parse
-        const cleanJson = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-        try {
-            return JSON.parse(cleanJson);
-        } catch (e) {
-            // Heuristic cleanup if raw JSON parsing fails
-            const start = cleanJson.indexOf('{');
-            const end = cleanJson.lastIndexOf('}');
-            if (start >= 0) return JSON.parse(cleanJson.substring(start, end + 1));
-            throw e;
+        for (const modelName of candidateModels) {
+            try {
+                const model = genAI.getGenerativeModel({ model: modelName });
+                const result = await model.generateContent(prompt);
+                const text = result.response.text();
+
+                // Sanitize and Parse
+                const cleanJson = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+
+                // Aggressive cleaning for partial or dirty JSON
+                let validJsonString = cleanJson;
+                const start = cleanJson.indexOf('{');
+                const end = cleanJson.lastIndexOf('}');
+
+                if (start >= 0 && end > start) {
+                    validJsonString = cleanJson.substring(start, end + 1);
+                }
+
+                try {
+                    return JSON.parse(validJsonString);
+                } catch (e) {
+                    // Try to fix common JSON errors (e.g. trailing commas)
+                    try {
+                        // Simple regex fix for trailing commas before } or ]
+                        const fixed = validJsonString.replace(/,\s*([\]}])/g, '$1');
+                        return JSON.parse(fixed);
+                    } catch (e2) {
+                        console.warn(`[AutoFill] JSON Parse failed for model ${modelName}:`, e);
+                        // Continue to next model if parsing fails
+                        continue;
+                    }
+                }
+            } catch (err: any) {
+                console.warn(`[AutoFill] Model ${modelName} failed:`, err.message);
+                if (err.message.includes('404') || err.message.includes('not found')) {
+                    continue; // Try next model
+                }
+                // If it's a different error, maybe still try next model?
+            }
         }
+
+        throw new Error("All AI models failed to generate valid repair fragment.");
     }
 
     /**
