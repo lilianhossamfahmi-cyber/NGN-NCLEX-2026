@@ -3,6 +3,7 @@ import { ItemManager } from './ItemManager';
 import { AbstractItemManager } from './AbstractItemManager';
 import { BowTieManager } from './BowTieManager';
 import { HighlightManager } from './HighlightManager';
+import { CaseStudyManager } from './CaseStudyManager';
 
 // Placeholder for future managers
 class PlaceholderManager extends AbstractItemManager {
@@ -27,7 +28,7 @@ export class ItemManagerFactory {
         // Phase 2: Managers
         this.register(new BowTieManager());
         this.register(new HighlightManager());
-        // Future: this.register(new CaseStudyManager());
+        this.register(new CaseStudyManager());
     }
 
     static register(manager: ItemManager) {
