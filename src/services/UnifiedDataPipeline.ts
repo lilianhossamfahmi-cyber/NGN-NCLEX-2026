@@ -454,12 +454,17 @@ export class UnifiedDataPipeline {
         cd.historyPhysical = hpSources.find(hp => hp) || "Chief complaint and history documented.";
 
         // ====== RADIOLOGY ======
+        // ====== RADIOLOGY ======
         const radSources = [
             cd.radiology,
-            c.radiology
+            c.radiology,
+            cd.imaging,
+            c.imaging,
+            cd.xray,
+            c.xray
         ];
         const radData = radSources.find(r => r);
-        cd.radiology = Array.isArray(radData) ? radData : (radData ? [radData] : []);
+        cd.radiology = UnifiedDataPipeline.normalizeRadiology(radData);
 
         // ====== SETTING ======
         cd.setting = cd.setting || c.setting || "MedSurg Unit";
@@ -956,6 +961,30 @@ export class UnifiedDataPipeline {
                 rationale: null
             }
         } as any;
+    }
+    private static normalizeRadiology(data: any): any[] {
+        if (!data) return [];
+
+        const arr = Array.isArray(data) ? data : [data];
+
+        return arr.map(item => {
+            if (typeof item === 'string') {
+                return {
+                    study: "Diagnostic Imaging",
+                    findings: item,
+                    impression: "",
+                    date: "Recent"
+                };
+            }
+            return {
+                study: item.study || item.exam || item.type || "Diagnostic Imaging",
+                findings: item.findings || item.result || item.report || item.text || "",
+                impression: item.impression || item.conclusion || "",
+                indication: item.indication || item.reason || "",
+                radiologist: item.radiologist || item.readBy || "",
+                date: item.date || item.time || "Recent"
+            };
+        });
     }
 }
 
