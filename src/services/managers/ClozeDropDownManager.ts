@@ -24,7 +24,7 @@ export class ClozeDropDownManager extends AbstractItemManager {
             foundParsers.push(match[1] || match[2] || match[3]);
         }
 
-        if (!structure.drop downs) structure.dropdowns = {}; // Note space for safety, actually structure usually has 'options' map
+        if (!structure.dropdowns) structure.dropdowns = {}; // Note space for safety, actually structure usually has 'options' map
 
         // Structure for cloze is often: { text: "...", placeholders: { "id": [opt1, opt2] } }
         if (!structure.placeholders) structure.placeholders = {};
