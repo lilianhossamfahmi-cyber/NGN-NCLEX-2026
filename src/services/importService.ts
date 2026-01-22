@@ -9,34 +9,79 @@ export const attemptAiJsonFix = async (malformedInput: string): Promise<{ succes
         return { success: false, error: "AI Fix unavailable: No API Key or AI disabled." };
     }
 
-    try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Use a more capable model list for repairs
+    const candidateModels = [
+        "gemini-2.0-flash",
+        "gemini-1.5-pro",
+        "gemini-1.5-flash",
+        "gemini-pro"
+    ];
 
-        const prompt = `
-        SYSTEM: You are a JSON Repair Robot.
-        The user has provided invalid JSON or text that contains JSON.
-        Your task is to extract the JSON or Array of JSON objects and return it as VALID, STRICT JSON.
+    for (const modelName of candidateModels) {
+        try {
+            const model = genAI.getGenerativeModel({ model: modelName });
 
-        RULES:
-        1. Output ONLY the JSON. No markdown markers (like \`\`\`json), no conversation.
-        2. If the input is a single object, wrap it in an array [].
-        3. Ensure all property names are double-quoted.
-        4. Fix trailing commas or missing brackets.
-        5. If the input describes a question but is not JSON, convert it into a valid JSON object representing the question content.
-        
-        INPUT TO FIX:
-        ${malformedInput.slice(0, 20000)}
-        `;
+            const prompt = `
+            SYSTEM: You are a JSON Repair Robot.
+            The user has provided invalid JSON or text that contains JSON.
+            Your task is to extract the JSON or Array of JSON objects and return it as VALID, STRICT JSON.
 
-        await limiter.checkLimit();
-        const result = await model.generateContent(prompt);
-        const text = result.response.text();
+            RULES:
+            1. Output ONLY the JSON. No markdown markers (like \`\`\`json), no conversation.
+            2. If the input is a single object, wrap it in an array [].
+            3. Ensure all property names are double-quoted.
+            4. Fix trailing commas or missing brackets.
+            5. If the input describes a question but is not JSON, convert it into a valid JSON object representing the question content.
+            
+            INPUT TO FIX:
+            ${malformedInput.slice(0, 20000)}
+            `;
 
-        const clean = text.replace(/```json/g, '').replace(/```/g, '').trim();
-        return parseJsonInput(clean);
-    } catch (e: any) {
-        return { success: false, error: "AI Fix Failed: " + e.message };
+            await limiter.checkLimit();
+            const result = await model.generateContent(prompt);
+            const text = result.response.text();
+
+            const clean = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+            // Aggressive parsing attempt
+            let validJsonString = clean;
+            const start = clean.indexOf('{');
+            const end = clean.lastIndexOf('}');
+
+            // Also check for array wrapping
+            const startArr = clean.indexOf('[');
+            const endArr = clean.lastIndexOf(']');
+
+            // If array markers are wider than object markers, use them
+            if (startArr >= 0 && endArr > startArr && (start === -1 || startArr < start)) {
+                validJsonString = clean.substring(startArr, endArr + 1);
+            } else if (start >= 0 && end > start) {
+                validJsonString = clean.substring(start, end + 1);
+            }
+
+            try {
+                return parseJsonInput(validJsonString);
+            } catch (e) {
+                // Try to fix common JSON errors (e.g. trailing commas)
+                try {
+                    const fixed = validJsonString.replace(/,\s*([\]}])/g, '$1');
+                    return parseJsonInput(fixed);
+                } catch (e2) {
+                    console.warn(`[AiJsonFix] JSON Parse failed for model ${modelName}:`, e);
+                    continue;
+                }
+            }
+
+        } catch (e: any) {
+            console.warn(`[AiJsonFix] Model ${modelName} failed:`, e.message);
+            if (e.message.includes('404') || e.message.includes('not found')) {
+                continue; // Try next model
+            }
+            // Continue to next model on other errors too
+        }
     }
+
+    return { success: false, error: "All AI models failed to repair the JSON." };
 };
 
 /**
