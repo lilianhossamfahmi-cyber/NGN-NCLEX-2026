@@ -1,6 +1,7 @@
 
 import { ItemManager } from './ItemManager';
-import { AbstractItemManager } from './AbstractItemManager'; // Using base class for shared logic
+import { AbstractItemManager } from './AbstractItemManager';
+import { BowTieManager } from './BowTieManager';
 
 // Placeholder for future managers
 class PlaceholderManager extends AbstractItemManager {
@@ -22,9 +23,9 @@ export class ItemManagerFactory {
      * Registers all managers (Run this once at app startup)
      */
     static registerAll() {
-        // Phase 2: We will register actual managers here
-        // this.register(new BowTieManager());
-        // this.register(new CaseStudyManager());
+        // Phase 2: Managers
+        this.register(new BowTieManager());
+        // Future: this.register(new CaseStudyManager());
     }
 
     static register(manager: ItemManager) {
