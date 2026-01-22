@@ -8,6 +8,10 @@ import { TrendManager } from './TrendManager';
 import { CalculationManager } from './CalculationManager';
 import { HotSpotManager } from './HotSpotManager';
 import { MatrixManager } from './MatrixManager';
+import { OrderedResponseManager } from './OrderedResponseManager';
+import { ClozeDropDownManager } from './ClozeDropDownManager';
+import { DropClozeManager } from './DropClozeManager';
+import { MultipleResponseManager } from './MultipleResponseManager';
 
 // Placeholder for future managers
 class PlaceholderManager extends AbstractItemManager {
@@ -39,6 +43,11 @@ export class ItemManagerFactory {
         this.register(new CalculationManager());
         this.register(new HotSpotManager());
         this.register(new MatrixManager());
+
+        this.register(new OrderedResponseManager());
+        this.register(new ClozeDropDownManager());
+        this.register(new DropClozeManager());
+        this.register(new MultipleResponseManager());
     }
 
     static register(manager: ItemManager) {
