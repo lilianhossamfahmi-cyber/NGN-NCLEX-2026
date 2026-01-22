@@ -413,6 +413,7 @@ Before you output, verify:
 ```json
 {
   "type": "case-study",
+  "id": "[FOCUS]-CS-[HEX]",
   "content": {
     "metadata": {
       "title": "Case Study Title Based on Clinical Focus",
@@ -421,55 +422,60 @@ Before you output, verify:
       "targetScore": [SCORE],
       "generator": "Golden NGN v3"
     },
-    "patient": {
-      "name": "Patient Name, Initials",
-      "age": 45,
-      "sex": "Female",
-      "allergies": "NKDA or list",
-      "weightKg": 75,
-      "history": ["Condition 1", "Condition 2"],
-      "homeMeds": [
-        { "name": "Medication", "dose": "10mg", "route": "PO", "frequency": "daily" }
-      ]
-    },
-    "setting": "Emergency Department or Unit Name",
-    "chiefComplaint": "Chief complaint in 1-2 sentences",
-    "vitals": [
-      {
-        "time": "0800",
-        "tempF": "98.6",
-        "hr": 88,
-        "rr": 18,
-        "bp": "120/80",
-        "o2": "98",
-        "o2_device": "Room Air",
-        "pain": 3
-      }
-    ],
-    "labs": [
-      { "test": "WBC", "value": "12.5", "unit": "K/uL", "flag": "H", "reference": "4.5-11.0" }
-    ],
-    "assessmentData": {
-      "screening": {
-        "tool": "PHQ-9 or relevant tool",
-        "score": 15,
-        "interpretation": "Interpretation text"
-      }
+    "clinicalData": {
+      "patientInfo": {
+        "name": "Patient Name, Initials",
+        "age": 45,
+        "gender": "Female",
+        "allergies": "NKDA or list",
+        "weightKg": 75,
+        "history": ["Condition 1", "Condition 2"],
+        "homeMeds": [
+          { "name": "Medication", "dose": "10mg", "route": "PO", "frequency": "daily" }
+        ]
+      },
+      "setting": "Emergency Department or Unit Name",
+      "historyPhysical": {
+          "chiefComplaint": "Chief complaint in 1-2 sentences",
+          "hpi": "...",
+          "physicalExam": { "general": "..." }
+      },
+      "history": [
+          { "time": "0800", "author": "RN Smith", "note": "Note 1..." }
+      ],
+      "vitals": [
+        {
+          "time": "0800",
+          "tempF": "98.6",
+          "hr": 88,
+          "rr": 18,
+          "bp": "120/80",
+          "o2": "98",
+          "o2_device": "Room Air",
+          "pain": 3
+        }
+      ],
+      "labs": [
+        { "test": "WBC", "value": "12.5", "unit": "K/uL", "flag": "H" }
+      ],
+      "orders": [],
+      "radiology": []
     },
     "rationale": {
-      "...full global rationale object matching the schema above..."
+      "coreConcept": "...",
+      "caseSummary": "..."
+    },
+    "structure": {
+      "type": "case-study",
+      "screens": [
+        { "type": "highlight", "rationale": {} },
+        { "type": "matrix", "rationale": {} },
+        { "type": "ordered-response", "rationale": {} },
+        { "type": "bow-tie", "rationale": {} },
+        { "type": "drop-cloze", "rationale": {} },
+        { "type": "multiple-response", "rationale": {} }
+      ]
     }
-  },
-  "structure": {
-    "type": "case-study",
-    "screens": [
-      { "...screen 1 object with type, cjmmStep, prompt, and full rationale..." },
-      { "...screen 2 object..." },
-      { "...screen 3 object..." },
-      { "...screen 4 object..." },
-      { "...screen 5 object..." },
-      { "...screen 6 object..." }
-    ]
   }
 }
 ```

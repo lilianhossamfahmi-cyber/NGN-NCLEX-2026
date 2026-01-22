@@ -117,64 +117,75 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 ```json
 {
   "type": "highlight",
+  "id": "[FOCUS]-HLT-[HEX]",
   "content": {
+    "prompt": "Highlight the findings that require immediate intervention.",
     "metadata": {
+      "title": "[FOCUS] Highlight Scenario",
       "topic": "[FOCUS]",
-      "difficulty": "Moderate", 
+      "difficulty": [LEVEL],
       "clientNeeds": "Physiological Integrity",
       "cjmmStep": "Recognize Cues",
       "targetScore": [SCORE]
     },
-    "patient": { 
-      "name": "Initials", "age": 45, "sex": "Male", "allergies": "NKDA", "weightKg": 90
+    "clinicalData": {
+      "patientInfo": { 
+        "name": "Initials", "age": 45, "gender": "Male", "allergies": "NKDA", "weightKg": 90, "codeStatus": "Full Code"
+      },
+      "setting": "Clinic",
+      "historyPhysical": {
+        "chiefComplaint": "Fever",
+        "hpi": "History...",
+        "pmh": ["..."],
+        "medications": ["..."]
+      },
+      "history": [
+        { "time": "0800", "author": "RN Smith", "note": "Initial assessment..." }
+      ],
+      "vitals": [
+        { "time": "0800", "tempF": "98.6", "hr": 80, "rr": 18, "bp": "120/80", "o2": "98", "o2_device": "RA", "pain": 0 }
+      ],
+      "labs": [],
+      "orders": [],
+      "radiology": []
     },
-    "setting": "Clinic",
-    "chiefComplaint": "Fever",
-    "vitals": [ ... ],
-    "historyPhysical": {
-      "chiefComplaint": "Fever",
-      "hpi": "History...",
-      "pmh": "History...",
-      "allergies": "NKDA",
-      "medications": ["Meds..."],
-      "socialHistory": "Social...",
-      "surgicalHistory": "Surgical..."
+    "rationale": {
+      "coreConcept": "...",
+      "caseSummary": "...",
+      "mnemonic": { "title": "...", "content": "...", "explanation": "..." },
+      "referenceInfo": { "anatomy": "...", "physiology": "...", "pharm": "..." },
+      "difficulty": { "level": [LEVEL], "score": [SCORE], "label": "Recognition" }
     },
-    "labs": [],
-    "orders": [],
-    "nursesNotes": [ ... ],
-    "rationale": { ...full_rationale_object... },
     "structure": {
       "type": "highlight",
-      "prompt": "Highlight the findings that require immediate intervention.",
       "text": "The patient reports <span id='h1'>sudden onset of chest pain</span> and <span id='h2'>shortness of breath</span>. He has a history of <span id='h3'>hypertension</span>. Skin is <span id='h4'>cool and clammy</span>. He requests <span id='h5'>a glass of water</span>.",
       "correct": ["h1", "h2", "h4"],
       "decoys": ["h3", "h5"],
       "tokenMap": {
         "h1": { 
           "isCorrect": true,
-          "whyCorrect": "Sudden chest pain is a cardinal sign of acute myocardial ischemia requiring immediate intervention.",
+          "whyCorrect": "Sudden chest pain is a cardinal sign of acute myocardial ischemia.",
           "whyIncorrect": "N/A"
         },
         "h2": { 
           "isCorrect": true,
-          "whyCorrect": "Shortness of breath indicates respiratory compromise, often seen with cardiac events or pulmonary embolism.",
+          "whyCorrect": "Shortness of breath indicates respiratory compromise.",
           "whyIncorrect": "N/A"
         },
         "h3": { 
           "isCorrect": false,
           "whyCorrect": "N/A",
-          "whyIncorrect": "Hypertension is a chronic historical finding, not an acute assessment finding requiring immediate action."
+          "whyIncorrect": "Hypertension is a chronic historical finding, not acute."
         },
         "h4": { 
           "isCorrect": true,
-          "whyCorrect": "Cool, clammy skin indicates sympathetic activation and poor peripheral perfusion, a sign of shock.",
+          "whyCorrect": "Cool, clammy skin indicates poor peripheral perfusion.",
           "whyIncorrect": "N/A"
         },
         "h5": { 
           "isCorrect": false,
           "whyCorrect": "N/A",
-          "whyIncorrect": "Requesting water is a patient preference, not an assessment finding. Also potentially unsafe if NPO status."
+          "whyIncorrect": "Requesting water is a patient preference, not an assessment finding."
         }
       }
     }

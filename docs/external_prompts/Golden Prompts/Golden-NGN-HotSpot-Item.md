@@ -91,37 +91,48 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 
 ```json
 {
-  "type": "hot_spot",
+  "type": "hot-spot",
+  "id": "[FOCUS]-HOT-[HEX]",
   "content": {
+    "prompt": "Click on the correct location.",
     "metadata": {
+      "title": "[FOCUS] Hot Spot Scenario",
       "topic": "[FOCUS]",
-      "difficulty": "Moderate", 
+      "difficulty": [LEVEL],
       "clientNeeds": "Physiological Integrity",
       "cjmmStep": "Recognize Cues",
       "targetScore": [SCORE]
     },
-    "patient": { 
-      "name": "Initials", "age": 45, "sex": "Male", "allergies": "NKDA", "weightKg": 90
+    "clinicalData": {
+      "patientInfo": { 
+        "name": "Initials", "age": 45, "gender": "Male", "allergies": "NKDA", "weightKg": 90, "codeStatus": "Full Code"
+      },
+      "setting": "Clinic",
+      "historyPhysical": {
+        "chiefComplaint": "Injection",
+        "hpi": "History...",
+        "pmh": ["..."],
+        "medications": ["..."]
+      },
+      "history": [
+        { "time": "0800", "author": "RN Smith", "note": "Initial assessment..." }
+      ],
+      "vitals": [
+        { "time": "0800", "tempF": "98.6", "hr": 80, "rr": 18, "bp": "120/80", "o2": "98", "o2_device": "RA", "pain": 0 }
+      ],
+      "labs": [],
+      "orders": [],
+      "radiology": []
     },
-    "setting": "Clinic",
-    "chiefComplaint": "Injection",
-    "vitals": [ ... ],
-    "historyPhysical": {
-      "chiefComplaint": "Injection",
-      "hpi": "History...",
-      "pmh": "History...",
-      "allergies": "NKDA",
-      "medications": ["Meds..."],
-      "socialHistory": "Social...",
-      "surgicalHistory": "Surgical..."
+    "rationale": {
+      "coreConcept": "...",
+      "caseSummary": "...",
+      "mnemonic": { "title": "...", "content": "...", "explanation": "..." },
+      "referenceInfo": { "anatomy": "Detailed anatomy of the site...", "physiology": "...", "pharm": "..." },
+      "difficulty": { "level": [LEVEL], "score": [SCORE], "label": "Application" }
     },
-    "labs": [],
-    "orders": [],
-    "nursesNotes": [ ... ],
-    "rationale": { ...full_rationale_object... },
     "structure": {
-      "type": "hot_spot",
-      "prompt": "Click on the correct location.",
+      "type": "hot-spot",
       "imageUrl": "https://example.com/image.jpg",
       "imageGenerationPrompt": "Detailed description...",
       "targetArea": {

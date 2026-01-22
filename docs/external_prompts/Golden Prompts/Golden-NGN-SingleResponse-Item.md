@@ -101,36 +101,58 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 ```json
 {
   "type": "single-response",
+  "id": "[FOCUS]-MCQ-[HEX]",
   "content": {
+    "prompt": "Which action is priority?",
     "metadata": {
+      "title": "[FOCUS] Single Response Scenario",
       "topic": "[FOCUS]",
-      "difficulty": "Moderate", 
+      "difficulty": [LEVEL],
       "clientNeeds": "Physiological Integrity",
       "cjmmStep": "Take Action",
       "targetScore": [SCORE]
     },
-    "patient": { 
-      "name": "Initials", "age": 45, "sex": "Female", "allergies": "NKDA", "weightKg": 70
+    "clinicalData": {
+      "patientInfo": { 
+        "name": "Initials", "age": 45, "gender": "Female", "allergies": "NKDA", "weightKg": 70, "codeStatus": "Full Code"
+      },
+      "setting": "Med-Surg",
+      "historyPhysical": {
+        "chiefComplaint": "Concern",
+        "hpi": "History...",
+        "pmh": ["..."],
+        "medications": ["..."]
+      },
+      "history": [
+        { "time": "0800", "author": "RN Smith", "note": "Initial assessment..." }
+      ],
+      "vitals": [
+        { "time": "0800", "tempF": "98.6", "hr": 80, "rr": 18, "bp": "120/80", "o2": "98", "o2_device": "RA", "pain": 0 }
+      ],
+      "labs": [],
+      "orders": [],
+      "radiology": []
     },
-    "setting": "Med-Surg",
-    "chiefComplaint": "Concern",
-    "vitals": [ ... ],
-    "historyPhysical": {
-      "chiefComplaint": "Concern",
-      "hpi": "History...",
-      "pmh": "History...",
-      "allergies": "NKDA",
-      "medications": ["Meds..."],
-      "socialHistory": "Social...",
-      "surgicalHistory": "Surgical..."
+    "rationale": {
+      "coreConcept": "...",
+      "caseSummary": "...",
+      "answerAnalysis": "Why Option A is correct...",
+      "trap": "...",
+      "goldenRule": "...",
+      "mnemonic": { "title": "...", "content": "...", "explanation": "..." },
+      "referenceInfo": {
+          "anatomy": "...",
+          "physiology": "...",
+          "pharm": "..."
+      },
+      "difficulty": {
+          "level": [LEVEL],
+          "score": [SCORE],
+          "label": "Application"
+      }
     },
-    "labs": [],
-    "orders": [],
-    "nursesNotes": [ ... ],
-    "rationale": { ...full_rationale_object... },
     "structure": {
       "type": "single-response",
-      "prompt": "Which action is priority?",
       "options": [
         { "id": "o1", "text": "Correct Option", "isCorrect": true, "rationale": "High priority because..." },
         { "id": "o2", "text": "Distractor 1", "isCorrect": false, "rationale": "Lower priority" },

@@ -97,34 +97,42 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 ```json
 {
   "type": "trend",
+  "id": "[FOCUS]-TRD-[HEX]",
   "content": {
+    "prompt": "Review the trend data. Which findings correspond to the client's condition?",
     "metadata": {
+      "title": "[FOCUS] Trend Scenario",
       "topic": "[FOCUS]",
-      "difficulty": "Hard", 
+      "difficulty": [LEVEL],
       "clientNeeds": "Physiological Integrity",
       "cjmmStep": "Analyze Cues",
       "targetScore": [SCORE]
     },
-    "patient": { 
-      "name": "Initials", "age": 60, "sex": "Female", "allergies": "NKDA", "weightKg": 70
+    "clinicalData": {
+      "patientInfo": { 
+        "name": "Initials", "age": 60, "gender": "Female", "allergies": "NKDA", "weightKg": 70, "codeStatus": "Full Code"
+      },
+      "setting": "Step-down Unit",
+      "historyPhysical": {
+        "chiefComplaint": "Shortness of breath",
+        "hpi": "History...",
+        "pmh": ["..."],
+        "medications": ["..."]
+      },
+      "history": [
+        { "time": "0800", "author": "RN Smith", "note": "Initial assessment..." }
+      ],
+      "vitals": [
+        { "time": "0800", "tempF": "99.0", "hr": 88, "rr": 18, "bp": "120/80", "o2": "98", "o2_device": "RA", "pain": 2 },
+        { "time": "0900", "tempF": "100.5", "hr": 102, "rr": 22, "bp": "110/70", "o2": "94", "o2_device": "2L NC", "pain": 4 },
+        { "time": "1000", "tempF": "102.1", "hr": 118, "rr": 26, "bp": "90/58", "o2": "90", "o2_device": "4L NC", "pain": 6 }
+      ],
+      "labs": [
+        { "test": "WBC", "value": "12.5", "flag": "H", "ref": "4.5-11.0", "unit": "10^3/uL" }
+      ],
+      "orders": [],
+      "radiology": []
     },
-    "setting": "Step-down Unit",
-    "chiefComplaint": "Shortness of breath",
-    "vitals": [ ...THREE TIME POINTS... ],
-    "historyPhysical": {
-      "chiefComplaint": "Shortness of breath",
-      "hpi": "History...",
-      "pmh": "History...",
-      "allergies": "NKDA",
-      "medications": ["Meds..."],
-      "socialHistory": "Social...",
-      "surgicalHistory": "Surgical..."
-    },
-    "labs": [
-        { "test": "WBC", "value": "12.5", "flag": "H", "reference": "4.5-11.0", "unit": "10^3/uL" }
-    ],
-    "orders": [],
-    "nursesNotes": [ ... ],
     "rationale": { 
       "general": "Detailed explanation of the trend significance...",
       "pathophysiology": "Deep dive into the physiological mechanism driving the trend.",
@@ -134,16 +142,25 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
         "title": "ACRONYM_NAME (e.g., MONA, FAST, FACES)",
         "content": "Letter-by-letter breakdown of the mnemonic",
         "explanation": "How this mnemonic helps in clinical decision-making"
+      },
+      "referenceInfo": {
+          "anatomy": "...",
+          "physiology": "...",
+          "pharm": "..."
+      },
+      "difficulty": {
+          "level": [LEVEL],
+          "score": [SCORE],
+          "label": "Analysis"
       }
     },
     "structure": {
       "type": "trend",
-      "prompt": "Review the trend data. Which findings correspond to the client's condition?",
       "questionFormat": "sata",
       "options": [
-        { "id": "o1", "text": "Hypotension", "isCorrect": true, "rationale": "consistent with trend" },
-        { "id": "o2", "text": "Bradycardia", "isCorrect": false, "rationale": "trend shows tachycardia" },
-        { "id": "o3", "text": "Hypoxia", "isCorrect": true, "rationale": "O2 dropped" }
+        { "id": "o1", "text": "Hypotension", "isCorrect": true, "rationale": "consistent with trend (BP 120->110->90)" },
+        { "id": "o2", "text": "Bradycardia", "isCorrect": false, "rationale": "trend shows tachycardia (88->102->118)" },
+        { "id": "o3", "text": "Hypoxia", "isCorrect": true, "rationale": "O2 dropped (98->94->90)" }
       ]
     }
   }

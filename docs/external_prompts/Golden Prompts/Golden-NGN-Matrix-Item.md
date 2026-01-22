@@ -103,34 +103,41 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 ```json
 {
   "type": "matrix",
+  "id": "[FOCUS]-MTX-[HEX]",
   "content": {
+    "prompt": "For each finding below, click to specify if the finding is consistent with [Condition A], [Condition B], or [Condition C].",
     "metadata": {
+      "title": "[FOCUS] Matrix Scenario",
       "topic": "[FOCUS]",
-      "difficulty": "Hard", 
+      "difficulty": [LEVEL],
       "clientNeeds": "Safe and Effective Care Environment",
       "cjmmStep": "Analyze Cues",
       "targetScore": [SCORE]
     },
-    "patient": { 
-      "name": "Initials", "age": 65, "sex": "Male", "allergies": "NKDA", "weightKg": 80
+    "clinicalData": {
+      "patientInfo": { 
+        "name": "Initials", "age": 65, "gender": "Male", "allergies": "NKDA", "weightKg": 80, "codeStatus": "Full Code"
+      },
+      "setting": "ICU/ER/MedSurg",
+      "historyPhysical": {
+        "chiefComplaint": "Patient's main concern",
+        "hpi": "History of Present Illness details...",
+        "pmh": ["..."],
+        "medications": ["..."]
+      },
+      "history": [
+        { "time": "0800", "author": "RN Smith", "note": "Initial assessment shows..." },
+        { "time": "0815", "author": "RN Smith", "note": "Patient status deteriorating..." }
+      ],
+      "vitals": [
+        { "time": "0800", "tempF": "101.5", "hr": 115, "rr": 24, "bp": "88/52", "o2": "92", "o2_device": "4L NC", "pain": 7 }
+      ],
+      "labs": [
+        { "test": "Creatinine", "value": "1.8", "flag": "H", "ref": "0.6-1.2", "unit": "mg/dL" }
+      ],
+      "orders": [],
+      "radiology": []
     },
-    "setting": "ICU",
-    "chiefComplaint": "Dyspnea",
-    "vitals": [ ... ],
-    "historyPhysical": {
-      "chiefComplaint": "Patient's main concern",
-      "hpi": "History of Present Illness details...",
-      "pmh": "History of...",
-      "allergies": "NKDA",
-      "medications": ["Meds..."],
-      "socialHistory": "Social...",
-      "surgicalHistory": "Surgical..."
-    },
-    "labs": [
-        { "test": "Creatinine", "value": "1.8", "flag": "H", "reference": "0.6-1.2", "unit": "mg/dL" }
-    ],
-    "orders": [],
-    "nursesNotes": [ ... ],
     "rationale": { 
       "general": "Detailed explanation of the matrix categories...",
       "pathophysiology": "Deep dive into the mechanism distinguishing the conditions.",
@@ -140,11 +147,20 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
         "title": "ACRONYM_NAME (e.g., MONA, FAST, FACES)",
         "content": "Letter-by-letter breakdown of the mnemonic",
         "explanation": "How this mnemonic helps in clinical decision-making"
+      },
+      "referenceInfo": {
+          "anatomy": "...",
+          "physiology": "...",
+          "pharm": "..."
+      },
+      "difficulty": {
+          "level": [LEVEL],
+          "score": [SCORE],
+          "label": "Analysis"
       }
     },
     "structure": {
       "type": "matrix",
-      "prompt": "For each finding, indicate if it is consistent with [Column 1] or [Column 2].",
       "columns": [
         { "id": "c1", "text": "Condition A" },
         { "id": "c2", "text": "Condition B" }

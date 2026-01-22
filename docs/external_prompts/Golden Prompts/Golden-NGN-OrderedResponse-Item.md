@@ -101,40 +101,51 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 ```json
 {
   "type": "ordered-response",
+  "id": "[FOCUS]-ORD-[HEX]",
   "content": {
+    "prompt": "Drag steps into correct order.",
     "metadata": {
+      "title": "[FOCUS] Ordered Response Scenario",
       "topic": "[FOCUS]",
-      "difficulty": "Moderate", 
+      "difficulty": [LEVEL],
       "clientNeeds": "Safe and Effective Care Environment",
       "cjmmStep": "Take Action",
       "targetScore": [SCORE]
     },
-    "patient": { 
-      "name": "Initials", "age": 45, "sex": "Male", "allergies": "NKDA", "weightKg": 90
+    "clinicalData": {
+      "patientInfo": { 
+        "name": "Initials", "age": 45, "gender": "Male", "allergies": "NKDA", "weightKg": 90, "codeStatus": "Full Code"
+      },
+      "setting": "Clinic",
+      "historyPhysical": {
+        "chiefComplaint": "Procedure",
+        "hpi": "History...",
+        "pmh": ["..."],
+        "medications": ["..."]
+      },
+      "history": [
+        { "time": "0800", "author": "RN Smith", "note": "Initial assessment..." }
+      ],
+      "vitals": [
+        { "time": "0800", "tempF": "98.6", "hr": 80, "rr": 18, "bp": "120/80", "o2": "98", "o2_device": "RA", "pain": 0 }
+      ],
+      "labs": [],
+      "orders": [],
+      "radiology": []
     },
-    "setting": "Clinic",
-    "chiefComplaint": "Procedure",
-    "vitals": [ ... ],
-    "historyPhysical": {
-      "chiefComplaint": "Procedure",
-      "hpi": "History...",
-      "pmh": "History...",
-      "allergies": "NKDA",
-      "medications": ["Meds..."],
-      "socialHistory": "Social...",
-      "surgicalHistory": "Surgical..."
+    "rationale": {
+      "coreConcept": "...",
+      "caseSummary": "...",
+      "mnemonic": { "title": "...", "content": "...", "explanation": "..." },
+      "referenceInfo": { "anatomy": "...", "physiology": "...", "pharm": "..." },
+      "difficulty": { "level": [LEVEL], "score": [SCORE], "label": "Application" }
     },
-    "labs": [],
-    "orders": [],
-    "nursesNotes": [ ... ],
-    "rationale": { ...full_rationale_object... },
     "structure": {
       "type": "ordered-response",
-      "prompt": "Drag steps into order.",
       "orderedOptions": [
-        { "id": "step1", "text": "First Action", "rationale": "Critical first step to establish safety..." },
-        { "id": "step2", "text": "Second Action", "rationale": "Must follow step 1 because..." },
-        { "id": "step3", "text": "Third Action", "rationale": "Final step to verify..." }
+        { "id": "step1", "text": "First Action", "rationale": "Critical first step..." },
+        { "id": "step2", "text": "Second Action", "rationale": "Must follow step 1..." },
+        { "id": "step3", "text": "Third Action", "rationale": "Final step..." }
       ]
     }
   }

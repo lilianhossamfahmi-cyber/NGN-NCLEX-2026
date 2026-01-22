@@ -101,37 +101,48 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 
 ```json
 {
-  "type": "multiple_response",
+  "type": "multiple-response",
+  "id": "[FOCUS]-SATA-[HEX]",
   "content": {
+    "prompt": "Select all that apply.",
     "metadata": {
+      "title": "[FOCUS] SATA Scenario",
       "topic": "[FOCUS]",
-      "difficulty": "Hard", 
+      "difficulty": [LEVEL],
       "clientNeeds": "Physiological Integrity",
       "cjmmStep": "Obtain Information",
       "targetScore": [SCORE]
     },
-    "patient": { 
-      "name": "Initials", "age": 45, "sex": "Male", "allergies": "NKDA", "weightKg": 90
+    "clinicalData": {
+      "patientInfo": { 
+        "name": "Initials", "age": 45, "gender": "Male", "allergies": "NKDA", "weightKg": 90, "codeStatus": "Full Code"
+      },
+      "setting": "Clinic",
+      "historyPhysical": {
+        "chiefComplaint": "Symptoms",
+        "hpi": "History...",
+        "pmh": ["..."],
+        "medications": ["..."]
+      },
+      "history": [
+        { "time": "0800", "author": "RN Smith", "note": "Initial assessment..." }
+      ],
+      "vitals": [
+        { "time": "0800", "tempF": "98.6", "hr": 80, "rr": 18, "bp": "120/80", "o2": "98", "o2_device": "RA", "pain": 0 }
+      ],
+      "labs": [],
+      "orders": [],
+      "radiology": []
     },
-    "setting": "Clinic",
-    "chiefComplaint": "Symptoms",
-    "vitals": [ ... ],
-    "historyPhysical": {
-      "chiefComplaint": "Symptoms",
-      "hpi": "History...",
-      "pmh": "History...",
-      "allergies": "NKDA",
-      "medications": ["Meds..."],
-      "socialHistory": "Social...",
-      "surgicalHistory": "Surgical..."
+    "rationale": {
+      "coreConcept": "...",
+      "caseSummary": "...",
+      "mnemonic": { "title": "...", "content": "...", "explanation": "..." },
+      "referenceInfo": { "anatomy": "...", "physiology": "...", "pharm": "..." },
+      "difficulty": { "level": [LEVEL], "score": [SCORE], "label": "Analysis" }
     },
-    "labs": [],
-    "orders": [],
-    "nursesNotes": [ ... ],
-    "rationale": { ...full_rationale_object... },
     "structure": {
-      "type": "multiple_response",
-      "prompt": "Select all that apply.",
+      "type": "multiple-response",
       "options": [
         { "id": "o1", "text": "Correct Option", "isCorrect": true, "rationale": "Why correct" },
         { "id": "o2", "text": "Incorrect Option", "isCorrect": false, "rationale": "Why incorrect" }

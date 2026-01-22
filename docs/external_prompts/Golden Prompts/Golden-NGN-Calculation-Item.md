@@ -203,50 +203,75 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 ```json
 {
   "type": "calculation",
+  "id": "[FOCUS]-CALC-[HEX]",
   "content": {
+    "prompt": "Based on the provider's order for [Drug] and the client's weight, calculate the infusion rate in mL/hr. Round to the nearest whole number.",
     "metadata": {
+      "title": "[FOCUS] Calculation Scenario",
       "topic": "[FOCUS]",
-      "difficulty": "Hard", 
+      "difficulty": [LEVEL],
       "clientNeeds": "Physiological Integrity",
       "cjmmStep": "Take Action",
       "targetScore": [SCORE]
     },
-    "patient": {
-      "name": "J.D.",
-      "age": 45,
-      "gender": "M",
-      "allergies": "Penicillin",
-      "codeStatus": "Full Code"
+    "clinicalData": {
+      "patientInfo": {
+        "name": "J.D.",
+        "age": 45,
+        "gender": "M",
+        "allergies": "Penicillin",
+        "weightKg": 70,
+        "codeStatus": "Full Code"
+      },
+      "setting": "Pediatric Unit",
+      "historyPhysical": {
+        "chiefComplaint": "Reason...",
+        "hpi": "History...",
+        "pmh": ["..."],
+        "medications": ["..."]
+      },
+      "history": [
+        { "time": "0800", "author": "RN Peds", "note": "Child taking liquids well..." }
+      ],
+      "vitals": [
+        { "time": "0800", "tempF": "98.6", "hr": 110, "rr": 22, "bp": "100/60", "o2": "98", "o2_device": "RA", "pain": 2 }
+      ],
+      "labs": [],
+      "orders": [
+        { "drug": "Drug X", "dose": "20 mg/kg", "route": "IV", "freq": "q8h" }
+      ],
+      "radiology": []
     },
-    "nursesNotes": [
-      { "time": "0800", "author": "RN Peds", "entry": "Child taking liquids well..." }
-    ],
-    "vitalSigns": [],
-    "orders": [],
-    "historyPhysical": {
-      "chiefComplaint": "Reason...",
-      "hpi": "History...",
-      "pmh": "History...",
-      "allergies": "Penicillin",
-      "medications": ["Meds..."],
-      "socialHistory": "Social...",
-      "surgicalHistory": "Surgical..."
+    "rationale": {
+      "coreConcept": "Weight-based dosing...",
+      "caseSummary": "Child requires antibiotic...",
+      "answerAnalysis": "### ✅ CORRECT RESULT: 125 mL/hr...",
+      "trap": "Forgetting to convert lbs to kg",
+      "goldenRule": "Always verified weight in kg first.",
+      "formulaMethod": "D/H * Q = X...",
+      "dimensionalAnalysis": "...",
+      "mnemonic": {
+        "title": "ACRONYM",
+        "content": "...",
+        "explanation": "..."
+      },
+      "referenceInfo": {
+          "anatomy": "N/A",
+          "physiology": "...",
+          "pharm": "..."
+      },
+      "difficulty": {
+          "level": [LEVEL],
+          "score": [SCORE],
+          "label": "Application"
+      }
     },
-    "laboratory": [],
-    "radiology": [],
-  "rationale": {
-    "general": "Core concept explanation...",
-    "pathophysiology": "Mechanism...",
-    "safetyCheck": "Safety Warning...",
-    "formulaMethod": "Formula...",
-    "dimensionalAnalysis": "DA..."
-  },
-  "structure": {
-    "type": "calculation",
-    "prompt": "Based on the order...",
-    "correctValue": 125,
-    "units": "mL/hr",
-    "acceptableRange": [124, 126]
+    "structure": {
+      "type": "calculation",
+      "correctValue": 125,
+      "units": "mL/hr",
+      "acceptableRange": [124, 126]
+    }
   }
 }
 ```

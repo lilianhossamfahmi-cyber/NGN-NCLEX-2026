@@ -130,70 +130,85 @@ Rationale MUST be an object with these 4 keys: `general`, `pathophysiology`, `sa
 ```json
 {
   "type": "bow-tie",
-  "prompt": "Read the case study and complete the diagram by selecting the most appropriate Condition, Actions (2), and Parameters (2).",
-  "metadata": {
+  "id": "[FOCUS]-BOW-[HEX]",
+  "content": {
+    "prompt": "Read the case study and complete the diagram by selecting the most appropriate Condition, Actions (2), and Parameters (2).",
+    "metadata": {
+      "title": "[FOCUS] Bow-Tie Scenario",
       "topic": "[FOCUS]",
       "difficulty": [LEVEL],
       "clientNeeds": "Physiological Integrity",
       "cjmmStep": "Generate Solutions",
       "targetScore": [SCORE]
-  },
-  "content": {
-    "patient": {
-      "name": "Initials", "age": 50, "gender": "Male", "allergies": "NKDA", "weightKg": 80, "codeStatus": "Full Code"
     },
-    "setting": "ICU/ER/MedSurg",
-    "historyPhysical": {
-        "chiefComplaint": "...",
-        "hpi": "...",
-        "pmh": ["..."],
-        "medications": ["..."]
+    "clinicalData": {
+      "patientInfo": {
+        "name": "Initials", "age": 50, "gender": "Male", "allergies": "NKDA", "weightKg": 80, "codeStatus": "Full Code"
+      },
+      "setting": "ICU/ER/MedSurg",
+      "historyPhysical": {
+          "chiefComplaint": "...",
+          "hpi": "...",
+          "pmh": ["..."],
+          "medications": ["..."]
+      },
+      "history": [
+          { "time": "0800", "author": "RN Smith", "note": "Note 1..." },
+          { "time": "0815", "author": "RN Smith", "note": "Note 2..." }
+      ],
+      "vitals": [
+          { "time": "0800", "tempF": "...", "hr": 0, "rr": 0, "bp": "...", "o2": "...", "o2_device": "...", "pain": 0 }
+      ],
+      "labs": [
+          { "test": "WBC", "value": "12.5", "flag": "H", "ref": "4.5-11.0", "unit": "10^3/uL" }
+      ],
+      "orders": [],
+      "radiology": []
     },
-    "nursesNotes": [
-        { "time": "0800", "author": "RN Smith", "entry": "Note 1..." },
-        { "time": "0815", "author": "RN Smith", "entry": "Note 2..." }
-    ],
-    "vitalSigns": [
-        { "time": "0800", "tempF": "...", "hr": 0, "rr": 0, "bp": "...", "o2": "...", "o2_device": "...", "pain": 0 }
-    ],
-    "laboratory": [
-        { "test": "WBC", "value": "12.5", "flag": "H", "reference": "4.5-11.0", "unit": "10^3/uL", "date": "Today" }
-    ],
-    "orders": [],
-    "radiology": []
-  },
-  "rationale": {
-    "general": "Detailed explanation of the condition and why it fits the cues...",
-    "pathophysiology": "Deep dive into the mechanism (The 'Why'). Explain the disease process step-by-step.",
-    "safetyCheck": "Critical safety warnings and immediate life-saving considerations.",
-    "clinicalTakeaway": "Key teaching point for future practice. What must the nurse 'Understand' forever?",
-    "mnemonic": {
-      "title": "ACRONYM_NAME (e.g., SCORTEN, CRUSH, MONA)",
-      "content": "Letter-by-letter breakdown of the mnemonic",
-      "explanation": "How this mnemonic helps in clinical decision-making for this specific condition"
+    "rationale": {
+      "general": "Detailed explanation of the condition and why it fits the cues...",
+      "pathophysiology": "Deep dive into the mechanism (The 'Why'). Explain the disease process step-by-step.",
+      "safetyCheck": "Critical safety warnings and immediate life-saving considerations.",
+      "clinicalTakeaway": "Key teaching point for future practice. What must the nurse 'Understand' forever?",
+      "mnemonic": {
+        "title": "ACRONYM_NAME (e.g., SCORTEN, CRUSH, MONA)",
+        "content": "Letter-by-letter breakdown of the mnemonic",
+        "explanation": "How this mnemonic helps in clinical decision-making for this specific condition"
+      },
+      "referenceInfo": {
+          "anatomy": "...",
+          "physiology": "...",
+          "pharm": "..."
+      },
+      "difficulty": {
+          "level": [LEVEL],
+          "score": [SCORE],
+          "label": "Analysis/Application"
+      }
+    },
+    "structure": {
+      "type": "bow-tie",
+      "actions": [
+        { "id": "a1", "text": "Correct Action 1", "isCorrect": true },
+        { "id": "a2", "text": "Correct Action 2", "isCorrect": true },
+        { "id": "a3", "text": "Distractor 1", "isCorrect": false },
+        { "id": "a4", "text": "Distractor 2", "isCorrect": false },
+        { "id": "a5", "text": "Distractor 3", "isCorrect": false }
+      ],
+      "conditions": [
+        { "id": "c1", "text": "Correct Condition", "isCorrect": true },
+        { "id": "c2", "text": "Distractor 1", "isCorrect": false },
+        { "id": "c3", "text": "Distractor 2", "isCorrect": false },
+        { "id": "c4", "text": "Distractor 3", "isCorrect": false }
+      ],
+      "parameters": [
+        { "id": "p1", "text": "Correct Parameter 1", "isCorrect": true },
+        { "id": "p2", "text": "Correct Parameter 2", "isCorrect": true },
+        { "id": "p3", "text": "Distractor 1", "isCorrect": false },
+        { "id": "p4", "text": "Distractor 2", "isCorrect": false },
+        { "id": "p5", "text": "Distractor 3", "isCorrect": false }
+      ]
     }
-  },
-  "structure": {
-    "actions": [
-      { "id": "a1", "text": "Correct Action 1", "isCorrect": true },
-      { "id": "a2", "text": "Correct Action 2", "isCorrect": true },
-      { "id": "a3", "text": "Distractor 1", "isCorrect": false },
-      { "id": "a4", "text": "Distractor 2", "isCorrect": false },
-      { "id": "a5", "text": "Distractor 3", "isCorrect": false }
-    ],
-    "conditions": [
-      { "id": "c1", "text": "Correct Condition", "isCorrect": true },
-      { "id": "c2", "text": "Distractor 1", "isCorrect": false },
-      { "id": "c3", "text": "Distractor 2", "isCorrect": false },
-      { "id": "c4", "text": "Distractor 3", "isCorrect": false }
-    ],
-    "parameters": [
-      { "id": "p1", "text": "Correct Parameter 1", "isCorrect": true },
-      { "id": "p2", "text": "Correct Parameter 2", "isCorrect": true },
-      { "id": "p3", "text": "Distractor 1", "isCorrect": false },
-      { "id": "p4", "text": "Distractor 2", "isCorrect": false },
-      { "id": "p5", "text": "Distractor 3", "isCorrect": false }
-    ]
   }
 }
 ```

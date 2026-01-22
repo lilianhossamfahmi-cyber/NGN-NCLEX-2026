@@ -114,36 +114,47 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 ```json
 {
   "type": "drop-cloze",
+  "id": "[FOCUS]-CLZ-[HEX]",
   "content": {
+    "prompt": "Complete the sentence by selecting the correct options.",
     "metadata": {
+      "title": "[FOCUS] Drop-Cloze Scenario",
       "topic": "[FOCUS]",
-      "difficulty": "Hard", 
+      "difficulty": [LEVEL],
       "clientNeeds": "Physiological Integrity",
       "cjmmStep": "Take Action",
       "targetScore": [SCORE]
     },
-    "patient": { 
-      "name": "Initials", "age": 45, "sex": "Male", "allergies": "NKDA", "weightKg": 90
+    "clinicalData": {
+      "patientInfo": { 
+        "name": "Initials", "age": 45, "gender": "Male", "allergies": "NKDA", "weightKg": 90, "codeStatus": "Full Code"
+      },
+      "setting": "Med-Surg",
+      "historyPhysical": {
+        "chiefComplaint": "Hyperglycemia",
+        "hpi": "History of Present Illness details...",
+        "pmh": ["Hypertension", "T2DM"],
+        "medications": ["Metformin", "Lisinopril"]
+      },
+      "history": [
+        { "time": "0800", "author": "RN Smith", "note": "Initial assessment..." }
+      ],
+      "vitals": [
+        { "time": "0800", "tempF": "98.6", "hr": 80, "rr": 18, "bp": "120/80", "o2": "98", "o2_device": "RA", "pain": 0 }
+      ],
+      "labs": [],
+      "orders": [],
+      "radiology": []
     },
-    "setting": "Med-Surg",
-    "chiefComplaint": "Hyperglycemia",
-    "vitals": [ ... ],
-    "historyPhysical": {
-      "chiefComplaint": "Patient's main concern",
-      "hpi": "History of Present Illness details...",
-      "pmh": "Hypertension, T2DM...",
-      "allergies": "NKDA",
-      "medications": ["Metformin", "Lisinopril"],
-      "socialHistory": "Non-smoker",
-      "surgicalHistory": "Appendectomy (2010)"
+    "rationale": {
+      "coreConcept": "...",
+      "caseSummary": "...",
+      "mnemonic": { "title": "...", "content": "...", "explanation": "..." },
+      "referenceInfo": { "anatomy": "...", "physiology": "...", "pharm": "..." },
+      "difficulty": { "level": [LEVEL], "score": [SCORE], "label": "Analysis" }
     },
-    "labs": [],
-    "orders": [],
-    "nursesNotes": [ ... ],
-    "rationale": { ...full_rationale_object... },
     "structure": {
       "type": "drop-cloze",
-      "prompt": "Complete the sentence.",
       "text": "The nurse should administer %{d1} because the onset is %{d2} minutes.",
       "dropdowns": [
         { 
@@ -164,16 +175,16 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
       "blankMap": {
         "d1": {
           "correctOptionId": "o1",
-          "whyCorrect": "Oral glucose gel is first-line treatment for conscious hypoglycemic patients who can swallow. It is rapidly absorbed through the buccal mucosa.",
+          "whyCorrect": "Oral glucose gel is first-line treatment for conscious hypoglycemic patients.",
           "distractorRationales": {
-            "o2": "D50W IV push requires IV access and is reserved for patients with altered consciousness or inability to swallow safely."
+            "o2": "D50W IV push requires IV access and is reserved for altered consciousness."
           }
         },
         "d2": {
           "correctOptionId": "o3",
-          "whyCorrect": "Oral glucose gel has an onset of approximately 15 minutes due to rapid buccal absorption.",
+          "whyCorrect": "Oral glucose gel has an onset of approximately 15 minutes.",
           "distractorRationales": {
-            "o4": "60 minutes is incorrect - this would be too slow to correct acute hypoglycemia and represents food absorption time, not glucose gel."
+            "o4": "60 minutes is too slow for acute hypoglycemia."
           }
         }
       }
