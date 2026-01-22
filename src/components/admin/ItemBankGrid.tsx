@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { MasterQuestionItem } from '../../types/master-schema';
-import { getBankItems, deleteItemFromBank, saveItemToBank, updateItem, deleteBatchFromBank } from '../../services/itemApiService';
+import { getBankItems, deleteItemFromBank, saveItemToBank, updateItem, deleteBatchFromBank, repairAllItemsInBank } from '../../services/itemApiService';
 import { syncItemToSupabase } from '../../services/itemSyncService';
 import { enrichItemWithQuality } from '../../utils/autoQuality';
 import { StudentPreviewModal } from '../../components/StudentPreviewModal';
-import { Eye, Copy, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, ArrowUpDown, Zap, RefreshCcw, Trash2, Archive, CheckCircle, Download, Plus, Wand2 } from 'lucide-react';
+import { Eye, Copy, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, ArrowUpDown, Zap, RefreshCcw, Trash2, Archive, CheckCircle, Download, Plus, Wand2, Hammer } from 'lucide-react';
 import { AIBookFixerModal } from './AIBookFixerModal';
 import { AddItemModal } from './AddItemModal';
 
@@ -21,6 +21,26 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
     const [items, setItems] = useState<MasterQuestionItem[]>([]);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [repairing, setRepairing] = useState(false);
+    const [repairProgress, setRepairProgress] = useState({ current: 0, total: 0 });
+
+    const handleRepairBank = async () => {
+        if (!confirm('This will fetch ALL items from society and run them through the new Smart Repair pipeline. This may take a minute. Continue?')) return;
+
+        setRepairing(true);
+        try {
+            const success = await repairAllItemsInBank((current, total) => {
+                setRepairProgress({ current, total });
+            });
+            alert(`✅ Successfully repaired and updated ${success} items in the bank.`);
+            fetchItems();
+        } catch (err) {
+            console.error(err);
+            alert('❌ Bulk repair failed. Check console.');
+        } finally {
+            setRepairing(false);
+        }
+    };
 
     // Selection State
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -339,6 +359,24 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
                     >
                         <RefreshCcw size={18} className={loading ? 'animate-spin' : ''} />
                     </button>
+
+                    <button
+                        onClick={handleRepairBank}
+                        className={`p-2 bg-indigo-50 border border-indigo-200 rounded hover:bg-indigo-100 text-indigo-700 transition-colors flex items-center gap-2 ${repairing ? 'opacity-50' : ''}`}
+                        title="Repair & Migrate All Items"
+                        disabled={repairing}
+                    >
+                        {repairing ? (
+                            <div className="flex items-center gap-2">
+                                <RefreshCcw size={18} className="animate-spin" />
+                                <span className="text-xs font-bold">Repairing {repairProgress.current}/{repairProgress.total}...</span>
+                            </div>
+                        ) : (
+                            <Wand2 size={18} />
+                        )}
+                        {!repairing && <span className="text-sm font-bold">Repair All</span>}
+                    </button>
+
                     <button
                         onClick={() => setShowAddModal(true)}
                         className="p-2 bg-blue-600 border border-blue-700 rounded hover:bg-blue-700 text-white transition-colors flex items-center gap-2 font-bold px-3 shadow-sm"

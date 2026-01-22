@@ -4,7 +4,7 @@ import { Wand2, X, Check, Loader2, AlertCircle, User, FileText, Gauge, Image as 
 import { updateItem } from '../../services/itemApiService';
 import { syncItemToSupabase } from '../../services/itemSyncService';
 import { magicFixItem, magicPlanItem, generateItemImage } from '../../services/geminiService';
-import { ItemIngestionService } from '../../services/ingestion/ItemIngestionService';
+import { UnifiedDataPipeline } from '../../services/UnifiedDataPipeline';
 
 interface MagicFixModalProps {
     item: MasterQuestionItem;
@@ -319,7 +319,7 @@ ${instruction}
         setLoading(true);
         try {
             // Local normalization via Service
-            const normalized = ItemIngestionService.normalize(newItem);
+            const normalized = await UnifiedDataPipeline.transform(newItem);
 
             setNewItem(normalized); // refreshed normalized version
 

@@ -121,14 +121,17 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
         type: (item as any).type || (item as any).typeId
     })));
 
-    const upsertData = items.map(item => {
-        // 1. DUAL-LAYER ID PRESERVATION
-        // Use property 'id' or '_id', or generate a timestamp-based fallback if all fail
+    const upsertData = [];
+    for (const rawItem of items) {
+        // 1. DUAL-LAYER ID PRESERVATION & REPAIR
+        // IMPORTANT: Pass through Pipeline to ensure Managers (Smart Repair) handle it
+        const item = await UnifiedDataPipeline.transform(rawItem);
+
         const rawId = item.id || (item as any)._id || (item as any).item_id;
         const backupId = `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         let finalId = rawId || backupId;
 
-        // Try native crypto if available, but don't crash if not
+        // Try native crypto if available
         try { if (!rawId && typeof crypto !== 'undefined' && crypto.randomUUID) finalId = crypto.randomUUID(); } catch (e) { }
 
         const enriched = enrichItemWithQuality(item);
@@ -139,7 +142,7 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
         const difficultyLevel = pedagogy?.difficultyLevel ?? (item.pedagogy as any)?.difficultyLevel ?? 1;
         const cjmmStep = (pedagogy as any)?.cjmmPhase ?? (metadata as any)?.cjmmStep ?? (item.pedagogy as any)?.cjmmStep ?? 'Analyze Cues';
 
-        let clinicalFocus = pedagogy?.clinicalFocus || (item as any)?.clinical_focus || 'General';
+        let clinicalFocus = pedagogy?.clinicalFocus || (item as any)?.clinical_focus || 'General Nursing';
         if (!clinicalFocus || clinicalFocus === 'General') {
             clinicalFocus = inferTopic(item);
         }
@@ -151,7 +154,7 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
         // 3. SECURE JSON PAYLOAD
         const itemJson = JSON.stringify({ ...enriched, id: finalId });
 
-        return {
+        upsertData.push({
             id: finalId, // PRIMARY KEY - GUARANTEED NON-NULL
             type_id: typeId || item.typeId || 'multiple-choice',
             clinical_focus: clinicalFocus,
@@ -167,8 +170,8 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
             tags: tags,
             allowed_modes: serializeArray((enriched as any).allowed_modes || []) || '[]',
             item_json: itemJson
-        };
-    });
+        });
+    }
 
     const { error } = await supabase
         .from('item_bank')
@@ -220,4 +223,72 @@ export async function clearBank(): Promise<void> {
     if (error) {
         console.error('Supabase clearBank Error:', error);
     }
+}
+
+/**
+ * BULK REPAIR: Migrates all items in the bank through the Unified Data Pipeline
+ * to ensure they follow the latest schemas and clinicalData nesting.
+ */
+import { UnifiedDataPipeline } from './UnifiedDataPipeline';
+
+export async function repairAllItemsInBank(onProgress?: (count: number, total: number) => void): Promise<number> {
+    console.log('🚀 Starting Bulk Bank Repair...');
+    let totalItems: any[] = [];
+    let hasMore = true;
+    let page = 0;
+    const PAGE_SIZE = 100;
+
+    // 1. Fetch ALL raw items from DB
+    while (hasMore) {
+        const { data, error } = await supabase
+            .from('item_bank')
+            .select('*')
+            .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+
+        if (error) throw error;
+        if (!data || data.length === 0) {
+            hasMore = false;
+        } else {
+            totalItems = [...totalItems, ...data];
+            page++;
+            if (data.length < PAGE_SIZE) hasMore = false;
+        }
+    }
+
+    console.log(`📦 Fetched ${totalItems.length} items for repair.`);
+    let successCount = 0;
+    const repairedItems: MasterQuestionItem[] = [];
+
+    // 2. Process through Pipeline
+    for (let i = 0; i < totalItems.length; i++) {
+        try {
+            const rawRow = totalItems[i];
+            const rawJson = typeof rawRow.item_json === 'string' ? JSON.parse(rawRow.item_json) : rawRow.item_json;
+
+            // Critical: Pass through Pipeline
+            const repaired = await UnifiedDataPipeline.transform(rawJson);
+
+            // Preserve original metadata if not overriden
+            repairedItems.push(repaired);
+            successCount++;
+
+            if (onProgress && i % 10 === 0) {
+                onProgress(i + 1, totalItems.length);
+            }
+        } catch (err) {
+            console.error(`❌ Failed to repair item at index ${i}:`, err);
+        }
+    }
+
+    // 3. Batch Save back to DB
+    if (repairedItems.length > 0) {
+        // Save in chunks of 50 to avoid payload limits
+        for (let j = 0; j < repairedItems.length; j += 50) {
+            const chunk = repairedItems.slice(j, j + 50);
+            await saveBatchToBank(chunk);
+            console.log(`✅ Saved chunk ${j / 50 + 1}`);
+        }
+    }
+
+    return successCount;
 }
