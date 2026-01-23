@@ -35,15 +35,7 @@ function inferTopic(item: any): string {
         'baby': 'Pediatrics', 'pediatric': 'Pediatrics', 'child': 'Pediatrics',
         'pregnant': 'Maternal', 'maternity': 'Maternal', 'labor': 'Maternal',
         'drug': 'Pharmacology', 'medication': 'Pharmacology',
-        'mental': 'Mental Health', 'psych': 'Mental Health',
-        'delegation': 'Management of Care', 'prioritization': 'Management of Care', 'informed consent': 'Management of Care',
-        'precaution': 'Safety and Infection Prevention and Control', 'sterile': 'Safety and Infection Prevention and Control', 'safety': 'Safety and Infection Prevention and Control',
-        'screening': 'Health Promotion and Maintenance', 'lifestyle': 'Health Promotion and Maintenance', 'developmental': 'Health Promotion and Maintenance',
-        'coping': 'Psychosocial Integrity', 'abuse': 'Psychosocial Integrity', 'therapeutic communication': 'Psychosocial Integrity',
-        'nutrition': 'Physiological Integrity: Basic Care and Comfort', 'mobility': 'Physiological Integrity: Basic Care and Comfort', 'hygiene': 'Physiological Integrity: Basic Care and Comfort',
-        'dosage': 'Physiological Integrity: Pharmacological and Parenteral Therapies', 'parenteral': 'Physiological Integrity: Pharmacological and Parenteral Therapies', 'blood transfusion': 'Physiological Integrity: Pharmacological and Parenteral Therapies',
-        'lab values': 'Physiological Integrity: Reduction of Risk Potential', 'diagnostic test': 'Physiological Integrity: Reduction of Risk Potential', 'potential for complications': 'Physiological Integrity: Reduction of Risk Potential',
-        'fluid': 'Physiological Integrity: Physiological Adaptation', 'electrolyte': 'Physiological Integrity: Physiological Adaptation', 'pathophysiology': 'Physiological Integrity: Physiological Adaptation', 'medical emergency': 'Physiological Integrity: Physiological Adaptation'
+        'mental': 'Mental Health', 'psych': 'Mental Health'
     };
     for (const [key, topic] of Object.entries(map)) {
         if (text.includes(key)) return topic;
@@ -169,8 +161,8 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
             difficulty_level: difficultyLevel,
             cjmm_step: cjmmStep,
             client_needs: clientNeeds,
-            // Ensure created_at and updated_at reflect the REAL-TIME of insertion in the bank
-            created_at: (item as any).created_at || item.metadata?.createdAt || now,
+            // FIX: Prioritize original creation date from metadata to prevent resetting on repair
+            created_at: item.metadata?.createdAt || (item as any).created_at || now,
             updated_at: now,
             created_by: item.metadata?.authorId || userId || 'system',
             updated_by: userId || 'system',

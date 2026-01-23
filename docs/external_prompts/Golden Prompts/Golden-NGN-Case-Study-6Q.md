@@ -32,7 +32,7 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 ### 2. ID GENERATION & METADATA (CRITICAL)
 - **ID Format:** You MUST generate a root-level `id` using the pattern: `[FOCUS]-[TYPE]-[HEX]`.
   - Example: `"id": "NEURO-CS-99F1"`
-- **Topic Mapping:** Map the [FOCUS] to one of: Cardiology, Respiratory, Neurology, Pediatrics, Pharmacology, Mental Health, Maternal, Leadership, Critical Care, Management of Care, Safety and Infection Prevention and Control, Health Promotion and Maintenance, Psychosocial Integrity, Physiological Integrity: Basic Care and Comfort, Physiological Integrity: Pharmacological and Parenteral Therapies, Physiological Integrity: Reduction of Risk Potential, Physiological Integrity: Physiological Adaptation.
+- **Topic Mapping:** Map the [FOCUS] to one of: Cardiology, Respiratory, etc.
 
 ### 2. ITEM TYPE SEQUENCE (FIXED ORDER)
 You MUST generate exactly 6 screens. Do not skip. Do not reorder.

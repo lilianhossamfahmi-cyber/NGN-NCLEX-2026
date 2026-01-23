@@ -12,26 +12,10 @@ export const TrendRenderer: React.FC<GenericRendererProps> = (props) => {
 
     // Transform Table Data to Chart Data
     const chartData = useMemo(() => {
-        let cols = config.trendTable?.columns;
-        let rows = config.trendTable?.rows;
+        if (!config.trendTable || !config.trendTable.rows || !config.trendTable.columns) return null;
 
-        // Fallback: If trendTable is missing, try to map from clinicalData.vitals
-        if (!rows && config.clinicalData?.vitals) {
-            const vitals = config.clinicalData.vitals;
-            if (Array.isArray(vitals) && vitals.length > 0) {
-                cols = ['Time', 'Temp', 'HR', 'RR', 'BP', 'SpO2'];
-                rows = vitals.map((v: any) => [
-                    v.time || '?',
-                    v.tempF || v.temp || '-',
-                    v.hr || '-',
-                    v.rr || '-',
-                    v.bp || '-',
-                    (v.o2 || v.spo2 || v.spo2Percent || '-')
-                ]);
-            }
-        }
-
-        if (!rows || !cols) return null;
+        const cols = config.trendTable.columns;
+        const rows = config.trendTable.rows;
 
         // Assumption: First column is Time/X-Axis
         return rows.map((row: any[]) => {
@@ -58,7 +42,7 @@ export const TrendRenderer: React.FC<GenericRendererProps> = (props) => {
             }
             return entry;
         });
-    }, [config.trendTable, config.clinicalData]);
+    }, [config.trendTable]);
 
     // Generate Lines dynamically
     const chartLines = useMemo(() => {

@@ -16,34 +16,30 @@ export class TrendManager extends AbstractItemManager {
         if (!item.content) item.content = {};
         const structure = item.content.structure || {};
         const clinicalData = item.content.clinicalData || {};
-        const vitals = clinicalData.vitals || (item.content as any).vitalSigns;
 
         // 1. DATA SOURCE MAPPING: NGN Golden Trend Alignment
-        // Only map if trendTable is missing AND vitals exist
-        if (!structure.trendTable && vitals && Array.isArray(vitals) && vitals.length > 0) {
+        // Check if trend data is at clinicalData.vitals (The NGN Standard)
+        const vitals = clinicalData.vitals || (item.content as any).vitalSigns;
+
+        if (vitals && Array.isArray(vitals) && vitals.length > 0) {
             // Map vitals to 'trendTable' format expected by TrendRenderer.tsx
             const columns = ['Time', 'Temp', 'HR', 'RR', 'BP', 'SpO2'];
-            const rows = vitals.map((v: any) => [
+            const rows = vitals.map(v => [
                 v.time || '?',
                 v.tempF || v.temp || '-',
                 v.hr || '-',
                 v.rr || '-',
                 v.bp || '-',
-                (v.o2 || v.spo2 || v.spo2Percent || '-') + (v.o2_device ? ` (${v.o2_device})` : '')
+                (v.o2 || v.spo2 || '-') + (v.o2_device ? ` (${v.o2_device})` : '')
             ]);
 
             structure.trendTable = { columns, rows };
-            console.log(`[TrendManager] Successfully mapped ${vitals.length} Vitals to TrendTable structure for ${item.id}`);
+            console.log('[TrendManager] Successfully mapped Vitals to TrendTable structure');
         }
 
         // 2. Legacy Support: Ensure Data Array Exists (for Chart-only types)
         if (!structure.data || !Array.isArray(structure.data)) {
-            const legacyData = (structure as any).points || (structure as any).series || [];
-            if (legacyData.length > 0) {
-                structure.data = legacyData;
-            } else {
-                structure.data = [];
-            }
+            structure.data = structure.points || structure.series || [];
         }
 
         // 3. Extrapolate if Sparse (The "Smart Fill" feature)
@@ -122,6 +118,9 @@ export class TrendManager extends AbstractItemManager {
             score = (userIds[0] === correctIds[0]) ? 1 : 0;
         } else {
             // Multi Response Mode (+/- Rules or 0/1 All-or-Nothing?)
+            // For Trend, usually it asks "What is the trend?" (Single) 
+            // OR "Which interventions are appropriate?" (SATA)
+            // We'll use simple match for now.
             userIds.forEach((id: string) => {
                 if (correctIds.includes(id)) score++;
             });

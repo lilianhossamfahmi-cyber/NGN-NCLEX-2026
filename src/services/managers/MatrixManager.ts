@@ -116,7 +116,7 @@ export class MatrixManager extends AbstractItemManager {
             // Loop through all cells in correctKey
             // NOTE: Correct key structure for Matrix varies. Assuming rows have 'correctColIds'
             s.rows.forEach((row: any) => {
-                const correctCols = row.correctColumnIds || row.correctColIds || [];
+                const correctCols = row.correctColIds || [];
                 maxScore += correctCols.length; // Max is sum of correct ticks
 
                 const userSelection = userMap[row.id] || []; // Array of col IDs
@@ -130,7 +130,7 @@ export class MatrixManager extends AbstractItemManager {
         } else {
             // Radio Mode (1 per row)
             s.rows.forEach((row: any) => {
-                const correctCol = row.correctColumnId || row.correctColId; // Single string?
+                const correctCol = row.correctColId; // Single string?
                 if (correctCol) {
                     maxScore++;
                     const userSelection = userMap[row.id]; // String or [String]

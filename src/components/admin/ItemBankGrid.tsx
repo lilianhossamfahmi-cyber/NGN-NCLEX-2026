@@ -4,7 +4,7 @@ import { getBankItems, deleteItemFromBank, saveItemToBank, updateItem, deleteBat
 import { syncItemToSupabase } from '../../services/itemSyncService';
 import { enrichItemWithQuality } from '../../utils/autoQuality';
 import { StudentPreviewModal } from '../../components/StudentPreviewModal';
-import { Eye, Copy, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, ArrowUpDown, Zap, RefreshCcw, Trash2, Archive, CheckCircle, Download, Plus, Wand2 } from 'lucide-react';
+import { Eye, Copy, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, ArrowUpDown, Zap, RefreshCcw, Trash2, Archive, CheckCircle, Download, Plus, Wand2, Hammer } from 'lucide-react';
 import { AIBookFixerModal } from './AIBookFixerModal';
 import { MagicFixModal } from './MagicFixModal';
 import { AddItemModal } from './AddItemModal';
@@ -254,13 +254,7 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
     const TOPIC_OPTIONS = [
         'Cardiology', 'Respiratory', 'Neurology', 'Pediatrics',
         'Pharmacology', 'Mental Health', 'Maternal', 'Critical Care',
-        'Fundamentals', 'Leadership', 'Gastrointestinal', 'Endocrine', 'Renal', 'Musculoskeletal',
-        'Management of Care', 'Safety and Infection Prevention and Control',
-        'Health Promotion and Maintenance', 'Psychosocial Integrity',
-        'Physiological Integrity: Basic Care and Comfort',
-        'Physiological Integrity: Pharmacological and Parenteral Therapies',
-        'Physiological Integrity: Reduction of Risk Potential',
-        'Physiological Integrity: Physiological Adaptation'
+        'Fundamentals', 'Leadership', 'Gastrointestinal', 'Endocrine', 'Renal', 'Musculoskeletal'
     ];
 
     const totalPages = Math.ceil(total / LIMIT);

@@ -42,7 +42,6 @@ export class ClinicalDataStandardizer {
         if (!input) return { age: 'Unknown', gender: 'Unknown', diagnosis: 'Pending' };
 
         return {
-            ...input,
             age: input.age || 'Adult',
             gender: input.gender || input.sex || 'Unknown',
             diagnosis: input.diagnosis || input.condition || 'Under Evaluation',
@@ -53,28 +52,36 @@ export class ClinicalDataStandardizer {
 
     /**
      * Enforces the 4-Pillar Rationale requested by the Expert User
-     * Preserves existing NGN fields (coreConcept, caseSummary, etc)
      */
     private static normalizeRationale(input: any): any {
+        // If it's just a string, we need to (eventually) explode it.
+        // For now, we put the string into 'Clinical Logic' as a fallback.
+        if (typeof input === 'string') {
+            return {
+                clinicalLogic: input,
+                optionReview: "Pending detailed review.",
+                strategy: "Assess then Act.",
+                knowledge: "Review pathophysiology.",
+                general: input // Backwards compatibility for UI
+            };
+        }
+
         if (!input) {
             return {
                 clinicalLogic: "Rationale not provided.",
+                optionReview: "",
+                strategy: "",
+                knowledge: "",
                 general: "Rationale not provided."
             };
         }
 
-        if (typeof input === 'string') {
-            return {
-                clinicalLogic: input,
-                general: input
-            };
-        }
-
-        // Return a merged object to preserve coreConcept, caseSummary, cheatSheet, etc.
         return {
-            ...input,
-            clinicalLogic: input.clinicalLogic || input.general || input.explanation || input.coreConcept || "Detailed logic pending.",
-            general: input.general || input.clinicalLogic || input.coreConcept || ""
+            clinicalLogic: input.clinicalLogic || input.general || input.explanation || "Detailed logic pending.",
+            optionReview: input.optionReview || "",
+            strategy: input.strategy || input.strategies || "",
+            knowledge: input.knowledge || input.keyConcepts || "",
+            general: input.general || input.clinicalLogic || "" // Ensure UI compatibility
         };
     }
 
