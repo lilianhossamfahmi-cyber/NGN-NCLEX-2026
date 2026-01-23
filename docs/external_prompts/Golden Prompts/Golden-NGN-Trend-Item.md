@@ -29,7 +29,7 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 ### 2. ID GENERATION & METADATA (CRITICAL)
 - **ID Format:** You MUST generate a root-level `id` using the pattern: `[FOCUS]-[TYPE]-[HEX]`.
   - Example: `"id": "CRIT-TRD-L2M3"`
-- **Topic Mapping:** Map the [FOCUS] to one of: Critical Care, Cardiology, etc.
+- **Topic Mapping:** Map the [FOCUS] to one of: Critical Care, Cardiology, Respiratory, Neurology, Pediatrics, Pharmacology, Mental Health, Maternal, Leadership, Management of Care, Safety and Infection Prevention and Control, Health Promotion and Maintenance, Psychosocial Integrity, Physiological Integrity: Basic Care and Comfort, Physiological Integrity: Pharmacological and Parenteral Therapies, Physiological Integrity: Reduction of Risk Potential, Physiological Integrity: Physiological Adaptation.
 
 
 ### 2. TREND SPECIFIC RULES

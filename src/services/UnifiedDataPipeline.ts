@@ -178,6 +178,33 @@ export class UnifiedDataPipeline {
     }
 
     /**
+     * Deep Transformation: Performs structural normalization AND deep AI repair/enrichment.
+     */
+    static async deepTransform(raw: any, options?: { autofill?: boolean }): Promise<MasterQuestionItem> {
+        // 1. Initial Standard Transform to get baseline structure
+        const item = await this.transform(raw);
+
+        // 2. Perform Deep Repair via Manager
+        try {
+            ItemManagerFactory.registerAll();
+            const manager = ItemManagerFactory.getManager(item.type);
+            const deeplyRepaired = await manager.deepRepair(item, options);
+
+            // Sync back results
+            if (deeplyRepaired) {
+                if (deeplyRepaired.content) item.content = { ...item.content, ...deeplyRepaired.content };
+                if (deeplyRepaired.metadata) item.metadata = { ...item.metadata, ...deeplyRepaired.metadata };
+                if (deeplyRepaired.pedagogy) item.pedagogy = { ...item.pedagogy, ...deeplyRepaired.pedagogy };
+                if (deeplyRepaired.id) item.id = deeplyRepaired.id;
+            }
+        } catch (error) {
+            console.error('[UnifiedDataPipeline] Deep Transform failed:', error);
+        }
+
+        return item;
+    }
+
+    /**
      * Synchronous fallback (Legacy)
      */
     static transformSync(raw: any): MasterQuestionItem {

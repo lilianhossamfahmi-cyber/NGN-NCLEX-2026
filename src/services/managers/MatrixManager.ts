@@ -15,23 +15,66 @@ export class MatrixManager extends AbstractItemManager {
         if (!item.content) item.content = {};
         const structure = item.content.structure || {};
 
-        // 1. Ensure Defaults
-        if (!structure.rows) structure.rows = [];
-        if (!structure.columns) structure.columns = [];
-        if (!structure.type) structure.type = 'matrix-mr'; // Default to Multiple Response
+        // 1. AI FALLBACK: Map 'options' with 'columns' to 'rows' and 'columns'
+        // This handles items generated with a nested option structure instead of a grid.
+        if ((!structure.rows || structure.rows.length === 0) && (structure as any).options && Array.isArray((structure as any).options)) {
+            const options = (structure as any).options;
 
-        // 2. Fix Header vs Data mismatch
-        // If columns are just strings, map them to objects
-        structure.columns = structure.columns.map((c: any) => {
-            if (typeof c === 'string') return { text: c, id: c.toLowerCase().replace(/\s/g, '_') };
-            return c;
+            // Deduce Columns from first option if missing
+            if ((!structure.columns || structure.columns.length === 0) && options[0]?.columns) {
+                structure.columns = options[0].columns.map((c: any, idx: number) => ({
+                    id: c.id || `c_${idx}`,
+                    label: c.label || c.text || `Col ${idx + 1}`,
+                }));
+            }
+
+            // Deduce Rows
+            structure.rows = options.map((opt: any, idx: number) => {
+                const correctIds = opt.columns
+                    ?.map((c: any, cIdx: number) => c.isCorrect ? (c.id || `c_${cIdx}`) : null)
+                    .filter(Boolean) || [];
+
+                return {
+                    id: opt.id || `r_${idx}`,
+                    text: opt.text || opt.label || `Row ${idx + 1}`,
+                    correctColumnIds: correctIds
+                };
+            });
+
+            // Auto-detect Multiple Response vs Single Choice
+            const hasMultipleCorrect = structure.rows.some((r: any) => r.correctColumnIds && r.correctColumnIds.length > 1);
+            if (hasMultipleCorrect) {
+                structure.type = 'matrix-mr';
+            } else {
+                structure.type = 'matrix-standard';
+            }
+        }
+
+        // 2. Standardize Column Objects
+        structure.columns = (structure.columns || []).map((c: any) => {
+            if (typeof c === 'string') return { label: c, id: c.toLowerCase().replace(/\s/g, '_') };
+            return { ...c, label: c.label || c.text || `Col` };
         });
 
-        // 3. Ensure every row has an ID
-        structure.rows = structure.rows.map((r: any, i: number) => {
-            if (typeof r === 'string') return { text: r, id: `r${i}` };
-            if (!r.id) r.id = `r${i}`;
-            return r;
+        // 3. Standardize Row Objects
+        structure.rows = (structure.rows || []).map((r: any, i: number) => {
+            if (typeof r === 'string') return { text: r, id: `r${i}`, correctColumnIds: [] };
+
+            // Ensure ID and Text
+            const row = {
+                ...r,
+                id: r.id || `r${i}`,
+                text: r.text || r.label || `Row ${i + 1}`
+            };
+
+            // Map correctColId (Single) to correctColumnIds (Array) for consistency
+            if (r.correctColId && (!r.correctColumnIds || r.correctColumnIds.length === 0)) {
+                row.correctColumnIds = [r.correctColId];
+            } else if (!row.correctColumnIds) {
+                row.correctColumnIds = [];
+            }
+
+            return row;
         });
 
         item.content.structure = structure;
@@ -67,7 +110,6 @@ export class MatrixManager extends AbstractItemManager {
 
         let score = 0;
         let maxScore = 0; // Total possible
-        let feedback = "";
 
         if (isMultipleResponse) {
             // +/- Scoring across entire grid

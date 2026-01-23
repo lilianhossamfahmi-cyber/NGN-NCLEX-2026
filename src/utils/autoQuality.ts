@@ -5,54 +5,73 @@ import { MasterQuestionItem } from '../types/master-schema.ts';
  */
 function runCriticalChecks(item: MasterQuestionItem): string[] {
     const errors: string[] = [];
-    // 1. Valid JSON structure (already an object)
     if (typeof item !== 'object' || item === null) {
         errors.push('Item is not a valid object');
+        return errors;
     }
-    // 2. Correct answer path – we expect an answer key in `metadata.correctAnswer`
-    const correct = (item as any).metadata?.correctAnswer;
-    if (!correct) {
-        errors.push('Missing correct answer');
+
+    // 1. Check for basic content/structure
+    const content = item.content || (item as any);
+    const structure = content.structure || (item as any).structure || content;
+
+    // 2. Correct answer check
+    const hasCorrect =
+        (structure.options?.some((o: any) => o.isCorrect)) ||
+        (structure.actions?.some((o: any) => o.isCorrect)) ||
+        (structure.rows?.some((o: any) => o.correctColumnIds?.length > 0)) ||
+        (structure.correctValue !== undefined) ||
+        (item as any).metadata?.correctAnswer;
+
+    if (!hasCorrect) {
+        errors.push('Missing correct answer or keys');
     }
-    // 3. Vitals – typical NGN items have a `pedagogy.vitals` object with numeric ranges
-    const vitals = (item as any).pedagogy?.vitals;
-    if (vitals) {
-        const { hr, bp, temp } = vitals;
-        if (hr && (hr < 30 || hr > 200)) errors.push('Heart rate out of realistic range');
-        if (bp && (bp.systolic < 50 || bp.systolic > 250)) errors.push('Blood pressure systolic out of range');
-        if (temp && (temp < 30 || temp > 45)) errors.push('Temperature out of range');
+
+    // 3. Clinical Data Check
+    const clinicalData = content.clinicalData || content;
+    const vitals = clinicalData.vitals || clinicalData.vitalSigns;
+    if (item.type === 'trend' && (!vitals || !Array.isArray(vitals) || vitals.length < 2)) {
+        errors.push('Trend item requires at least 2 time points in vitals');
     }
+
     return errors;
 }
 
 /**
- * Scoring factors based on the spec in PHASE_2_ITEM_BANK_SPECS.md
+ * Scoring factors based on NGN Golden Standards
  */
 function calculateScore(item: MasterQuestionItem): number {
-    let score = 0;
-    // Length of rationale (>50 words = +10)
-    const rationale = (item as any).metadata?.rationale ?? '';
-    const wordCount = typeof rationale === 'string' ? rationale.split(/\s+/).filter(Boolean).length : 0;
-    if (wordCount > 50) score += 10;
+    let bonus = 0;
+    const content = item.content || (item as any);
+    const rat = item.rationale || content.rationale || (item as any).metadata?.rationale || {};
 
-    // Trap field existence (+10)
-    if ((item as any).metadata?.trap) score += 10;
+    // 1. Rationale Depth (+15)
+    // Check for rich rationale structure
+    if (typeof rat === 'object') {
+        if (rat.coreConcept || rat.clinicalLogic) bonus += 5;
+        if (rat.pathophysiology || rat.referenceInfo?.physiology) bonus += 5;
+        if (rat.strategy || rat.cheatSheet) bonus += 5;
+    } else if (typeof rat === 'string' && rat.length > 200) {
+        bonus += 10;
+    }
 
-    // HTML tables in labs (+5)
-    const labs = (item as any).metadata?.labs ?? '';
-    if (typeof labs === 'string' && /<table[\s>]/i.test(labs)) score += 5;
+    // 2. Evidence of Trend (+10)
+    const clinicalData = content.clinicalData || content;
+    const vitals = clinicalData.vitals || clinicalData.vitalSigns;
+    if (Array.isArray(vitals) && vitals.length >= 3) {
+        bonus += 10;
+    }
 
-    // Non‑generic distractors (+10)
-    const options = (item as any).options ?? [];
-    const uniqueTexts = new Set<string>();
-    options.forEach((opt: any) => {
-        if (typeof opt.text === 'string') uniqueTexts.add(opt.text.trim().toLowerCase());
-    });
-    if (uniqueTexts.size > 2) score += 10;
+    // 3. Metadata Completeness (+5)
+    if (item.metadata?.clientNeeds) bonus += 2;
+    if (item.pedagogy?.clinicalFocus) bonus += 3;
+
+    // 4. Distractor Quality (+10)
+    const structure = content.structure || content;
+    const options = structure.options || (structure.actions);
+    if (Array.isArray(options) && options.length >= 4) bonus += 10;
 
     // Base score is 50 + accumulated points (max 100)
-    const base = 50;
-    return Math.min(100, base + score);
+    return Math.min(100, 55 + bonus);
 }
 
 /**
@@ -65,7 +84,7 @@ export function runAQA(item: MasterQuestionItem): { passed: boolean; score: numb
         flags.push(...critical);
     }
     const score = calculateScore(item);
-    const passed = critical.length === 0 && score >= 70; // arbitrary pass threshold
+    const passed = critical.length === 0 && score >= 70;
     return { passed, score, flags: flags.length ? flags : undefined };
 }
 
@@ -74,20 +93,24 @@ export function runAQA(item: MasterQuestionItem): { passed: boolean; score: numb
  */
 export function enrichItemWithQuality(item: MasterQuestionItem): MasterQuestionItem {
     const { score } = runAQA(item);
-    // Attach score
-    (item as any).metadata = { ...(item as any).metadata, score };
-    // Determine status from metadata
-    let status = (item as any).metadata?.status;
 
-    // If explicitly published, keep it. Otherwise apply rules.
-    if (status !== 'published') {
-        status = 'draft';
-        if (score > 90) status = 'published';
-        else if (score < 40) status = 'auto_deleted';
-        else if (score < 70) status = 'review_needed';
+    if (!item.metadata) item.metadata = {} as any;
+
+    // Attach score
+    (item.metadata as any).score = score;
+    (item.metadata as any).qualityScore = score;
+
+    // Determine status
+    let status = item.metadata.status;
+
+    // Only auto-update status if it's currently draft or undefined
+    if (!status || status === 'draft') {
+        if (score >= 90) status = 'published';
+        else if (score < 40) status = 'review_needed'; // Don't auto-delete yet
+        else if (score < 75) status = 'review_needed';
+        else status = 'draft';
     }
 
-    // Write back to metadata
-    (item as any).metadata = { ...(item as any).metadata, status };
+    item.metadata.status = status;
     return item;
 }

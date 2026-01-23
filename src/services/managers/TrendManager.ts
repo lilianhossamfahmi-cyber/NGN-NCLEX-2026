@@ -15,18 +15,36 @@ export class TrendManager extends AbstractItemManager {
     protected async repairSpecific(item: MasterQuestionItem): Promise<MasterQuestionItem> {
         if (!item.content) item.content = {};
         const structure = item.content.structure || {};
+        const clinicalData = item.content.clinicalData || {};
 
-        // 1. Ensure Data Array Exists
+        // 1. DATA SOURCE MAPPING: NGN Golden Trend Alignment
+        // Check if trend data is at clinicalData.vitals (The NGN Standard)
+        const vitals = clinicalData.vitals || (item.content as any).vitalSigns;
+
+        if (vitals && Array.isArray(vitals) && vitals.length > 0) {
+            // Map vitals to 'trendTable' format expected by TrendRenderer.tsx
+            const columns = ['Time', 'Temp', 'HR', 'RR', 'BP', 'SpO2'];
+            const rows = vitals.map(v => [
+                v.time || '?',
+                v.tempF || v.temp || '-',
+                v.hr || '-',
+                v.rr || '-',
+                v.bp || '-',
+                (v.o2 || v.spo2 || '-') + (v.o2_device ? ` (${v.o2_device})` : '')
+            ]);
+
+            structure.trendTable = { columns, rows };
+            console.log('[TrendManager] Successfully mapped Vitals to TrendTable structure');
+        }
+
+        // 2. Legacy Support: Ensure Data Array Exists (for Chart-only types)
         if (!structure.data || !Array.isArray(structure.data)) {
-            // Check if data is hiding in 'points' or 'series'
             structure.data = structure.points || structure.series || [];
         }
 
-        // 2. Extrapolate if Sparse (The "Smart Fill" feature)
-        // If we only have 1 point, we can't show a trend. We need at least 2, ideally 3.
+        // 3. Extrapolate if Sparse (The "Smart Fill" feature)
         if (structure.data.length === 1) {
             const point = structure.data[0];
-            // Create a synthetic "Previous" and "Projected" point
             structure.data = [
                 { time: "0800", value: Math.max(0, point.value * 0.9), label: "Previous" },
                 { ...point, time: "1200", label: "Current" },
@@ -35,17 +53,19 @@ export class TrendManager extends AbstractItemManager {
             structure.trendType = structure.trendType || "linear";
         }
 
-        // 3. Ensure Config for Rendering
+        // 4. Ensure Config for Rendering
         if (!structure.config) structure.config = {};
-        if (!structure.config.yMin) {
-            const values = structure.data.map((d: any) => Number(d.value));
-            const min = Math.min(...values);
-            structure.config.yMin = Math.floor(min * 0.8); // 20% buffer below
-        }
-        if (!structure.config.yMax) {
-            const values = structure.data.map((d: any) => Number(d.value));
-            const max = Math.max(...values);
-            structure.config.yMax = Math.ceil(max * 1.2); // 20% buffer above
+        if (structure.data.length > 0) {
+            if (!structure.config.yMin) {
+                const values = structure.data.map((d: any) => Number(d.value));
+                const min = Math.min(...values);
+                structure.config.yMin = Math.floor(min * 0.8);
+            }
+            if (!structure.config.yMax) {
+                const values = structure.data.map((d: any) => Number(d.value));
+                const max = Math.max(...values);
+                structure.config.yMax = Math.ceil(max * 1.2);
+            }
         }
 
         item.content.structure = structure;

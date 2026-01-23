@@ -16,18 +16,57 @@ export class BowTieManager extends AbstractItemManager {
         if (!item.content) item.content = {};
         const structure = item.content.structure || {};
 
-        // 1. Ensure Categories Exist
+        // 1. LEGACY MAPPING: Handle 'bowTieConfiguration' and flattened '_options' variants
+        const btc = (item as any).bowTieConfiguration || (structure as any).bowTieConfiguration;
+        if (btc) {
+            if (!structure.conditions?.length) {
+                const src = btc.conditionOptions || btc.conditions;
+                structure.conditions = src?.map((o: any, i: number) => ({ id: `c_${i}`, text: o.text || o, isCorrect: !!o.isCorrect })) || [];
+            }
+            if (!structure.actions?.length) {
+                const src = btc.actionOptions || btc.actions;
+                structure.actions = src?.map((o: any, i: number) => ({ id: `a_${i}`, text: o.text || o, isCorrect: !!o.isCorrect })) || [];
+            }
+            if (!structure.parameters?.length) {
+                const src = btc.parameterOptions || btc.parameters;
+                structure.parameters = src?.map((o: any, i: number) => ({ id: `p_${i}`, text: o.text || o, isCorrect: !!o.isCorrect })) || [];
+            }
+        }
+
+        // Support flat formats like actions_options + correct_actions
+        if ((item as any).actions_options && !structure.actions?.length) {
+            structure.actions = (item as any).actions_options.map((txt: string, i: number) => ({
+                id: `a_${i}`,
+                text: txt,
+                isCorrect: (item as any).correct_actions?.includes(txt)
+            }));
+        }
+        if ((item as any).condition_options && !structure.conditions?.length) {
+            structure.conditions = (item as any).condition_options.map((txt: string, i: number) => ({
+                id: `c_${i}`,
+                text: txt,
+                isCorrect: (item as any).correct_condition === txt || (item as any).correct_condition?.includes(txt)
+            }));
+        }
+        if ((item as any).parameter_options && !structure.parameters?.length) {
+            structure.parameters = (item as any).parameter_options.map((txt: string, i: number) => ({
+                id: `p_${i}`,
+                text: txt,
+                isCorrect: (item as any).correct_parameters?.includes(txt)
+            }));
+        }
+
+        // 2. Ensure Categories Exist
         if (!structure.actions) structure.actions = [];
         if (!structure.conditions) structure.conditions = [];
         if (!structure.parameters) structure.parameters = [];
 
-        // 2. Flatten and Normalize Arrays
-        // Sometimes AI makes nested "pool" objects or mixes strings/objects
+        // 3. Flatten and Normalize Arrays (Handle {pool: []} wrapper)
         structure.actions = this.normalizeOptionArray(structure.actions);
         structure.conditions = this.normalizeOptionArray(structure.conditions);
         structure.parameters = this.normalizeOptionArray(structure.parameters);
 
-        // 3. Auto-Generate IDs if missing
+        // 4. Auto-Generate IDs if missing
         [structure.actions, structure.conditions, structure.parameters].forEach((arr, idx) => {
             const prefix = ['a', 'c', 'p'][idx];
             arr.forEach((opt: any, i: number) => {
@@ -35,12 +74,7 @@ export class BowTieManager extends AbstractItemManager {
             });
         });
 
-        // 4. Update item structure
         item.content.structure = structure;
-
-        // 5. If "Correct" flags are missing but we have a text-based answer key in metadata/rationale,
-        // we might attempt to infer. For now, we assume simple JSON repair.
-
         return item;
     }
 

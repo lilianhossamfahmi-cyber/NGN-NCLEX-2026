@@ -9,30 +9,13 @@ export const attemptAiJsonFix = async (malformedInput: string): Promise<{ succes
         return { success: false, error: "AI Fix unavailable: No API Key or AI disabled." };
     }
 
-    // Use a more capable model list for repairs
-    const candidateModels = [
-        "gemini-2.0-flash",
-        "gemini-1.5-pro",
-        "gemini-1.5-flash",
-        "gemini-pro"
-    ];
+    const candidateModels = ["gemini-2.0-flash", "gemini-1.5-pro", "gemini-1.5-flash", "gemini-pro"];
 
     for (const modelName of candidateModels) {
         try {
             const model = genAI.getGenerativeModel({ model: modelName });
-
             const prompt = `
-            SYSTEM: You are a JSON Repair Robot.
-            The user has provided invalid JSON or text that contains JSON.
-            Your task is to extract the JSON or Array of JSON objects and return it as VALID, STRICT JSON.
-
-            RULES:
-            1. Output ONLY the JSON. No markdown markers (like \`\`\`json), no conversation.
-            2. If the input is a single object, wrap it in an array [].
-            3. Ensure all property names are double-quoted.
-            4. Fix trailing commas or missing brackets.
-            5. If the input describes a question but is not JSON, convert it into a valid JSON object representing the question content.
-            
+            SYSTEM: You are a JSON Repair Robot. Return VALID, STRICT JSON.
             INPUT TO FIX:
             ${malformedInput.slice(0, 20000)}
             `;
@@ -40,19 +23,14 @@ export const attemptAiJsonFix = async (malformedInput: string): Promise<{ succes
             await limiter.checkLimit();
             const result = await model.generateContent(prompt);
             const text = result.response.text();
-
             const clean = text.replace(/```json/g, '').replace(/```/g, '').trim();
 
-            // Aggressive parsing attempt
             let validJsonString = clean;
             const start = clean.indexOf('{');
             const end = clean.lastIndexOf('}');
-
-            // Also check for array wrapping
             const startArr = clean.indexOf('[');
             const endArr = clean.lastIndexOf(']');
 
-            // If array markers are wider than object markers, use them
             if (startArr >= 0 && endArr > startArr && (start === -1 || startArr < start)) {
                 validJsonString = clean.substring(startArr, endArr + 1);
             } else if (start >= 0 && end > start) {
@@ -60,24 +38,14 @@ export const attemptAiJsonFix = async (malformedInput: string): Promise<{ succes
             }
 
             try {
-                return parseJsonInput(validJsonString);
+                return await parseJsonInput(validJsonString);
             } catch (e) {
-                // Try to fix common JSON errors (e.g. trailing commas)
-                try {
-                    const fixed = validJsonString.replace(/,\s*([\]}])/g, '$1');
-                    return parseJsonInput(fixed);
-                } catch (e2) {
-                    console.warn(`[AiJsonFix] JSON Parse failed for model ${modelName}:`, e);
-                    continue;
-                }
+                const fixed = validJsonString.replace(/,\s*([\]}])/g, '$1');
+                return await parseJsonInput(fixed);
             }
-
         } catch (e: any) {
             console.warn(`[AiJsonFix] Model ${modelName} failed:`, e.message);
-            if (e.message.includes('404') || e.message.includes('not found')) {
-                continue; // Try next model
-            }
-            // Continue to next model on other errors too
+            continue;
         }
     }
 
@@ -159,25 +127,25 @@ export const aggressiveRepairJson = (raw: string): string => {
     return clean;
 };
 
-export const parseJsonInput = (input: string): { success: boolean, data?: MasterQuestionItem[], error?: string } => {
+export const parseJsonInput = async (input: string): Promise<{ success: boolean, data?: MasterQuestionItem[], error?: string }> => {
     let cleanJson = aggressiveRepairJson(input);
 
     try {
         const parsed = JSON.parse(cleanJson);
-        return processParsedResult(parsed);
+        return await processParsedResult(parsed);
     } catch (e: any) {
         const originalError = e.message;
         try {
             const wrapped = `[${cleanJson}]`;
             const parsed = JSON.parse(wrapped);
-            return processParsedResult(parsed);
+            return await processParsedResult(parsed);
         } catch (innerE) {
             const jsonMatch = cleanJson.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
             if (jsonMatch) {
                 try {
                     const extracted = aggressiveRepairJson(jsonMatch[0]);
                     const parsed = JSON.parse(extracted);
-                    return processParsedResult(parsed);
+                    return await processParsedResult(parsed);
                 } catch (finalE: any) {
                     return { success: false, error: `JSON Parse Failed: ${originalError}. Tip: Our Local Auto-Fix can help resolve this by force-escaping clinical text.` };
                 }
@@ -187,7 +155,7 @@ export const parseJsonInput = (input: string): { success: boolean, data?: Master
     }
 };
 
-const processParsedResult = (parsed: any): { success: boolean, data: MasterQuestionItem[] } => {
+const processParsedResult = async (parsed: any): Promise<{ success: boolean, data: MasterQuestionItem[] }> => {
     let items: any[] = [];
     if (!Array.isArray(parsed) && parsed && typeof parsed === 'object') {
         if (Array.isArray(parsed.items)) items = parsed.items;
@@ -199,7 +167,12 @@ const processParsedResult = (parsed: any): { success: boolean, data: MasterQuest
     }
     items = items.reduce((acc: any[], val: any) => acc.concat(Array.isArray(val) ? val : [val]), []);
     const validItems = items.filter((i: any) => i && typeof i === 'object' && !Array.isArray(i));
-    const mappedItems: MasterQuestionItem[] = validItems.map((raw: any) => UnifiedDataPipeline.transform(raw));
+
+    // Process items sequentially or in parallel? Parallel is faster.
+    const mappedItems: MasterQuestionItem[] = await Promise.all(
+        validItems.map((raw: any) => UnifiedDataPipeline.transform(raw))
+    );
+
     return { success: true, data: mappedItems };
 };
 

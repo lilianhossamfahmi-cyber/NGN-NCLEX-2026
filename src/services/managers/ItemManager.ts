@@ -29,6 +29,12 @@ export interface ItemManager {
     repair(item: MasterQuestionItem): Promise<MasterQuestionItem>;
 
     /**
+     * DEEP REPAIR: Ensures ID, Type, Topic, Lvl, QI, Status are professional
+     * AND checks content completeness, auto-filling missing parts using AI if requested.
+     */
+    deepRepair(item: MasterQuestionItem, options?: { autofill?: boolean }): Promise<MasterQuestionItem>;
+
+    /**
      * Formats the item data specifically for the React UI components.
      * Prevents the UI from crashing on missing fields.
      */

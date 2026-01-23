@@ -5,6 +5,7 @@
     "type": "module",
     "scripts": {
         "bulk:gen": "node -r dotenv/config --loader ts-node/esm --experimental-specifier-resolution=node scripts/bulkGenerator.ts",
+        "bulk:repair": "npx tsx --env-file=.env scripts/bulkRepair.ts",
         "dev": "vite",
         "build": "node node_modules/vite/bin/vite.js build",
         "preview": "vite preview"

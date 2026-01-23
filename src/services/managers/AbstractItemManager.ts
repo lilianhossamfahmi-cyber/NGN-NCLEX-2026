@@ -3,6 +3,7 @@ import { ItemManager, GradingResult, ValidationResult } from './ItemManager';
 import { MasterQuestionItem } from '../../types/master-schema';
 import { aggressiveRepairJson } from '../importService';
 import { ClinicalDataStandardizer } from './ClinicalDataStandardizer'; // Phase 1.5
+import { magicFixItem } from '../geminiService';
 
 /**
  * Base Class for all Item Managers.
@@ -40,6 +41,55 @@ export abstract class AbstractItemManager implements ItemManager {
 
         // 3. Child-specific repair (The specific manager implementation)
         return this.repairSpecific(cleanItem);
+    }
+
+    /**
+     * DEEP REPAIR: Base Implementation
+     */
+    async deepRepair(item: MasterQuestionItem, options?: { autofill?: boolean }): Promise<MasterQuestionItem> {
+        // 1. Ensure basic fields are professional/valid via Standard Repair
+        let repaired = await this.repair(item);
+
+        // 2. Metadata completeness
+        if (!repaired.metadata.status) repaired.metadata.status = 'draft';
+        if (!repaired.metadata.qualityScore) repaired.metadata.qualityScore = 70;
+
+        // 3. Topic cleanup
+        if (!repaired.pedagogy.clinicalFocus || repaired.pedagogy.clinicalFocus === 'General') {
+            // Basic topic inference from keywords if missing
+            const text = JSON.stringify(repaired).toLowerCase();
+            if (text.includes('heart')) repaired.pedagogy.clinicalFocus = 'Cardiology';
+            else if (text.includes('drug')) repaired.pedagogy.clinicalFocus = 'Pharmacology';
+        }
+
+        // 4. Content Completeness Check & Auto-Fill (AI Hook)
+        if (options?.autofill) {
+            const validation = this.validate(repaired);
+            const criticalMissing = validation.issues.filter(i => i.severity === 'critical' || i.message.toLowerCase().includes('missing'));
+
+            if (criticalMissing.length > 0) {
+                console.log(`[${this.constructor.name}] Critical gaps detected:`, criticalMissing.map(m => m.message));
+
+                try {
+                    const missingDescription = criticalMissing.map(m => m.message).join('; ');
+                    const aiRepaired = await magicFixItem(
+                        repaired,
+                        `FIX CRITICAL ISSUES: ${missingDescription}. Ensure the item is clinicaly complete and high quality.`,
+                        ['scenario', 'structure', 'rationale']
+                    );
+
+                    if (aiRepaired) {
+                        // Blend AI result back into the item, preserving IDs
+                        if (aiRepaired.content) repaired.content = { ...repaired.content, ...aiRepaired.content };
+                        if (aiRepaired.metadata) repaired.metadata = { ...repaired.metadata, ...aiRepaired.metadata };
+                    }
+                } catch (err) {
+                    console.error(`[${this.constructor.name}] AI Auto-Fill failed:`, err);
+                }
+            }
+        }
+
+        return repaired;
     }
 
     /**

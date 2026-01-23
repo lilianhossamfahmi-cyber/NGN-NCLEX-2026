@@ -29,7 +29,7 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 ### 2. ID GENERATION & METADATA (CRITICAL)
 - **ID Format:** You MUST generate a root-level `id` using the pattern: `[FOCUS]-[TYPE]-[HEX]`.
   - Example: `"id": "CARDIO-BOW-A1B9"`
-- **Topic Mapping:** Map the [FOCUS] to one of: General, Cardiology, Respiratory, Neurology, Endocrine, Gastrointestinal, Musculoskeletal, Renal, Hematology, Integumentary, Reproductive, Mental Health, Pediatrics, Critical Care.
+- **Topic Mapping:** Map the [FOCUS] to one of: Cardiology, Respiratory, Neurology, Pediatrics, Pharmacology, Mental Health, Maternal, Leadership, Critical Care, Management of Care, Safety and Infection Prevention and Control, Health Promotion and Maintenance, Psychosocial Integrity, Physiological Integrity: Basic Care and Comfort, Physiological Integrity: Pharmacological and Parenteral Therapies, Physiological Integrity: Reduction of Risk Potential, Physiological Integrity: Physiological Adaptation.
 
 
 ### 2. BOW-TIE GAME MECHANICS (STRICT)

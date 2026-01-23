@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { MasterQuestionItem } from '../../types/master-schema';
-import { getBankItems, deleteItemFromBank, saveItemToBank, updateItem, deleteBatchFromBank, repairAllItemsInBank } from '../../services/itemApiService';
+import { getBankItems, deleteItemFromBank, saveItemToBank, updateItem, deleteBatchFromBank, repairAllItemsInBank, repairSelectiveItems } from '../../services/itemApiService';
 import { syncItemToSupabase } from '../../services/itemSyncService';
 import { enrichItemWithQuality } from '../../utils/autoQuality';
 import { StudentPreviewModal } from '../../components/StudentPreviewModal';
-import { Eye, Copy, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, ArrowUpDown, Zap, RefreshCcw, Trash2, Archive, CheckCircle, Download, Plus, Wand2, Hammer } from 'lucide-react';
+import { Eye, Copy, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, ArrowUpDown, Zap, RefreshCcw, Trash2, Archive, CheckCircle, Download, Plus, Wand2 } from 'lucide-react';
 import { AIBookFixerModal } from './AIBookFixerModal';
 import { MagicFixModal } from './MagicFixModal';
 import { AddItemModal } from './AddItemModal';
@@ -38,6 +38,29 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
         } catch (err) {
             console.error(err);
             alert('❌ Bulk repair failed. Check console.');
+        } finally {
+            setRepairing(false);
+        }
+    };
+
+    const handleSelectiveRepair = async () => {
+        if (selectedIds.size === 0) return;
+        const autofill = confirm(`Would you like AI to automatically fill missing content (Rationales, Distractors) for these ${selectedIds.size} items?`);
+
+        setRepairing(true);
+        setRepairProgress({ current: 0, total: selectedIds.size });
+
+        try {
+            const selectedItems = items.filter(i => selectedIds.has(String(i.id)));
+            const success = await repairSelectiveItems(selectedItems, { autofill }, (current, total) => {
+                setRepairProgress({ current, total });
+            });
+            alert(`✅ Successfully repaired ${success} items.`);
+            fetchItems();
+            setSelectedIds(new Set());
+        } catch (err) {
+            console.error(err);
+            alert('❌ Selective repair failed.');
         } finally {
             setRepairing(false);
         }
@@ -231,7 +254,13 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
     const TOPIC_OPTIONS = [
         'Cardiology', 'Respiratory', 'Neurology', 'Pediatrics',
         'Pharmacology', 'Mental Health', 'Maternal', 'Critical Care',
-        'Fundamentals', 'Leadership', 'Gastrointestinal', 'Endocrine', 'Renal', 'Musculoskeletal'
+        'Fundamentals', 'Leadership', 'Gastrointestinal', 'Endocrine', 'Renal', 'Musculoskeletal',
+        'Management of Care', 'Safety and Infection Prevention and Control',
+        'Health Promotion and Maintenance', 'Psychosocial Integrity',
+        'Physiological Integrity: Basic Care and Comfort',
+        'Physiological Integrity: Pharmacological and Parenteral Therapies',
+        'Physiological Integrity: Reduction of Risk Potential',
+        'Physiological Integrity: Physiological Adaptation'
     ];
 
     const totalPages = Math.ceil(total / LIMIT);
@@ -401,6 +430,19 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
                             <button onClick={() => handleBulkSendToMode('exam')} className="text-[10px] bg-white border border-blue-200 px-2 py-1 rounded hover:bg-blue-100 font-medium">Exam</button>
                             <button onClick={() => handleBulkSendToMode('tutor')} className="text-[10px] bg-white border border-blue-200 px-2 py-1 rounded hover:bg-blue-100 font-medium">Tutor</button>
                             <button onClick={() => handleBulkSendToMode('all')} className="text-[10px] bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 font-bold shadow-sm">ALL Modes</button>
+                        </div>
+
+                        <div className="h-4 w-px bg-blue-200 mx-1"></div>
+
+                        {/* REPAIR Button */}
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={handleSelectiveRepair}
+                                className="text-[10px] bg-indigo-600 text-white px-2 py-1 rounded hover:bg-indigo-700 font-bold shadow-sm flex items-center gap-1"
+                                disabled={repairing}
+                            >
+                                <Zap size={12} /> {repairing ? 'Repairing...' : 'Smart Repair'}
+                            </button>
                         </div>
 
                         <div className="h-4 w-px bg-blue-200 mx-1"></div>
