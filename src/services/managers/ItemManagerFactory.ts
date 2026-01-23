@@ -28,11 +28,15 @@ class PlaceholderManager extends AbstractItemManager {
  */
 export class ItemManagerFactory {
     private static managers: Map<string, ItemManager> = new Map();
+    private static initialized = false;
 
     /**
      * Registers all managers (Run this once at app startup)
      */
     static registerAll() {
+        if (this.initialized) return;
+        this.initialized = true;
+
         // Phase 2: Managers
         this.register(new BowTieManager());
         this.register(new HighlightManager());

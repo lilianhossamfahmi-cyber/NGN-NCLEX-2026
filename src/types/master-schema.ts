@@ -157,6 +157,7 @@ export interface TemperatureValue {
 export interface MasterQuestionItem {
   id: string;
   typeId: string; // The NGN Type
+  type?: string;  // Alias used by pipeline and legacy components
   tags?: string[];
 
   // Metadata for Source & Generation

@@ -497,6 +497,24 @@ export class UnifiedDataPipeline {
 
         // ====== SETTING ======
         cd.setting = cd.setting || c.setting || "MedSurg Unit";
+
+        // ====== CLEANUP: REMOVE LEGACY FIELDS FROM ROOT ======
+        // This prevents duplicated data showing up in the UI
+        const legacyFields = [
+            'patient', 'patientInfo',
+            'vitals', 'vitalSigns',
+            'labs', 'laboratory',
+            'orders', 'medicalOrders',
+            'nursesNotes', 'nurseNotes',
+            'history', 'historyPhysical',
+            'imaging', 'radiology', 'xray'
+        ];
+
+        legacyFields.forEach(field => {
+            if (Object.prototype.hasOwnProperty.call(c, field)) {
+                delete c[field];
+            }
+        });
     }
 
     /**
@@ -541,23 +559,28 @@ export class UnifiedDataPipeline {
      */
     private static async normalizeStructureAsync(item: any): Promise<void> {
         try {
-            // 1. Run Legacy Sync first to get baseline
+            // 1. Ensure Managers are registered (Lazy safety)
+            ItemManagerFactory.registerAll();
+
+            // 2. Run Legacy Sync first to get baseline
             UnifiedDataPipeline.normalizeStructureSync(item);
 
-            // 2. Use Specialist Manager to Repair
+            // 3. Use Specialist Manager to Repair
             const manager = ItemManagerFactory.getManager(item.type);
             const repaired = await manager.repair(item as MasterQuestionItem);
 
-            // 3. Merge repaired content back
-            if (repaired.content) {
-                // Determine if we should deep merge or replace
-                // For structure, we replace because manager does specialized fixing
-                item.content = repaired.content;
-                // Also metadata if meaningful changes
+            // 4. Merge repaired data back (Deeper merge than just content)
+            if (repaired) {
+                if (repaired.content) item.content = { ...item.content, ...repaired.content };
                 if (repaired.metadata) item.metadata = { ...item.metadata, ...repaired.metadata };
+                if (repaired.pedagogy) item.pedagogy = { ...item.pedagogy, ...repaired.pedagogy };
+
+                // Crucial: If manager improved the ID or Type, sync it back
+                if (repaired.id && repaired.id !== item.id) item.id = repaired.id;
+                if (repaired.type && repaired.type !== item.type) item.type = repaired.type;
             }
         } catch (error) {
-            console.error('[UnifiedDataPipeline] Manager repair failed, utilizing sync baseline.', error);
+            console.error('[UnifiedDataPipeline] Manager repair failed.', error);
         }
     }
 
