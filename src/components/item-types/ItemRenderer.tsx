@@ -266,7 +266,7 @@ const RationaleDisplay = ({ config }: { config: any }) => {
             {isExpanded && (
                 <div style={{ animation: 'fadeIn 0.3s ease-in-out' }}>
 
-                    {/* KEY TAKEAWAY */}
+                    {/* KEY TAKEAWAY / CLINICAL LOGIC */}
                     {(config.clinicalSummary || config.rationale) && (
                         <div style={{
                             background: 'rgba(245,158,11,0.1)',
@@ -278,9 +278,46 @@ const RationaleDisplay = ({ config }: { config: any }) => {
                         }}>
                             <span style={{ fontSize: '24px' }}>💡</span>
                             <div>
-                                <div style={{ fontSize: '14px', fontWeight: 700, color: '#d97706', textTransform: 'uppercase', marginBottom: '4px' }}>Key Takeaway</div>
+                                <div style={{ fontSize: '14px', fontWeight: 700, color: '#d97706', textTransform: 'uppercase', marginBottom: '4px' }}>
+                                    {config.rationale?.coreConcept ? "Core Concept" : "Key Takeaway"}
+                                </div>
                                 <div style={{ fontSize: '15px', color: '#1e293b', lineHeight: '1.5' }}>
-                                    {formatText(config.clinicalSummary || config.rationale)}
+                                    {(() => {
+                                        const r = config.rationale;
+                                        if (typeof r === 'object' && r !== null) {
+                                            return (
+                                                <div className="flex flex-col gap-3">
+                                                    {r.coreConcept && <div className="font-bold text-slate-800">{r.coreConcept}</div>}
+                                                    {r.caseSummary && <div className="italic text-slate-600 border-l-2 border-slate-200 pl-3 my-2">{r.caseSummary}</div>}
+                                                    <div>{formatText(r.clinicalLogic || r.general || r.explanation || r.text)}</div>
+
+                                                    {r.mnemonic && (
+                                                        <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3 my-2 shadow-sm">
+                                                            <div className="text-xs font-bold text-indigo-600 uppercase mb-1 flex items-center gap-1">
+                                                                🧠 Mnemonic: {r.mnemonic.title}
+                                                            </div>
+                                                            <div className="text-sm text-indigo-900 font-medium">{r.mnemonic.content}</div>
+                                                            {r.mnemonic.explanation && <div className="text-xs text-indigo-700 mt-1">{r.mnemonic.explanation}</div>}
+                                                        </div>
+                                                    )}
+
+                                                    {r.cheatSheet && (
+                                                        <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 my-2 shadow-sm">
+                                                            <div className="text-xs font-bold text-emerald-600 uppercase mb-1">
+                                                                📋 {r.cheatSheet.title || 'Cheat Sheet'}
+                                                            </div>
+                                                            <ul className="list-disc list-inside text-xs text-emerald-900 space-y-1">
+                                                                {Array.isArray(r.cheatSheet.points) && r.cheatSheet.points.map((p: string, i: number) => (
+                                                                    <li key={i}>{p}</li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        }
+                                        return formatText(config.clinicalSummary || config.rationale);
+                                    })()}
                                 </div>
                             </div>
                         </div>
@@ -337,7 +374,10 @@ const RationaleDisplay = ({ config }: { config: any }) => {
                         <div>
                             <div style={{ fontSize: '14px', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', marginBottom: '4px' }}>Test-Taking Strategy</div>
                             <div style={{ fontSize: '15px', color: '#1e293b', lineHeight: '1.5' }}>
-                                {config.strategy ? formatText(config.strategy) : "Focus on prioritizing the most urgent findings first."}
+                                {(() => {
+                                    const strategy = config.strategy || config.rationale?.strategy || config.rationale?.strategies;
+                                    return strategy ? formatText(strategy) : "Focus on prioritizing the most urgent findings first.";
+                                })()}
                             </div>
                         </div>
                     </div>
