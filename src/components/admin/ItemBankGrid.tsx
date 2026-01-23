@@ -6,6 +6,7 @@ import { enrichItemWithQuality } from '../../utils/autoQuality';
 import { StudentPreviewModal } from '../../components/StudentPreviewModal';
 import { Eye, Copy, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, ArrowUpDown, Zap, RefreshCcw, Trash2, Archive, CheckCircle, Download, Plus, Wand2, Hammer } from 'lucide-react';
 import { AIBookFixerModal } from './AIBookFixerModal';
+import { MagicFixModal } from './MagicFixModal';
 import { AddItemModal } from './AddItemModal';
 
 /**
@@ -58,6 +59,7 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
 
     const [previewItem, setPreviewItem] = useState<MasterQuestionItem | null>(null);
     const [fixItem, setFixItem] = useState<MasterQuestionItem | null>(null);
+    const [magicFixItem, setMagicFixItem] = useState<MasterQuestionItem | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
 
     const LIMIT = 25;
@@ -724,13 +726,25 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
                 />
             )}
 
+            {/* AI Magic Fixer Modal (Smart Agent) */}
+            {magicFixItem && (
+                <MagicFixModal
+                    item={magicFixItem}
+                    onClose={() => setMagicFixItem(null)}
+                    onSuccess={() => {
+                        fetchItems(); // Refresh grid
+                    }}
+                />
+            )}
+
             {showAddModal && (
                 <AddItemModal
                     onClose={() => setShowAddModal(false)}
                     onCreated={(newItem) => {
                         setShowAddModal(false);
                         fetchItems();
-                        setPreviewItem(newItem); // Auto-open preview
+                        // AUTO-OPEN MAGIC FIXER FOR NEW ITEMS (To fill the skeleton)
+                        setMagicFixItem(newItem);
                     }}
                 />
             )}

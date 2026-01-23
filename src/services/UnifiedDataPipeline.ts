@@ -199,16 +199,19 @@ export class UnifiedDataPipeline {
         // [MANDATORY] Normalize ID (hoist to root to prevent cache collisions)
         let resolvedId = raw.id || raw.metadata?.id || raw.content?.id || raw._itemId;
 
-        // Define truly generic IDs that need entropy
-        const genericIds = ['unknown', 'item', 'test', 'pharmeco', 'unified', 'sample', 'demo'];
+        // Define truly generic IDs or prefix placeholders that need entropy/fixing
+        const genericPrefixes = ['unknown', 'item', 'test', 'pharmeco', 'unified', 'sample', 'demo', 'skeleton'];
+
         const isGenericId = !resolvedId ||
             resolvedId.length < 5 ||
-            genericIds.includes(resolvedId.toLowerCase());
+            genericPrefixes.some(p => String(resolvedId).toLowerCase().startsWith(p.toLowerCase()));
 
         if (isGenericId) {
-            // Only generate random ID when truly needed
-            resolvedId = `NGN-${Math.random().toString(16).slice(2, 10).toUpperCase()}`;
-            console.log('[UnifiedDataPipeline] Generated new ID:', resolvedId);
+            // Generate a better NGN ID if the current one is just a placeholder
+            // Format: NGN-[TYPE]-[RANDOM_HEX]
+            const typePrefix = (item.type || 'Q').slice(0, 3).toUpperCase();
+            resolvedId = `NGN-${typePrefix}-${Math.random().toString(16).slice(2, 8).toUpperCase()}`;
+            console.log('[UnifiedDataPipeline] Fixed/Generated New ID:', resolvedId);
         }
         item.id = resolvedId;
 
@@ -556,282 +559,282 @@ export class UnifiedDataPipeline {
         } catch (error) {
             console.error('[UnifiedDataPipeline] Manager repair failed, utilizing sync baseline.', error);
         }
-}
+    }
 
     /**
      * CRITICAL: Normalize BowTie structure
      */
     private static normalizeBowTie(item: any, source: any): void {
-    const s = item.content.structure;
-    const c = item.content;
+        const s = item.content.structure;
+        const c = item.content;
 
-    // Find actions from all possible locations
-    const actionsSources = [
-        source.actions,
-        c.actions,
-        item.actions,
-        source.nursingActions,
-        c.nursingActions
-    ];
+        // Find actions from all possible locations
+        const actionsSources = [
+            source.actions,
+            c.actions,
+            item.actions,
+            source.nursingActions,
+            c.nursingActions
+        ];
 
-    // Find conditions from all possible locations  
-    const conditionsSources = [
-        source.conditions,
-        c.conditions,
-        item.conditions,
-        source.condition,
-        c.condition,
-        source.potentialConditions,
-        c.potentialConditions
-    ];
+        // Find conditions from all possible locations  
+        const conditionsSources = [
+            source.conditions,
+            c.conditions,
+            item.conditions,
+            source.condition,
+            c.condition,
+            source.potentialConditions,
+            c.potentialConditions
+        ];
 
-    // Find parameters from all possible locations
-    const parametersSources = [
-        source.parameters,
-        c.parameters,
-        item.parameters,
-        source.parametersToMonitor,
-        c.parametersToMonitor,
-        source.monitoringParameters,
-        c.monitoringParameters
-    ];
+        // Find parameters from all possible locations
+        const parametersSources = [
+            source.parameters,
+            c.parameters,
+            item.parameters,
+            source.parametersToMonitor,
+            c.parametersToMonitor,
+            source.monitoringParameters,
+            c.monitoringParameters
+        ];
 
-    // Normalize actions
-    const actionsData = actionsSources.find(a => a);
-    s.actions = UnifiedDataPipeline.normalizeBowTiePool(actionsData, 'action');
+        // Normalize actions
+        const actionsData = actionsSources.find(a => a);
+        s.actions = UnifiedDataPipeline.normalizeBowTiePool(actionsData, 'action');
 
-    // Normalize conditions
-    const conditionsData = conditionsSources.find(c => c);
-    s.conditions = UnifiedDataPipeline.normalizeBowTiePool(conditionsData, 'condition');
+        // Normalize conditions
+        const conditionsData = conditionsSources.find(c => c);
+        s.conditions = UnifiedDataPipeline.normalizeBowTiePool(conditionsData, 'condition');
 
-    // Normalize parameters
-    const paramsData = parametersSources.find(p => p);
-    s.parameters = UnifiedDataPipeline.normalizeBowTiePool(paramsData, 'parameter');
+        // Normalize parameters
+        const paramsData = parametersSources.find(p => p);
+        s.parameters = UnifiedDataPipeline.normalizeBowTiePool(paramsData, 'parameter');
 
-    // Also put at root level for renderers that expect it there
-    item.actions = s.actions;
-    item.conditions = s.conditions;
-    item.parameters = s.parameters;
+        // Also put at root level for renderers that expect it there
+        item.actions = s.actions;
+        item.conditions = s.conditions;
+        item.parameters = s.parameters;
 
-    console.log('[UnifiedDataPipeline] BowTie normalized:', {
-        actionsCount: Array.isArray(s.actions) ? s.actions.length : 0,
-        conditionsCount: Array.isArray(s.conditions) ? s.conditions.length : 0,
-        parametersCount: Array.isArray(s.parameters) ? s.parameters.length : 0
-    });
-}
+        console.log('[UnifiedDataPipeline] BowTie normalized:', {
+            actionsCount: Array.isArray(s.actions) ? s.actions.length : 0,
+            conditionsCount: Array.isArray(s.conditions) ? s.conditions.length : 0,
+            parametersCount: Array.isArray(s.parameters) ? s.parameters.length : 0
+        });
+    }
 
     /**
      * Normalize a BowTie pool (actions, conditions, or parameters)
      * IMPORTANT: Returns FLAT ARRAY to match Zod schema expectations
      */
     private static normalizeBowTiePool(data: any, category: string): CanonicalBowTieOption[] {
-    if (!data) {
-        console.warn(`[UnifiedDataPipeline] No ${category} data found, using fallback`);
-        // Return fallback with correct counts per Zod schema
-        const fallbackCount = category === 'condition' ? 4 : 5;
-        const correctCount = category === 'condition' ? 1 : 2;
-        const fallback: CanonicalBowTieOption[] = [];
-        for (let i = 0; i < fallbackCount; i++) {
-            fallback.push({
-                id: `fb_${category}_${i + 1}`,
-                text: `Fallback ${category} ${i + 1}`,
-                isCorrect: i < correctCount
-            });
+        if (!data) {
+            console.warn(`[UnifiedDataPipeline] No ${category} data found, using fallback`);
+            // Return fallback with correct counts per Zod schema
+            const fallbackCount = category === 'condition' ? 4 : 5;
+            const correctCount = category === 'condition' ? 1 : 2;
+            const fallback: CanonicalBowTieOption[] = [];
+            for (let i = 0; i < fallbackCount; i++) {
+                fallback.push({
+                    id: `fb_${category}_${i + 1}`,
+                    text: `Fallback ${category} ${i + 1}`,
+                    isCorrect: i < correctCount
+                });
+            }
+            return fallback;
         }
-        return fallback;
+
+        // Handle pool wrapper - extract the array
+        let rawPool = data.pool || data;
+
+        // Ensure array
+        if (!Array.isArray(rawPool)) {
+            rawPool = [rawPool];
+        }
+
+        // Normalize each option
+        const pool: CanonicalBowTieOption[] = rawPool.map((opt: any, idx: number) => ({
+            id: opt.id || `${category}_${idx}`,
+            text: opt.text || opt.label || opt.name || `Option ${idx + 1}`,
+            isCorrect: Boolean(opt.isCorrect || opt.correct),
+            rationale: opt.rationale || opt.explanation || undefined
+        }));
+
+        const correctCount = pool.filter(o => o.isCorrect).length;
+
+        // If no correct options, mark first as correct (safety)
+        if (correctCount === 0 && pool.length > 0) {
+            pool[0].isCorrect = true;
+        }
+
+        // Return FLAT ARRAY (not wrapped object)
+        return pool;
     }
-
-    // Handle pool wrapper - extract the array
-    let rawPool = data.pool || data;
-
-    // Ensure array
-    if (!Array.isArray(rawPool)) {
-        rawPool = [rawPool];
-    }
-
-    // Normalize each option
-    const pool: CanonicalBowTieOption[] = rawPool.map((opt: any, idx: number) => ({
-        id: opt.id || `${category}_${idx}`,
-        text: opt.text || opt.label || opt.name || `Option ${idx + 1}`,
-        isCorrect: Boolean(opt.isCorrect || opt.correct),
-        rationale: opt.rationale || opt.explanation || undefined
-    }));
-
-    const correctCount = pool.filter(o => o.isCorrect).length;
-
-    // If no correct options, mark first as correct (safety)
-    if (correctCount === 0 && pool.length > 0) {
-        pool[0].isCorrect = true;
-    }
-
-    // Return FLAT ARRAY (not wrapped object)
-    return pool;
-}
 
     /**
      * Normalize Calculation structure
      */
     private static normalizeCalculation(item: any, source: any): void {
-    const s = item.content.structure;
+        const s = item.content.structure;
 
-    s.correctValue = source.correctValue ?? item.correctValue ?? 0;
-    s.units = source.units || item.units || 'mL';
-    s.inputLabel = source.inputLabel || item.inputLabel || '';
-    s.tolerance = source.tolerance ?? item.tolerance ?? 0.1;
-}
+        s.correctValue = source.correctValue ?? item.correctValue ?? 0;
+        s.units = source.units || item.units || 'mL';
+        s.inputLabel = source.inputLabel || item.inputLabel || '';
+        s.tolerance = source.tolerance ?? item.tolerance ?? 0.1;
+    }
 
     /**
      * Normalize Case Study structure
      */
     private static normalizeCaseStudy(item: any, source: any): void {
-    const s = item.content.structure;
+        const s = item.content.structure;
 
-    s.screens = source.screens || [];
+        s.screens = source.screens || [];
 
-    // Recursively normalize each screen
-    s.screens = s.screens.map((screen: any, idx: number) => {
-        const normalized = { ...screen };
-        normalized.id = screen.id || `screen_${idx}`;
-        normalized.type = screen.type || 'multiple-response';
-        normalized.cjmmStep = screen.cjmmStep || UnifiedDataPipeline.inferCJMMStep(screen.type);
-        return normalized;
-    });
-}
+        // Recursively normalize each screen
+        s.screens = s.screens.map((screen: any, idx: number) => {
+            const normalized = { ...screen };
+            normalized.id = screen.id || `screen_${idx}`;
+            normalized.type = screen.type || 'multiple-response';
+            normalized.cjmmStep = screen.cjmmStep || UnifiedDataPipeline.inferCJMMStep(screen.type);
+            return normalized;
+        });
+    }
 
     /**
      * Normalize Matrix structure
      */
     private static normalizeMatrix(item: any, source: any): void {
-    const s = item.content.structure;
+        const s = item.content.structure;
 
-    s.rows = source.rows || [];
-    s.columns = source.columns || [];
-}
+        s.rows = source.rows || [];
+        s.columns = source.columns || [];
+    }
 
     /**
      * Normalize generic structure (MCQ, SATA, etc.)
      */
     private static normalizeGeneric(item: any, source: any): void {
-    const s = item.content.structure;
+        const s = item.content.structure;
 
-    if(source.options) {
-    s.options = source.options.map((opt: any, idx: number) => ({
-        id: opt.id || `opt_${idx}`,
-        text: opt.text || opt.label || `Option ${idx + 1}`,
-        isCorrect: Boolean(opt.isCorrect || opt.correct),
-        rationale: opt.rationale
-    }));
-}
+        if (source.options) {
+            s.options = source.options.map((opt: any, idx: number) => ({
+                id: opt.id || `opt_${idx}`,
+                text: opt.text || opt.label || `Option ${idx + 1}`,
+                isCorrect: Boolean(opt.isCorrect || opt.correct),
+                rationale: opt.rationale
+            }));
+        }
 
-if (source.sentences) s.sentences = source.sentences;
-if (source.dropdowns) s.dropdowns = source.dropdowns;
-if (source.text) s.text = source.text;
-if (source.rationales) s.rationales = source.rationales;
-if (source.correct) s.correct = source.correct;
+        if (source.sentences) s.sentences = source.sentences;
+        if (source.dropdowns) s.dropdowns = source.dropdowns;
+        if (source.text) s.text = source.text;
+        if (source.rationales) s.rationales = source.rationales;
+        if (source.correct) s.correct = source.correct;
     }
 
     /**
      * Normalize rationale and inject difficulty
      */
     private static normalizeRationale(item: any, difficulty: number): void {
-    const c = item.content;
+        const c = item.content;
 
-    // Find rationale from various sources
-    const rat = c.rationale || item.rationale || {};
+        // Find rationale from various sources
+        const rat = c.rationale || item.rationale || {};
 
-    const def = DIFFICULTY_DEFINITIONS[difficulty] || DIFFICULTY_DEFINITIONS[3];
+        const def = DIFFICULTY_DEFINITIONS[difficulty] || DIFFICULTY_DEFINITIONS[3];
 
-    // CRITICAL: Build referenceInfo from user's pathophysiology/general keys if native referenceInfo is missing
-    let referenceInfo = rat.referenceInfo;
-    if(!referenceInfo && (rat.pathophysiology || rat.general || rat.physiology || rat.anatomy)) {
-    referenceInfo = {
-        anatomy: rat.anatomy || rat.general || 'Review relevant anatomy for this case.',
-        physiology: rat.physiology || rat.pathophysiology || 'Review relevant pathophysiology for this case.',
-        pharm: rat.pharm || rat.pharmacology || 'Review relevant medication mechanisms.'
-    };
-    console.log('[UnifiedDataPipeline] Built referenceInfo from legacy keys:', referenceInfo);
-}
+        // CRITICAL: Build referenceInfo from user's pathophysiology/general keys if native referenceInfo is missing
+        let referenceInfo = rat.referenceInfo;
+        if (!referenceInfo && (rat.pathophysiology || rat.general || rat.physiology || rat.anatomy)) {
+            referenceInfo = {
+                anatomy: rat.anatomy || rat.general || 'Review relevant anatomy for this case.',
+                physiology: rat.physiology || rat.pathophysiology || 'Review relevant pathophysiology for this case.',
+                pharm: rat.pharm || rat.pharmacology || 'Review relevant medication mechanisms.'
+            };
+            console.log('[UnifiedDataPipeline] Built referenceInfo from legacy keys:', referenceInfo);
+        }
 
-c.rationale = {
-    coreConcept: rat.coreConcept || "Clinical Judgment",
-    caseSummary: rat.caseSummary || "Clinical scenario analysis required.",
-    answerAnalysis: rat.answerAnalysis || "See option review for detailed analysis.",
-    trap: rat.trap || undefined,
-    goldenRule: rat.goldenRule || rat.clinicalTakeaway || "Prioritize patient safety.",
-    steps: rat.steps || [],
-    difficulty: {
-        level: difficulty,
-        score: difficulty * 20,
-        label: def.label,
-        clinicalStrategy: rat.difficulty?.clinicalStrategy || `Level ${difficulty} clinical reasoning required.`,
-        recommendedActions: rat.difficulty?.recommendedActions ||
-            (difficulty >= 4 ? ["Practice advanced scenarios"] : ["Review core concepts"])
-    },
-    optionReviews: rat.optionReviews,
-    // CRITICAL: Check item.rationale directly since 'rat' might prefer c.rationale which lacks mnemonic
-    mnemonic: rat.mnemonic || item.rationale?.mnemonic,
-    cheatSheet: rat.cheatSheet || item.rationale?.cheatSheet,
-    referenceInfo: referenceInfo,
-    // PRESERVE user's custom rationale fields
-    pathophysiology: rat.pathophysiology || item.rationale?.pathophysiology,
-    general: rat.general || item.rationale?.general,
-    safetyCheck: rat.safetyCheck || item.rationale?.safetyCheck,
-    clinicalTakeaway: rat.clinicalTakeaway || item.rationale?.clinicalTakeaway
-};
+        c.rationale = {
+            coreConcept: rat.coreConcept || "Clinical Judgment",
+            caseSummary: rat.caseSummary || "Clinical scenario analysis required.",
+            answerAnalysis: rat.answerAnalysis || "See option review for detailed analysis.",
+            trap: rat.trap || undefined,
+            goldenRule: rat.goldenRule || rat.clinicalTakeaway || "Prioritize patient safety.",
+            steps: rat.steps || [],
+            difficulty: {
+                level: difficulty,
+                score: difficulty * 20,
+                label: def.label,
+                clinicalStrategy: rat.difficulty?.clinicalStrategy || `Level ${difficulty} clinical reasoning required.`,
+                recommendedActions: rat.difficulty?.recommendedActions ||
+                    (difficulty >= 4 ? ["Practice advanced scenarios"] : ["Review core concepts"])
+            },
+            optionReviews: rat.optionReviews,
+            // CRITICAL: Check item.rationale directly since 'rat' might prefer c.rationale which lacks mnemonic
+            mnemonic: rat.mnemonic || item.rationale?.mnemonic,
+            cheatSheet: rat.cheatSheet || item.rationale?.cheatSheet,
+            referenceInfo: referenceInfo,
+            // PRESERVE user's custom rationale fields
+            pathophysiology: rat.pathophysiology || item.rationale?.pathophysiology,
+            general: rat.general || item.rationale?.general,
+            safetyCheck: rat.safetyCheck || item.rationale?.safetyCheck,
+            clinicalTakeaway: rat.clinicalTakeaway || item.rationale?.clinicalTakeaway
+        };
 
-console.log('[UnifiedDataPipeline] SAVED mnemonic to content.rationale:', JSON.stringify(c.rationale.mnemonic));
+        console.log('[UnifiedDataPipeline] SAVED mnemonic to content.rationale:', JSON.stringify(c.rationale.mnemonic));
     }
 
     /**
      * CRITICAL: Inject difficulty into ALL locations where components read it
      */
     private static injectDifficultyEverywhere(item: any, difficulty: number): void {
-    // Metadata
-    item.metadata.difficulty = difficulty;
-    item.metadata.difficultyLevel = difficulty;
+        // Metadata
+        item.metadata.difficulty = difficulty;
+        item.metadata.difficultyLevel = difficulty;
 
-    // Pedagogy
-    item.pedagogy.difficultyLevel = difficulty;
+        // Pedagogy
+        item.pedagogy.difficultyLevel = difficulty;
 
-    // Content metadata (if exists)
-    if(item.content.metadata) {
-    item.content.metadata.difficulty = difficulty;
-    item.content.metadata.level = difficulty;
-}
+        // Content metadata (if exists)
+        if (item.content.metadata) {
+            item.content.metadata.difficulty = difficulty;
+            item.content.metadata.level = difficulty;
+        }
 
-// Root level (for legacy components)
-item.difficulty = difficulty;
-item.difficultyLevel = difficulty;
+        // Root level (for legacy components)
+        item.difficulty = difficulty;
+        item.difficultyLevel = difficulty;
 
-// Structure
-if (item.content.structure) {
-    item.content.structure.difficulty = difficulty;
-}
+        // Structure
+        if (item.content.structure) {
+            item.content.structure.difficulty = difficulty;
+        }
     }
 
     /**
      * Ensure metadata is complete
      */
     private static ensureMetadata(item: any): void {
-    const m = item.metadata;
+        const m = item.metadata;
 
-    m.title = m.title || item.content?.metadata?.title || "Clinical Assessment Item";
-    m.authorId = m.authorId || "UnifiedPipeline";
-    m.createdAt = m.createdAt || new Date().toISOString();
-    m.updatedAt = new Date().toISOString();
-    m.status = m.status || "draft";
-    m.qualityScore = m.qualityScore || 80;
-    m.hasStudentPreview = true;
-    m.sourceOrigin = m.sourceOrigin || 'ai' as InputMode;
+        m.title = m.title || item.content?.metadata?.title || "Clinical Assessment Item";
+        m.authorId = m.authorId || "UnifiedPipeline";
+        m.createdAt = m.createdAt || new Date().toISOString();
+        m.updatedAt = new Date().toISOString();
+        m.status = m.status || "draft";
+        m.qualityScore = m.qualityScore || 80;
+        m.hasStudentPreview = true;
+        m.sourceOrigin = m.sourceOrigin || 'ai' as InputMode;
 
-    if(!m.batchInfo) {
-    m.batchInfo = {
-        batchId: 'unified',
-        batchSize: 1,
-        temperature: 0,
-        generationDate: new Date().toISOString()
-    };
-}
+        if (!m.batchInfo) {
+            m.batchInfo = {
+                batchId: 'unified',
+                batchSize: 1,
+                temperature: 0,
+                generationDate: new Date().toISOString()
+            };
+        }
     }
 
     // ========================================================================
@@ -839,204 +842,204 @@ if (item.content.structure) {
     // ========================================================================
 
     private static normalizeGender(g: any): 'M' | 'F' | 'O' {
-    if (!g) return 'M';
-    const s = String(g).toLowerCase();
-    if (s === 'f' || s === 'female') return 'F';
-    if (s === 'm' || s === 'male') return 'M';
-    return 'O';
-}
+        if (!g) return 'M';
+        const s = String(g).toLowerCase();
+        if (s === 'f' || s === 'female') return 'F';
+        if (s === 'm' || s === 'male') return 'M';
+        return 'O';
+    }
 
     private static normalizeVitals(data: any): CanonicalVital[] {
-    if (!data) return UnifiedDataPipeline.getDefaultVitals();
+        if (!data) return UnifiedDataPipeline.getDefaultVitals();
 
-    const arr = Array.isArray(data) ? data : [data];
+        const arr = Array.isArray(data) ? data : [data];
 
-    return arr.map((v: any) => ({
-        time: v.time || "0800",
-        tempF: String(v.tempF || v.temp || v.temperature || "98.6"),
-        hr: Number(v.hr || v.heartRate || v.pulse || 80),
-        rr: Number(v.rr || v.respRate || v.respiratoryRate || 16),
-        bp: v.bp || v.bloodPressure || "120/80",
-        o2: String(v.o2 || v.spo2 || v.oxygenSat || "98"),
-        o2_device: v.o2_device || v.oxygenDevice || v.o2Device || "RA",
-        pain: v.pain !== undefined ? Number(v.pain) : null
-    }));
-}
+        return arr.map((v: any) => ({
+            time: v.time || "0800",
+            tempF: String(v.tempF || v.temp || v.temperature || "98.6"),
+            hr: Number(v.hr || v.heartRate || v.pulse || 80),
+            rr: Number(v.rr || v.respRate || v.respiratoryRate || 16),
+            bp: v.bp || v.bloodPressure || "120/80",
+            o2: String(v.o2 || v.spo2 || v.oxygenSat || "98"),
+            o2_device: v.o2_device || v.oxygenDevice || v.o2Device || "RA",
+            pain: v.pain !== undefined ? Number(v.pain) : null
+        }));
+    }
 
     private static normalizeLabs(data: any): CanonicalLab[] {
-    if (!data) return [];
+        if (!data) return [];
 
-    const arr = Array.isArray(data) ? data : [data];
+        const arr = Array.isArray(data) ? data : [data];
 
-    return arr.map((l: any) => ({
-        test: l.test || l.name || l.testName || "Unknown Test",
-        value: String(l.value || l.result || "N/A"),
-        unit: l.unit || l.units || "",
-        // CRITICAL: Support ALL variations of reference range key
-        ref: l.ref || l.reference || l.refRange || l.referenceRange || l.range || l.normalRange || "",
-        flag: (l.flag || l.status || "").toLowerCase(),
-        category: l.category,
-        previous: l.previous
-    }));
-}
+        return arr.map((l: any) => ({
+            test: l.test || l.name || l.testName || "Unknown Test",
+            value: String(l.value || l.result || "N/A"),
+            unit: l.unit || l.units || "",
+            // CRITICAL: Support ALL variations of reference range key
+            ref: l.ref || l.reference || l.refRange || l.referenceRange || l.range || l.normalRange || "",
+            flag: (l.flag || l.status || "").toLowerCase(),
+            category: l.category,
+            previous: l.previous
+        }));
+    }
 
     private static normalizeOrders(data: any): CanonicalOrder[] {
-    if (!data) return [];
+        if (!data) return [];
 
-    const arr = Array.isArray(data) ? data : [data];
+        const arr = Array.isArray(data) ? data : [data];
 
-    return arr.map((o: any) => {
-        // Handle plain string orders
-        if (typeof o === 'string') {
-            return {
-                drug: o,
-                dose: "As ordered",
-                route: "IV",
-                freq: "Per protocol",
-                status: "active",
-                indication: "As ordered"
-            };
-        }
-
-        // Handle object orders
-        return {
-            // CRITICAL: Check 'order' field first - Golden prompts use this instead of 'drug'
-            // CRITICAL: Check all possible field names for the order content
-            drug: o.order || o.text || o.drug || o.medication || o.name || o.description || o.note || o.item || o.entry || o.value || o.content || "Medication",
-            dose: o.dose || o.dosage || "As ordered",
-            route: o.route || "IV",
-            freq: o.freq || o.frequency || "Per protocol",
-            status: (o.status || "active").toLowerCase(),
-            indication: o.indication || o.reason || "",
-            holdReason: o.holdReason
-        };
-    });
-}
-
-    private static normalizeHistory(data: any, chiefComplaint ?: string): any[] {
-    if (data && Array.isArray(data)) {
-        return data.map((note: any, idx: number) => {
-            if (typeof note === 'string') {
-                return { time: `0${8 + idx}00`.slice(-4), note, initial: "RN" };
+        return arr.map((o: any) => {
+            // Handle plain string orders
+            if (typeof o === 'string') {
+                return {
+                    drug: o,
+                    dose: "As ordered",
+                    route: "IV",
+                    freq: "Per protocol",
+                    status: "active",
+                    indication: "As ordered"
+                };
             }
+
+            // Handle object orders
             return {
-                time: note.time || `0${8 + idx}00`.slice(-4),
-                note: note.note || note.entry || note.text || note,
-                initial: note.initial || note.author || "RN"
+                // CRITICAL: Check 'order' field first - Golden prompts use this instead of 'drug'
+                // CRITICAL: Check all possible field names for the order content
+                drug: o.order || o.text || o.drug || o.medication || o.name || o.description || o.note || o.item || o.entry || o.value || o.content || "Medication",
+                dose: o.dose || o.dosage || "As ordered",
+                route: o.route || "IV",
+                freq: o.freq || o.frequency || "Per protocol",
+                status: (o.status || "active").toLowerCase(),
+                indication: o.indication || o.reason || "",
+                holdReason: o.holdReason
             };
         });
     }
 
-    if (data && typeof data === 'string') {
-        return [{ time: "0800", note: data, initial: "RN" }];
-    }
+    private static normalizeHistory(data: any, chiefComplaint?: string): any[] {
+        if (data && Array.isArray(data)) {
+            return data.map((note: any, idx: number) => {
+                if (typeof note === 'string') {
+                    return { time: `0${8 + idx}00`.slice(-4), note, initial: "RN" };
+                }
+                return {
+                    time: note.time || `0${8 + idx}00`.slice(-4),
+                    note: note.note || note.entry || note.text || note,
+                    initial: note.initial || note.author || "RN"
+                };
+            });
+        }
 
-    if (chiefComplaint) {
-        return [{ time: "0800", note: `Chief complaint: ${chiefComplaint}`, initial: "RN" }];
-    }
+        if (data && typeof data === 'string') {
+            return [{ time: "0800", note: data, initial: "RN" }];
+        }
 
-    return [];
-}
+        if (chiefComplaint) {
+            return [{ time: "0800", note: `Chief complaint: ${chiefComplaint}`, initial: "RN" }];
+        }
+
+        return [];
+    }
 
     private static inferCJMMStep(type: string): string {
-    const map: Record<string, string> = {
-        'highlight': 'Recognize Cues',
-        'matrix': 'Analyze Cues',
-        'ordered-response': 'Prioritize Hypotheses',
-        'bow-tie': 'Generate Solutions',
-        'drop-cloze': 'Take Action',
-        'multiple-response': 'Evaluate Outcomes',
-        'sata': 'Evaluate Outcomes'
-    };
-    return map[type] || 'Clinical Judgment';
-}
+        const map: Record<string, string> = {
+            'highlight': 'Recognize Cues',
+            'matrix': 'Analyze Cues',
+            'ordered-response': 'Prioritize Hypotheses',
+            'bow-tie': 'Generate Solutions',
+            'drop-cloze': 'Take Action',
+            'multiple-response': 'Evaluate Outcomes',
+            'sata': 'Evaluate Outcomes'
+        };
+        return map[type] || 'Clinical Judgment';
+    }
 
     private static getDefaultPatientInfo(): CanonicalPatientInfo {
-    return {
-        name: "Client, A.",
-        age: 65,
-        gender: 'M',
-        codeStatus: "FULL CODE",
-        admissionDate: new Date().toLocaleDateString() + " 07:30",
-        room: "MedSurg-12",
-        physician: "Dr. S. Specialist",
-        nurse: "RN Staff",
-        allergies: "NKDA",
-        isolation: "Standard Precautions"
-    };
-}
+        return {
+            name: "Client, A.",
+            age: 65,
+            gender: 'M',
+            codeStatus: "FULL CODE",
+            admissionDate: new Date().toLocaleDateString() + " 07:30",
+            room: "MedSurg-12",
+            physician: "Dr. S. Specialist",
+            nurse: "RN Staff",
+            allergies: "NKDA",
+            isolation: "Standard Precautions"
+        };
+    }
 
     private static getDefaultVitals(): CanonicalVital[] {
-    return [{
-        time: "0800",
-        tempF: "98.6",
-        hr: 80,
-        rr: 16,
-        bp: "120/80",
-        o2: "98",
-        o2_device: "RA",
-        pain: 0
-    }];
-}
+        return [{
+            time: "0800",
+            tempF: "98.6",
+            hr: 80,
+            rr: 16,
+            bp: "120/80",
+            o2: "98",
+            o2_device: "RA",
+            pain: 0
+        }];
+    }
 
     private static createEmptyItem(): MasterQuestionItem {
-    return {
-        id: `empty_${Date.now()}`,
-        typeId: 'unknown',
-        type: 'unknown',
-        metadata: {
-            title: "Empty Item",
-            authorId: "System",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            status: 'draft',
-            qualityScore: 0,
-            hasStudentPreview: false,
-            batchInfo: { batchId: 'empty', batchSize: 0, temperature: 0, generationDate: new Date().toISOString() },
-            sourceOrigin: 'manual' as InputMode,
-            sourceReferences: []
-        },
-        pedagogy: { difficultyLevel: 3, clinicalFocus: 'General', clinicalFocusTopics: [] },
-        aiSafetyChecks: {
-            runId: 'empty',
-            timestamp: new Date().toISOString(),
-            copyrightScore: 100,
-            duplicationCheck: { isDuplicate: false, similarityScore: 0 },
-            validationStatus: 'Pass',
-            issues: [],
-            autoFixHistory: []
-        },
-        content: {
-            clinicalData: null,
-            structure: { type: 'unknown' },
-            rationale: null
-        }
-    } as any;
-}
-    private static normalizeRadiology(data: any): any[] {
-    if (!data) return [];
-
-    const arr = Array.isArray(data) ? data : [data];
-
-    return arr.map(item => {
-        if (typeof item === 'string') {
-            return {
-                study: "Diagnostic Imaging",
-                findings: item,
-                impression: "",
-                date: "Recent"
-            };
-        }
         return {
-            study: item.study || item.exam || item.type || "Diagnostic Imaging",
-            findings: item.findings || item.result || item.report || item.text || "",
-            impression: item.impression || item.conclusion || "",
-            indication: item.indication || item.reason || "",
-            radiologist: item.radiologist || item.readBy || "",
-            date: item.date || item.time || "Recent"
-        };
-    });
-}
+            id: `empty_${Date.now()}`,
+            typeId: 'unknown',
+            type: 'unknown',
+            metadata: {
+                title: "Empty Item",
+                authorId: "System",
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                status: 'draft',
+                qualityScore: 0,
+                hasStudentPreview: false,
+                batchInfo: { batchId: 'empty', batchSize: 0, temperature: 0, generationDate: new Date().toISOString() },
+                sourceOrigin: 'manual' as InputMode,
+                sourceReferences: []
+            },
+            pedagogy: { difficultyLevel: 3, clinicalFocus: 'General', clinicalFocusTopics: [] },
+            aiSafetyChecks: {
+                runId: 'empty',
+                timestamp: new Date().toISOString(),
+                copyrightScore: 100,
+                duplicationCheck: { isDuplicate: false, similarityScore: 0 },
+                validationStatus: 'Pass',
+                issues: [],
+                autoFixHistory: []
+            },
+            content: {
+                clinicalData: null,
+                structure: { type: 'unknown' },
+                rationale: null
+            }
+        } as any;
+    }
+    private static normalizeRadiology(data: any): any[] {
+        if (!data) return [];
+
+        const arr = Array.isArray(data) ? data : [data];
+
+        return arr.map(item => {
+            if (typeof item === 'string') {
+                return {
+                    study: "Diagnostic Imaging",
+                    findings: item,
+                    impression: "",
+                    date: "Recent"
+                };
+            }
+            return {
+                study: item.study || item.exam || item.type || "Diagnostic Imaging",
+                findings: item.findings || item.result || item.report || item.text || "",
+                impression: item.impression || item.conclusion || "",
+                indication: item.indication || item.reason || "",
+                radiologist: item.radiologist || item.readBy || "",
+                date: item.date || item.time || "Recent"
+            };
+        });
+    }
 }
 
 // Export the transform function directly for convenience

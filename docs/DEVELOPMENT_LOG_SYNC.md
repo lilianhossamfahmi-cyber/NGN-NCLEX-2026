@@ -31,7 +31,12 @@ Updated all 11 **Golden Prompts** (`docs/external_prompts/Golden Prompts/`) to t
 *   **ID Strategy**: Enforced `[FOCUS]-[TYPE]-[HEX]` root-level ID generation.
 *   **Accessibility**: Moved the question stem (`prompt`) into the main `content` object for easier rendering engine access.
 
-### 4. Code Hygiene & Maintenance
+### 4. Bulk Repair & Lifecycle Integrity
+*   **Bulk Repair All**: Implemented a "Repair All" feature in the Admin Grid that fetches all 390+ items from Supabase and migrates them to the new schema automatically.
+*   **Save-Time Validation**: Updated `saveBatchToBank` to force all items through the `UnifiedDataPipeline` before every persistent save. This ensures that manually created "New Items" or Magic Fixer results are always in perfect alignment with the Managers.
+*   **Magic Fixer Integration**: Replaced legacy normalization with the `UnifiedDataPipeline` in the Magic Fixer UI.
+
+### 5. Code Hygiene & Maintenance
 *   **Linting**: Fixed all outstanding lint errors in `ItemIngestionService.ts` (unused `_warnedTypes`).
 *   **Documentation**: Updated internal logs and architecture docs to reflect the new flow from Ingestion → Pipeline → Manager → Database.
 

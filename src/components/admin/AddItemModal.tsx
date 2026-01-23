@@ -87,12 +87,25 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ onClose, onCreated }
                         hasStudentPreview: true
                     },
                     content: {
-                        patient: { age: 0, sex: 'Female', name: 'Placeholder' },
-                        vitals: [],
-                        labs: [],
-                        orders: [],
-                        historyPhysical: {},
-                        rationales: {},
+                        clinicalData: {
+                            patientInfo: { name: 'Placeholder Initials', age: 45, gender: 'F', allergies: 'NKDA', codeStatus: 'Full Code', weightKg: 70 },
+                            setting: 'Acute Care',
+                            historyPhysical: {
+                                chiefComplaint: 'Pending...',
+                                hpi: 'Pending...',
+                                pmh: [],
+                                medications: []
+                            },
+                            history: [
+                                { time: '0800', author: 'RN', note: 'Initial assessment pending...' }
+                            ],
+                            vitals: [
+                                { time: '0800', tempF: '98.6', hr: 80, rr: 18, bp: '120/80', o2: '98', o2_device: 'RA', pain: 0 }
+                            ],
+                            labs: [],
+                            orders: [],
+                            radiology: []
+                        },
                         rationale: {
                             coreConcept: topicToUse,
                             caseSummary: "Pending generation...",

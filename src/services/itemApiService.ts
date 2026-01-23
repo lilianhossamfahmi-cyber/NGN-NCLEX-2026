@@ -161,9 +161,10 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
             difficulty_level: difficultyLevel,
             cjmm_step: cjmmStep,
             client_needs: clientNeeds,
-            created_at: (item as any).created_at || now,
+            // FIX: Prioritize original creation date from metadata to prevent resetting on repair
+            created_at: item.metadata?.createdAt || (item as any).created_at || now,
             updated_at: now,
-            created_by: userId || 'system',
+            created_by: item.metadata?.authorId || userId || 'system',
             updated_by: userId || 'system',
             status: (metadata?.status || item.metadata?.status || 'draft').toLowerCase(),
             quality_score: metadata?.qualityScore || 0,
