@@ -44,28 +44,7 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
         }
     };
 
-    const handleSelectiveRepair = async () => {
-        if (selectedIds.size === 0) return;
-        const autofill = confirm(`Would you like AI to automatically fill missing content (Rationales, Distractors) for these ${selectedIds.size} items?`);
 
-        setRepairing(true);
-        setRepairProgress({ current: 0, total: selectedIds.size });
-
-        try {
-            const selectedItems = items.filter(i => selectedIds.has(String(i.id)));
-            const success = await repairSelectiveItems(selectedItems, { autofill }, (current, total) => {
-                setRepairProgress({ current, total });
-            });
-            alert(`✅ Successfully repaired ${success} items.`);
-            fetchItems();
-            setSelectedIds(new Set());
-        } catch (err) {
-            console.error(err);
-            alert('❌ Selective repair failed.');
-        } finally {
-            setRepairing(false);
-        }
-    };
 
     const handleToggleFreeze = async (item: MasterQuestionItem) => {
         const isFrozen = (item as any).metadata?.finalSaved;
@@ -354,7 +333,7 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
     };
 
     // --- BULK ACTION HANDLERS ---
-    const handleSelectiveRepair = async () => {
+    const handleSmartRepair = async () => {
         if (!confirm(`Are you sure you want to perform SMART REPAIR on ${selectedIds.size} items? This may take a moment for AI generation.`)) return;
 
         setRepairing(true);
@@ -503,7 +482,7 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
                         {/* REPAIR Button */}
                         <div className="flex items-center gap-1">
                             <button
-                                onClick={handleSelectiveRepair}
+                                onClick={handleSmartRepair}
                                 className="text-[10px] bg-indigo-600 text-white px-2 py-1 rounded hover:bg-indigo-700 font-bold shadow-sm flex items-center gap-1"
                                 disabled={repairing}
                             >
