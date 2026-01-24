@@ -191,11 +191,46 @@ export class UnifiedDataPipeline {
             const deeplyRepaired = await manager.deepRepair(item, options);
 
             // Sync back results
+            // Sync back results with DEEP MERGE for Rationale to prevent structure loss
             if (deeplyRepaired) {
-                if (deeplyRepaired.content) item.content = { ...item.content, ...deeplyRepaired.content };
+                if (deeplyRepaired.content) {
+                    // 1. Preserve existing rationale structure
+                    const existingRationale = item.content.rationale || {};
+                    const newRationale = deeplyRepaired.content.rationale || {};
+
+                    // 2. Merge content (Base + New)
+                    item.content = { ...item.content, ...deeplyRepaired.content };
+
+                    // 3. Restore/Merge Rationale specifically (Deep Merge)
+                    if (Object.keys(newRationale).length > 0) {
+                        item.content.rationale = {
+                            ...existingRationale,
+                            ...newRationale,
+                            // Ensure nested objects like difficulty aren't just overwritten by a partial
+                            difficulty: {
+                                ...existingRationale.difficulty,
+                                ...(newRationale.difficulty || {})
+                            }
+                        };
+                    }
+                }
+
                 if (deeplyRepaired.metadata) item.metadata = { ...item.metadata, ...deeplyRepaired.metadata };
                 if (deeplyRepaired.pedagogy) item.pedagogy = { ...item.pedagogy, ...deeplyRepaired.pedagogy };
                 if (deeplyRepaired.id) item.id = deeplyRepaired.id;
+
+                // 4. RE-CALCULATE DIFFICULTY & SYNC EVERYWHERE
+                // AI might have changed difficulty or rationale. We must ensure consistency.
+                const newDifficulty = UnifiedDataPipeline.extractDifficulty(item);
+                UnifiedDataPipeline.injectDifficultyEverywhere(item, newDifficulty);
+
+                // Explicitly update rationale difficulty object to match
+                if (item.content.rationale && item.content.rationale.difficulty) {
+                    item.content.rationale.difficulty.level = newDifficulty;
+                    // Update label if possible (simplified logic here, essentially re-running part of finishTransformation)
+                    const levels: any = { 1: 'Novice', 2: 'Beginner', 3: 'Competent', 4: 'Proficient', 5: 'Expert' };
+                    item.content.rationale.difficulty.label = `${levels[newDifficulty] || 'Standard'} (Level ${newDifficulty})`;
+                }
             }
         } catch (error) {
             console.error('[UnifiedDataPipeline] Deep Transform failed:', error);
