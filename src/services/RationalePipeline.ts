@@ -143,21 +143,21 @@ const DEFAULT_MNEMONIC: Mnemonic = {
     explanation: 'Systematic approach to clinical judgment: gather data, analyze patterns, take action, and evaluate outcomes. This framework applies to all patient situations.',
 };
 
-const DEFAULT_CHEAT_SHEET: CheatSheet = {
-    title: 'Key Clinical Pearls',
+const DEFAULT_CHEAT_SHEET = (topic: string = 'Clinical Safety'): CheatSheet => ({
+    title: `Clinical Pearls: ${topic}`,
     points: [
-        'Always assess airway, breathing, circulation first (ABCs)',
-        'Prioritize life-threatening conditions over stable problems',
-        'Document assessment findings before and after interventions',
-        'Communicate critical findings using SBAR format',
+        `Prioritize airway, breathing, and circulation in ${topic} management.`,
+        'Assess for rapid changes in patient status.',
+        'Review recent lab trends and vital signs.',
+        'Ensure patient safety protocols are maintained.',
     ],
-};
+});
 
-const DEFAULT_REFERENCE: ReferenceInfo = {
-    anatomy: 'Review the relevant body systems and anatomical structures affected by this clinical condition.',
-    physiology: 'Understand the normal physiological processes and how they are disrupted in this pathological state.',
-    pharm: 'Know the mechanism of action, therapeutic effects, and nursing considerations for medications used in treatment.',
-};
+const DEFAULT_REFERENCE = (topic: string = 'this condition'): ReferenceInfo => ({
+    anatomy: `Review the anatomical structures primarily affected by ${topic}.`,
+    physiology: `Understand the physiological changes associated with ${topic}.`,
+    pharm: `Review medications commonly indicated for ${topic} management.`,
+});
 
 // ============================================================================
 // CALCULATION HELPER: Extract and build step-by-step breakdown
@@ -1989,10 +1989,10 @@ export function generateRationale(
         goldenRule: existingData.goldenRule || existingData.clinicalTakeaway || 'Always prioritize patient safety and use systematic clinical reasoning.',
 
         mnemonic: effectiveMnemonic,
-        cheatSheet: effectiveCheatSheet,
+        cheatSheet: effectiveCheatSheet?.points ? effectiveCheatSheet : DEFAULT_CHEAT_SHEET(existingData.coreConcept || config.topic),
         pitfalls: effectivePitfalls,
 
-        referenceInfo: referenceInfoData,
+        referenceInfo: referenceInfoData || DEFAULT_REFERENCE(existingData.coreConcept || config.topic),
 
         cjmmStep: existingData.cjmmStep || inferCJMMStep(itemType),
         itemType,
@@ -2057,9 +2057,9 @@ function extractKnowledgeFromText(text: string): ReferenceInfo | null {
     if (!anatomy && !physiology && !pharm) return null;
 
     return {
-        anatomy: anatomy || 'Review the relevant body systems and anatomical structures affected by this clinical condition.',
-        physiology: physiology || 'Understand the normal physiological processes and how they are disrupted in this pathological state.',
-        pharm: pharm || 'Know the mechanism of action, therapeutic effects, and nursing considerations for medications used in treatment.',
+        anatomy: anatomy || '',
+        physiology: physiology || '',
+        pharm: pharm || '',
     };
 }
 

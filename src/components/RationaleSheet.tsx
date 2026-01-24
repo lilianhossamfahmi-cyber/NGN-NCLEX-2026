@@ -95,7 +95,8 @@ export const RationaleDrawer: React.FC<RationaleDrawerProps> = ({ isOpen, onClos
                 rationaleDifficulty: smartRationale.difficulty,
                 ...question?.metadata,
                 ...question?.pedagogy,
-                difficultyLevel: smartRationale.difficulty?.level
+                // FIX: Prioritize the explicit difficulty level over the pipeline's inferred one
+                difficultyLevel: question?.pedagogy?.difficultyLevel || question?.metadata?.difficultyLevel || smartRationale.difficulty?.level || 3
             }}
         />
     );
