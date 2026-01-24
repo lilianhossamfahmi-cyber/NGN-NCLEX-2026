@@ -386,20 +386,20 @@ export class UnifiedDataPipeline {
      */
     private static extractDifficulty(item: any): number {
         const sources = [
-            // Direct metadata
-            item.metadata?.difficulty,
-            item.metadata?.difficultyLevel,
-
-            // Pedagogy
+            // Pedagogy - Primary Source of Truth
             item.pedagogy?.difficultyLevel,
+
+            // Content Rationale - Secondary highly specific source
+            item.content?.rationale?.difficulty?.level,
+            item.rationale?.difficulty?.level,
+
+            // Explicit Metadata - Tertiary
+            item.metadata?.difficultyLevel,
+            item.metadata?.difficulty,
 
             // Content metadata
             item.content?.metadata?.difficulty,
             item.content?.metadata?.level,
-
-            // Rationale
-            item.content?.rationale?.difficulty?.level,
-            item.rationale?.difficulty?.level,
 
             // Structure
             item.structure?.difficulty,

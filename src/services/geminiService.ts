@@ -158,7 +158,7 @@ ${schemaContext}
 2. Follow the SCHEMAS exactly for the requested sections.
 3. For 'scenario' (Section 1), ensure realistic clinical trends.
 4. For 'structure' (Section 2), ensure correct/incorrect logic is valid.
-5. For 'rationale' (Section 3), include specific fields: path, safety, takeaway.
+5. For 'rationale' (Section 3), LEVERAGE THE CASE SCENARIO. Mnemonic and Cheat Sheet must be highly specific to this exact condition. AVOID GENERIC ADVICE.
 
 RETURN ONLY THE JSON OBJECT.
 `;
@@ -198,6 +198,15 @@ RETURN ONLY THE JSON OBJECT.
         }
         // Ensure prompt is top level
         if (parsedItem.content?.prompt) parsedItem.prompt = parsedItem.content.prompt;
+    }
+
+    // NORMALIZATION FOR MANAGER CONSUMPTION
+    // If the AI returned partial 'rationale' or 'structure' at root, wrap it in 'content'
+    if (!parsedItem.content && (parsedItem.rationale || parsedItem.structure || parsedItem.scenario)) {
+        parsedItem.content = {};
+        if (parsedItem.scenario) parsedItem.content.case = parsedItem.scenario;
+        if (parsedItem.rationale) parsedItem.content.rationale = parsedItem.rationale;
+        if (parsedItem.structure) parsedItem.content.structure = parsedItem.structure;
     }
 
     return parsedItem;
