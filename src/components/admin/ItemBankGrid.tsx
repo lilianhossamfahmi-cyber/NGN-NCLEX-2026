@@ -342,7 +342,7 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
             const fixedCount = await repairSelectiveItems(
                 itemsToRepair,
                 { autofill: true },
-                (current, total) => console.log(`Repaired ${current}/${total}`)
+                (current, total) => setRepairProgress({ current, total })
             );
 
             setSelectedIds(new Set());
