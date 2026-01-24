@@ -1549,6 +1549,27 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                                                                         </div>
                                                                         <h3 className="text-sm font-black uppercase tracking-[0.2em] text-blue-400">Calculation Analysis</h3>
                                                                     </div>
+                                                                    {/* DIFFICULTY DISPLAY ADDED HERE FOR CALCULATION */}
+                                                                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-4">
+                                                                        <div className="flex items-center justify-between mb-4">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Zap className="w-4 h-4 text-amber-500" />
+                                                                                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Item Difficulty</span>
+                                                                            </div>
+                                                                            <span className="text-xs font-bold text-white bg-slate-800 px-2 py-1 rounded">
+                                                                                Level {metadata?.difficultyLevel || metadata?.rationaleDifficulty?.level || 3}
+                                                                            </span>
+                                                                        </div>
+                                                                        <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                                                                            <div
+                                                                                className="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-red-600"
+                                                                                style={{ width: `${((metadata?.difficultyLevel || metadata?.rationaleDifficulty?.level || 3) / 5) * 100}%` }}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="mt-2 text-xs text-slate-400 font-medium">
+                                                                            {metadata?.rationaleDifficulty?.label || "Standard Difficulty"}
+                                                                        </div>
+                                                                    </div>
                                                                     <div className="grid grid-cols-2 gap-4">
                                                                         <div className="bg-emerald-500/10 border-2 border-emerald-500/20 rounded-2xl p-6 flex flex-col items-center justify-center">
                                                                             <div className="text-4xl font-black text-emerald-500 mb-1 leading-none text-center">
@@ -1667,6 +1688,28 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                                                                         {/* Analysis Section */}
                                                                         {displayAnalysis && (
                                                                             <div className="p-5 rounded-xl bg-blue-500/5 border border-blue-500/20">
+                                                                                {/* DIFFICULTY DISPLAY ADDED HERE FOR GENERIC */}
+                                                                                <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 mb-6">
+                                                                                    <div className="flex items-center justify-between mb-3">
+                                                                                        <div className="flex items-center gap-2">
+                                                                                            <Zap className="w-4 h-4 text-amber-500" />
+                                                                                            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Item Difficulty</span>
+                                                                                        </div>
+                                                                                        <span className="text-xs font-bold text-white bg-slate-800 px-2 py-1 rounded">
+                                                                                            Level {metadata?.difficultyLevel || metadata?.rationaleDifficulty?.level || 3}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                                                                        <div
+                                                                                            className="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-red-600"
+                                                                                            style={{ width: `${((metadata?.difficultyLevel || metadata?.rationaleDifficulty?.level || 3) / 5) * 100}%` }}
+                                                                                        />
+                                                                                    </div>
+                                                                                    <div className="mt-2 text-[10px] text-slate-400 font-medium uppercase tracking-wider">
+                                                                                        {metadata?.rationaleDifficulty?.label || "Standard Difficulty"}
+                                                                                    </div>
+                                                                                </div>
+
                                                                                 <div className="flex items-center gap-2 mb-4">
                                                                                     <div className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400"><ListChecks className="w-4 h-4" /></div>
                                                                                     <div className="text-xs font-bold text-blue-400 uppercase tracking-wider">Clinical Reasoning</div>
