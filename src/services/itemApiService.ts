@@ -317,8 +317,8 @@ export async function repairSelectiveItems(
 
     for (let i = 0; i < items.length; i++) {
         try {
-            // Use Deep Transform for selective repair
-            const repaired = await UnifiedDataPipeline.deepTransform(items[i], options);
+            // Use Deep Transform for selective repair WITH AUTOFILL forced
+            const repaired = await UnifiedDataPipeline.deepTransform(items[i], { autofill: true });
             repairedItems.push(repaired);
             successCount++;
 

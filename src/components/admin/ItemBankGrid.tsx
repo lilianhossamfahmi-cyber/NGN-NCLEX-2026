@@ -354,6 +354,29 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
     };
 
     // --- BULK ACTION HANDLERS ---
+    const handleSelectiveRepair = async () => {
+        if (!confirm(`Are you sure you want to perform SMART REPAIR on ${selectedIds.size} items? This may take a moment for AI generation.`)) return;
+
+        setRepairing(true);
+        try {
+            const itemsToRepair = items.filter(i => selectedIds.has(String(i.id)));
+            const fixedCount = await repairSelectiveItems(
+                itemsToRepair,
+                { autofill: true },
+                (current, total) => console.log(`Repaired ${current}/${total}`)
+            );
+
+            setSelectedIds(new Set());
+            await fetchItems();
+            alert(`✅ Successfully repaired ${fixedCount} items with AI Autofill.`);
+        } catch (e) {
+            console.error(e);
+            alert('❌ Selective repair failed. See console for details.');
+        } finally {
+            setRepairing(false);
+        }
+    };
+
     const handleBulkDelete = async () => {
         if (!confirm(`Are you sure you want to PERMANENTLY DELETE ${selectedIds.size} items?`)) return;
 
