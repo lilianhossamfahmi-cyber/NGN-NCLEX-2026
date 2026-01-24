@@ -54,6 +54,10 @@ SECTION 3: CLINICAL REASONING (rationale object)
         "title": "ACRONYM",
         "content": "A-..., B-...",
         "explanation": "How it applies..."
+    },
+    "cheatSheet": {
+        "title": "Clinical Pearls",
+        "points": ["Pearl 1", "Pearl 2", "Pearl 3"]
     }
 }
 `
