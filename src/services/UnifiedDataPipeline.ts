@@ -776,8 +776,10 @@ export class UnifiedDataPipeline {
     private static normalizeGeneric(item: any, source: any): void {
         const s = item.content.structure;
 
-        if (source.options) {
-            s.options = source.options.map((opt: any, idx: number) => ({
+        const rawOptions = source.options || item.options;
+
+        if (rawOptions) {
+            s.options = rawOptions.map((opt: any, idx: number) => ({
                 id: opt.id || `opt_${idx}`,
                 text: opt.text || opt.label || `Option ${idx + 1}`,
                 isCorrect: Boolean(opt.isCorrect || opt.correct),
