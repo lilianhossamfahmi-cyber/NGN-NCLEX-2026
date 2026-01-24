@@ -275,8 +275,8 @@ export async function repairAllItemsInBank(onProgress?: (count: number, total: n
             const rawRow = totalItems[i];
             const rawJson = typeof rawRow.item_json === 'string' ? JSON.parse(rawRow.item_json) : rawRow.item_json;
 
-            // Critical: Pass through Pipeline
-            const repaired = await UnifiedDataPipeline.transform(rawJson);
+            // Critical: Pass through Pipeline with Deep Repair & Autofill
+            const repaired = await UnifiedDataPipeline.deepTransform(rawJson, { autofill: true });
 
             // Preserve original metadata if not overriden
             repairedItems.push(repaired);
