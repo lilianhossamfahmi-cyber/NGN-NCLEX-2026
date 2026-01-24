@@ -823,13 +823,19 @@ export class UnifiedDataPipeline {
 
         // CRITICAL: Build referenceInfo from user's pathophysiology/general keys if native referenceInfo is missing
         let referenceInfo = rat.referenceInfo;
-        if (!referenceInfo && (rat.pathophysiology || rat.general || rat.physiology || rat.anatomy)) {
+        if (!referenceInfo) {
+            // Try to construct from scattered keys
             referenceInfo = {
-                anatomy: rat.anatomy || rat.general || 'Review relevant anatomy for this case.',
-                physiology: rat.physiology || rat.pathophysiology || 'Review relevant pathophysiology for this case.',
-                pharm: rat.pharm || rat.pharmacology || 'Review relevant medication mechanisms.'
+                anatomy: rat.anatomy || rat.generalAnatomy || (rat.content?.anatomy) || undefined,
+                physiology: rat.physiology || rat.pathophysiology || (rat.content?.physiology) || undefined,
+                pharm: rat.pharm || rat.pharmacology || (rat.content?.pharmacology) || undefined
             };
-            console.log('[UnifiedDataPipeline] Built referenceInfo from legacy keys:', referenceInfo);
+            // Only keep the object if at least one field has real data
+            if (!referenceInfo.anatomy && !referenceInfo.physiology && !referenceInfo.pharm) {
+                referenceInfo = undefined;
+            } else {
+                console.log('[UnifiedDataPipeline] Constructed referenceInfo from scattered keys:', referenceInfo);
+            }
         }
 
         c.rationale = {
