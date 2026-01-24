@@ -2081,6 +2081,24 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                             <div className="animate-in fade-in duration-500">
                                 <div className="flex items-center justify-between mb-8">
                                     <div><h3 className="text-2xl font-bold mb-1">Foundational Knowledge</h3><p className="opacity-60">The "Why" behind the "What".</p></div>
+                                    {/* DIFFICULTY DISPLAY ADDED TO KNOWLEDGE TAB */}
+                                    <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 min-w-[200px]">
+                                        <div className="flex items-center justify-between mb-2 gap-4">
+                                            <div className="flex items-center gap-2">
+                                                <Zap className="w-3 h-3 text-amber-500" />
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Complexity</span>
+                                            </div>
+                                            <span className="text-[10px] font-bold text-white bg-slate-800 px-2 py-0.5 rounded">
+                                                Level {metadata?.difficultyLevel || metadata?.rationaleDifficulty?.level || 3}
+                                            </span>
+                                        </div>
+                                        <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-red-600"
+                                                style={{ width: `${((metadata?.difficultyLevel || metadata?.rationaleDifficulty?.level || 3) / 5) * 100}%` }}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {isCalculation ? (

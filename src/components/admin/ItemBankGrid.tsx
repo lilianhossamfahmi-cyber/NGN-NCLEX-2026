@@ -4,7 +4,7 @@ import { getBankItems, deleteItemFromBank, saveItemToBank, updateItem, deleteBat
 import { syncItemToSupabase } from '../../services/itemSyncService';
 import { enrichItemWithQuality } from '../../utils/autoQuality';
 import { StudentPreviewModal } from '../../components/StudentPreviewModal';
-import { Eye, Copy, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, ArrowUpDown, Zap, RefreshCcw, Trash2, Archive, CheckCircle, Download, Plus, Wand2, Hammer, Lock, Unlock, Save } from 'lucide-react';
+import { Eye, Copy, ExternalLink, Search, Filter, ChevronLeft, ChevronRight, ArrowUpDown, Zap, RefreshCcw, Trash2, Archive, CheckCircle, Download, Plus, Wand2, Lock, Save } from 'lucide-react';
 import { AIBookFixerModal } from './AIBookFixerModal';
 import { MagicFixModal } from './MagicFixModal';
 import { AddItemModal } from './AddItemModal';
@@ -24,6 +24,7 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
     const [loading, setLoading] = useState(false);
     const [repairing, setRepairing] = useState(false);
     const [repairProgress, setRepairProgress] = useState({ current: 0, total: 0 });
+    const [savingId, setSavingId] = useState<string | null>(null);
 
     const handleRepairBank = async () => {
         if (!confirm('This will fetch ALL items from society and run them through the new Smart Repair pipeline. This may take a minute. Continue?')) return;
@@ -66,45 +67,52 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
         }
     };
 
-    // Final Save / Freeze Handlers
     const handleToggleFreeze = async (item: MasterQuestionItem) => {
         const isFrozen = (item as any).metadata?.finalSaved;
+        setSavingId(String(item.id));
 
-        if (isFrozen) {
-            // UNFREEZE FLOW
-            const reason = prompt("UNFREEZE ITEM: Please provide a reason for reopening this finalized item. (Audit Trail)");
-            if (!reason) return; // Cancelled
+        try {
+            if (isFrozen) {
+                // UNFREEZE FLOW
+                const reason = prompt("UNFREEZE ITEM: Please provide a reason for reopening this finalized item. (Audit Trail)");
+                if (!reason) return; // Cancelled
 
-            const updated = {
-                ...item,
-                metadata: {
-                    ...item.metadata,
-                    finalSaved: false,
-                    unfrozenAt: new Date().toISOString(),
-                    lastChangeReason: reason
-                }
-            };
-            await updateItem(updated);
-            await syncItemToSupabase(updated as any);
-            alert("🔓 Item Unfrozen. Editing is now enabled.");
-        } else {
-            // FREEZE / FINAL SAVE FLOW
-            if (!confirm("FINAL SAVE: This will lock the item as an approved snapshot.\n\nFuture schema updates will not affect it. To edit later, you must explicitly Unfreeze.\n\nProceed?")) return;
+                const updated = {
+                    ...item,
+                    metadata: {
+                        ...item.metadata,
+                        finalSaved: false,
+                        unfrozenAt: new Date().toISOString(),
+                        lastChangeReason: reason
+                    }
+                };
+                await updateItem(updated);
+                await syncItemToSupabase(updated as any);
+                alert("🔓 Item Unfrozen. Editing is now enabled.");
+            } else {
+                // FREEZE / FINAL SAVE FLOW
+                if (!confirm("FINAL SAVE: This will lock the item as an approved snapshot.\n\nFuture schema updates will not affect it. To edit later, you must explicitly Unfreeze.\n\nProceed?")) return;
 
-            const updated = {
-                ...item,
-                metadata: {
-                    ...item.metadata,
-                    finalSaved: true,
-                    finalizedAt: new Date().toISOString(),
-                    status: 'published' // Auto-publish on final save
-                }
-            };
-            await updateItem(updated);
-            await syncItemToSupabase(updated as any);
-            alert("🔒 Item Finalized and Locked.");
+                const updated = {
+                    ...item,
+                    metadata: {
+                        ...item.metadata,
+                        finalSaved: true,
+                        finalizedAt: new Date().toISOString(),
+                        status: 'published' as any // Auto-publish on final save
+                    }
+                };
+                await updateItem(updated);
+                await syncItemToSupabase(updated as any);
+                // alert("🔒 Item Finalized and Locked.");
+            }
+            await fetchItems();
+        } catch (e) {
+            console.error(e);
+            alert("Error toggling freeze state");
+        } finally {
+            setSavingId(null);
         }
-        fetchItems();
     };
 
     // Selection State
@@ -736,11 +744,12 @@ export const ItemBankGrid: React.FC<ItemBankGridProps> = ({ onEdit }) => {
                                         {/* Final Save / Freeze Button */}
                                         <button
                                             onClick={() => handleToggleFreeze(item)}
-                                            className={`text-xs px-2 py-1 rounded flex items-center gap-1 ${(item as any).metadata?.finalSaved ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'}`}
+                                            disabled={savingId === String(item.id)}
+                                            className={`text-xs px-2 py-1 rounded flex items-center gap-1 transition-all ${savingId === String(item.id) ? 'opacity-70 cursor-wait' : ''} ${(item as any).metadata?.finalSaved ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'}`}
                                             title={(item as any).metadata?.finalSaved ? "Item is Locked (Click to Unfreeze)" : "Final Save (Freeze Item)"}
                                         >
-                                            {(item as any).metadata?.finalSaved ? <Lock size={12} /> : <Save size={12} />}
-                                            {(item as any).metadata?.finalSaved ? 'Locked' : 'Save'}
+                                            {savingId === String(item.id) ? <RefreshCcw size={12} className="animate-spin" /> : ((item as any).metadata?.finalSaved ? <Lock size={12} /> : <Save size={12} />)}
+                                            {savingId === String(item.id) ? 'Saving...' : ((item as any).metadata?.finalSaved ? 'Locked' : 'Save')}
                                         </button>
 
                                         <button onClick={() => handleDelete(String(item.id))} className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded hover:bg-red-100">
