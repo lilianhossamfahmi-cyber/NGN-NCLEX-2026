@@ -1,319 +1,115 @@
 import { MasterQuestionItem } from '../../../src/types/master-schema';
 
 /**
- * FINAL HIGH-QUALITY REGENERATION (Batch 5: Items 11-14 of 20)
- * Standards: 3-Point Trends, Full Reference Ranges, Extensive Case Study Detail, 6 Options SATA
+ * HIGH-FIDELITY CARDIOLOGY (Batch 5: Items 28-31)
+ * Focus: Aortic Dissection, Mitral Stenosis, PAD, Rheumatic Carditis
  */
 
 export const CardiologyItems_Final_Batch5: MasterQuestionItem[] = [
     {
-        "id": "CARDIOLOGY-TRD-MYO-P7R8",
+        "id": "CARDIOLOGY-TRD-DISSE-L9K0",
         "typeId": "trend",
         "metadata": {
-            "title": "Acute Viral Myocarditis Progression",
+            "title": "Aortic Dissection & Blood Pressure Mismatch",
             "authorId": "AI-Expert-Writer",
-            "createdAt": "2026-01-23T13:45:00Z",
-            "updatedAt": "2026-01-23T13:45:00Z",
+            "createdAt": "2026-01-23T19:10:00Z",
+            "updatedAt": "2026-01-23T19:10:00Z",
             "status": "published",
             "sourceOrigin": "ai",
             "sourceReferences": [],
-            "qualityScore": 97,
+            "qualityScore": 98,
             "hasStudentPreview": true
         },
         "pedagogy": {
             "difficultyLevel": 5,
             "clinicalFocus": "Cardiology",
             "cjmmPhase": "Analyze Cues",
-            "clinicalFocusTopics": ["Myocarditis", "Heart Failure", "Infection Control"]
+            "clinicalFocusTopics": ["Aortic Dissection", "Vascular Emergencies", "Blood Pressure Management"]
         },
         "content": {
             "clinicalData": {
                 "patientInfo": {
-                    "name": "S.H.", "age": 24, "gender": "Male", "allergies": "NKDA", "weightKg": 78, "codeStatus": "Full Code"
+                    "name": "M.W.", "age": 62, "gender": "Male", "allergies": "NKDA", "weightKg": 95, "codeStatus": "Full Code"
                 },
-                "setting": "Emergency Department / Observation Unit",
+                "setting": "Emergency Department / ICU",
                 "historyPhysical": {
-                    "chiefComplaint": "Severe chest pain, palpitations, and extreme fatigue.",
-                    "hpi": "Client, a healthy marathon runner, reports having a 'bad flu' with high fever and body aches approximately 2 weeks ago. He felt better for a few days but now presents with sharp substernal chest pain and a racing heart. He denies any history of CAD or sudden cardiac death in the family.",
-                    "pmh": ["None", "Recent URI/Flu (2 weeks ago)"],
-                    "medications": ["None"]
+                    "chiefComplaint": "Severe, tearing chest and back pain.",
+                    "hpi": "Client describes sudden onset of 'the worst pain of my life' that feels like 'something is ripping' inside his chest and moving into his shoulder blades. Pain is 10/10. He has a history of uncontrolled hypertension.",
+                    "pmh": ["HTN", "Smoking", "Hyperlipidemia"],
+                    "medications": ["Amlodipine (stopped 3 mos ago)"]
                 },
                 "history": [
-                    { "time": "Mon 1400", "author": "RN Jones", "note": "Client reports sharp 7/10 pain. HR 115. EKG shows non-specific ST-T changes. Troponin I pending. Client appears pale." },
-                    { "time": "Tue 0800", "author": "RN Jones", "note": "Client reports worsening dyspnea. Pain 4/10. Pulse is weak. Echo shows 'Global Hypokinesis' with EF of 35%." },
-                    { "time": "Tue 1600", "author": "Cardiologist", "note": "Troponin high. Endomyocardial biopsy considered. Symptomatic heart failure treatment initiated (ACE inhibitors, Beta blockers)." }
+                    { "time": "2000", "author": "ER RN", "note": "Patient arrives diaphoretic. Agitated with pain. BP in right arm is significantly higher than left arm." },
+                    { "time": "2030", "author": "MD", "note": "Type A Aortic Dissection confirmed on CT Angiography. Surgery consult called." }
                 ],
                 "vitals": [
-                    { "time": "Mon 1400", "tempF": "101.4", "hr": 118, "rr": 20, "bp": "112/64", "o2": "97", "o2_device": "RA", "pain": 7 },
-                    { "time": "Tue 0800", "tempF": "99.2", "hr": 108, "rr": 22, "bp": "102/58", "o2": "94", "o2_device": "2L NC", "pain": 4 },
-                    { "time": "Tue 1600", "tempF": "98.6", "hr": 110, "rr": 24, "bp": "92/50", "o2": "91", "o2_device": "Non-rebreather", "pain": 2 }
-                ],
-                "labs": [
-                    { "test": "Troponin I", "value": "1.45", "flag": "H", "ref": "< 0.04", "unit": "ng/mL" },
-                    { "test": "BNP", "value": "850", "flag": "H", "ref": "< 100", "unit": "pg/mL" },
-                    { "test": "ESR", "value": "48", "flag": "H", "ref": "< 20", "unit": "mm/hr" }
-                ],
-                "radiology": [
-                    { "study": "Echocardiogram", "findings": "Global hypokinesis of the left ventricle; no regional wall motion abnormalities. Small pericardial effusion.", "impression": "Findings consistent with acute myocarditis.", "date": "Tue 0800" }
-                ]
-            },
-            "structure": {
-                "type": "trend",
-                "questionFormat": "sata",
-                "prompt": "Evaluate the clinical trend and data. Which characteristics support a diagnosis of Acute Myocarditis over a traditional Myocardial Infarction?",
-                "options": [
-                    { "id": "o1", "text": "History of recent viral illness (Flu) 2 weeks prior", "isCorrect": true, "rationale": "Myocarditis is often a post-viral autoimmune response (e.g., Coxsackie B virus)." },
-                    { "id": "o2", "text": "Global hypokinesis on echocardiogram (entire heart affected)", "isCorrect": true, "rationale": "MI causes REGIONAL wall motion abnormalities (only the area supplied by the blocked vessel). Myocarditis is diffuse/global." },
-                    { "id": "o3", "text": "Elevated Troponin I level of 1.45 ng/mL", "isCorrect": false, "rationale": "Troponin is elevated in both Myocarditis AND MI due to muscle damage; it doesn't distinguish the two." },
-                    { "id": "o4", "text": "Young age (24) and absence of CAD risk factors", "isCorrect": true, "rationale": "While MI can happen in young people, myocarditis is a leading cause of sudden heart failure/death in otherwise healthy young adults." },
-                    { "id": "o5", "text": "Persistence of high fever (101.4 F) at presentation", "isCorrect": true, "rationale": "While MI can cause low-grade fever, high fever and systemic inflammatory symptoms are more common in myocarditis." },
-                    { "id": "o6", "text": "Presence of ST-T segment changes on EKG", "isCorrect": false, "rationale": "Both conditions can show EKG changes; they are not distinguishing factors." }
-                ]
-            },
-            "rationale": {
-                "coreConcept": "Myocarditis vs MI",
-                "caseSummary": "Healthy young man with recent flu develops acute heart failure. Findings show global heart damage (No specific blockage) and inflammatory cues.",
-                "answerAnalysis": "The keys to Myocarditis are the VIRAL history (o1), GLOBAL damage rather than regional (o2), and clinical context of a YOUNG, healthy patient (o4) with FEVER (o5).",
-                "trap": "Thinking that high Troponin (o3) means it *must* be an MI. Troponin just means muscle death; in myocarditis, it's caused by inflammation, not a clot.",
-                "goldenRule": "Always ask about recent 'flu' or 'colds' in any young person presenting with chest pain or new heart failure.",
-                "steps": [
-                    { "tag": "Recognize", "description": "Assess the patient's age and recent viral history." },
-                    { "tag": "Analyze", "description": "Check the Echo report for 'Global' vs 'Regional' movement." }
-                ],
-                "mnemonic": {
-                    "title": "M.Y.O",
-                    "content": "M-Monster (Viral) history, Y-Young/Healthy patient, O-Overwhelming (Global) failure",
-                    "explanation": "Summarizes the core myocarditis profile."
-                },
-                "cheatSheet": {
-                    "title": "Myocarditis Management",
-                    "points": [
-                        "Bed rest is critical (prevents further damage during acute phase).",
-                        "Monitor for arrhythmias.",
-                        "Standard HF medications (ACEi, Beta blockers)."
-                    ]
-                },
-                "referenceInfo": {
-                    "anatomy": "The myocardium is the muscular middle layer of the heart wall.",
-                    "physiology": "Inflammation leads to direct myocyte necrosis. This weakens the heart's ability to pump, leading to dilated cardiomyopathy if not resolved.",
-                    "pharm": "NSAIDs are often AVOIDED in myocarditis as they may worsen myocardial injury in the acute viral phase; management focuses on HF support."
-                },
-                "difficulty": {
-                    "score": 92,
-                    "level": 5,
-                    "label": "High Analysis",
-                    "clinicalStrategy": "Search for 'Global' as the key word in the Echo results.",
-                    "recommendedActions": ["Strict bed rest", "Cardiac monitoring"]
-                }
-            }
-        }
-    },
-    {
-        "id": "CARDIOLOGY-TRD-HOCM-A3B4",
-        "typeId": "trend",
-        "metadata": {
-            "title": "Hypertrophic Cardiomyopathy (HOCM)",
-            "authorId": "AI-Expert-Writer",
-            "createdAt": "2026-01-23T13:50:00Z",
-            "updatedAt": "2026-01-23T13:50:00Z",
-            "status": "published",
-            "sourceOrigin": "ai",
-            "sourceReferences": [],
-            "qualityScore": 99,
-            "hasStudentPreview": true
-        },
-        "pedagogy": {
-            "difficultyLevel": 5,
-            "clinicalFocus": "Cardiology",
-            "cjmmPhase": "Analyze Cues",
-            "clinicalFocusTopics": ["HOCM", "Genetic Cardiac disease", "Sudden Cardiac Death"]
-        },
-        "content": {
-            "clinicalData": {
-                "patientInfo": {
-                    "name": "T.L.", "age": 19, "gender": "Male", "allergies": "NKDA", "weightKg": 82, "codeStatus": "Full Code"
-                },
-                "setting": "Sports Physical / Clinic",
-                "historyPhysical": {
-                    "chiefComplaint": "Near-fainting during basketball practice and occasional chest pain.",
-                    "hpi": "Client is a collegiate athlete who reports 'blacking out' for a few seconds after running a sprint. He says it's happened twice in the last month. He also mentions that his uncle 'died suddenly of a heart attack' at age 25. On exam, a harsh systolic murmur is heard at the left sternal border.",
-                    "pmh": ["None"],
-                    "medications": ["None"]
-                },
-                "history": [
-                    { "time": "Initial Exam", "author": "NP Smith", "note": "Client sitting quietly. HR 68. BP 118/72. Murmur is 2/6, harsh, localized to the left sternal border." },
-                    { "time": "Valsalva Maneuver", "author": "NP Smith", "note": "Murmur intensity INCREASES significantly to 4/6 as the client bears down." },
-                    { "time": "Squatting Position", "author": "NP Smith", "note": "Murmur intensity DECREASES to 1/6 when the client is in a deep squat." }
-                ],
-                "vitals": [
-                    { "time": "Rest", "tempF": "98.6", "hr": 68, "rr": 14, "bp": "118/72", "o2": "99", "o2_device": "RA", "pain": 0 },
-                    { "time": "Post-Exertion", "hr": 142, "bp": "102/60", "o2": "98" }
+                    { "time": "2000 (R-Arm)", "tempF": "98.2", "hr": 110, "rr": 24, "bp": "210/112", "o2": "94", "o2_device": "RA", "pain": 10 },
+                    { "time": "2000 (L-Arm)", "tempF": "98.2", "hr": 110, "rr": 24, "bp": "162/88", "o2": "94", "o2_device": "RA", "pain": 10 },
+                    { "time": "2045 (Esmolol)", "tempF": "98.4", "hr": 64, "rr": 18, "bp": "122/72", "o2": "98", "o2_device": "2L NC", "pain": 4 }
                 ],
                 "labs": [],
                 "radiology": [
-                    { "study": "Echocardiogram", "findings": "Asymmetric septal hypertrophy (Interventricular septum 22mm). Systolic anterior motion (SAM) of the mitral valve causing LV outage obstruction (LVOT).", "impression": "Hypertrophic Obstructive Cardiomyopathy (HOCM).", "date": "Today" }
+                    { "study": "CT Angio Chest", "findings": "Intimal flap noted in the ascending aorta extending to the arch.", "impression": "Stanford Type A Aortic Dissection.", "date": "2030" }
                 ]
             },
             "structure": {
                 "type": "trend",
                 "questionFormat": "sata",
-                "prompt": "Evaluate the clinical trend during the physical maneuvers. Which findings are pathognomonic for Hypertrophic Obstructive Cardiomyopathy (HOCM) and distinguish it from Valvular Aortic Stenosis?",
+                "prompt": "Evaluate the hemodynamic trend and radiologic findings. Which conclusions and nursing priorities are essential for this client?",
                 "options": [
-                    { "id": "o1", "text": "Murmur intensity increases with Valsalva maneuver", "isCorrect": true, "rationale": "Valsalva decreases preload (less blood in LV). In HOCM, less blood means the thick septum is closer to the mitral valve, increasing obstruction and murmur. In Aortic Stenosis, less blood = softer murmur." },
-                    { "id": "o2", "text": "Murmur intensity decreases with squatting", "isCorrect": true, "rationale": "Squatting increases preload and afterload (more blood in LV). This 'pushes' the septum away from the mitral valve, reducing HOCM obstruction. AS murmur would increase with more blood flow." },
-                    { "id": "o3", "text": "History of sudden cardiac death in a young first-degree relative", "isCorrect": true, "rationale": "HOCM is often autosomal dominant and is the leading cause of sudden death in young athletes." },
-                    { "id": "o4", "text": "Presence of a crescendo-decrescendo systolic murmur", "isCorrect": false, "rationale": "Both HOCM and Aortic Stenosis cause a systolic murmur in this pattern; it is not distinguishing." },
-                    { "id": "o5", "text": "Symptom of exertional syncope", "isCorrect": false, "rationale": "Both HOCM and severe AS cause syncope; it is a shared symptom of fixed cardiac output." },
-                    { "id": "o6", "text": "Murmur radiating to the carotid arteries", "isCorrect": false, "rationale": "Aortic Stenosis radiates to carotids. HOCM typically does NOT radiate to the neck." }
+                    { "id": "o1", "text": "Recognize the classic 'tearing' pain and BP differential between arms (48 mmHg) as suggestive of dissection", "isCorrect": true, "rationale": "A BP difference > 20 mmHg between arms is a clinical hallmark of aortic dissection as the intimal flap can obstruct flow into the subclavian arteries." },
+                    { "id": "o2", "text": "Prioritize rapid reduction of both heart rate and blood pressure", "isCorrect": true, "rationale": "Reducing sheer stress on the aortic wall is critical. Reducing HR (<60) is actually the first priority, followed by BP (<120)." },
+                    { "id": "o3", "text": "Prepare the client for emergent surgical repair of the ascending aorta", "isCorrect": true, "rationale": "Type A (ascending) dissections are surgical emergencies due to the risk of aortic rupture, cardiac tamponade, or MI." },
+                    { "id": "o4", "text": "Administer IV Esmolol as ordered to achieve a target heart rate of 60 bpm", "isCorrect": true, "rationale": "Esmolol is a short-acting beta-blocker used to reduce the velocity of left ventricular ejection (dP/dt)." },
+                    { "id": "o5", "text": "Monitor the client for signs of cardiac tamponade (JVD, muffled heart sounds, hypotension)", "isCorrect": true, "rationale": "Beck's triad in a dissection patient suggests the aorta has ruptured into the pericardial sac (Hemopericardium)." },
+                    { "id": "o6", "text": "Administer aggressive IV fluid boluses to maintain the right arm BP above 180 mmHg", "isCorrect": false, "rationale": "High BP is the enemy in dissection; it will propagate the tear. Fluids are and high BP are contraindicated unless the patient is in frank shock." }
                 ]
             },
             "rationale": {
-                "coreConcept": "HOCM Dynamics",
-                "caseSummary": "Young athlete with family history of sudden death. Murmur gets LOUDER when preload is dropped (Valsalva) and softer when it's increased (Squat).",
-                "answerAnalysis": "HOCM is dynamic. Anything that makes the heart SMALLER (Dehydration, Valsalva, Tachycardia) makes the obstruction WORSE (o1). Anything that makes it BIGGER (Squatting, Fluids, Beta blockers) makes it BETTER (o2). Family history (o3) is the biggest clue.",
-                "trap": "Thinking that 'more blood flow' (Squatting) makes all murmurs louder. In HOCM, more volume 'dilates' the obstruction away.",
-                "goldenRule": "For HOCM: Avoid Dehydration. Avoid Heavy Lifting (Valsalva). Avoid Diuretics.",
+                "coreConcept": "Aortic Dissection Management",
+                "caseSummary": "Type A dissection with severe hypertension and BP mismatch. Priority is 'Anti-impulse therapy' followed by surgery.",
+                "answerAnalysis": "Correct: o1 (Diagnostics), o2/o4 (Hemodynamic targets), o3 (Surgery), o5 (Complication monitoring). o6 is the opposite of correct care.",
+                "trap": "Thinking BP reduction is the 'only' goal. You must reduce Heart Rate (contractility) first to prevent the 'hammer' effect on the tear.",
+                "goldenRule": "Tearing pain + BP mismatch = Dissection until proven otherwise.",
                 "steps": [
-                    { "tag": "Analyze", "description": "Relate the change in murmur intensity to the change in preload volume." },
-                    { "tag": "Assess", "description": "Always obtain a family pedigree for young patients with murmurs." }
+                    { "tag": "Assess", "description": "Obtain BP in both arms." },
+                    { "tag": "Intervene", "description": "Titrate Esmolol/Nitroprusside to strict targets (HR 60, SBP 100-120)." }
                 ],
                 "mnemonic": {
-                    "title": "V-H / S-E",
-                    "content": "V-alsalva = H-igher murmur, S-quat = E-ased (lower) murmur",
-                    "explanation": "Summarizes the preload-dependent nature of the obstruction."
+                    "title": "A.B.C.D. (Dissection)",
+                    "content": "A-Ascending (Surgery), B-Beta-blockers first, C-CT Scan, D-Differences in BP",
+                    "explanation": "Summarizes type/management."
                 },
                 "cheatSheet": {
-                    "title": "HOCM Safety",
+                    "title": "Stanford Classification",
                     "points": [
-                        "NO competitive sports.",
-                        "Stay well hydrated (Maintain preload).",
-                        "Beta blockers (increase filling time)."
+                        "Type A: Involves Ascending Aorta (Surgical Emergency).",
+                        "Type B: Involves Descending Aorta (Medical Mgmt usually)."
                     ]
                 },
                 "referenceInfo": {
-                    "anatomy": "The interventricular septum is the wall between the two ventricles.",
-                    "physiology": "The 'Venturi effect' pulls the mitral valve leaflet towards the thick septum during systole, blocking the exit (LVOT).",
-                    "pharm": "Beta blockers like Metoprolol are first-line to slow the heart rate and allow more time for the left ventricle to fill."
+                    "anatomy": "The aorta has three layers: intima, media, and adventitia. Dissection is a tear in the intima.",
+                    "physiology": "Sheer stress (dP/dt) is the primary force that drives the tear forward through the media.",
+                    "pharm": "Nitroprusside (vasodilator) should only be given AFTER beta-blockers to prevent reflex tachycardia."
                 },
                 "difficulty": {
                     "score": 98,
                     "level": 5,
-                    "label": "Expert Reasoning",
-                    "clinicalStrategy": "Look for the 'inverse' relationship between volume and murmur volume.",
-                    "recommendedActions": ["Counsel on exercise restriction", "Refer for genetic testing"]
+                    "label": "Critical Care Analysis",
+                    "clinicalStrategy": "Stabilize the 'Aorta' by lowering 'Stress' (HR/BP).",
+                    "recommendedActions": ["Stat Surgery consult", "Start Esmolol drip"]
                 }
             }
         }
     },
     {
-        "id": "CARDIOLOGY-TRD-CORPUL-N5M6",
+        "id": "CARDIOLOGY-TRD-STEN-J5M6",
         "typeId": "trend",
         "metadata": {
-            "title": "Cor Pulmonale (Right Heart Failure)",
+            "title": "Mitral Stenosis & Rheumatic Heart Disease",
             "authorId": "AI-Expert-Writer",
-            "createdAt": "2026-01-23T13:55:00Z",
-            "updatedAt": "2026-01-23T13:55:00Z",
-            "status": "published",
-            "sourceOrigin": "ai",
-            "sourceReferences": [],
-            "qualityScore": 96,
-            "hasStudentPreview": true
-        },
-        "pedagogy": {
-            "difficultyLevel": 5,
-            "clinicalFocus": "Cardiology",
-            "cjmmPhase": "Analyze Cues",
-            "clinicalFocusTopics": ["Cor Pulmonale", "COPD", "Right-Sided Heart Failure"]
-        },
-        "content": {
-            "clinicalData": {
-                "patientInfo": {
-                    "name": "B.R.", "age": 70, "gender": "Male", "allergies": "NKDA", "weightKg": 85, "codeStatus": "Full Code"
-                },
-                "setting": "Medical Unit",
-                "historyPhysical": {
-                    "chiefComplaint": "Increasing swelling in legs and weight gain.",
-                    "hpi": "Client has a 30-year history of COPD (Emphysema) and uses 3L oxygen at home. Over the last month, he has noticed that his socks are leaving deep indentations in his ankles. He reports that his 'belly feels full' and he is unable to eat full meals. He denies any new cough or increases in sputum.",
-                    "pmh": ["COPD (Stage IV)", "Tobacco use (60 pack-years)", "Primary Pulmonary Hypertension"],
-                    "medications": ["Tiotropium", "Salmeterol/Fluticasone", "Oxygen 3L NC", "Furosemide 20mg daily"]
-                },
-                "history": [
-                    { "time": "Mon 1000", "author": "RN Smith", "note": "Client admitted for edema. 3+ pitting edema to mid-calf. Abdomen distended. Weight 3kg over baseline. Jugular venous distension (JVD) present at 45 degrees." },
-                    { "time": "Mon 1100", "author": "RN Smith", "note": "Lung assessment performed: Lungs are 'Hyper-resonant' but CLEAR to auscultation. No crackles or wheezing noted." },
-                    { "time": "Mon 1200", "author": "MD", "note": "Diagnosis: Cor Pulmonale secondary to COPD. Order: Increase diuretics, consider Sildenafil for pulmonary hypertension." }
-                ],
-                "vitals": [
-                    { "time": "Mon 1000", "tempF": "98.4", "hr": 98, "rr": 24, "bp": "112/68", "o2": "89", "o2_device": "3L NC", "pain": 2 }
-                ],
-                "labs": [
-                    { "test": "BNP", "value": "450", "flag": "H", "ref": "< 100", "unit": "pg/mL" },
-                    { "test": "Hgb", "value": "18.2", "flag": "H", "ref": "13.5 - 17.5", "unit": "g/dL" },
-                    { "test": "PaCO2", "value": "58", "flag": "H", "ref": "35 - 45", "unit": "mmHg" }
-                ],
-                "radiology": [
-                    { "study": "Chest X-ray", "findings": "Flat diaphragms, hyperinflated lung fields, enlarged right ventricle and pulmonary artery. NO pulmonary vascular congestion/edema.", "impression": "Findings consistent with COPD and Cor Pulmonale.", "date": "Mon" }
-                ]
-            },
-            "structure": {
-                "type": "trend",
-                "questionFormat": "sata",
-                "prompt": "Evaluate the clinical data. Which findings support the diagnosis of Cor Pulmonale (Right-Sided Failure) rather than Left-Sided Heart Failure?",
-                "options": [
-                    { "id": "o1", "text": "Presence of Jugular Venous Distension (JVD)", "isCorrect": false, "rationale": "JVD occurs in BOTH right and left-sided failure (though it is the hallmark of right failure, left failure eventually BACKS UP into the right)." },
-                    { "id": "o2", "text": "Lungs are clear to auscultation without crackles", "isCorrect": true, "rationale": "In pure RIGHT-sided failure (Cor Pulmonale), the fluid backs up into the BODY, not the LUNGS. Left failure causes pulmonary crackles." },
-                    { "id": "o3", "text": "Absence of pulmonary edema on Chest X-ray", "isCorrect": true, "rationale": "Cor Pulmonale is right failure due to lung disease; the lungs themselves remain 'dry' of fluid, distinguishing it from left heart failure ('wet' lungs)." },
-                    { "id": "o4", "text": "Chronic history of COPD and elevated PaCO2", "isCorrect": true, "rationale": "The definition of Cor Pulmonale is right ventricular failure CAUSED by primary lung disease or pulmonary hypertension." },
-                    { "id": "o5", "text": "Secondary Polycythemia (Hgb 18.2)", "isCorrect": true, "rationale": "Common in chronic lung patients where the body makes more RBCs to carry oxygen; supports the 'lung trigger' of Cor Pulmonale." },
-                    { "id": "o6", "text": "Elevated BNP level of 450 pg/mL", "isCorrect": false, "rationale": "BNP is released whenever ANY chamber of the heart (right or left) is stretched. It does not help distinguish which side is failing." }
-                ]
-            },
-            "rationale": {
-                "coreConcept": "Cor Pulmonale Identification",
-                "caseSummary": "COPD patient with JVD and edema. Key differentiator: Lungs are CLEAR, and CXR shows no pulmonary edema. This is Right-Sided failure triggered by lung disease.",
-                "answerAnalysis": "Right heart failure (Cor Pulmonale) backup goes into the Venous system (JVD, Liver, Edema). Left heart failure backup goes into the Pulmonic system (Crackles, SOB). Clear lungs (o2/o3) and Lung history (o4/o5) confirm Cor Pulmonale.",
-                "trap": "Thinking BNP (o6) or JVD (o1) is specific to only one side of the heart.",
-                "goldenRule": "Right Heart Failure = Wet Body, Dry Lungs. Left Heart Failure = Wet Lungs.",
-                "steps": [
-                    { "tag": "Auscultate", "description": "Listen to the lungs first; if they are clear but the patient has 4+ edema, look for a right-sided cause." },
-                    { "tag": "Analyze", "description": "Check the CBC for polycythemia (high Hgb), which points to chronic hypoxemia from lung disease." }
-                ],
-                "mnemonic": {
-                    "title": "H.E.A.D",
-                    "content": "H-Hepatomegaly, E-Edema, A-Ascites, D-Distended Neck Veins",
-                    "explanation": "Summarizes the signs of systemic venous congestion (Right failure)."
-                },
-                "cheatSheet": {
-                    "title": "Right Failure Signs",
-                    "points": [
-                        "Splenomegaly/Hepatomegaly",
-                        "Weight gain (Fluid)",
-                        "Ascites (Full feeling)",
-                        "Peripheral Edema"
-                    ]
-                },
-                "referenceInfo": {
-                    "anatomy": "The Right Ventricle is thinner walled and designed for low-pressure systems.",
-                    "physiology": "COPD leads to alveolar hypoxia, which causes pulmonary vasoconstriction. This increased resistance makes the right ventricle work harder, eventually failing.",
-                    "pharm": "Diuretics reduce the volume, but treating the underlying lung disease (oxygen, bronchodilators) is critical to reduce pulmonary pressure."
-                },
-                "difficulty": {
-                    "score": 85,
-                    "level": 5,
-                    "label": "Analysis",
-                    "clinicalStrategy": "Rule out 'Left' causes (crackles/CXR congestion) to confirm 'Right'.",
-                    "recommendedActions": ["Keep O2 > 90%", "Measure abdominal girth"]
-                }
-            }
-        }
-    },
-    {
-        "id": "CARDIOLOGY-TRD-AMIOPULM-L4M5",
-        "typeId": "trend",
-        "metadata": {
-            "title": "Amiodarone-Induced Pulmonary Toxicity",
-            "authorId": "AI-Expert-Writer",
-            "createdAt": "2026-01-23T14:00:00Z",
-            "updatedAt": "2026-01-23T14:00:00Z",
+            "createdAt": "2026-01-23T19:15:00Z",
+            "updatedAt": "2026-01-23T19:15:00Z",
             "status": "published",
             "sourceOrigin": "ai",
             "sourceReferences": [],
@@ -321,89 +117,272 @@ export const CardiologyItems_Final_Batch5: MasterQuestionItem[] = [
             "hasStudentPreview": true
         },
         "pedagogy": {
-            "difficultyLevel": 5,
+            "difficultyLevel": 4,
             "clinicalFocus": "Cardiology",
             "cjmmPhase": "Analyze Cues",
-            "clinicalFocusTopics": ["Pharmacology Toxicity", "Amiodarone", "Interstitial Lung Disease"]
+            "clinicalFocusTopics": ["Mitral Stenosis", "Valvular Disease", "Heart Failure"]
         },
         "content": {
             "clinicalData": {
                 "patientInfo": {
-                    "name": "D.S.", "age": 73, "gender": "Female", "allergies": "Iodine", "weightKg": 68, "codeStatus": "Full Code"
+                    "name": "K.B.", "age": 32, "gender": "Female", "allergies": "NKDA", "weightKg": 60, "codeStatus": "Full Code"
                 },
-                "setting": "Outpatient Follow-up",
+                "setting": "Cardiology Clinic",
                 "historyPhysical": {
-                    "chiefComplaint": "Progressive shortness of breath and a dry, hacking cough for 2 months.",
-                    "hpi": "Client has been on Amiodarone for Atrial Fibrillation for the last 18 months. She reports that she used to be able to walk 2 miles, but now gets winded walking to the kitchen. She has no fever and denies orthopnea (can sleep flat).",
-                    "pmh": ["Persistent Atrial Fibrillation", "Hypertension", "Hyperthyroidism (resolved)"],
-                    "medications": ["Amiodarone 400mg daily", "Apixaban 5mg BID", "Metoprolol 25mg daily"]
+                    "chiefComplaint": "Shortness of breath and fatigue with minimal exertion.",
+                    "hpi": "Client grew up in a developing country and reports 'bad sore throats' as a child that were not treated. She has developed progressive SOB over the last 2 years. Physical exam reveals a 'low-pitched, rumbling diastolic murmur' heard at the apex with the bell.",
+                    "pmh": ["Untreated Strep in childhood", "Two previous normal pregnancies (now pregnant again)"],
+                    "medications": ["N/A"]
                 },
                 "history": [
-                    { "time": "6 Mo Ago", "author": "Dr. Lee", "note": "Client doing well. AFib rate-controlled. EKG shows normal rhythm. Lungs clear." },
-                    { "time": "2 Mo Ago", "author": "Dr. Lee", "note": "Client reports new dry cough. No sputum. No fever. Breath sounds slightly diminished at bases." },
-                    { "time": "Today", "author": "Dr. Lee", "note": "Dyspnea on exertion (DOE) significantly worse. Fine 'velcro' crackles heard throughout both lung fields. CXR ordered." }
+                    { "time": "Initial", "author": "RN Rivera", "note": "Client reports SOB even when walking slowly. No edema noted. Mural thrombus risk assessed." }
                 ],
                 "vitals": [
-                    { "time": "6 Mo Ago", "hr": 74, "bp": "128/76", "o2": "98", "rr": 16 },
-                    { "time": "2 Mo Ago", "hr": 76, "bp": "122/74", "o2": "96", "rr": 20 },
-                    { "time": "Today", "hr": 84, "bp": "118/72", "o2": "91", "rr": 26 }
+                    { "time": "Today", "tempF": "98.6", "hr": 98, "rr": 20, "bp": "118/72", "o2": "95", "o2_device": "RA", "pain": 0 }
                 ],
                 "labs": [
-                    { "test": "WBC", "value": "7.2", "flag": "N", "ref": "4.5 - 11.0", "unit": "10^3/uL" },
-                    { "test": "Pro-BNP", "value": "110", "flag": "N", "ref": "< 125", "unit": "pg/mL" },
-                    { "test": "ALT/AST", "value": "45/38", "flag": "N", "ref": "< 40", "unit": "U/L" }
+                    { "test": "BNP", "value": "450", "flag": "H", "ref": "< 100", "unit": "pg/mL" }
                 ],
                 "radiology": [
-                    { "study": "Chest X-ray", "findings": "Diffuse interstitial infiltrates and 'ground glass' opacities throughout both lung fields. No pleural effusions or cardiac enlargement.", "impression": "Probable Drug-Induced Interstitial Lung Disease.", "date": "Today" }
+                    { "study": "Echocardiogram", "findings": "Mitral valve orifice area 1.2 cm2. Significant left atrial enlargement.", "impression": "Moderate Mitral Stenosis.", "date": "Today" }
                 ]
             },
             "structure": {
                 "type": "trend",
                 "questionFormat": "sata",
-                "prompt": "The nurse reviews the clinical trend and medication history. Which findings support the diagnosis of Amiodarone-Induced Pulmonary Toxicity over Congestive Heart Failure?",
+                "prompt": "Evaluate the clinical data and patient history. Which pathophysiology and outcomes are associated with this client's valvular disease?",
                 "options": [
-                    { "id": "o1", "text": "Normal Pro-BNP level (110 pg/mL)", "isCorrect": true, "rationale": "A normal BNP effectively rules out heart failure as the cause of the dyspnea." },
-                    { "id": "o2", "text": "Presence of a chronic dry cough without orthopnea", "isCorrect": true, "rationale": "Lung toxicity presents as a dry/non-productive cough. CHF usually causes orthopnea (needs pillows to sleep) and productive 'pink frothy' sputum or wet cough." },
-                    { "id": "o3", "text": "Diffuse interstitial infiltrates on CXR without cardiac enlargement", "isCorrect": true, "rationale": "Amiodarone causes fibrosis/inflammation of the lung tissue (interstitium). CHF would show a 'big heart' (cardiomegaly) and fluid (effusions), which are absent here." },
-                    { "id": "o4", "text": "Dose of 400mg daily for 18 months", "isCorrect": true, "rationale": "Toxicity risk increases significantly with doses >200mg/day and longer duration of therapy." },
-                    { "id": "o5", "text": "Fine 'velcro' crackles heard throughout both lung fields", "isCorrect": false, "rationale": "Dry 'velcro' crackles are common in fibrosis (toxicity), but wet crackles are common in CHF; crackles alone do not distinguish the two without the context of other data." },
-                    { "id": "o6", "text": "Presence of a normal WBC count", "isCorrect": true, "rationale": "Rules out pneumonia/infection as the primary cause of the infiltrates/fever." }
+                    { "id": "o1", "text": "The patient's condition is likely a long-term complication of group A streptococcal infection (Rheumatic Heart Disease)", "isCorrect": true, "rationale": "Untreated strep throat leads to Rheumatic Fever, which scars the mitral valve (stenosis) years later." },
+                    { "id": "o2", "text": "Monitor the patient for the potential development of Atrial Fibrillation", "isCorrect": true, "rationale": "Left atrial enlargement (from mitral backup) stretches the atrial fibers, frequently triggering AFib." },
+                    { "id": "o3", "text": "Assess the patient for signs of pulmonary congestion and right-sided heart failure", "isCorrect": true, "rationale": "Mitral stenosis backup goes: LA -> Pulmonary Veins -> Lungs -> RV, leading to pulmonary HTN and RV failure." },
+                    { "id": "o4", "text": "Recognize that pregnancy significantly increases the danger for this client", "isCorrect": true, "rationale": "Increased blood volume and heart rate in pregnancy can cause a mitral stenosis patient to decompensate into pulmonary edema quickly." },
+                    { "id": "o5", "text": "Expect an order for a diuretic to help reduce the fluid volume", "isCorrect": true, "rationale": "Diuretics help reduce pre-load and alleviate pulmonary congestion." },
+                    { "id": "o6", "text": "Prepare the client for an immediate aortic valve replacement", "isCorrect": false, "rationale": "The issue is the MITRAL valve (between LA/LV), not the aortic valve (between LV/Aorta)." }
                 ]
             },
             "rationale": {
-                "coreConcept": "Amiodarone Pulmonary Toxicity",
-                "caseSummary": "Client on high-dose Amiodarone for 1.5 years. Trends toward progressive hypoxia and fibrosis clues on CXR. Normal BNP rules out heart failure.",
-                "answerAnalysis": "Amiodarone is a 'dirty drug' with many side effects. Pulmonary toxicity is the most lethal. Normal heart markers (o1), specific lung symptoms (o2), CXR patterns (o3), and high cumulative dose (o4) confirm the drug cause.",
-                "trap": "Thinking that because the patient is in AFib, the SOB *must* be their heart. You must look at the drugs!",
-                "goldenRule": "Any new dry cough or dyspnea in a patient on Amiodarone is pulmonary toxicity until proven otherwise. It can be fatal.",
+                "coreConcept": "Mitral Stenosis & Rheumatic Fever",
+                "caseSummary": "Young adult with rheumatic mitral stenosis. Left atrial backup leading to SOB and AFib risk.",
+                "answerAnalysis": "Correct: o1 (Etiology), o2 (Arrhythmia), o3 (Patho flow), o4 (Pregnancy risk), o5 (Treatment). o6 is the wrong valve distractor.",
+                "trap": "Thinking mitral stenosis is a 'Left Ventricle' problem. It's an 'Above the Ventricle' problem; the LV stays small/normal while the LA and Lungs suffer.",
+                "goldenRule": "Rheumatic Fever = Mitral Valve #1 victim.",
                 "steps": [
-                    { "tag": "Verify", "description": "Check the medication list for 'Amiodarone' and the cumulative dose." },
-                    { "tag": "Differentiate", "description": "Use the BNP to rule out HF and the WBC to rule out Infectious Pneumonia." }
+                    { "tag": "Assess", "description": "Listen at the apex with the bell for the diastolic rumble." },
+                    { "tag": "Plan", "description": "Address the risk of embolic stroke if AFib develops." }
                 ],
                 "mnemonic": {
-                    "title": "A.M.I.O Side Effects",
-                    "content": "A-Alveolitis (Lung), M-Myxedema (Thyroid), I-Iodine sensitivity, O-Ocular (Corneal microdeposits)",
-                    "explanation": "Summarizes the major organ systems amiodarone affects."
+                    "title": "M.S. = L.A.",
+                    "content": "Mitral Stenosis = Left Atrial enlargement",
+                    "explanation": "Summarizes the primary anatomical consequence."
                 },
                 "cheatSheet": {
-                    "title": "Amiodarone Monitoring",
+                    "title": "Valvular Murmurs",
                     "points": [
-                        "Baseline CXR and PFTs.",
-                        "Annual Eye Exams.",
-                        "Baseline TSH and LFTs every 6 months."
+                        "Mitral Stenosis: Diastolic Rumble (Apex).",
+                        "Aortic Stenosis: Systolic Ejection (2nd Right ICS).",
+                        "Mitral Regurgitation: Holosystolic (Apex, radiates to axilla)."
                     ]
                 },
                 "referenceInfo": {
-                    "anatomy": "The alveoli and interstitium are where gas exchange occurs.",
-                    "physiology": "Amiodarone accumulates in lysosomes within macrophages, causing an inflammatory/fibrotic response in the lung tissue.",
-                    "pharm": "Amiodarone is 37% iodine and has a very long half-life (50-100 days), meaning toxicity can persist even after stopping the drug."
+                    "anatomy": "The Mitral valve is bicuspid (two leaflets).",
+                    "physiology": "Normal mitral area is 4-6 cm2. Symptoms occur when it drops below 2 cm2.",
+                    "pharm": "Beta-blockers can help by slowing the HR, allowing more time for diastolic filling through the narrowed valve."
                 },
                 "difficulty": {
-                    "score": 93,
-                    "level": 5,
-                    "label": "High Analysis",
-                    "clinicalStrategy": "Rule out 'Cardiac' and 'Infectious' to find the 'Pharmacological' culprit.",
-                    "recommendedActions": ["Stop Amiodarone immediately", "Start high-dose corticosteroids"]
+                    "score": 85,
+                    "level": 4,
+                    "label": "Synthesis/Anatomy",
+                    "clinicalStrategy": "Link childhood 'Sore Throat' to the 'Mitral' valve.",
+                    "recommendedActions": ["Echocardiogram", "Restrict Sodium"]
+                }
+            }
+        }
+    },
+    {
+        "id": "CARDIOLOGY-TRD-PADVD-K8L9",
+        "typeId": "trend",
+        "metadata": {
+            "title": "PAD vs PVD: Differential Management",
+            "authorId": "AI-Expert-Writer",
+            "createdAt": "2026-01-23T19:20:00Z",
+            "updatedAt": "2026-01-23T19:20:00Z",
+            "status": "published",
+            "sourceOrigin": "ai",
+            "sourceReferences": [],
+            "qualityScore": 96,
+            "hasStudentPreview": true
+        },
+        "pedagogy": {
+            "difficultyLevel": 3,
+            "clinicalFocus": "Cardiology",
+            "cjmmPhase": "Analyze Cues",
+            "clinicalFocusTopics": ["PAD", "PVD", "Vascular Surgery"]
+        },
+        "content": {
+            "clinicalData": {
+                "patientInfo": {
+                    "name": "B.J.", "age": 68, "gender": "Male", "allergies": "NKDA", "weightKg": 82, "codeStatus": "Full Code"
+                },
+                "setting": "Vascular Clinic",
+                "historyPhysical": {
+                    "chiefComplaint": "Leg pain when walking and non-healing toe ulcer.",
+                    "hpi": "Client reports pain in his calves after walking 1 block (Intermittent Claudication). Pain is relieved by rest. He has one small, dry, 'punched-out' ulcer on the tip of the left 2nd toe. His legs are pale and hairless.",
+                    "pmh": ["Diabetes", "Smoking (1 pack/day)", "HTN"],
+                    "medications": ["Metformin", "Lisinopril"]
+                },
+                "history": [
+                    { "time": "Initial", "author": "RN Rivera", "note": "Lower extremity pulses: Pedal 1+ Bilat. Tibial 1+ Bilat. Right leg shows dependent rubor." }
+                ],
+                "vitals": [
+                    { "time": "Today", "tempF": "98.4", "hr": 78, "rr": 16, "bp": "148/88", "o2": "98", "o2_device": "RA", "pain": 4 }
+                ],
+                "labs": [
+                    { "test": "ABI (Ankle-Brachial Index)", "value": "0.65", "flag": "L", "ref": "0.9 - 1.3", "unit": "" }
+                ],
+                "radiology": []
+            },
+            "structure": {
+                "type": "trend",
+                "questionFormat": "sata",
+                "prompt": "Evaluate the clinical cues and vascular status. Which findings and interventions correctly characterize Peripheral Arterial Disease (PAD)?",
+                "options": [
+                    { "id": "o1", "text": "Identify 'Claudication' as the primary pain mechanism", "isCorrect": true, "rationale": "Ischemic muscle pain during activity is the hallmark of PAD." },
+                    { "id": "o2", "text": "Encourage the client to elevate his legs above heart level to reduce pain", "isCorrect": false, "rationale": "Elevation is for venous disease. In arterial disease, elevation worsens ischemia. Legs should be kept in a dependent (dangling) position to help gravity pull blood to the toes." },
+                    { "id": "o3", "text": "Advise the client to use heating pads on his feet for comfort", "isCorrect": false, "rationale": "PAD and Diabetes causes neuropathy; heating pads carry a high risk of severe burns due to lack of sensation and poor blood flow to heal." },
+                    { "id": "o4", "text": "Counsel the client on a strict 'Smoking Cessation' program", "isCorrect": true, "rationale": "Nicotine is a potent vasoconstrictor and is the #1 modifiable risk factor for PAD progression." },
+                    { "id": "o5", "text": "Recognize the 'Punched-out' ulcer and 'Dependent Rubor' as arterial signs", "isCorrect": true, "rationale": "Arterial ulcers are typically on toes/heels and look like drill-holes. Rubor (redness) occurs when the limb is dependent due to hyperemic response." },
+                    { "id": "o6", "text": "Educate the patient on the use of antiplatelet therapy (e.g., Clopidogrel)", "isCorrect": true, "rationale": "Antiplatelets prevent thrombus formation at the site of atherosclerosis." }
+                ]
+            },
+            "rationale": {
+                "coreConcept": "PAD Assessment & Care",
+                "caseSummary": "Classic PAD with low ABI (0.65), claudication, and dependent rubor. Focus on 'Gravity' and 'Smoking Cessation'.",
+                "answerAnalysis": "Correct: o1 (Claudication), o4 (Smoking), o5 (Physical signs), o6 (Pharmacology). incorrect: o2 (Elevation is bad), o3 (Heat is dangerous).",
+                "trap": "Thinking all 'Leg Pain' needs 'Elevation'. Elevation kills the PAD leg.",
+                "goldenRule": "A-Arterial = Hanging (Dangling). V-Venous = Victory (Elevating).",
+                "steps": [
+                    { "tag": "Assess", "description": "Check Ankle-Brachial Index (ABI) to quantify the severity of ischemia." },
+                    { "tag": "Teach", "description": "Instruct the patient to never walk barefoot." }
+                ],
+                "mnemonic": {
+                    "title": "The 6 P's",
+                    "content": "Pain, Pallor, Pulselessness, Paresthesia, Paralysis, Poikilothermia",
+                    "explanation": "Signs of Acute Limb Ischemia (the emergency form of PAD)."
+                },
+                "cheatSheet": {
+                    "title": "PAD vs PVD Physicals",
+                    "points": [
+                        "PAD: Cool, hairless, pale, minimal or no edema, dry ulcers.",
+                        "PVD: Warm, thick skin, brown staining (hemosiderin), significant edema, wet/sloughing ulcers on ankles."
+                    ]
+                },
+                "referenceInfo": {
+                    "anatomy": "Common sites for PAD: Femoral artery, Popliteal artery, Posterior tibial.",
+                    "physiology": "ABI < 0.9 = PAD; ABI < 0.4 = Severe/Threatening.",
+                    "pharm": "Cilostazol (Pletal) is used to improve walking distance in claudication by inhibiting platelet aggregation and causing vasodilation."
+                },
+                "difficulty": {
+                    "score": 78,
+                    "level": 3,
+                    "label": "Application",
+                    "clinicalStrategy": "Dangle for Arterial; Elevate for Venous.",
+                    "recommendedActions": ["Smoking cessation", "Daily foot checks"]
+                }
+            }
+        }
+    },
+    {
+        "id": "CARDIOLOGY-TRD-RHEUM-N5O6",
+        "typeId": "trend",
+        "metadata": {
+            "title": "Acute Rheumatic Carditis Assessment",
+            "authorId": "AI-Expert-Writer",
+            "createdAt": "2026-01-23T19:25:00Z",
+            "updatedAt": "2026-01-23T19:25:00Z",
+            "status": "published",
+            "sourceOrigin": "ai",
+            "sourceReferences": [],
+            "qualityScore": 95,
+            "hasStudentPreview": true
+        },
+        "pedagogy": {
+            "difficultyLevel": 4,
+            "clinicalFocus": "Cardiology",
+            "cjmmPhase": "Analyze Cues",
+            "clinicalFocusTopics": ["Rheumatic Fever", "Pancarditis", "Jones Criteria"]
+        },
+        "content": {
+            "clinicalData": {
+                "patientInfo": {
+                    "name": "T.M.", "age": 14, "gender": "Male", "allergies": "Penicillin (Rash)", "weightKg": 45, "codeStatus": "Full Code"
+                },
+                "setting": "Pediatric Unit",
+                "historyPhysical": {
+                    "chiefComplaint": "Joint pain and erratic, jerky movements.",
+                    "hpi": "Client had a sore throat 3 weeks ago. He now presents with red, swollen knees and elbows that 'wait their turn to hurt' (Migratory Polyarthritis). His mother noticed he has been dropping things and has jerky, involuntary movements of his face and arms. New blowing murmur heard at the apex.",
+                    "pmh": ["Recent Pharyngitis"],
+                    "medications": ["N/A"]
+                },
+                "history": [
+                    { "time": "Initial", "author": "RN Smith", "note": "Sydenham Chorea (jerky movements) noted. Erythema marginatum (rash) on trunk. 12-lead EKG shows PR interval 0.24s." }
+                ],
+                "vitals": [
+                    { "time": "Today", "tempF": "102.4", "hr": 120, "rr": 22, "bp": "108/64", "o2": "98", "o2_device": "RA", "pain": 8 }
+                ],
+                "labs": [
+                    { "test": "ASO Titer (Antistreptolysin O)", "value": "800", "flag": "H", "ref": "< 200", "unit": "IU/mL" },
+                    { "test": "ESR (Sed Rate)", "value": "65", "flag": "H", "ref": "< 15", "unit": "mm/hr" }
+                ],
+                "radiology": []
+            },
+            "structure": {
+                "type": "trend",
+                "questionFormat": "sata",
+                "prompt": "Evaluate the clinical cues and Jones Criteria. Which findings support the diagnosis of Acute Rheumatic Fever with Carditis?",
+                "options": [
+                    { "id": "o1", "text": "Positive ASO Titer (800 IU/mL)", "isCorrect": true, "rationale": "A high ASO titer provides evidence of a preceding group A streptococcal infection, a requirement for the diagnosis of Rheumatic Fever." },
+                    { "id": "o2", "text": "Migratory Polyarthritis (joint pain moving from knee to elbow)", "isCorrect": true, "rationale": "A Major Jones criterion; multiple large joints being affected is characteristic." },
+                    { "id": "o3", "text": "Sydenham Chorea (jerky, involuntary movements)", "isCorrect": true, "rationale": "A Major Jones criterion representing CNS involvement of the autoimmune process." },
+                    { "id": "o4", "text": "First-Degree Heart Block (PR 0.24s)", "isCorrect": true, "rationale": "A Minor Jones criterion indicating inflammation of the cardiac conduction system (Carditis)." },
+                    { "id": "o5", "text": "Erythema Marginatum (non-pruritic, pink rings on trunk)", "isCorrect": true, "rationale": "A Major Jones criterion; a specific rash seen in acute rheumatic fever." },
+                    { "id": "o6", "text": "Administer high-dose Aspirin as ordered for anti-inflammatory effects", "isCorrect": true, "rationale": "While Aspirin is normally avoided in kids (Reye's), Rheumatic Fever is a specific exception where high-dose salicylates are standard of care for carditis/arthritis under strict supervision." }
+                ]
+            },
+            "rationale": {
+                "coreConcept": "Jones Criteria for Rheumatic Fever",
+                "caseSummary": "Pediatric case of Rheumatic Fever with pancarditis, arthritis, and chorea. All classic findings present.",
+                "answerAnalysis": "Correct: o1 (Evidence of Strep), o2, o3, o5 (Major Criteria), o4 (Minor Criteria), o6 (Treatment). Note: Carditis (Murmur/Block) is also a major criterion.",
+                "trap": "Thinking Reye's syndrome makes Aspirin 'Never' possible in children. Rheumatic Fever and Kawasaki Disease are the exceptions.",
+                "goldenRule": "2 Major or 1 Major + 2 Minor = Rheumatic Fever.",
+                "steps": [
+                    { "tag": "Assess", "description": "Identify 'Joints', 'Heart', 'Nodules', 'Erythema', 'Chorea' (JONES)." },
+                    { "tag": "Plan", "description": "Expect long-term penicillin prophylaxis (often monthly injections for 10 years or more)." }
+                ],
+                "mnemonic": {
+                    "title": "J.O.N.E.S.",
+                    "content": "J-Joints, O-Shape of Heart (Carditis), N-Nodules, E-Erythema marginatum, S-Sydenham chorea",
+                    "explanation": "Major criteria for diagnosis."
+                },
+                "cheatSheet": {
+                    "title": "Minor Criteria",
+                    "points": [
+                        "Fever.",
+                        "Arthralgia (Pain without swelling).",
+                        "High ESR/CRP.",
+                        "Long PR interval."
+                    ]
+                },
+                "referenceInfo": {
+                    "anatomy": "Aschoff bodies (foci of fibrinoid necrosis) are seen in the heart tissue of patients with active rheumatic carditis.",
+                    "physiology": "Autoimmune molecular mimicry: Antibodies against Strep cross-react with cardiac myosin.",
+                    "pharm": "Erythromycin or Azithromycin is used if the patient is allergic to penicillin (like this client)."
+                },
+                "difficulty": {
+                    "score": 92,
+                    "level": 4,
+                    "label": "Synthesis/Diagnosis",
+                    "clinicalStrategy": "Search for 'JONES' and 'Evidence of Strep'.",
+                    "recommendedActions": ["Bed rest", "Monitor EKG"]
                 }
             }
         }

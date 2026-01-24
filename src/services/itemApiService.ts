@@ -124,8 +124,17 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
     const upsertData = [];
     for (const rawItem of items) {
         // 1. DUAL-LAYER ID PRESERVATION & REPAIR
-        // IMPORTANT: Pass through Pipeline to ensure Managers (Smart Repair) handle it
-        const item = await UnifiedDataPipeline.transform(rawItem);
+        // BYPASS: If item is definitely High-Fidelity (has clinicalData & structure), skip pipeline to prevent mangling.
+        const isHighFidelity = rawItem.content?.clinicalData && rawItem.content?.structure && rawItem.content?.rationale?.itemOverviewAndActions;
+
+        let item = rawItem;
+        if (!isHighFidelity) {
+            // Only transform legacy/unstructured items
+            item = await UnifiedDataPipeline.transform(rawItem);
+        } else {
+            console.log(`[saveBatchToBank] High-Fidelity Item detected (${rawItem.id || 'unknown'}). Bypassing Pipeline.`);
+            item = rawItem;
+        }
 
         const rawId = item.id || (item as any)._id || (item as any).item_id;
         const backupId = `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;

@@ -460,6 +460,18 @@ const QuestionRuntimeInner: React.FC<QuestionRuntimePropsV2 & { rawConfig?: any 
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '1.5rem', zoom: scale }}>
+            {/* 1. QUESTION HEADER (Stem/Prompt) */}
+            {(config.prompt || config.stem) && (
+                <div className="bg-slate-50 border-l-4 border-slate-800 p-6 rounded-r-xl shadow-sm mb-2">
+                    <h2 className="text-xl font-bold text-slate-800 leading-relaxed mb-1">
+                        Question
+                    </h2>
+                    <div className="text-lg text-slate-700 font-medium leading-relaxed">
+                        {config.prompt || config.stem}
+                    </div>
+                </div>
+            )}
+
             <div style={{ flex: 1 }}>
                 <InteractionDispatcher
                     config={config}

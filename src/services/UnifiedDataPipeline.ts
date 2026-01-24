@@ -187,7 +187,7 @@ export class UnifiedDataPipeline {
         // 2. Perform Deep Repair via Manager
         try {
             ItemManagerFactory.registerAll();
-            const manager = ItemManagerFactory.getManager(item.type);
+            const manager = ItemManagerFactory.getManager(item.type || 'unknown');
             const deeplyRepaired = await manager.deepRepair(item, options);
 
             // Sync back results
@@ -371,6 +371,11 @@ export class UnifiedDataPipeline {
         if (s.options?.length > 0) {
             const correctCount = s.options.filter((o: any) => o.isCorrect).length;
             return correctCount > 1 ? 'multiple-response' : 'single-response';
+        }
+
+        // Trend detection
+        if (s.trendTable || c.trendTable || item.trendTable) {
+            return 'trend';
         }
 
         return 'unknown';
@@ -574,6 +579,10 @@ export class UnifiedDataPipeline {
                 break;
             case 'matrix':
                 UnifiedDataPipeline.normalizeMatrix(item, sourceStructure);
+                break;
+
+            case 'trend':
+                UnifiedDataPipeline.normalizeTrend(item, sourceStructure);
                 break;
             default:
                 UnifiedDataPipeline.normalizeGeneric(item, sourceStructure);
@@ -781,6 +790,22 @@ export class UnifiedDataPipeline {
         if (source.text) s.text = source.text;
         if (source.rationales) s.rationales = source.rationales;
         if (source.correct) s.correct = source.correct;
+    }
+
+    /**
+     * Normalize Trend structure
+     */
+    private static normalizeTrend(item: any, source: any): void {
+        const s = item.content.structure;
+
+        // copy basic props first (options, etc)
+        UnifiedDataPipeline.normalizeGeneric(item, source);
+
+        // specific trend data
+        s.trendTable = source.trendTable || item.trendTable || item.content?.trendTable;
+        s.trendImageUrl = source.trendImageUrl || item.trendImageUrl;
+        s.questionFormat = source.questionFormat || item.questionFormat;
+        s.selectCount = source.selectCount || item.selectCount;
     }
 
     /**

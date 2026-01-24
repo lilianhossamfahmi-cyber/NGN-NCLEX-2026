@@ -8,7 +8,17 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 // Features: Interactive Line Chart Visualization
 export const TrendRenderer: React.FC<GenericRendererProps> = (props) => {
     const { config } = props;
-    const isSATA = config.questionFormat === 'sata' || !!config.selectCount;
+
+    // Determine Question Format (SATA vs Single Choice)
+    const isSATA = useMemo(() => {
+        if (config.questionFormat === 'sata' || !!config.selectCount) return true;
+        // Check if there are multiple correct options
+        if (config.options && Array.isArray(config.options)) {
+            const correctCount = config.options.filter((o: any) => o.isCorrect).length;
+            return correctCount > 1;
+        }
+        return false;
+    }, [config]);
 
     // Transform Table Data to Chart Data
     const chartData = useMemo(() => {
@@ -69,8 +79,11 @@ export const TrendRenderer: React.FC<GenericRendererProps> = (props) => {
         <div className="flex flex-col gap-6 font-inter">
             {/* 1. Trend Visualization */}
             <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-                <div className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">
-                    Clinical Trend Data
+                <div className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2 flex justify-between items-center">
+                    <span>Clinical Trend Data</span>
+                    <span className="text-[10px] bg-slate-100 px-2 py-0.5 rounded text-slate-400">
+                        {chartData ? 'DYNAMIC CHART' : 'TABLE VIEW'}
+                    </span>
                 </div>
 
                 {config.trendImageUrl ? (
@@ -118,9 +131,6 @@ export const TrendRenderer: React.FC<GenericRendererProps> = (props) => {
                     </div>
                 ))}
             </div>
-
-            {/* 2. Divider */}
-            {config.stem && <div className="h-px bg-slate-200" />}
 
             {/* 3. Question Interaction */}
             <div>
