@@ -64,8 +64,17 @@ export abstract class AbstractItemManager implements ItemManager {
 
         // 4. Content Completeness Check & Auto-Fill (AI Hook)
         if (options?.autofill) {
+            // ENHANCED CHECK: Look for missing Pedagogical Content as well (Rationale, Strategy)
             const validation = this.validate(repaired);
             const criticalMissing = validation.issues.filter(i => i.severity === 'critical' || i.message.toLowerCase().includes('missing'));
+
+            const content = repaired.content || (repaired as any);
+            const rationale = content.rationale || (repaired as any).rationale || {};
+
+            // If Autofill is ON, we treat missing rationale/strategy as CRITICAL GAPS
+            if (!rationale.mnemonic || !rationale.cheatSheet || !rationale.pathophysiology) {
+                criticalMissing.push({ severity: 'critical', field: 'rationale', message: 'Missing rich rationale and clinical strategy' });
+            }
 
             if (criticalMissing.length > 0) {
                 console.log(`[${this.constructor.name}] Critical gaps detected:`, criticalMissing.map(m => m.message));
