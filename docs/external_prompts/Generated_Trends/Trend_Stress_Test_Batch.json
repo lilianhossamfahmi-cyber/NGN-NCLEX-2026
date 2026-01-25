@@ -1,0 +1,448 @@
+[
+    {
+        "type": "trend",
+        "id": "TRD-LVL1-TEST",
+        "content": {
+            "prompt": "Review the client's temperature chart. Which finding requires immediate reporting?",
+            "metadata": {
+                "title": "Post-Op Fever Spike (Level 1)",
+                "topic": "Fundamentals",
+                "difficulty": 1,
+                "clientNeeds": "Physiological Integrity",
+                "cjmmStep": "Recognize Cues",
+                "targetScore": 100
+            },
+            "clinicalData": {
+                "patientInfo": {
+                    "name": "J.D.",
+                    "age": 45,
+                    "gender": "M",
+                    "admissionDate": "Today"
+                },
+                "vitals": [
+                    {
+                        "time": "0800",
+                        "tempF": "98.6"
+                    },
+                    {
+                        "time": "1200",
+                        "tempF": "99.1"
+                    },
+                    {
+                        "time": "1600",
+                        "tempF": "102.4"
+                    }
+                ]
+            },
+            "rationale": {
+                "coreConcept": "Post-Operative Infection",
+                "caseSummary": "Patient is 6 hours post-op. Temp spikes from normal to 102.4F.",
+                "answerAnalysis": "A temperature >101F within 24 hours of surgery is a critical cue for atelectasis or early infection.",
+                "steps": [
+                    {
+                        "tag": "Recognize",
+                        "description": "Identify the abnormal value (102.4)"
+                    }
+                ],
+                "difficulty": {
+                    "level": 1,
+                    "label": "Novice",
+                    "subtext": "Requires identifying a single outlier value.",
+                    "clinicalStrategy": "Look for the value that is outside normal limits.",
+                    "recommendedActions": [
+                        "Check surgical site",
+                        "Encourage deep breathing"
+                    ]
+                }
+            },
+            "structure": {
+                "type": "trend",
+                "questionFormat": "multiple-choice",
+                "options": [
+                    {
+                        "id": "o1",
+                        "text": "Temperature 102.4°F",
+                        "isCorrect": true,
+                        "rationale": "Significant fever spike requiring assessment."
+                    },
+                    {
+                        "id": "o2",
+                        "text": "Temperature 98.6°F",
+                        "isCorrect": false,
+                        "rationale": "Normal finding."
+                    },
+                    {
+                        "id": "o3",
+                        "text": "Temperature 99.1°F",
+                        "isCorrect": false,
+                        "rationale": "Low-grade elevation common post-op."
+                    },
+                    {
+                        "id": "o4",
+                        "text": "Time 1200",
+                        "isCorrect": false,
+                        "rationale": "Distractor."
+                    }
+                ]
+            }
+        }
+    },
+    {
+        "type": "trend",
+        "id": "TRD-LVL2-TEST",
+        "content": {
+            "prompt": "Compare the client's daily weights and assessment. What complication is developing?",
+            "metadata": {
+                "title": "HF Fluid Overload (Level 2)",
+                "topic": "Cardiology",
+                "difficulty": 2,
+                "clientNeeds": "Physiological Integrity",
+                "cjmmStep": "Analyze Cues",
+                "targetScore": 90
+            },
+            "clinicalData": {
+                "patientInfo": {
+                    "name": "M.S.",
+                    "age": 72,
+                    "gender": "F"
+                },
+                "vitals": [
+                    {
+                        "time": "Day 1",
+                        "tempF": "160 lbs",
+                        "bp": "Trace Edema"
+                    },
+                    {
+                        "time": "Day 2",
+                        "tempF": "162 lbs",
+                        "bp": "+1 Edema"
+                    },
+                    {
+                        "time": "Day 3",
+                        "tempF": "165 lbs",
+                        "bp": "+3 Edema"
+                    }
+                ]
+            },
+            "rationale": {
+                "coreConcept": "Fluid Volume Excess",
+                "caseSummary": "Weight gain of 5 lbs in 3 days correlates with worsening edema.",
+                "answerAnalysis": "Sudden weight gain (>3 lbs/2 days) combined with progressive edema indicates fluid retention in Heart Failure.",
+                "difficulty": {
+                    "level": 2,
+                    "label": "Beginner",
+                    "subtext": "Requires correlating two clear data points (Weight + Edema).",
+                    "clinicalStrategy": "1 kg of weight gain = 1 Liter of fluid retained.",
+                    "recommendedActions": [
+                        "Restrict fluids",
+                        "Prepare Diuretics"
+                    ]
+                }
+            },
+            "structure": {
+                "type": "trend",
+                "questionFormat": "sata",
+                "options": [
+                    {
+                        "id": "o1",
+                        "text": "Fluid Volume Excess",
+                        "isCorrect": true
+                    },
+                    {
+                        "id": "o2",
+                        "text": "Worsening Heart Failure",
+                        "isCorrect": true
+                    },
+                    {
+                        "id": "o3",
+                        "text": "Dehydration",
+                        "isCorrect": false
+                    },
+                    {
+                        "id": "o4",
+                        "text": "Effective Diuretic Therapy",
+                        "isCorrect": false
+                    }
+                ]
+            }
+        }
+    },
+    {
+        "type": "trend",
+        "id": "TRD-LVL3-TEST",
+        "content": {
+            "prompt": "The nurse reviews the vital sign trend for a client with a UTI. Which trend is most concerning?",
+            "metadata": {
+                "title": "Sepsis Crossover (Level 3)",
+                "topic": "Infectious Disease",
+                "difficulty": 3,
+                "clientNeeds": "Physiological Integrity",
+                "cjmmStep": "Prioritize Hypotheses",
+                "targetScore": 85
+            },
+            "clinicalData": {
+                "vitals": [
+                    {
+                        "time": "0800",
+                        "hr": 88,
+                        "bp": "120/80",
+                        "tempF": "100.2"
+                    },
+                    {
+                        "time": "1000",
+                        "hr": 96,
+                        "bp": "110/70",
+                        "tempF": "101.5"
+                    },
+                    {
+                        "time": "1200",
+                        "hr": 115,
+                        "bp": "92/58",
+                        "tempF": "103.1"
+                    }
+                ]
+            },
+            "rationale": {
+                "coreConcept": "Septic Shock Progression",
+                "caseSummary": "UTI progressing to shock. HR rising (compensation) while BP drops (decompensation).",
+                "answerAnalysis": "The 'Crossover' effect where HR climbs and BP falls is the classic sign of impending shock.",
+                "difficulty": {
+                    "level": 3,
+                    "label": "Competent",
+                    "subtext": "Requires identifying inverse relationships (HR up, BP down).",
+                    "clinicalStrategy": "Identify the 'Shock Index': HR > SBP is a critical warning sign.",
+                    "recommendedActions": [
+                        "Start IV Fluids",
+                        "Obtain Lactate"
+                    ]
+                }
+            },
+            "structure": {
+                "type": "trend",
+                "questionFormat": "sata",
+                "options": [
+                    {
+                        "id": "o1",
+                        "text": "Progressive Hypotension",
+                        "isCorrect": true
+                    },
+                    {
+                        "id": "o2",
+                        "text": "Compensatory Tachycardia",
+                        "isCorrect": true
+                    },
+                    {
+                        "id": "o3",
+                        "text": "Stable condition",
+                        "isCorrect": false
+                    },
+                    {
+                        "id": "o4",
+                        "text": "Improved fever curb",
+                        "isCorrect": false
+                    }
+                ]
+            }
+        }
+    },
+    {
+        "type": "trend",
+        "id": "TRD-LVL4-TEST",
+        "content": {
+            "prompt": "A client is being treated for DKA. Based on the 4-hour trend, what is the priority action?",
+            "metadata": {
+                "title": "DKA Protocol Analysis (Level 4)",
+                "topic": "Endocrine",
+                "difficulty": 4,
+                "clientNeeds": "Physiological Integrity",
+                "cjmmStep": "Generate Solutions",
+                "targetScore": 80
+            },
+            "clinicalData": {
+                "labs": [
+                    {
+                        "test": "Glucose",
+                        "previous": "550",
+                        "value": "320"
+                    },
+                    {
+                        "test": "Anion Gap",
+                        "previous": "24",
+                        "value": "18"
+                    },
+                    {
+                        "test": "Potassium",
+                        "previous": "5.2",
+                        "value": "3.3"
+                    }
+                ]
+            },
+            "rationale": {
+                "coreConcept": "DKA Management / Hypokalemia",
+                "caseSummary": "Glucose and Gap are improving, BUT Potassium has crashed to 3.3.",
+                "answerAnalysis": "Insulin drives Potassium into cells. Even though the DKA is resolving, the priority shifts to preventing arrhythmia from Hypokalemia. Insulin must be held or K+ replaced immediately.",
+                "trap": "Focusing only on the improving glucose.",
+                "difficulty": {
+                    "level": 4,
+                    "label": "Proficient",
+                    "subtext": "Requires prioritizing conflicting trends (Good Glucose vs Bad Potassium).",
+                    "clinicalStrategy": "Fix the K+ before the Glucose. No K+, No Insulin.",
+                    "recommendedActions": [
+                        "Hold Insulin",
+                        "Hang KCL IVPB"
+                    ]
+                }
+            },
+            "structure": {
+                "type": "trend",
+                "questionFormat": "multiple-choice",
+                "options": [
+                    {
+                        "id": "o1",
+                        "text": "Pause insulin and administer potassium",
+                        "isCorrect": true,
+                        "rationale": "K+ of 3.3 is critical; insulin will lower it further."
+                    },
+                    {
+                        "id": "o2",
+                        "text": "Increase insulin titration",
+                        "isCorrect": false,
+                        "rationale": "Would cause fatal arrhythmia."
+                    },
+                    {
+                        "id": "o3",
+                        "text": "Stop IV fluids",
+                        "isCorrect": false,
+                        "rationale": "Patient is still dehydrated."
+                    },
+                    {
+                        "id": "o4",
+                        "text": "Administer Bicarbonate",
+                        "isCorrect": false,
+                        "rationale": "Gap is closing, bicarb not indicated."
+                    }
+                ]
+            }
+        }
+    },
+    {
+        "type": "trend",
+        "id": "TRD-LVL5-TEST",
+        "content": {
+            "prompt": "Evaluate the trend in the client with head trauma. Which intervention is contraindicated?",
+            "metadata": {
+                "title": "Cushing's Triad (Level 5)",
+                "topic": "Neurology",
+                "difficulty": 5,
+                "clientNeeds": "Physiological Integrity",
+                "cjmmStep": "Evaluate Outcomes",
+                "targetScore": 75
+            },
+            "clinicalData": {
+                "patientInfo": {
+                    "name": "J.K.",
+                    "age": 22,
+                    "gender": "M",
+                    "diagnosis": "Traumatic Brain Injury"
+                },
+                "historyPhysical": {
+                    "chiefComplaint": "Unconscious after fall",
+                    "hpi": "22-year-old male brought to ED after falling from a 10ft ladder striking head on concrete. Loss of consciousness at scene for 5 mins.",
+                    "pmh": [
+                        "None"
+                    ],
+                    "medications": [
+                        "None"
+                    ]
+                },
+                "vitals": [
+                    {
+                        "time": "1800",
+                        "hr": 80,
+                        "bp": "130/70",
+                        "rr": 18
+                    },
+                    {
+                        "time": "1830",
+                        "hr": 68,
+                        "bp": "150/60",
+                        "rr": 14
+                    },
+                    {
+                        "time": "1900",
+                        "hr": 52,
+                        "bp": "180/50",
+                        "rr": 8
+                    }
+                ]
+            },
+            "rationale": {
+                "coreConcept": "Increased Intracranial Pressure (ICP)",
+                "caseSummary": "Patient showing classic Cushing's Triad: Hypertension with Widening Pulse Pressure, Bradycardia, and Bradypnea.",
+                "answerAnalysis": "The trend indicates impending brainstem herniation. Lumbar Puncture is CONTRAINDICATED as it would cause immediate herniation due to pressure gradient.",
+                "trap": "Mistaking the high BP for simple hypertension and giving antihypertensives (which would kill perfusion to the brain).",
+                "goldenRule": "Hypertension in ICP is a survival mechanism to perfuse the brain. Do not simply lower it.",
+                "mnemonic": {
+                    "title": "Cushings Triad",
+                    "content": "1. High BP (Widening Pulse Pressure)\n2. Low HR (Bradycardia)\n3. Low RR (Irregular/Cheyne-Stokes)",
+                    "explanation": "These 3 signs indicate increased intracranial pressure (ICP) is crushing the brainstem."
+                },
+                "cheatSheet": {
+                    "title": "ICP Warning Signs",
+                    "points": [
+                        "Widening Pulse Pressure (Systolic UP, Diastolic Steady/Down)",
+                        "Bradycardia is a LATE sign of herniation",
+                        "Avoid Lumbar Puncture (Risk of herniation)",
+                        "Keep Head of Bed at 30 degrees (Promote drainage)"
+                    ]
+                },
+                "referenceInfo": {
+                    "anatomy": "The cranium is a fixed box containing Brain (80%), Blood (10%), and CSF (10%). (Monro-Kellie Doctrine).",
+                    "physiology": "When injured, the brain swells. To fight the pressure, the body raises BP to force blood into the brain (Cerebral Perfusion Pressure). The baroreceptors then lower HR in response to the high BP.",
+                    "pharm": "Mannitol (Osmotic Diuretic) pulls fluid out of the brain tissue into the blood to be excreted, lowering ICP."
+                },
+                "difficulty": {
+                    "level": 5,
+                    "label": "Expert",
+                    "subtext": "Requires recognizing a subtle, paradoxical physiological reflex.",
+                    "clinicalStrategy": "Widening Pulse Pressure + Low HR = ICP.",
+                    "recommendedActions": [
+                        "Hyperventilate",
+                        "Mannitol",
+                        "Neuro Surgery consult"
+                    ]
+                }
+            },
+            "structure": {
+                "type": "trend",
+                "questionFormat": "multiple-choice",
+                "options": [
+                    {
+                        "id": "o1",
+                        "text": "Prepare for Lumbar Puncture",
+                        "isCorrect": true,
+                        "rationale": "Contraindicated in high ICP; risks herniation."
+                    },
+                    {
+                        "id": "o2",
+                        "text": "Administer Mannitol",
+                        "isCorrect": false,
+                        "rationale": "Indicated for ICP."
+                    },
+                    {
+                        "id": "o3",
+                        "text": "Elevate HOB 30 degrees",
+                        "isCorrect": false,
+                        "rationale": "Standard of care."
+                    },
+                    {
+                        "id": "o4",
+                        "text": "Maintain head midline",
+                        "isCorrect": false,
+                        "rationale": "Standard of care."
+                    }
+                ]
+            }
+        }
+    }
+]

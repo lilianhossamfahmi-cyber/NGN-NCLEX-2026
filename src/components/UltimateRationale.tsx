@@ -1,9 +1,15 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
+import type {
+    UltimateRationaleProps,
+    FullItemData,
+    QuestionConfig,
+    CanonicalRationale
+} from '../types';
+import { RationalePipeline } from '../services/RationalePipeline';
 import { MatrixFeedback } from './feedback/MatrixFeedback';
 import { OrderedFeedback } from './feedback/OrderedFeedback';
 import { OptionReviewV2 } from './OptionReviewV2';
-
 import { NCJMMPhase, OptionReview, OutcomeModel, MatrixRowAnalysis, CJFeedback, OrderedReview } from '../types/RationaleTypes';
 import {
     X,
@@ -13,7 +19,6 @@ import {
     Target,
     Lightbulb,
     Zap,
-
     CheckCircle2,
     FileText,
     BookOpen,
@@ -53,44 +58,7 @@ import ClozeFeedback from './feedback/ClozeFeedback';
 import { BowTieReview } from '../services/RationalePipeline';
 import { HighlightReview, ClozeReview } from '../types/RationaleTypes';
 
-/* --------------------------------------------------------------
-   1️⃣  DATA STRUCTURES & TYPES
-   -------------------------------------------------------------- */
 
-
-export interface UltimateRationaleProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onNextQuestion?: () => void;
-
-    // New Props for V2
-    outcome?: OutcomeModel;
-    cjmmStep?: string;
-
-    coreConcept: string;
-    steps?: { tag: string; description: string; }[];
-    goldenRule?: string;
-    pitfalls?: string[];
-    caseSummary?: string;
-    answerAnalysis?: string;
-    trap?: string;
-    mnemonic?: { title: string; content: string; explanation: string };
-    cheatSheet?: { title: string; points: string[] };
-    optionReviews?: OptionReview[];
-    matrixRows?: MatrixRowAnalysis[]; // New Payload for Matrix Items
-    matrixColumns?: any[];            // New Payload for Matrix Headers
-    cjFeedback?: CJFeedback;          // New Explicit CJ Feedback
-    referenceInfo?: { anatomy?: string; physiology?: string; pharm?: string; };
-    reviewUnits?: import('../types/OptionReviewV2Types').ReviewUnit[]; // V2 payload
-    bowTieReview?: BowTieReview;      // BowTie payload
-    highlightReview?: HighlightReview; // Highlight payload
-    clozeReview?: ClozeReview;        // Drop/Cloze payload
-    orderedReview?: OrderedReview;    // Ordered Response payload
-    metadata?: any;
-    formulaMethod?: string;
-    dimensionalAnalysis?: string;
-    clinicalStrategy?: string;
-}
 
 /* --------------------------------------------------------------
    2️⃣  HELPER COMPONENTS
@@ -547,23 +515,29 @@ const DrawControls = ({ onColor, activeColor, onClear }: any) => {
 /* --------------------------------------------------------------
    4️⃣  MAIN COMPONENT
    -------------------------------------------------------------- */
-export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
+export const UltimateRationale = ({
+    item,
+    referenceInfo,
+    difficulty,
+    mnemonic,
+    cheatSheet,
+    strategy,
+    itemId,
+    activeTab,
+    onTabChange,
+    onNextQuestion,
+    // Existing props to keep for sub-components or backward compatibility
     isOpen,
     onClose,
-    onNextQuestion,
     outcome,
     cjmmStep = "clinical judgment",
     coreConcept,
     steps = [],
-    goldenRule = "Treat the underlying cause while concurrently supporting perfusion.",
+    goldenRule,
     pitfalls = [],
-
     answerAnalysis,
     trap,
-    mnemonic,
-    cheatSheet,
     optionReviews,
-    referenceInfo,
     matrixRows,
     matrixColumns,
     cjFeedback,
@@ -576,7 +550,45 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
     formulaMethod,
     dimensionalAnalysis,
     clinicalStrategy
-}) => {
+}: UltimateRationaleProps) => {
+
+    // ✅ NEW: Validate and structure rationale data for rendering
+    const validatedRationale = useMemo(() => {
+        console.log('🔍 UltimateRationale: Validating rationale structure...');
+
+        const validated = {
+            reference: referenceInfo || {
+                anatomy: 'Reference information not available',
+                physiology: 'Reference information not available',
+                pharm: 'Reference information not available',
+            },
+            difficulty: difficulty || {
+                level: 3,
+                clinicalStrategy: 'Apply standard clinical reasoning',
+                recommendedActions: [],
+            },
+            mnemonicData: mnemonic || {
+                title: 'Clinical Tool',
+                content: 'N/A',
+                explanation: 'No memory aid available for this scenario.',
+            },
+            cheatSheetData: cheatSheet || {
+                title: 'Quick Reference',
+                points: [],
+            },
+            clinicalStrategy: strategy || clinicalStrategy || 'Apply standard clinical reasoning',
+            itemId: itemId || (item as any)?.id || 'unknown',
+        };
+
+        console.log('✅ UltimateRationale: Rationale validation complete', validated);
+        return validated;
+    }, [referenceInfo, difficulty, mnemonic, cheatSheet, strategy, itemId, clinicalStrategy, item]);
+
+    // ✅ OPTIONAL: Log rendering state
+    useEffect(() => {
+        console.log('📊 UltimateRationale: Rendering with active tab:', activeTab);
+        console.log('📊 UltimateRationale: Validated rationale state:', validatedRationale);
+    }, [activeTab, validatedRationale]);
     // Detect if this is a calculation item
     const isCalculation = useMemo(() => {
         return metadata?.type?.toLowerCase().includes('calculation') ||
@@ -690,7 +702,6 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
 
     const [show, setShow] = useState(isOpen);
     const [animateIn, setAnimateIn] = useState(false);
-    const [activeTab, setActiveTab] = useState(0);
     const [theme, setTheme] = useState<'dark' | 'glass'>('dark');
     const modalRef = useRef<HTMLDivElement>(null);
 
@@ -856,11 +867,11 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
 
 
     const tabs = [
-        { id: 0, label: "Item Overview & Actions", icon: FileText },
-        { id: 1, label: "Option Review", icon: ListChecks },
-        { id: 2, label: "Clinical Logic", icon: Brain },
-        { id: 3, label: "Strategy", icon: Target },
-        { id: 4, label: "Knowledge", icon: BookOpen },
+        { id: "0", label: "Item Overview & Actions", icon: FileText },
+        { id: "1", label: "Option Review", icon: ListChecks },
+        { id: "2", label: "Clinical Logic", icon: Brain },
+        { id: "3", label: "Strategy", icon: Target },
+        { id: "4", label: "Knowledge", icon: BookOpen },
     ];
 
     const ncjmmStages: { phase: NCJMMPhase; color: string; icon: React.ElementType }[] = [
@@ -1263,12 +1274,12 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                     <div className="flex-none px-8 pt-4 pb-0 border-b flex gap-4 overflow-x-auto relative z-40" style={{ borderColor: THEME.border }}>
                         {tabs.map((tab) => {
                             const isActive = activeTab === tab.id;
-                            const tabColor = [COLORS.primary, COLORS.accent, '#06B6D4', COLORS.warning, COLORS.success][tab.id];
+                            const tabColor = [COLORS.primary, COLORS.accent, '#06B6D4', COLORS.warning, COLORS.success][parseInt(tab.id)];
 
                             return (
                                 <button
                                     key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
+                                    onClick={() => onTabChange(tab.id)}
                                     className={`relative flex items-center gap-2 px-5 py-3 rounded-t-xl text-sm font-bold transition-all ${isActive ? 'translate-y-[1px]' : 'hover:bg-white/5 opacity-70 hover:opacity-100'
                                         }`}
                                     style={{
@@ -1296,7 +1307,7 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                         }}
                     >
 
-                        {activeTab === 0 && !isCalculation && (
+                        {activeTab === "0" && !isCalculation && (
 
                             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 animate-in fade-in duration-500">
                                 {/* LEFT COLUMN: Item Difficulty (3/12) */}
@@ -1517,7 +1528,7 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                         )}
 
 
-                        {activeTab === 1 && (
+                        {activeTab === "1" && (
                             <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-right-4 duration-500 space-y-4">
 
                                 {/* FEATURE FLAG: V2 OPTION REVIEW SYSTEM */}
@@ -1963,7 +1974,7 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                                 )}
                             </div>
                         )}
-                        {activeTab === 2 && (
+                        {activeTab === "2" && (
                             <div className="animate-in fade-in duration-500">
                                 <div className="flex flex-col items-center mb-12">
                                     <div className="px-4 py-1 rounded-full border mb-4 text-xs font-bold uppercase tracking-widest" style={{ borderColor: THEME.border, backgroundColor: THEME.card }}>NCSBN Clinical Judgment Model</div>
@@ -1999,7 +2010,7 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                                 </div>
                             </div>
                         )}
-                        {activeTab === 3 && (
+                        {activeTab === "3" && (
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in duration-500">
                                 <div className="rounded-3xl p-1 bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 shadow-2xl relative overflow-hidden group">
                                     <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -2065,7 +2076,7 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
 
 
 
-                        {activeTab === 0 && isCalculation && (
+                        {activeTab === "0" && isCalculation && (
                             <div className="p-8 max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 {/* 1. HEADER: CORRECT ANSWER */}
                                 <div className="flex items-center justify-between p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
@@ -2142,7 +2153,7 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                         )}
 
 
-                        {activeTab === 4 && (
+                        {activeTab === "4" && (
                             <div className="animate-in fade-in duration-500">
                                 <div className="flex items-center justify-between mb-8">
                                     <div><h3 className="text-2xl font-bold mb-1">Foundational Knowledge</h3><p className="opacity-60">The "Why" behind the "What".</p></div>

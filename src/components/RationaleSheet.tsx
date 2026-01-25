@@ -1,103 +1,109 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { UltimateRationale } from './UltimateRationale';
-import { generateCJFeedback } from '../utils/RemediationGenerator';
-import * as RationalePipeline from '../services/RationalePipeline';
+import { RationaleSheetProps } from '../types';
+import { RationalePipeline } from '../services/RationalePipeline';
 
-// Update Interface
-interface RationaleDrawerProps {
-    isOpen: boolean;
-    onClose: () => void;
-    question: any;
-    result?: any;
-    onNextQuestion?: () => void;
-}
-
-export const RationaleDrawer: React.FC<RationaleDrawerProps> = ({ isOpen, onClose, question, result, onNextQuestion }) => {
-    // ... existing ...
-    // Extract CJMM Step
-    const cjmmStep = question?.cjmmStep || question?.content?.metadata?.cjmmStep || question?.metadata?.cjmmStep || "Clinical Judgment";
-
+export const RationaleSheet: React.FC<RationaleSheetProps> = ({
+    question,
+    fullItem,
+    rationale: explicitRationale,
+    metadata,
+}) => {
+    // ✅ Manage active tab state locally in RationaleSheet
+    const [activeTab, setActiveTab] = React.useState<number>(0);
+    // ✅ Priority hierarchy extraction - tries multiple sources
     const smartRationale = useMemo(() => {
-        if (!question) return null;
+        console.log('🔍 RationaleSheet: Starting rationale extraction...');
 
-        // CRITICAL: Merge both rationale sources to ensure mnemonic and all fields are preserved
-        // content.rationale has processed fields from UnifiedDataPipeline (mnemonic is here!)
-        // question.rationale has original user-provided fields
-        const contentRationale = question.content?.rationale || {};
-        const rootRationale = question.rationale || {};
+        // OPTION 1: Use explicit rationale if provided (highest priority)
+        if (explicitRationale) {
+            console.log('✅ RationaleSheet: Using explicit rationale from props');
+            return explicitRationale;
+        }
 
-        // CRITICAL FIX: Prefer contentRationale.mnemonic FIRST (where UnifiedDataPipeline saves it)
-        const finalMnemonic = contentRationale.mnemonic || rootRationale.mnemonic;
+        // OPTION 2: Extract from fullItem (if available)
+        if (fullItem?.content?.rationale) {
+            console.log('✅ RationaleSheet: Extracting from fullItem.content.rationale');
+            try {
+                const processed = RationalePipeline.processQuestion(fullItem.content);
+                console.log('✅ RationaleSheet: Successfully processed fullItem rationale', processed);
+                return processed;
+            } catch (error) {
+                console.error('❌ RationaleSheet: Error processing fullItem rationale', error);
+            }
+        }
 
-        // Merge: content (processed) as base, then overlay with root (original) non-mnemonic fields
-        const explicitRationale = {
-            ...contentRationale,
-            ...rootRationale,
-            // Ensure mnemonic is preserved from content (UnifiedDataPipeline saved it there)
-            mnemonic: finalMnemonic
-        };
+        // OPTION 3: Try question as fallback
+        if (question?.content?.rationale) {
+            console.log('✅ RationaleSheet: Extracting from question.content.rationale (fallback)');
+            try {
+                const processed = RationalePipeline.processQuestion(question.content);
+                console.log('✅ RationaleSheet: Successfully processed question rationale', processed);
+                return processed;
+            } catch (error) {
+                console.error('❌ RationaleSheet: Error processing question rationale', error);
+            }
+        }
 
-        return RationalePipeline.generateRationale(question, result?.userAns, explicitRationale);
-    }, [question, result]);
+        // OPTION 4: Create default rationale (last resort)
+        console.error('🔴 RationaleSheet: No rationale found anywhere, creating defaults');
+        return RationalePipeline.createDefaultRationale();
+    }, [explicitRationale, fullItem?.content?.rationale, question?.content?.rationale]);
 
-    if (!smartRationale) return null;
-
-    // Map Pipeline Outcome to UltimateRationale format
-    const badge = smartRationale.outcome?.badge || 'PARTIAL'; // Default to partial if missing
-    const outcome = {
-        title: badge === 'CORRECT' ? 'Optimal Clinical Decision' : (badge === 'PARTIAL' ? 'Partial Clinical Decision' : 'Suboptimal Clinical Decision'),
-        score: smartRationale.outcome?.earnedPoints || 0,
-        maxScore: smartRationale.outcome?.totalPoints || 1,
-        status: (badge.toLowerCase() || 'partial') as 'correct' | 'incorrect' | 'partial'
-    };
-
-    // CJ Feedback Generation
-    const cjFeedback = result ? generateCJFeedback(
-        result,
-        question?.content?.metadata || question?.metadata,
-        result.timeSpent
-    ) : undefined;
+    // ✅ OPTIONAL: Log when we're using defaults
+    useEffect(() => {
+        if (!smartRationale?.referenceInfo?.anatomy && !smartRationale?.referenceInfo?.physiology) {
+            console.warn('⚠️ RationaleSheet: Using default reference info (no anatomical/physiological data)');
+        }
+    }, [smartRationale]);
 
     return (
-        <UltimateRationale
-            isOpen={isOpen}
-            onClose={onClose}
-            onNextQuestion={onNextQuestion}
-            outcome={outcome}
-            cjmmStep={smartRationale.cjmmStep || cjmmStep}
-            cjFeedback={cjFeedback}
-            coreConcept={smartRationale.coreConcept || "Clinical Concept"}
-            goldenRule={smartRationale.goldenRule}
-            caseSummary={smartRationale.caseSummary}
-            answerAnalysis={smartRationale.answerAnalysis}
-            trap={smartRationale.trap}
-            steps={smartRationale.steps}
-            mnemonic={smartRationale.mnemonic}
-            cheatSheet={smartRationale.cheatSheet}
-            optionReviews={smartRationale.optionReviews}
-            bowTieReview={smartRationale.bowTieReview}
-            highlightReview={smartRationale.highlightReview}
-            clozeReview={smartRationale.clozeReview}
-            orderedReview={smartRationale.orderedReview}
-            matrixRows={smartRationale.matrixRows}
-            matrixColumns={smartRationale.matrixColumns}
-            pitfalls={smartRationale.pitfalls}
-            referenceInfo={smartRationale.referenceInfo}
-            formulaMethod={smartRationale.formulaMethod}
-            dimensionalAnalysis={smartRationale.dimensionalAnalysis}
-            metadata={{
-                type: question?.type,
-                correctValue: question?.correctValue || question?.structure?.correctValue,
-                inputLabel: question?.inputLabel || question?.structure?.inputLabel,
-                units: question?.units || question?.structure?.units,
-                fullItem: question,
-                rationale: smartRationale,
-                rationaleDifficulty: smartRationale.difficulty,
-                ...question?.metadata,
-                ...question?.pedagogy,
-                // FIX: Prioritize the explicit difficulty level over the pipeline's inferred one
-                difficultyLevel: question?.pedagogy?.difficultyLevel || question?.metadata?.difficultyLevel || smartRationale.difficulty?.level || 3
-            }}
-        />
+        <div>
+            <UltimateRationale
+                isOpen={true}
+                onClose={() => { }}
+                item={fullItem || question}
+                referenceInfo={smartRationale?.referenceInfo}
+                difficulty={smartRationale?.difficulty}
+                mnemonic={smartRationale?.mnemonic}
+                cheatSheet={smartRationale?.cheatSheet}
+                strategy={smartRationale?.difficulty?.clinicalStrategy}
+                itemId={fullItem?.id || question?.id}
+                // Preserve other mappings from previous version if relevant, but user said REPLACE
+                outcome={smartRationale?.outcome}
+                cjmmStep={smartRationale?.cjmmStep}
+                coreConcept={smartRationale?.coreConcept}
+                goldenRule={smartRationale?.goldenRule}
+                caseSummary={smartRationale?.caseSummary}
+                answerAnalysis={smartRationale?.answerAnalysis}
+                trap={smartRationale?.trap}
+                steps={smartRationale?.steps}
+                optionReviews={smartRationale?.optionReviews}
+                bowTieReview={smartRationale?.bowTieReview}
+                highlightReview={smartRationale?.highlightReview}
+                clozeReview={smartRationale?.clozeReview}
+                orderedReview={smartRationale?.orderedReview}
+                matrixRows={(smartRationale as any)?.matrixRows}
+                matrixColumns={(smartRationale as any)?.matrixColumns}
+                pitfalls={smartRationale?.pitfalls}
+                formulaMethod={(smartRationale as any)?.formulaMethod}
+                dimensionalAnalysis={(smartRationale as any)?.dimensionalAnalysis}
+                metadata={{
+                    type: question?.type,
+                    correctValue: question?.correctValue || question?.structure?.correctValue,
+                    inputLabel: question?.inputLabel || question?.structure?.inputLabel,
+                    units: question?.units || question?.structure?.units,
+                    fullItem: question,
+                    rationale: smartRationale,
+                    rationaleDifficulty: smartRationale?.difficulty,
+                    ...question?.metadata,
+                    ...metadata,
+                    ...question?.pedagogy,
+                    difficultyLevel: question?.pedagogy?.difficultyLevel || question?.metadata?.difficultyLevel || smartRationale?.difficulty?.level || 3
+                }}
+                activeTab={activeTab.toString()}
+                onTabChange={(id) => setActiveTab(parseInt(id))}
+            />
+        </div>
     );
 };

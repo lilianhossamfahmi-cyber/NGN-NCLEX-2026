@@ -267,9 +267,9 @@ export const CardiologyItems_Final_Batch10: MasterQuestionItem[] = [
                 "cheatSheet": {
                     "title": "Mediastinitis Signs",
                     "points": [
-* "Fever and elevated WBC.",
-* "Sternal instability (clicking/movement).",
-* "Purulent drainage from the chest wound."
+                        "Fever and elevated WBC.",
+                        "Sternal instability (clicking/movement).",
+                        "Purulent drainage from the chest wound."
                     ]
                 },
                 "referenceInfo": {

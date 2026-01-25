@@ -2031,6 +2031,7 @@ function inferCJMMStep(itemType: string): string {
 
 export const RationalePipeline = {
     generateRationale,
+    processQuestion: (config: any) => generateRationale(config, null, config.rationale),
     calculateBowTieScore,
     calculateMatrixScore,
     calculateSATAScore,
@@ -2038,7 +2039,24 @@ export const RationalePipeline = {
     calculateClozeScore,
     generateBowTieReview,
     generateOptionReviews,
-    extractKnowledgeFromText
+    extractKnowledgeFromText,
+    createDefaultRationale: (): CanonicalRationale => ({
+        outcome: { badge: 'PARTIAL', score: 0, totalPoints: 1, earnedPoints: 0, message: 'Review rationale for detailed logic.' },
+        coreConcept: 'Clinical Judgment',
+        caseSummary: 'Review the case details to understand the clinical presentation and requirements.',
+        answerAnalysis: 'See specific option review for detailed feedback on each choice.',
+        trap: 'Always prioritize safety and follow standard protocols.',
+        optionReviews: [],
+        steps: DEFAULT_STEPS,
+        goldenRule: 'Always prioritize patient safety and use clinical judgment.',
+        mnemonic: DEFAULT_MNEMONIC,
+        cheatSheet: DEFAULT_CHEAT_SHEET(),
+        pitfalls: ['Failure to recognize changing patient status', 'Delay in reporting critical findings'],
+        referenceInfo: DEFAULT_REFERENCE(),
+        cjmmStep: 'Clinical Judgment',
+        itemType: 'generic',
+        difficulty: { score: 50, level: 3, label: 'Moderate', subtext: 'Requires clinical reasoning', clinicalStrategy: 'Prioritize safety', recommendedActions: [] }
+    })
 };
 
 /**

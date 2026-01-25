@@ -1,0 +1,177 @@
+[
+    {
+        "type": "trend",
+        "id": "NEURO-TRD-L5CUSH",
+        "content": {
+            "prompt": "Evaluate the client's vital signs trend over the last hour. Which intervention is contraindicated for this client?",
+            "metadata": {
+                "title": "Cushing's Triad Progression (Level 5)",
+                "topic": "Neurology",
+                "difficulty": 5,
+                "clientNeeds": "Physiological Integrity",
+                "cjmmStep": "Evaluate Outcomes",
+                "targetScore": 90
+            },
+            "clinicalData": {
+                "patientInfo": {
+                    "name": "K.L.",
+                    "age": 24,
+                    "gender": "Male",
+                    "allergies": "Penicillin",
+                    "weightKg": 82,
+                    "codeStatus": "Full Code"
+                },
+                "setting": "Trauma ICU",
+                "historyPhysical": {
+                    "chiefComplaint": "Unresponsive following MVC",
+                    "hpi": "24-year-old male unrestrained driver in high-speed MVC. Intubated at scene. GCS 3T. Right pupil fixed and dilated.",
+                    "pmh": [
+                        "None"
+                    ],
+                    "medications": [
+                        "Propofol infusion (held for exam)"
+                    ]
+                },
+                "history": [
+                    {
+                        "time": "1800",
+                        "author": "Dr. Neuro",
+                        "note": "EVD placed. ICP monitoring initiated."
+                    }
+                ],
+                "vitals": [
+                    {
+                        "time": "1800",
+                        "tempF": "98.9",
+                        "hr": 82,
+                        "rr": 16,
+                        "bp": "135/75",
+                        "o2": "100",
+                        "o2_device": "Vent",
+                        "pain": 0
+                    },
+                    {
+                        "time": "1830",
+                        "tempF": "99.0",
+                        "hr": 68,
+                        "rr": 14,
+                        "bp": "158/60",
+                        "o2": "100",
+                        "o2_device": "Vent",
+                        "pain": 0
+                    },
+                    {
+                        "time": "1900",
+                        "tempF": "99.2",
+                        "hr": 54,
+                        "rr": 10,
+                        "bp": "185/55",
+                        "o2": "100",
+                        "o2_device": "Vent",
+                        "pain": 0
+                    }
+                ],
+                "labs": [
+                    {
+                        "test": "Na+",
+                        "value": "138",
+                        "flag": "N",
+                        "ref": "135-145",
+                        "unit": "mEq/L"
+                    },
+                    {
+                        "test": "Serum Osmolality",
+                        "value": "290",
+                        "flag": "N",
+                        "ref": "275-295",
+                        "unit": "mOsm/kg"
+                    }
+                ],
+                "orders": [],
+                "radiology": []
+            },
+            "rationale": {
+                "coreConcept": "Increased Intracranial Pressure (Cushing's Triad)",
+                "caseSummary": "Patient demonstrates classic progression of Cushing's Triad indicating impending brainstem herniation: Systolic Hypertension with widening pulse pressure, Bradycardia, and Bradypnea.",
+                "answerAnalysis": "The trend (BP 135->185, HR 82->54) confirms severe ICP. Lumbar puncture creates a pressure gradient that can cause immediate tonsillar herniation and death. It is absolutely contraindicated.",
+                "trap": "Treating the hypertension (185/55) with antihypertensives. This BP is compensatory to maintain Cerebral Perfusion Pressure (CPP). Lowering it will cause ischemia.",
+                "goldenRule": "Never perform a lumbar puncture when increased ICP is suspected.",
+                "steps": [
+                    {
+                        "tag": "Recognize",
+                        "description": "Identify the Triad: High BP, Low HR, Low RR"
+                    },
+                    {
+                        "tag": "Analyze",
+                        "description": "Connect findings to brainstem compression"
+                    },
+                    {
+                        "tag": "Prioritize",
+                        "description": "Avoid interventions that lower pressure gradients"
+                    }
+                ],
+                "mnemonic": {
+                    "title": "CUSHING'S TRIAD",
+                    "content": "1. Systolic hypertension (Widening Pulse Pressure)\n2. Bradycardia\n3. Irregular/Slow Respirations",
+                    "explanation": "Opposite of Shock (which has Low BP, High HR)."
+                },
+                "cheatSheet": {
+                    "title": "ICP Management Pearls",
+                    "points": [
+                        "Map - ICP = CPP (Cerebral Perfusion Pressure)",
+                        "Minimum CPP is 60-70 mmHg",
+                        "Hyperventilate to CO2 30-35 (Vasoconstriction)",
+                        "Mannitol or 3% Saline to pull fluid"
+                    ]
+                },
+                "referenceInfo": {
+                    "anatomy": "The skull is a fixed cavity (Monro-Kellie Doctrine). Swelling compresses the brainstem through the foramen magnum.",
+                    "physiology": "Cushing's Reflex: Ischemia triggers sympathetic surge (High BP) -> Baroreceptors trigger parasympathetic response (Low HR).",
+                    "pharm": "Mannitol: Osmotic diuretic. 3% Hypertonic Saline: Draws water out of edematous brain tissue."
+                },
+                "difficulty": {
+                    "score": 90,
+                    "level": 5,
+                    "label": "Expert",
+                    "subtext": "Requires distinguishing between compensatory hypertension and pathological hypertension.",
+                    "clinicalStrategy": "Calculate Pulse Pressure (Systolic - Diastolic). If it's growing (>60 mmHg) and HR is dropping, think HERNIATION.",
+                    "recommendedActions": [
+                        "Elevate HOB 30 deg",
+                        "Administer Mannitol",
+                        "Prepare for Craniotomy"
+                    ]
+                }
+            },
+            "structure": {
+                "type": "trend",
+                "questionFormat": "multiple-choice",
+                "options": [
+                    {
+                        "id": "o1",
+                        "text": "Prepare for bedside Lumbar Puncture",
+                        "isCorrect": true,
+                        "rationale": "ABSOLUTE CONTRAINDICATION: leads to herniation."
+                    },
+                    {
+                        "id": "o2",
+                        "text": "Administer IV Mannitol 20%",
+                        "isCorrect": false,
+                        "rationale": "Correct intervention for ICP."
+                    },
+                    {
+                        "id": "o3",
+                        "text": "Hyperventilate to PaCO2 30-35 mmHg",
+                        "isCorrect": false,
+                        "rationale": "Correct short-term intervention."
+                    },
+                    {
+                        "id": "o4",
+                        "text": "Maintain head in neutral position",
+                        "isCorrect": false,
+                        "rationale": "Standard of care for ICP."
+                    }
+                ]
+            }
+        }
+    }
+]

@@ -4,7 +4,7 @@ import { renderQuestion } from './item-types/ItemRenderer';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { MobileDrawer } from './mobile/MobileDrawer';
 // import { RationaleTriggerBar } from './RationaleTriggerBar'; // Removed
-import { RationaleDrawer } from './RationaleSheet';
+import { RationaleDrawer } from './RationaleDrawer';
 import { ToolSuite } from './tools/ToolSuite';
 import ExpertDashboard from './ExpertDashboard';
 import { CognitiveAnalyticsEngine, SessionHistoryItem } from '../utils/scoringEngine';
@@ -12,6 +12,7 @@ import { InteractionData } from '../utils/stressEngine';
 import { FloatingPatientHeader } from './FloatingPatientHeader';
 // FloatingControls removed - using custom footer controls
 import * as RationalePipeline from '../services/RationalePipeline';
+import type { FullItemData } from '../types';
 import { Wand2, X, Loader2 } from 'lucide-react';
 import { updateItem } from '../services/itemApiService';
 import { syncItemToSupabase } from '../services/itemSyncService';
@@ -281,6 +282,9 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
     const [isFixing, setIsFixing] = useState(false);
     const [isApplyingFix, setIsApplyingFix] = useState(false);
 
+    // ✅ NEW STATE: Cache the full original item
+    const [cachedFullItem, setCachedFullItem] = useState<FullItemData | null>(null);
+
     useEffect(() => {
         setInternalItem(rawItem);
     }, [rawItem]);
@@ -289,6 +293,14 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
     useEffect(() => {
         if (hideRationales) setMode('exam');
     }, [hideRationales]);
+
+    // ✅ NEW EFFECT: When modal opens with an item, cache it
+    useEffect(() => {
+        if (rawItem) {
+            console.log('📦 StudentPreviewModal: Caching full item', rawItem.id);
+            setCachedFullItem(rawItem as unknown as FullItemData);
+        }
+    }, [rawItem]);
 
     // Selection Listener
     useEffect(() => {
@@ -1123,34 +1135,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
     // Live Timer for Pace Analysis
 
 
-    const rawCurrentQ = useMemo(() => {
-        if (isCaseStudy) {
-            const screen = screens[currentScreenIndex];
-            // If screen doesn't have its own clinicalData, provide the parent one
-            // CRITICAL FIX: Include item.id to ensure unique key for component remounting
-            return {
-                ...screen,
-                id: screen.id || `${item.id}_screen_${currentScreenIndex}`, // Ensure unique ID per screen
-                clinicalData: screen.clinicalData || item.content.clinicalData
-            };
-        }
-        // For single items, merge sibling rationale/metadata into the structure
-        // CRITICAL FIX: Include item.id to ensure unique key for component remounting
-        return {
-            ...item.content.structure,
-            id: item.id, // CRITICAL: Propagate item ID for unique keys
-            clinicalData: item.content.clinicalData, // CRITICAL: Ensure clinical data (patientInfo, etc) is preserved
-            type: item.type || (item.content as any).type,
-            rationale: item.content.rationale,
-            metadata: {
-                ...(item.content as any).metadata,
-                ...item.content.structure?.metadata
-            }
-        };
-    }, [isCaseStudy, screens, currentScreenIndex, item.content, item.type, item.id]);
 
-    // Normalize ONCE to ensure IDs and structure are consistent between Renderer and Rationale
-    const currentQ = useMemo(() => normalizeConfig(rawCurrentQ), [rawCurrentQ]);
 
     // Use stable index-based key for session state to prevent ID mismatches
     const qKey = `q_${currentScreenIndex}`;
@@ -1229,13 +1214,17 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                     rationale: item.content.rationale
                 },
                 metadata: {
-                    ...(raw.metadata || {}),
+                    ...((raw as any).metadata || {}),
                     ...(item.content?.metadata || {})
-                }
+                },
+                _fullItemRef: cachedFullItem // ✅ Added full item reference
             });
         }
-        return normalizeConfig(raw);
-    }, [screens, currentScreenIndex, isCaseStudy, item]);
+        return normalizeConfig({
+            ...raw,
+            _fullItemRef: cachedFullItem // ✅ Added full item reference
+        });
+    }, [screens, currentScreenIndex, isCaseStudy, item, cachedFullItem]);
     const currentAnswer = answers[qKey];
     const isCurrentSubmitted = submissionState[qKey] || false;
 
@@ -1357,7 +1346,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
         let currentResult = null;
         // Match the qKey logic: strict index based
         const currentKey = `q_${isCaseStudy ? currentScreenIndex : 0}`;
-        if (submissionState[currentKey]) {
+        if (submissionState[currentKey] && currentQ) {
             const rat = RationalePipeline.generateRationale(currentQ, answers[currentKey]);
             const scoreRule = currentQ.type.includes('sata') ? '+/- RULE' : (currentQ.type.includes('bow') ? 'RATIONALE RULE' : '0/1 RULE');
             currentResult = {
@@ -2046,10 +2035,11 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
             {/* Render RationaleDrawer OUTSIDE the main container to avoid stacking context issues */}
             {isRationaleOpen && !hideRationales && console.log('[StudentPreviewModal] Opening RationaleDrawer with Question:', currentQ)}
             <RationaleDrawer
-                isOpen={isRationaleOpen && !hideRationales}
+                open={isRationaleOpen && !hideRationales}
                 onClose={() => setIsRationaleOpen(false)}
                 question={currentQ}
-                result={sessionAnalytics.currentResult}
+                fullItem={cachedFullItem || undefined}
+                metadata={sessionAnalytics.currentResult}
             />
 
             {/* Magic Fix Bubble */}
