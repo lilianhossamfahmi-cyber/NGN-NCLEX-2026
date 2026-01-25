@@ -2031,6 +2031,9 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                     !isCaseStudy && item.content?.rationale
                         ? {
                             ...currentQ,
+                            // Inject at ROOT level (RationaleSheet checks `question.rationale`)
+                            rationale: item.content.rationale,
+                            // Inject at CONTENT level (RationaleSheet checks `question.content.rationale`)
                             content: {
                                 ...(currentQ?.content || {}),
                                 rationale: item.content.rationale
