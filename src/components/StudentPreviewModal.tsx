@@ -2031,6 +2031,8 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                     !isCaseStudy && item.content?.rationale
                         ? {
                             ...currentQ,
+                            // CRITICAL: Inject item ID so pipeline can identify this item
+                            id: item.id,
                             // Inject at ROOT level (RationaleSheet checks `question.rationale`)
                             rationale: item.content.rationale,
                             // Inject at CONTENT level (RationaleSheet checks `question.content.rationale`)
