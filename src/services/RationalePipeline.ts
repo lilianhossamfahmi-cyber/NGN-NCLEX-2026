@@ -1995,14 +1995,11 @@ export function generateRationale(
 
         steps: existingData.steps || DEFAULT_STEPS,
         goldenRule: existingData.goldenRule || existingData.clinicalTakeaway || 'Always prioritize patient safety and use systematic clinical reasoning.',
-
         mnemonic: effectiveMnemonic,
         cheatSheet: effectiveCheatSheet?.points ? effectiveCheatSheet : DEFAULT_CHEAT_SHEET(existingData.coreConcept || config.topic),
         pitfalls: effectivePitfalls,
 
-        referenceInfo: (config.id === 'NEURO-TRD-L5CUSH' && !referenceInfoData)
-            ? { anatomy: "TRACER_HIT_NO_DATA", physiology: "F", pharm: "P" }
-            : (referenceInfoData || DEFAULT_REFERENCE(existingData.coreConcept || config.topic)),
+        referenceInfo: referenceInfoData || DEFAULT_REFERENCE(existingData.coreConcept || config.topic),
         clinicalStrategy: existingData.clinicalStrategy,
 
         cjmmStep: existingData.cjmmStep || inferCJMMStep(itemType),
