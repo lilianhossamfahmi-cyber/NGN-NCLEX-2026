@@ -1406,10 +1406,25 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                                         </div>
 
                                         {/* Golden Rule (Integrated) */}
-                                        <div className="p-3 rounded-xl border border-amber-500/20 bg-amber-500/5">
+                                        <div className="p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 mb-4">
                                             <div className="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-1">Clinical Pearl</div>
-                                            <p className="text-xs font-medium opacity-90">"{diffData.clinicalStrategy || goldenRule || "Focus on the patient's immediate physiological needs."}"</p>
+                                            <p className="text-xs font-medium opacity-90">"{goldenRule || "Focus on the patient's immediate physiological needs."}"</p>
                                         </div>
+
+                                        {/* Clinical Strategy (Moved from Tab to Card) */}
+                                        {(clinicalStrategy || diffData.clinicalStrategy) && (
+                                            <div className="p-3 rounded-xl border border-purple-500/20 bg-purple-500/5">
+                                                <div className="flex items-start gap-3">
+                                                    <Brain className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+                                                    <div>
+                                                        <div className="text-[10px] font-bold text-purple-400 uppercase tracking-wider mb-1">Clinical Strategy</div>
+                                                        <p className="text-xs font-medium opacity-90 leading-relaxed">
+                                                            "{clinicalStrategy || diffData.clinicalStrategy}"
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
 
                                     </div>
 
