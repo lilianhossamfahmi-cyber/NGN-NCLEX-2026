@@ -2000,7 +2000,9 @@ export function generateRationale(
         cheatSheet: effectiveCheatSheet?.points ? effectiveCheatSheet : DEFAULT_CHEAT_SHEET(existingData.coreConcept || config.topic),
         pitfalls: effectivePitfalls,
 
-        referenceInfo: referenceInfoData || DEFAULT_REFERENCE(existingData.coreConcept || config.topic),
+        referenceInfo: (config.id === 'NEURO-TRD-L5CUSH' && !referenceInfoData)
+            ? { anatomy: "TRACER_HIT_NO_DATA", physiology: "F", pharm: "P" }
+            : (referenceInfoData || DEFAULT_REFERENCE(existingData.coreConcept || config.topic)),
         clinicalStrategy: existingData.clinicalStrategy,
 
         cjmmStep: existingData.cjmmStep || inferCJMMStep(itemType),
