@@ -2016,11 +2016,12 @@ export function generateRationale(
  * Infer CJMM step from item type
  */
 function inferCJMMStep(itemType: string): string {
-    if (itemType.includes('highlight') || itemType.includes('cloze')) return 'Recognize Cues';
-    if (itemType.includes('matrix') || itemType.includes('trend')) return 'Analyze Cues';
-    if (itemType.includes('bow-tie')) return 'Prioritize Hypotheses';
-    if (itemType.includes('ordered')) return 'Generate Solutions';
-    if (itemType.includes('sata') || itemType.includes('multiple')) return 'Take Action';
+    const t = (itemType || '').toLowerCase();
+    if (t.includes('highlight') || t.includes('cloze')) return 'Recognize Cues';
+    if (t.includes('matrix') || t.includes('trend')) return 'Analyze Cues';
+    if (t.includes('bow-tie')) return 'Prioritize Hypotheses';
+    if (t.includes('ordered')) return 'Generate Solutions';
+    if (t.includes('sata') || t.includes('multiple')) return 'Take Action';
     return 'Evaluate Outcomes';
 }
 

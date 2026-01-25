@@ -1213,6 +1213,29 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
         console.log('[StudentPreviewModal] New Item Loaded - State Reset');
     }, [item.id]);
 
+    const currentQ = useMemo(() => {
+        const raw = isCaseStudy ? screens[currentScreenIndex] : screens[0];
+        if (!raw) return null;
+
+        // EXPERT FIX: Early Hydration for Standalone Items (Trends, Highlighting, etc.)
+        // Ensure standalone items carry their global rationale and ID into every sub-component
+        if (!isCaseStudy && item.content?.rationale) {
+            return normalizeConfig({
+                ...raw,
+                id: raw.id || item.id,
+                rationale: item.content.rationale,
+                content: {
+                    ...(raw.content || {}),
+                    rationale: item.content.rationale
+                },
+                metadata: {
+                    ...(raw.metadata || {}),
+                    ...(item.content?.metadata || {})
+                }
+            });
+        }
+        return normalizeConfig(raw);
+    }, [screens, currentScreenIndex, isCaseStudy, item]);
     const currentAnswer = answers[qKey];
     const isCurrentSubmitted = submissionState[qKey] || false;
 
@@ -2025,29 +2048,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
             <RationaleDrawer
                 isOpen={isRationaleOpen && !hideRationales}
                 onClose={() => setIsRationaleOpen(false)}
-                question={
-                    // FIX: Standalone items (like Trends) store rationale at item.content.rationale.
-                    // currentQ (item.content.structure) doesn't have it. We must inject it here.
-                    !isCaseStudy && item.content?.rationale
-                        ? {
-                            ...currentQ,
-                            // CRITICAL: Inject item ID so pipeline can identify this item
-                            id: item.id,
-                            // Inject at ROOT level (RationaleSheet checks `question.rationale`)
-                            rationale: item.content.rationale,
-                            // Inject at CONTENT level (RationaleSheet checks `question.content.rationale`)
-                            content: {
-                                ...(currentQ?.content || {}),
-                                rationale: item.content.rationale
-                            },
-                            // Also ensure metadata flows through for Difficulty/Topic
-                            metadata: {
-                                ...(currentQ?.metadata || {}),
-                                ...(item.content?.metadata || {})
-                            }
-                        }
-                        : currentQ
-                }
+                question={currentQ}
                 result={sessionAnalytics.currentResult}
             />
 
