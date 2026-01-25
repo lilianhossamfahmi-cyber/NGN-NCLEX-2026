@@ -1412,6 +1412,7 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                                         </div>
 
                                         {/* Clinical Strategy (Moved from Tab to Card) */}
+                                        {/* Make sure this is activeTab === 0 (Item Overview & Actions) */}
                                         {(clinicalStrategy || diffData.clinicalStrategy) && (
                                             <div className="p-3 rounded-xl border border-purple-500/20 bg-purple-500/5">
                                                 <div className="flex items-start gap-3">
