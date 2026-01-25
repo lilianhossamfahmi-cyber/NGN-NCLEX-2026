@@ -51,79 +51,49 @@ You must generate a `structure` object with exactly:
 - **Vitals:** Minimum **1** full set.
 
 ### 4. RATIONALE STRUCTURE
-Rationale MUST be an object with these 4 keys: `general`, `pathophysiology`, `safetyCheck`, `clinicalTakeaway`.
+Rationale MUST be a complete educational object following the v4 Schema.
 
 ---
 
 ## 🏥 CLINICAL DATA GOLD STANDARDS (COMPLETE)
 
-### 1. Vitals (MINIMUM 2 readings to show trend)
-```json
-"vitals": [
-  { "time": "0800", "tempF": "101.5", "hr": 115, "rr": 24, "bp": "88/52", "o2": "92", "o2_device": "4L NC", "pain": 7 },
-  { "time": "0815", "tempF": "102.0", "hr": 120, "rr": 28, "bp": "84/50", "o2": "88", "o2_device": "Non-Rebreather", "pain": 8 }
-]
-```
-
-### 2. Nurses Notes (MINIMUM 2 entries for Level 5)
-```json
-"nursesNotes": [
-  { "time": "0800", "author": "RN Smith", "entry": "Initial assessment: Pt alert but anxious..." },
-  { "time": "0830", "author": "RN Smith", "entry": "Follow-up: Condition deteriorating..." }
-]
-```
-
-### 3. History & Physical (REQUIRED for Level 4-5)
-```json
-"historyPhysical": {
-  "chiefComplaint": "Shortness of breath",
-  "hpi": "72-year-old male with PMH of CHF presents with...",
-  "pmh": ["CHF", "Type 2 DM"],
-  "medications": ["Lasix 40mg", "Metoprolol"],
-  "allergies": "Penicillin",
-  "socialHistory": "Former smoker",
-  "reviewOfSystems": {
-    "constitutional": "Fatigue",
-    "cardiovascular": "Dyspnea"
-  },
-  "physicalExam": {
-    "general": "Anxious",
-    "cardiovascular": "S3 gallop",
-    "respiratory": "Bilateral crackles"
-  }
-}
-```
-
-### 4. Medical Orders & Radiology (Consistent with Scenario)
-- **Orders:** Must include at least 3 relevant orders (e.g., Labs, Meds, Diet).
-- **Radiology:** Include if clinically indicated (e.g., CXR for pneumonia).
-
+...
 
 ## 🧠 RATIONALE EXAMPLE
 ```json
 "rationale": {
-  "general": "Eclampsia is the onset of seizures in a patient with preeclampsia...",
-  "pathophysiology": "Cerebral vasospasm leads to ischemia and electrical discharge...",
-  "safetyCheck": "CRITICAL: Magnesium toxicity causes respiratory depression. Keep Calcium Gluconate nearby.",
-  "clinicalTakeaway": "Stop the seizure first, then control BP, then deliver.",
+  "coreConcept": "Eclampsia Management",
+  "caseSummary": "Patient developing seizures...",
+  "answerAnalysis": "Actions focus on airway and safety...",
+  "trap": "Administering antihypertensives before stopping seizure",
+  "goldenRule": "Stop the seizure first, then control BP",
+  "steps": [
+    { "tag": "Recognize", "description": "Identify seizure activity" },
+    { "tag": "Take Action", "description": "Administer Magnesium" }
+  ],
   "mnemonic": {
-    "title": "HELLP (for HELLP Syndrome)",
-    "content": "H-Hemolysis, E-Elevated Liver enzymes, L-Low Platelets",
-    "explanation": "HELLP syndrome is a severe complication of preeclampsia. Monitor for RUQ pain, jaundice, and bleeding."
+    "title": "HELLP",
+    "content": "Hemolysis, Elevated Liver enzymes, Low Platelets",
+    "explanation": "Complication of preeclampsia"
+  },
+  "cheatSheet": { "title": "Seizure Safety", "points": ["Turn to side", "Protect head"] },
+  "referenceInfo": {
+    "anatomy": "Cerebral cortex...",
+    "physiology": "Vasospasm leads to ischemia...",
+    "pharm": "Magnesium Sulfate mechanism..."
+  },
+  "difficulty": {
+    "score": [SCORE],
+    "level": [LEVEL],
+    "label": "Analysis/Application",
+    "subtext": "Requires linking condition to actions and monitoring.",
+    "clinicalStrategy": "Identify the center condition first.",
+    "recommendedActions": ["Select condition", "Filter actions by safety"]
   }
 }
 ```
-**MNEMONIC REQUIREMENT:** Every case MUST include a `mnemonic` object with a relevant nursing memory aid (SCORTEN, CRUSH, MONA, FAST, FACES, etc.) or create a condition-specific acronym.
 
-
----
-
-## ✅ VALIDATION CHECKLIST (MUST PASS)
-- [ ] `id` is present and follows format (e.g., "NEURO-BOW-99X1").
-- [ ] `type` is exactly "bow-tie".
-- [ ] `structure` contains exactly 3 arrays: `actions` (5 items), `conditions` (4 items), `parameters` (5 items).
-- [ ] All `vitals` are Objects, NOT strings.
-- [ ] `mnemonic` object is present in `rationale`.
+...
 
 ## 🧠 JSON STRUCTURE (STRICT TEMPLATE)
 
@@ -131,50 +101,16 @@ Rationale MUST be an object with these 4 keys: `general`, `pathophysiology`, `sa
 {
   "type": "bow-tie",
   "id": "[FOCUS]-BOW-[HEX]",
-  "content": {
-    "prompt": "Read the case study and complete the diagram by selecting the most appropriate Condition, Actions (2), and Parameters (2).",
-    "metadata": {
-      "title": "[FOCUS] Bow-Tie Scenario",
-      "topic": "[FOCUS]",
-      "difficulty": [LEVEL],
-      "clientNeeds": "Physiological Integrity",
-      "cjmmStep": "Generate Solutions",
-      "targetScore": [SCORE]
-    },
-    "clinicalData": {
-      "patientInfo": {
-        "name": "Initials", "age": 50, "gender": "Male", "allergies": "NKDA", "weightKg": 80, "codeStatus": "Full Code"
-      },
-      "setting": "ICU/ER/MedSurg",
-      "historyPhysical": {
-          "chiefComplaint": "...",
-          "hpi": "...",
-          "pmh": ["..."],
-          "medications": ["..."]
-      },
-      "history": [
-          { "time": "0800", "author": "RN Smith", "note": "Note 1..." },
-          { "time": "0815", "author": "RN Smith", "note": "Note 2..." }
-      ],
-      "vitals": [
-          { "time": "0800", "tempF": "...", "hr": 0, "rr": 0, "bp": "...", "o2": "...", "o2_device": "...", "pain": 0 }
-      ],
-      "labs": [
-          { "test": "WBC", "value": "12.5", "flag": "H", "ref": "4.5-11.0", "unit": "10^3/uL" }
-      ],
-      "orders": [],
-      "radiology": []
-    },
+  ...
     "rationale": {
-      "general": "Detailed explanation of the condition and why it fits the cues...",
-      "pathophysiology": "Deep dive into the mechanism (The 'Why'). Explain the disease process step-by-step.",
-      "safetyCheck": "Critical safety warnings and immediate life-saving considerations.",
-      "clinicalTakeaway": "Key teaching point for future practice. What must the nurse 'Understand' forever?",
-      "mnemonic": {
-        "title": "ACRONYM_NAME (e.g., SCORTEN, CRUSH, MONA)",
-        "content": "Letter-by-letter breakdown of the mnemonic",
-        "explanation": "How this mnemonic helps in clinical decision-making for this specific condition"
-      },
+      "coreConcept": "Detailed explanation...",
+      "caseSummary": "Case summary...",
+      "answerAnalysis": "Deep dive...",
+      "trap": "Common error...",
+      "goldenRule": "Clinical pearl...",
+      "steps": [],
+      "mnemonic": {},
+      "cheatSheet": {},
       "referenceInfo": {
           "anatomy": "...",
           "physiology": "...",
@@ -183,10 +119,14 @@ Rationale MUST be an object with these 4 keys: `general`, `pathophysiology`, `sa
       "difficulty": {
           "level": [LEVEL],
           "score": [SCORE],
-          "label": "Analysis/Application"
+          "label": "Analysis/Application",
+          "subtext": "Bow-Tie analysis.",
+          "clinicalStrategy": "Connect Condition to Actions and Parameters.",
+          "recommendedActions": ["Verify Condition", "Select Actions"]
       }
     },
     "structure": {
+
       "type": "bow-tie",
       "actions": [
         { "id": "a1", "text": "Correct Action 1", "isCorrect": true },

@@ -171,6 +171,53 @@ You are a "Super-Teacher"—empathetic, strategic, and crystal clear. The **MAIN
 **ABSOLUTE REQUIREMENT**: This content MUST be **100% RELEVANT** to the generated Clinical Focus (`[FOCUS]`) and Scenario.
 - ❌ Do NOT use generic examples (e.g. COPD, Diabetes) unless the item is specifically about them.
 
+## 🧪 4. DIFFICULTY SCORING & STRATEGY ENGINE (CRITICAL)
+**Objective:** Calculate a **Difficulty Score (0–100)** and generate **Recommended Actions**.
+
+**A. SCORING ALGORITHM:**
+`totalScore = BaseScore + Structural + ClinicalModifier`
+*   **Base Score**: 70 pts (6-Screen Case Study)
+*   **Structural Modifiers**:
+    *   +2 pts per Cue in Stem/EHR.
+    *   +5 pts per dependency between screens (e.g., if Screen 4 requires data from Screen 1).
+    *   +10 pts if patient condition is unstable/deteriorating.
+*   **Clinical Focus Modifier**:
+    *   +8: Critical Care, Sepsis, Emergency.
+    *   +6: Cardiac, Pharmacology.
+    *   +4: Med-Surg, Neuro.
+    *   +2: Peds, OB, Psych.
+
+**B. LEVEL MAPPING:**
+*   **0-20 (Level 1):** Recall ("Requires basic [cjmmStep].")
+*   **21-40 (Level 2):** Single-Step ("Requires [cjmmStep] of isolated cues.")
+*   **41-60 (Level 3):** Multi-Cue ("Requires linking [cueCount] data points.")
+*   **61-80 (Level 4):** Prioritization ("Requires prioritizing conflicting cues.")
+*   **81-100 (Level 5):** High-Stakes ("Requires critical safety/risk analysis.")
+
+**C. LEVEL OVERRIDE (MANDATORY):**
+*   **IF a specific [LEVEL] is requested in the prompt**: You MUST ensure the final `totalScore` falls within that Level's range.
+*   **Action**: If the calculated score is too low, add a `Complexity Bonus` to the score to force it into the correct bracket.
+
+**D. CLINICAL STRATEGY (Replaces Golden Rule):**
+*   **L1-3**: "Key Concept: In [Focus], [Key Cue] indicates [Condition]."
+*   **L4-5**: "Strategic Pivot: When [Cue A] conflicts with [Cue B], prioritize [Safety Action]."
+
+**D. RECOMMENDED ACTIONS:**
+*   "Synthesize across screens: Look for the 'Golden Thread' connecting Screen 1 to Screen 6. If incorrect on the final screen, re-evaluate the initial cues."
+
+**REQUIRED JSON FIELD (inside `rationale`):**
+```json
+"difficulty": {
+  "score": 0,
+  "level": 1,
+  "label": "String",
+  "subtext": "String",
+  "clinicalStrategy": "String",
+  "recommendedActions": ["Synthesize across screens...", "Look for the Golden Thread..."]
+}
+```
+
+
 ## 📋 4. Screen Types Reference (ALL 6 MANDATORY)
 | Screen | Type | Key Fields |
 |--------|------|------------|
@@ -258,8 +305,17 @@ You are a "Super-Teacher"—empathetic, strategic, and crystal clear. The **MAIN
         "anatomy": "The heart relies on venous return (preload) to pump effectively.",
         "physiology": "Sympathetic Nervous System activates to maintain BP (Vasoconstriction + Tachycardia).",
         "pharm": "Isotonic crystalloids (NS/LR) remain in the intravascular space initially."
+      },
+      "difficulty": {
+        "score": 75,
+        "level": 4,
+        "label": "High Difficulty",
+        "subtext": "Requires multi-screen synthesis of volume vs pump failure.",
+        "clinicalStrategy": "In shock states, always determine if the problem is volume (pipes) or pump before treating heart rate.",
+        "recommendedActions": ["Re-read Screen 1 vitals", "Compare response on Screen 5"]
       }
     },
+
     "clinicalData": {
       "patientInfo": { 
         "name": "Em...Th...", 

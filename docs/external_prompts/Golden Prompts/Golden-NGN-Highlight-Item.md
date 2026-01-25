@@ -92,6 +92,7 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
     "score": [SCORE],
     "level": [LEVEL],
     "label": "Easy/Medium/Hard",
+    "subtext": "Requires distinguishing between relevant and irrelevant cues.",
     "clinicalStrategy": "Distinguish acute from chronic",
     "recommendedActions": ["Select only what is actionable"]
   }
@@ -152,9 +153,21 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
     "rationale": {
       "coreConcept": "...",
       "caseSummary": "...",
+      "answerAnalysis": "...",
+      "trap": "...",
+      "goldenRule": "...",
+      "steps": [],
       "mnemonic": { "title": "...", "content": "...", "explanation": "..." },
+      "cheatSheet": { "title": "...", "points": [] },
       "referenceInfo": { "anatomy": "...", "physiology": "...", "pharm": "..." },
-      "difficulty": { "level": [LEVEL], "score": [SCORE], "label": "Recognition" }
+      "difficulty": { 
+          "level": [LEVEL], 
+          "score": [SCORE], 
+          "label": "Recognition",
+          "subtext": "Cue recognition",
+          "clinicalStrategy": "Scanning for abnormalities",
+          "recommendedActions": ["Scan text"]
+      }
     },
     "structure": {
       "type": "highlight",

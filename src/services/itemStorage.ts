@@ -12,7 +12,7 @@ export {
     deleteItemFromBank,
     deleteBatchFromBank,
     clearBank,
-} from './itemApiService.ts';
+} from './itemApiService';
 
 // Fallback to localStorage (comment out above and uncomment below to revert)
 // export * from './itemStorageService';

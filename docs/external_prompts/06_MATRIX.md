@@ -212,8 +212,17 @@ Before outputting, you MUST internally verify:
       "steps": [],
       "mnemonic": {},
       "cheatSheet": {},
-      "referenceInfo": {}
+      "referenceInfo": {},
+      "difficulty": {
+        "score": 65,
+        "level": 4,
+        "label": "Hard",
+        "subtext": "Requires prioritizing conflicting triage cues.",
+        "clinicalStrategy": "In mass casualty, prioritize those with immediate life-threats (Red) over those who are deceased or non-survivable (Black).",
+        "recommendedActions": ["Review START algorithm", "Practice agonal breathing recognition"]
+      }
     },
+
     "structure": {
       "type": "matrix",
       "prompt": "For each client, determine the appropriate triage tag.",

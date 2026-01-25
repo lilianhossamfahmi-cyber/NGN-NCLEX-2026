@@ -115,11 +115,19 @@ export interface CanonicalRationale {
 
     // Tab 4: Knowledge
     referenceInfo: ReferenceInfo;
+    clinicalStrategy?: string;
 
     // Metadata
     cjmmStep: string;
     itemType: string;
-    difficulty?: { level: string; score?: number };
+    difficulty?: {
+        score: number;
+        level: number;
+        label: string;
+        subtext: string;
+        clinicalStrategy: string;
+        recommendedActions: string[];
+    };
 
     // Calculation Specifics
     formulaMethod?: string;
@@ -1993,6 +2001,7 @@ export function generateRationale(
         pitfalls: effectivePitfalls,
 
         referenceInfo: referenceInfoData || DEFAULT_REFERENCE(existingData.coreConcept || config.topic),
+        clinicalStrategy: existingData.clinicalStrategy,
 
         cjmmStep: existingData.cjmmStep || inferCJMMStep(itemType),
         itemType,

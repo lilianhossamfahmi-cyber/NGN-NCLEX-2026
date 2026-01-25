@@ -98,7 +98,50 @@ The **MAIN Screen-Level** `rationale` field MUST be a JSON OBJECT (not a string)
 }
 ```
 
-## 4. METADATA REQUIREMENTS (Perfect Fill)
+## 🧪 4. DIFFICULTY SCORING & STRATEGY ENGINE (CRITICAL)
+**Objective:** Calculate a **Difficulty Score (0–100)** and generate **Recommended Actions**.
+
+**A. SCORING ALGORITHM:**
+`totalScore = BaseScore + Structural + ClinicalModifier`
+*   **Base Score**: 15 pts (Single Response)
+*   **Structural Modifiers**:
+    *   +5 pts if distractors are "near-miss" clinical counterparts.
+    *   +5 pts if stem includes > 3 laboratory results.
+    *   +2 pts per Cue in Stem.
+*   **Clinical Focus Modifier**:
+    *   +8: Critical Care, Sepsis, Emergency.
+    *   +6: Cardiac, Pharmacology.
+    *   +4: Med-Surg, Neuro.
+    *   +2: Peds, OB, Psych.
+
+**B. LEVEL MAPPING:**
+*   **0-20 (Level 1):** Recall ("Requires basic [cjmmStep].")
+*   **21-40 (Level 2):** Single-Step ("Requires [cjmmStep] of isolated cues.")
+*   **41-60 (Level 3):** Multi-Cue ("Requires linking [cueCount] data points.")
+*   **61-80 (Level 4):** Prioritization ("Requires prioritizing conflicting cues.")
+*   **81-100 (Level 5):** High-Stakes ("Requires critical safety/risk analysis.")
+
+**C. CLINICAL STRATEGY (Replaces Golden Rule):**
+*   **L1-3**: "Key Concept: In [Focus], [Key Cue] indicates [Condition]."
+*   **L4-5**: "Strategic Pivot: When [Cue A] conflicts with [Cue B], prioritize [Safety Action]."
+
+**D. RECOMMENDED ACTIONS:**
+*   "Analyze Distractors: Identify exactly why the next best option (distractor) is incorrect. If you guessed, review the clinical pathophysiology of [Focus]."
+
+**REQUIRED JSON FIELD (inside `rationale`):**
+```json
+"difficulty": {
+  "score": 0,
+  "level": 1,
+  "label": "String",
+  "subtext": "String",
+  "clinicalStrategy": "String",
+  "recommendedActions": ["Analyze distractors...", "Review pathophysiology..."]
+}
+```
+
+## 5. METADATA REQUIREMENTS (Perfect Fill)
+
 **CRITICAL:** You MUST provide detailed metadata. The `cjmmStep` field MUST be set correctly.
 
 ```json
@@ -158,8 +201,17 @@ Before outputting, you MUST internally verify:
         "steps": [],
         "mnemonic": {},
         "cheatSheet": {},
-        "referenceInfo": {}
+        "referenceInfo": {},
+        "difficulty": {
+          "score": 35,
+          "level": 2,
+          "label": "Moderate",
+          "subtext": "Requires single-step application of ABC priorities.",
+          "clinicalStrategy": "When assessing priority, always prioritize Airway/Breathing over Pain or Documentation.",
+          "recommendedActions": ["Review ABC hierarchy", "Analyze why pain is not priority 1"]
+        }
     },
+
     "structure": {
         "prompt": "Which of the following interventions is priority?",
         "options": [

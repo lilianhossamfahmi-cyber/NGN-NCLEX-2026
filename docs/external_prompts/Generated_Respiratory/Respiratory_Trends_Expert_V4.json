@@ -1,0 +1,383 @@
+[
+    {
+        "type": "trend",
+        "id": "RESP-TRD-E9X1",
+        "content": {
+            "prompt": "Review the trend data for 0800, 0900, and 1000. Which findings indicate the client's condition is deteriorating despite intervention?",
+            "metadata": {
+                "title": "Respiratory ARDS Progression",
+                "topic": "Respiratory",
+                "difficulty": 5,
+                "clientNeeds": "Physiological Integrity",
+                "cjmmStep": "Analyze Cues",
+                "targetScore": 90
+            },
+            "clinicalData": {
+                "patientInfo": {
+                    "name": "A.T.",
+                    "age": 58,
+                    "gender": "Male",
+                    "allergies": "NKDA",
+                    "weightKg": 85,
+                    "codeStatus": "Full Code"
+                },
+                "setting": "MICU Step-down",
+                "historyPhysical": {
+                    "chiefComplaint": "Worsening shortness of breath",
+                    "hpi": "Admitted 2 days ago for severe community-acquired pneumonia. Started on Ceftriaxone and Azithromycin. Now reporting increased work of breathing.",
+                    "pmh": [
+                        "Hypertension",
+                        "Hyperlipidemia"
+                    ],
+                    "medications": [
+                        "Lisinopril",
+                        "Atorvastatin"
+                    ]
+                },
+                "history": [
+                    {
+                        "time": "0745",
+                        "author": "RN Rivera",
+                        "note": "Patient anxious, sitting on edge of bed. Use of accessory muscles noted."
+                    }
+                ],
+                "vitals": [
+                    {
+                        "time": "0800",
+                        "tempF": "100.4",
+                        "hr": 102,
+                        "rr": 24,
+                        "bp": "138/82",
+                        "o2": "92",
+                        "o2_device": "2L NC",
+                        "pain": 2
+                    },
+                    {
+                        "time": "0900",
+                        "tempF": "101.0",
+                        "hr": 115,
+                        "rr": 30,
+                        "bp": "145/88",
+                        "o2": "88",
+                        "o2_device": "4L NC",
+                        "pain": 4
+                    },
+                    {
+                        "time": "1000",
+                        "tempF": "101.8",
+                        "hr": 128,
+                        "rr": 36,
+                        "bp": "152/94",
+                        "o2": "85",
+                        "o2_device": "Non-Rebreather",
+                        "pain": 5
+                    }
+                ],
+                "labs": [
+                    {
+                        "test": "ABG pH",
+                        "value": "7.28",
+                        "flag": "L",
+                        "ref": "7.35-7.45",
+                        "unit": ""
+                    },
+                    {
+                        "test": "PaO2",
+                        "value": "58",
+                        "flag": "L!",
+                        "ref": "80-100",
+                        "unit": "mmHg"
+                    },
+                    {
+                        "test": "PaCO2",
+                        "value": "30",
+                        "flag": "L",
+                        "ref": "35-45",
+                        "unit": "mmHg"
+                    }
+                ],
+                "orders": [
+                    {
+                        "order": "Titrate O2 to keep SpO2 > 92%",
+                        "status": "Active"
+                    },
+                    {
+                        "order": "Notify provider for worsening status",
+                        "status": "Active"
+                    }
+                ],
+                "radiology": []
+            },
+            "rationale": {
+                "coreConcept": "Refractory Hypoxemia (ARDS)",
+                "caseSummary": "Patient with pneumonia developing ARDS. Key indicator is dropping SpO2 (92% -> 88% -> 85%) despite increasing oxygen support (2L -> 4L -> Non-Rebreather).",
+                "answerAnalysis": "The hallmark of ARDS is refractory hypoxemia (hypoxia that does not improve with O2). The trend shows specific deterioration: HR rising (compensation), RR rising (air hunger), and O2 falling despite maximum non-invasive support.",
+                "trap": "Assuming the PaCO2 of 30 (Alkalosis) is good. In early ARDS, patients hyperventilate, blowing off CO2. This is a sign of distress, not stability.",
+                "goldenRule": "Hypoxia that worsens despite increased FiO2 suggests shunting/ARDS.",
+                "steps": [
+                    {
+                        "tag": "Recognize",
+                        "description": "Identify mismatch between O2 supply and SpO2 response"
+                    },
+                    {
+                        "tag": "Analyze",
+                        "description": "Recognize refractory hypoxemia as ARDS precursor"
+                    },
+                    {
+                        "tag": "Prioritize",
+                        "description": "Prepare for intuition/mechanical ventilation"
+                    }
+                ],
+                "mnemonic": {
+                    "title": "ARDS",
+                    "content": "A-Atelectasis (Alveolar collapse), R-Refractory Hypoxemia, D-Decreased Lung Compliance, S-Surfactant cell damage",
+                    "explanation": "Summarizes the pathophysiology of Acute Respiratory Distress Syndrome."
+                },
+                "cheatSheet": {
+                    "title": "Respiratory Failure Trends",
+                    "points": [
+                        "Early Failure: Tachycardia + Tachypnea + Respiratory Alkalosis",
+                        "Late Failure: Bradycardia + Bradypnea + Respiratory Acidosis",
+                        "Refractory Hypoxemia = Shunt (Needs PEEP, not just O2)"
+                    ]
+                },
+                "referenceInfo": {
+                    "anatomy": "Alveolar-capillary membrane: The thin barrier where gas exchange occurs. In ARDS, this becomes damaged and permeable.",
+                    "physiology": "Inflammatory mediators (cytokines) damage the membrane, causing fluid to leak into alveoli (non-cardiogenic edema). Surfactant is deactivated, leading to collapse.",
+                    "pharm": "Neuromuscular blockers (e.g., Rocuronium) may be needed for ventilator synchrony. Corticosteroids are controversial but sometimes used."
+                },
+                "difficulty": {
+                    "score": 90,
+                    "level": 5,
+                    "label": "Expert",
+                    "subtext": "Requires identifying refractory hypoxemia trends.",
+                    "clinicalStrategy": "Look at the P/F ratio trend. SpO2 is dropping while O2 delivery is rising.",
+                    "recommendedActions": [
+                        "Calculate P/F ratio conceptually",
+                        "Recognize impending intubation need"
+                    ]
+                }
+            },
+            "structure": {
+                "type": "trend",
+                "questionFormat": "sata",
+                "options": [
+                    {
+                        "id": "o1",
+                        "text": "Refractory hypoxemia",
+                        "isCorrect": true,
+                        "rationale": "SpO2 dropped (92% to 85%) despite device escalation (NC to NRB)."
+                    },
+                    {
+                        "id": "o2",
+                        "text": "Compensatory tachycardia",
+                        "isCorrect": true,
+                        "rationale": "HR increased (102 to 128) to maintain cardiac output amidst hypoxia."
+                    },
+                    {
+                        "id": "o3",
+                        "text": "Ineffective breathing pattern",
+                        "isCorrect": true,
+                        "rationale": "RR increased significantly (24 to 36) indicating increased work of breathing."
+                    },
+                    {
+                        "id": "o4",
+                        "text": "Respiratory Acidosis",
+                        "isCorrect": false,
+                        "rationale": "PaCO2 is 30 (Low), which indicates Respiratory Alkalosis (hyperventilation), not Acidosis."
+                    },
+                    {
+                        "id": "o5",
+                        "text": "Improved oxygenation",
+                        "isCorrect": false,
+                        "rationale": "Oxygenation is significantly worse."
+                    }
+                ]
+            }
+        }
+    },
+    {
+        "type": "trend",
+        "id": "RESP-TRD-Z4W2",
+        "content": {
+            "prompt": "Analyze the client's vital signs and assessment trend. Which interpretation is most accurate?",
+            "metadata": {
+                "title": "Status Asthmaticus Failing Compensation",
+                "topic": "Respiratory",
+                "difficulty": 5,
+                "clientNeeds": "Physiological Integrity",
+                "cjmmStep": "Evaluate Outcomes",
+                "targetScore": 95
+            },
+            "clinicalData": {
+                "patientInfo": {
+                    "name": "L.M.",
+                    "age": 24,
+                    "gender": "Female",
+                    "allergies": "Peanuts, Dust Mites",
+                    "weightKg": 62,
+                    "codeStatus": "Full Code"
+                },
+                "setting": "Emergency Department",
+                "historyPhysical": {
+                    "chiefComplaint": "Asthma attack not responding to inhaler",
+                    "hpi": "History of severe asthma. Used Albuterol x6 at home without relief. Speaking in 1-word sentences.",
+                    "pmh": [
+                        "Asthma (intubated x1)",
+                        "Eczema"
+                    ],
+                    "medications": [
+                        "Albuterol PRN",
+                        "Advair daily"
+                    ]
+                },
+                "history": [
+                    {
+                        "time": "1300",
+                        "author": "RN Jones",
+                        "note": "Patient diaphoretic, tripod positioning. Audible wheezing."
+                    }
+                ],
+                "vitals": [
+                    {
+                        "time": "1300",
+                        "tempF": "98.8",
+                        "hr": 115,
+                        "rr": 32,
+                        "bp": "140/90",
+                        "o2": "93",
+                        "o2_device": "RA",
+                        "pain": 0
+                    },
+                    {
+                        "time": "1330",
+                        "tempF": "98.6",
+                        "hr": 125,
+                        "rr": 38,
+                        "bp": "148/92",
+                        "o2": "91",
+                        "o2_device": "2L NC",
+                        "pain": 0
+                    },
+                    {
+                        "time": "1400",
+                        "tempF": "98.6",
+                        "hr": 142,
+                        "rr": 10,
+                        "bp": "110/70",
+                        "o2": "88",
+                        "o2_device": "Non-Rebreather",
+                        "pain": 0
+                    }
+                ],
+                "labs": [
+                    {
+                        "test": "PaCO2",
+                        "value": "55",
+                        "flag": "H!",
+                        "ref": "35-45",
+                        "unit": "mmHg"
+                    }
+                ],
+                "orders": [
+                    {
+                        "order": "Continuous Albuterol/Atrovent Nebulizer",
+                        "status": "Active"
+                    },
+                    {
+                        "order": "Methylprednisolone 125mg IV",
+                        "status": "Completed"
+                    }
+                ],
+                "radiology": []
+            },
+            "rationale": {
+                "coreConcept": "Impending Respiratory Failure (Silent Chest)",
+                "caseSummary": "Asthma exacerbation progressing to fatigue. The key trend is the **drop in Respiratory Rate** (38 -> 10) combined with **Rising CO2** (55).",
+                "answerAnalysis": "Students generally associate 'lower RR' with improvement. In status asthmaticus, a sudden drop from tachypnea (38) to bradypnea (10) signals muscle fatigue and impending occurance. The 'Silent Chest' phenomenon occurs when airflow is so restricted that wheezing stops.",
+                "trap": "Interpreting the decrease in RR (38 to 10) as the patient 'relaxing' or improving. This is a terminal sign requiring immediate intubation.",
+                "goldenRule": "In asthma, normalization of PCO2 or a drop in RR from fatigue indicates impending respiratory arrest.",
+                "steps": [
+                    {
+                        "tag": "Recognize",
+                        "description": "Identify the sudden drop in respiratory effort (RR 38->10)"
+                    },
+                    {
+                        "tag": "Analyze",
+                        "description": "Connect fatigue to hypercapnia (CO2 retention)"
+                    },
+                    {
+                        "tag": "Take Action",
+                        "description": "Prepare for immediate intubation"
+                    }
+                ],
+                "mnemonic": {
+                    "title": "ASTHMA",
+                    "content": "A-Adrenergics (Albuterol), S-Steroids, T-Theophylline, H-Hydration, M-Mask (O2), A-Anticholinergics",
+                    "explanation": "Standard management. If these fail, consider Magnesium or Intubation."
+                },
+                "cheatSheet": {
+                    "title": "Fatal Asthma Signs",
+                    "points": [
+                        "Silent Chest (Disappearance of wheeze)",
+                        "Paradoxical Respiration",
+                        "Bradycardia or Hypotension (Late signs)",
+                        "Respiratory Acidosis (PaCO2 > 45)"
+                    ]
+                },
+                "referenceInfo": {
+                    "anatomy": "Bronchioles: Smooth muscle constriction narrows the airway.",
+                    "physiology": "Air trapping leads to hyperinflation. Increased intrathoracic pressure can eventually decrease venous return (pulsus paradoxus). Fatigue leads to CO2 retention.",
+                    "pharm": "Magnesium Sulfate IV (2g) acts as a smooth muscle relaxant for refractory asthma."
+                },
+                "difficulty": {
+                    "score": 95,
+                    "level": 5,
+                    "label": "Expert",
+                    "subtext": "Requires recognizing 'normalization' as a sign of failure.",
+                    "clinicalStrategy": "Look for the mismatch: HR is UP, O2 is DOWN, but RR dropped? That's fatigue.",
+                    "recommendedActions": [
+                        "Assess air entry (Silent Chest)",
+                        "Check ABG for Hypercapnia"
+                    ]
+                }
+            },
+            "structure": {
+                "type": "trend",
+                "questionFormat": "sata",
+                "options": [
+                    {
+                        "id": "o1",
+                        "text": "Respiratory muscle fatigue",
+                        "isCorrect": true,
+                        "rationale": "RR dropped precipitously (38 to 10) while HR rose, indicating exhaustion."
+                    },
+                    {
+                        "id": "o2",
+                        "text": "Impending respiratory arrest",
+                        "isCorrect": true,
+                        "rationale": "Combination of hypoxia, hypercapnia (CO2 55), and bradypnea."
+                    },
+                    {
+                        "id": "o3",
+                        "text": "Effective response to nebulizers",
+                        "isCorrect": false,
+                        "rationale": "Patient is deteriorating, not improving."
+                    },
+                    {
+                        "id": "o4",
+                        "text": "Decreased cardiac output",
+                        "isCorrect": true,
+                        "rationale": "BP dropping (110/70) likely due to hyperinflation/air trapping reducing venous return."
+                    },
+                    {
+                        "id": "o5",
+                        "text": "Resolution of bronchospasm",
+                        "isCorrect": false,
+                        "rationale": "Airway obstruction is worsening (silent chest), not resolving."
+                    }
+                ]
+            }
+        }
+    }
+]

@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { repairAllItemsInBank } from '../src/services/itemApiService.ts';
+import { repairAllItemsInBank } from '../src/services/itemApiService';
 
 /**
  * CLI Entry point for bulk item repair.

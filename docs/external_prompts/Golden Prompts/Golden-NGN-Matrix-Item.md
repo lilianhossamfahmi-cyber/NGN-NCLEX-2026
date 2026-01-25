@@ -77,6 +77,7 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
     "score": [SCORE],
     "level": [LEVEL],
     "label": "Easy/Medium/Hard",
+    "subtext": "Requires analyzing cues across multiple conditions.",
     "clinicalStrategy": "Compare columns to find best fit",
     "recommendedActions": ["Evaluate each row independently"]
   }
@@ -156,7 +157,10 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
       "difficulty": {
           "level": [LEVEL],
           "score": [SCORE],
-          "label": "Analysis"
+          "label": "Analysis",
+          "subtext": "Matrix analysis required.",
+          "clinicalStrategy": "Evaluate row by row.",
+          "recommendedActions": ["Check against column A", "Check against column B"]
       }
     },
     "structure": {

@@ -1,11 +1,11 @@
 // Node 18+ has built‑in fetch, but let's keep the polyfill just in case
 // import 'cross-fetch/polyfill';
 
-import { generateQuestions } from '../src/services/questionGenerationService.ts';
-import { validateGenerationSettings } from '../src/services/validationService.ts';
-import { saveBatchToBank } from '../src/services/itemStorage.ts';
-import { enrichItemWithQuality } from '../src/utils/autoQuality.ts';
-import { GenerationSettings } from '../src/types/master-schema.ts';
+import { generateQuestions } from '../src/services/questionGenerationService';
+import { validateGenerationSettings } from '../src/services/validationService';
+import { saveBatchToBank } from '../src/services/itemStorage';
+import { enrichItemWithQuality } from '../src/utils/autoQuality';
+import { GenerationSettings } from '../src/types/master-schema';
 
 /**
  * Simple bulk‑generation orchestrator for Phase 2.

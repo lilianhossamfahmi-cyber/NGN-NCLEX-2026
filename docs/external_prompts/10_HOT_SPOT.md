@@ -221,8 +221,17 @@ Before outputting, you MUST internally verify:
         "anatomy": "The apex of the heart is formed by the left ventricle.",
         "physiology": "The PMI may be displaced laterally in cases of Left Ventricular Hypertrophy (LVH) or Cardiomegaly.",
         "pharm": "Digoxin requires an Apical Pulse check for a full 60 seconds prior to administration."
+      },
+      "difficulty": {
+        "score": 45,
+        "level": 3,
+        "label": "Moderate",
+        "subtext": "Requires identifying precise anatomical landmarks for cardiac assessment.",
+        "clinicalStrategy": "Always use 'APE TO MAN' to sequence your auscultation. The PMI is the last stop.",
+        "recommendedActions": ["Palpate 5th ICS", "Count ribs from Angle of Louis"]
       }
     },
+
     "clinicalData": {
       "patientInfo": { 
         "name": "Jo...Sm...", 

@@ -177,6 +177,7 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
     "score": [SCORE],
     "level": [LEVEL],
     "label": "Easy/Medium/Hard/Expert",
+    "subtext": "Requires dimensional analysis and unit conversion.",
     "clinicalStrategy": "Strategy to solve",
     "recommendedActions": ["Check units", "Verify safety"]
   }
@@ -263,7 +264,10 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
       "difficulty": {
           "level": [LEVEL],
           "score": [SCORE],
-          "label": "Application"
+          "label": "Application",
+          "subtext": "Safe dosage calculation required.",
+          "clinicalStrategy": "Verify units.",
+          "recommendedActions": ["Check rounding", "Double check math"]
       }
     },
     "structure": {

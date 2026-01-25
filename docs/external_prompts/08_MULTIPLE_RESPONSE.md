@@ -213,8 +213,17 @@ Before outputting, you MUST internally verify:
         "anatomy": "Alveoli must remain open for gas exchange. Atelectasis is alveolar collapse.",
         "physiology": "Shunt: Blood passes through the lungs without picking up oxygen due to collapse or fluid.",
         "pharm": "Naloxone (Narcan) may be needed if respiratory depression is opioid-induced."
+      },
+      "difficulty": {
+        "score": 50,
+        "level": 3,
+        "label": "Hard",
+        "subtext": "Requires linking physiologic data to respiratory failure risk.",
+        "clinicalStrategy": "In SATA items, use 'Row-by-Row' logic. Treat each as a true/false; HR 120 is ALWAYS a follow-up finding in a post-op patient.",
+        "recommendedActions": ["Check respiratory effort", "Verify pulse oximetry accuracy"]
       }
     },
+
     "clinicalData": {
       "patientInfo": { "name": "Ha...Pe...", "age": "55", "sex": "Female" },
       "history": "...",

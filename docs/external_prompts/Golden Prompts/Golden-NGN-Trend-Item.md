@@ -53,11 +53,11 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 **You MUST include a complete educational breakdown:**
 ```json
 "rationale": {
-  "coreConcept": "Clinical Deterioration",
-  "caseSummary": "Patient showing signs of sepsis progression...",
-  "answerAnalysis": "The trend in HR (increasing) and BP (decreasing) indicates...",
-  "trap": "Responding to single value instead of trend",
-  "goldenRule": "Trends provide earlier warning than thresholds",
+  "coreConcept": "Clinical Deterioration (The 'Hook')",
+  "caseSummary": "Patient showing signs of sepsis progression... (The 'Story')",
+  "answerAnalysis": "The trend in HR (increasing) and BP (decreasing) indicates... (The 'Breakdown')",
+  "trap": "Responding to single value instead of trend (The 'Trap')",
+  "goldenRule": "Trends provide earlier warning than thresholds (The 'Pearl')",
   "steps": [
     { "tag": "Recognize", "description": "Identify trend direction" },
     { "tag": "Analyze", "description": "Correlate with physiology" }
@@ -73,6 +73,7 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
     "score": [SCORE],
     "level": [LEVEL],
     "label": "Easy/Medium/Hard",
+    "subtext": "Requires analyzing vital sign trends over time.",
     "clinicalStrategy": "Look at the rate of change",
     "recommendedActions": ["Compare time points", "Identify the worst value"]
   }
@@ -91,6 +92,7 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 - [ ] `id` is present (`TOPIC-TRD-HEX`).
 - [ ] `vitals` has at least 3 time points.
 - [ ] The scenario shows a clear clinical trend.
+- [ ] `rationale` object strictly follows the v4 schema.
 
 ## 📦 JSON STRUCTURE (STRICT)
 
@@ -134,15 +136,14 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
       "radiology": []
     },
     "rationale": { 
-      "general": "Detailed explanation of the trend significance...",
-      "pathophysiology": "Deep dive into the physiological mechanism driving the trend.",
-      "safetyCheck": "Critical safety warnings.",
-      "clinicalTakeaway": "Key teaching point for future practice.",
-      "mnemonic": {
-        "title": "ACRONYM_NAME (e.g., MONA, FAST, FACES)",
-        "content": "Letter-by-letter breakdown of the mnemonic",
-        "explanation": "How this mnemonic helps in clinical decision-making"
-      },
+      "coreConcept": "Clinical Deterioration",
+      "caseSummary": "Patient showing signs of...",
+      "answerAnalysis": "The trend in HR...",
+      "trap": "Responding to single value...",
+      "goldenRule": "Trends provide earlier warning...",
+      "steps": [],
+      "mnemonic": {},
+      "cheatSheet": {},
       "referenceInfo": {
           "anatomy": "...",
           "physiology": "...",
@@ -151,7 +152,10 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
       "difficulty": {
           "level": [LEVEL],
           "score": [SCORE],
-          "label": "Analysis"
+          "label": "Analysis",
+          "subtext": "Trend analysis required.",
+          "clinicalStrategy": "Identify direction of change.",
+          "recommendedActions": ["Check initial vs final", "Calculate rate of change"]
       }
     },
     "structure": {

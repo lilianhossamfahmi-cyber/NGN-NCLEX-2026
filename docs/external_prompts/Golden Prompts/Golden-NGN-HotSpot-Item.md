@@ -68,6 +68,7 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
     "score": [SCORE],
     "level": [LEVEL],
     "label": "Easy/Medium/Hard",
+    "subtext": "Requires anatomical identification.",
     "clinicalStrategy": "Identify landmarks",
     "recommendedActions": ["Use proportional estimation"]
   }
@@ -127,9 +128,21 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
     "rationale": {
       "coreConcept": "...",
       "caseSummary": "...",
+      "answerAnalysis": "...",
+      "trap": "...",
+      "goldenRule": "...",
+      "steps": [],
       "mnemonic": { "title": "...", "content": "...", "explanation": "..." },
+      "cheatSheet": { "title": "...", "points": [] },
       "referenceInfo": { "anatomy": "Detailed anatomy of the site...", "physiology": "...", "pharm": "..." },
-      "difficulty": { "level": [LEVEL], "score": [SCORE], "label": "Application" }
+      "difficulty": { 
+          "level": [LEVEL], 
+          "score": [SCORE], 
+          "label": "Application",
+          "subtext": "Anatomical location.",
+          "clinicalStrategy": "Landmarking.",
+          "recommendedActions": ["Visualize anatomy"]
+      }
     },
     "structure": {
       "type": "hot-spot",

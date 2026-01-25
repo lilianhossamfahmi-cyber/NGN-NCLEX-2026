@@ -209,8 +209,17 @@ Before outputting, you MUST internally verify:
       "steps": [],
       "mnemonic": {},
       "cheatSheet": {},
-      "referenceInfo": {}
+      "referenceInfo": {},
+      "difficulty": {
+        "score": 45,
+        "level": 3,
+        "label": "Moderate",
+        "subtext": "Requires linking clinical findings to immediate corrective action.",
+        "clinicalStrategy": "In severe hypoglycemia with altered LOC, IV Dextrose is the definitive treatment.",
+        "recommendedActions": ["Check blood glucose response", "Verify IV patency"]
+      }
     },
+
     "structure": {
       "type": "cloze",
       "prompt": "Complete the sentence.",

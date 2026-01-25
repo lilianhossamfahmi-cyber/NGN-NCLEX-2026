@@ -50,6 +50,7 @@ SECTION 3: CLINICAL REASONING (rationale object)
     "pathophysiology": "Mechanism of disease...",
     "safetyCheck": "Critical safety warnings...",
     "clinicalTakeaway": "Key teaching point...",
+    "clinicalStrategy": "Systematic approach to solving this specific item type/topic...",
     "mnemonic": {
         "title": "ACRONYM",
         "content": "A-..., B-...",
@@ -58,6 +59,11 @@ SECTION 3: CLINICAL REASONING (rationale object)
     "cheatSheet": {
         "title": "Clinical Pearls",
         "points": ["Pearl 1", "Pearl 2", "Pearl 3"]
+    },
+    "referenceInfo": {
+        "anatomy": "Relevant anatomical structures...",
+        "physiology": "Normal physiological function vs this condition...",
+        "pharm": "Key medications, mechanisms, and nursing implications..."
     }
 }
 `
@@ -158,7 +164,7 @@ ${schemaContext}
 2. Follow the SCHEMAS exactly for the requested sections.
 3. For 'scenario' (Section 1), ensure realistic clinical trends.
 4. For 'structure' (Section 2), ensure correct/incorrect logic is valid.
-5. For 'rationale' (Section 3), LEVERAGE THE CASE SCENARIO. Mnemonic and Cheat Sheet must be highly specific to this exact condition. AVOID GENERIC ADVICE.
+5. For 'rationale' (Section 3), LEVERAGE THE CASE SCENARIO. Mnemonic and Cheat Sheet must be highly specific to this exact condition. Ensure 'clinicalStrategy' provides a clear 'How to Solve' and 'referenceInfo' covers Anatomy/Physiology/Pharm. AVOID GENERIC ADVICE.
 
 RETURN ONLY THE JSON OBJECT.
 `;

@@ -185,31 +185,14 @@ Use this EXACT schema for `content.rationale` (global) AND `structure.screens[i]
     "score": [SCORE],
     "level": [LEVEL],
     "label": "Easy/Medium/Hard/Expert",
+    "subtext": "One-sentence context (e.g., 'Requires analyzing multiple cues')",
     "clinicalStrategy": "Strategy to solve this question",
-    "recommendedActions": ["What student should do"]
+    "recommendedActions": ["Action 1", "Action 2"]
   }
 }
 ```
 
-### ⚠️ REFERENCEINFO MUST BE CASE-SPECIFIC
-
-**❌ UNACCEPTABLE (Generic):**
-```json
-"referenceInfo": {
-  "anatomy": "Review the relevant anatomical structures",
-  "physiology": "Consider the physiological mechanisms involved",
-  "pharm": "Identify pharmacological interventions"
-}
-```
-
-**✅ REQUIRED (Case-Specific Example for Sepsis):**
-```json
-"referenceInfo": {
-  "anatomy": "The vascular endothelium lines all blood vessels and plays a critical role in sepsis. Inflammatory mediators damage endothelial tight junctions, causing capillary leak syndrome. The spleen filters bacteria but can be overwhelmed in bacteremia.",
-  "physiology": "Sepsis triggers a systemic inflammatory response (SIRS) with cytokine release (TNF-α, IL-1, IL-6). This causes vasodilation (decreased SVR), increased capillary permeability, and maldistribution of blood flow. Lactate accumulates as tissues shift to anaerobic metabolism due to oxygen debt.",
-  "pharm": "Norepinephrine is first-line vasopressor (α-1 agonist for vasoconstriction). Broad-spectrum antibiotics must cover likely pathogens within 1 hour. Crystalloid fluids (30mL/kg) restore intravascular volume. Hydrocortisone 200mg/day for refractory shock."
-}
-```
+...
 
 ## ⚠️ MANDATORY FIELD ENFORCEMENT (CRITICAL)
 
@@ -233,6 +216,9 @@ Use this EXACT schema for `content.rationale` (global) AND `structure.screens[i]
 - `difficulty.score`: Number 0-100 matching [SCORE] (REQUIRED)
 - `difficulty.level`: Number 1-5 matching [LEVEL] (REQUIRED)
 - `difficulty.label`: "Easy/Medium/Hard/Expert" (REQUIRED)
+- `difficulty.subtext`: Context of difficulty (REQUIRED)
+- `difficulty.clinicalStrategy`: Strategic advice (REQUIRED)
+- `difficulty.recommendedActions`: Array of 2 actions (REQUIRED)
 
 **DO NOT LEAVE ANY FIELD AS:**
 - Empty string ""

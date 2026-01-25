@@ -1,7 +1,7 @@
 // src/services/itemDbService.ts
 import { createClient } from '@supabase/supabase-js';
-import { MasterQuestionItem } from '../types/master-schema.ts';
-import { enrichItemWithQuality } from '../utils/autoQuality.ts';
+import { MasterQuestionItem } from '../types/master-schema';
+import { enrichItemWithQuality } from '../utils/autoQuality';
 
 // 1. Setup Supabase Client
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';

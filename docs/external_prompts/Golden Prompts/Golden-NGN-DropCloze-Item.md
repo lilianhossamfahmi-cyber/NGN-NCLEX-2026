@@ -89,6 +89,7 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
     "score": [SCORE],
     "level": [LEVEL],
     "label": "Easy/Medium/Hard",
+    "subtext": "Requires completing clinical sentences correctly.",
     "clinicalStrategy": "Complete sentence to make clinical sense",
     "recommendedActions": ["Read full sentence first"]
   }
@@ -149,9 +150,21 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
     "rationale": {
       "coreConcept": "...",
       "caseSummary": "...",
+      "answerAnalysis": "...",
+      "trap": "...",
+      "goldenRule": "...",
+      "steps": [],
       "mnemonic": { "title": "...", "content": "...", "explanation": "..." },
+      "cheatSheet": { "title": "...", "points": [] },
       "referenceInfo": { "anatomy": "...", "physiology": "...", "pharm": "..." },
-      "difficulty": { "level": [LEVEL], "score": [SCORE], "label": "Analysis" }
+      "difficulty": { 
+          "level": [LEVEL], 
+          "score": [SCORE], 
+          "label": "Analysis",
+          "subtext": "Complete the logic.",
+          "clinicalStrategy": "Contextual reading.",
+          "recommendedActions": ["Read before/after"]
+      }
     },
     "structure": {
       "type": "drop-cloze",

@@ -1,7 +1,7 @@
 
-import { GenerationSettings, MasterQuestionItem, ReferenceSource } from '../types/master-schema.ts';
-import { AppConfig, getGenAI, limiter } from '../config/apiConfig.ts';
-import { getQuestionType } from '../registry/index.ts';
+import { GenerationSettings, MasterQuestionItem, ReferenceSource } from '../types/master-schema';
+import { AppConfig, getGenAI, limiter } from '../config/apiConfig';
+import { getQuestionType } from '../registry/index';
 import { ItemIngestionService } from './ingestion/ItemIngestionService';
 
 /**

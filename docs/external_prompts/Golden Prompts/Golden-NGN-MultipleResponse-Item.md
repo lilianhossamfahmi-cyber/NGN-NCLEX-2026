@@ -78,6 +78,7 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
     "score": [SCORE],
     "level": [LEVEL],
     "label": "Easy/Medium/Hard",
+    "subtext": "Requires distinguishing between multiple potential causes.",
     "clinicalStrategy": "Treat each option as True/False",
     "recommendedActions": ["Eliminate absolutes"]
   }
@@ -137,9 +138,21 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
     "rationale": {
       "coreConcept": "...",
       "caseSummary": "...",
+      "answerAnalysis": "Detailed breakdown...",
+      "trap": "...",
+      "goldenRule": "...",
+      "steps": [],
       "mnemonic": { "title": "...", "content": "...", "explanation": "..." },
+      "cheatSheet": { "title": "...", "points": [] },
       "referenceInfo": { "anatomy": "...", "physiology": "...", "pharm": "..." },
-      "difficulty": { "level": [LEVEL], "score": [SCORE], "label": "Analysis" }
+      "difficulty": { 
+          "level": [LEVEL], 
+          "score": [SCORE], 
+          "label": "Analysis",
+          "subtext": "SATA item.",
+          "clinicalStrategy": "True/False method.",
+          "recommendedActions": ["Eliminate false options"]
+      }
     },
     "structure": {
       "type": "multiple-response",

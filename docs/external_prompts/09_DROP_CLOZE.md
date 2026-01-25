@@ -218,8 +218,17 @@ Before outputting, you MUST internally verify:
         "anatomy": "Subcutaneous tissue absorption varies by site (Abdomen > Arm > Thigh).",
         "physiology": "Insulin drives glucose, potassium, and water into the cell.",
         "pharm": "Lispro has an amino acid modification that prevents hexamer formation, allowing faster absorption than human regular insulin."
+      },
+      "difficulty": {
+        "score": 35,
+        "level": 2,
+        "label": "Moderate",
+        "subtext": "Requires knowledge of insulin onset times.",
+        "clinicalStrategy": "Always match the insulin onset with the meal delivery to avoid patient harm.",
+        "recommendedActions": ["Check onset table", "Verify meal tray is in room"]
       }
     },
+
     "clinicalData": {
       "patientInfo": { "name": "Di...Be...", "age": "45", "sex": "Male" },
       "history": "<p>0730: Meal arrived.</p><ul><li>FSBG: 180 mg/dL</li></ul>",

@@ -77,6 +77,7 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
     "score": [SCORE],
     "level": [LEVEL],
     "label": "Easy/Medium/Hard",
+    "subtext": "Requires prioritizing actions in sequence.",
     "clinicalStrategy": "Establish priority (e.g. Least invasive first)",
     "recommendedActions": ["Visualize the procedure"]
   }
@@ -136,9 +137,21 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
     "rationale": {
       "coreConcept": "...",
       "caseSummary": "...",
+      "answerAnalysis": "Detailed breakdown...",
+      "trap": "Common error...",
+      "goldenRule": "Clinical pearl...",
+      "steps": [],
       "mnemonic": { "title": "...", "content": "...", "explanation": "..." },
+      "cheatSheet": { "title": "...", "points": [] },
       "referenceInfo": { "anatomy": "...", "physiology": "...", "pharm": "..." },
-      "difficulty": { "level": [LEVEL], "score": [SCORE], "label": "Application" }
+      "difficulty": { 
+          "level": [LEVEL], 
+          "score": [SCORE], 
+          "label": "Application",
+          "subtext": "Sequencing required.",
+          "clinicalStrategy": "Determining priority.",
+          "recommendedActions": ["Visualize", "Order"]
+      }
     },
     "structure": {
       "type": "ordered-response",

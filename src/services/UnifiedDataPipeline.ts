@@ -112,6 +112,7 @@ export interface CanonicalRationale {
     mnemonic?: any;
     cheatSheet?: any;
     referenceInfo?: any;
+    clinicalStrategy?: string;
 }
 
 export interface CanonicalStructure {
@@ -897,7 +898,8 @@ export class UnifiedDataPipeline {
             pathophysiology: rat.pathophysiology || item.rationale?.pathophysiology,
             general: rat.general || item.rationale?.general,
             safetyCheck: rat.safetyCheck || item.rationale?.safetyCheck,
-            clinicalTakeaway: rat.clinicalTakeaway || item.rationale?.clinicalTakeaway
+            clinicalTakeaway: rat.clinicalTakeaway || item.rationale?.clinicalTakeaway,
+            clinicalStrategy: rat.clinicalStrategy || rat.difficulty?.clinicalStrategy || `Level ${difficulty} clinical reasoning required.`
         };
 
         console.log('[UnifiedDataPipeline] SAVED mnemonic to content.rationale:', JSON.stringify(c.rationale.mnemonic));

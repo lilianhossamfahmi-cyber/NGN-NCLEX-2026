@@ -77,6 +77,7 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
     "score": [SCORE],
     "level": [LEVEL],
     "label": "Easy/Medium/Hard",
+    "subtext": "Requires identifying the highest priority action.",
     "clinicalStrategy": "Identify the priority",
     "recommendedActions": ["Eliminate clearly wrong answers"]
   }
@@ -139,7 +140,9 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
       "answerAnalysis": "Why Option A is correct...",
       "trap": "...",
       "goldenRule": "...",
+      "steps": [],
       "mnemonic": { "title": "...", "content": "...", "explanation": "..." },
+      "cheatSheet": { "title": "...", "points": [] },
       "referenceInfo": {
           "anatomy": "...",
           "physiology": "...",
@@ -148,7 +151,10 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
       "difficulty": {
           "level": [LEVEL],
           "score": [SCORE],
-          "label": "Application"
+          "label": "Application",
+          "subtext": "Priority decision.",
+          "clinicalStrategy": "ABC prioritization.",
+          "recommendedActions": ["Check ABCs"]
       }
     },
     "structure": {

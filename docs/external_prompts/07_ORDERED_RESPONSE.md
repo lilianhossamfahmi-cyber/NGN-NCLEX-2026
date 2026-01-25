@@ -214,8 +214,17 @@ Before outputting, you MUST internally verify:
         "anatomy": "The male urethra is ~20cm (needs more lube); female urethra is ~4cm (higher contamination risk).",
         "physiology": "The bladder is a sterile cavity. Introducing bacteria leads to CAUTI (Catheter Associated Urinary Tract Infection).",
         "pharm": "Lidocaine jelly is often used for male catheterization to reduce pain and spasm."
+      },
+      "difficulty": {
+        "score": 40,
+        "level": 3,
+        "label": "Moderate",
+        "subtext": "Requires sequencing a multi-step sterile procedure.",
+        "clinicalStrategy": "Identify the 'Sterile Chain'—any action that breaks sterility (like gloving before opening the kit) is incorrect.",
+        "recommendedActions": ["Review sterile field principles", "Sequence the 'Open-Glove-Prep' chain"]
       }
     },
+
     "clinicalData": {
       "patientInfo": { "name": "Ge...Lu...", "age": "80", "sex": "Male" },
       "history": "...",

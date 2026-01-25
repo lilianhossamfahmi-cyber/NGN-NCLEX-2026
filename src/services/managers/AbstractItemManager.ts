@@ -88,8 +88,24 @@ export abstract class AbstractItemManager implements ItemManager {
                     );
 
                     if (aiRepaired) {
-                        // Blend AI result back into the item, preserving IDs
-                        if (aiRepaired.content) repaired.content = { ...repaired.content, ...aiRepaired.content };
+                        // Blend AI result back into the item with deep merge for Rationale
+                        if (aiRepaired.content) {
+                            const existingRationale = repaired.content?.rationale || {};
+                            const newRationale = aiRepaired.content.rationale || {};
+
+                            repaired.content = {
+                                ...repaired.content,
+                                ...aiRepaired.content,
+                                rationale: {
+                                    ...existingRationale,
+                                    ...newRationale,
+                                    difficulty: {
+                                        ...(existingRationale.difficulty || {}),
+                                        ...(newRationale.difficulty || {})
+                                    }
+                                }
+                            };
+                        }
                         if (aiRepaired.metadata) repaired.metadata = { ...repaired.metadata, ...aiRepaired.metadata };
                     }
                 } catch (err) {

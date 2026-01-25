@@ -1,5 +1,5 @@
 
-import { MgtCareItems_Final_Batch1 } from '../docs/external_prompts/Generated_Cardiology_50/MgtCareItems_Final_Batch1.ts';
+import { MgtCareItems_Final_Batch1 } from '../docs/external_prompts/Generated_Cardiology_50/MgtCareItems_Final_Batch1';
 
 // Simulated normalizeConfig from ItemRenderer.tsx
 const normalizeConfig = (raw: any): any => {

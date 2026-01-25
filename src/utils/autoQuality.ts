@@ -1,4 +1,4 @@
-import { MasterQuestionItem } from '../types/master-schema.ts';
+import { MasterQuestionItem } from '../types/master-schema';
 
 /**
  * Critical validation checks. Returns an array of error messages if any.
@@ -42,7 +42,7 @@ function runCriticalChecks(item: MasterQuestionItem): string[] {
 function calculateScore(item: MasterQuestionItem): number {
     let bonus = 0;
     const content = item.content || (item as any);
-    const rat = item.rationale || content.rationale || (item as any).metadata?.rationale || {};
+    const rat = (item as any).rationale || content.rationale || (item as any).metadata?.rationale || {};
 
     // 1. Rationale Depth (+15)
     // Check for rich rationale structure
@@ -62,7 +62,7 @@ function calculateScore(item: MasterQuestionItem): number {
     }
 
     // 3. Metadata Completeness (+5)
-    if (item.metadata?.clientNeeds) bonus += 2;
+    if ((item.metadata as any).clientNeeds) bonus += 2;
     if (item.pedagogy?.clinicalFocus) bonus += 3;
 
     // 4. Distractor Quality (+10)
@@ -106,8 +106,7 @@ export function enrichItemWithQuality(item: MasterQuestionItem): MasterQuestionI
     // Only auto-update status if it's currently draft or undefined
     if (!status || status === 'draft') {
         if (score >= 90) status = 'published';
-        else if (score < 40) status = 'review_needed'; // Don't auto-delete yet
-        else if (score < 75) status = 'review_needed';
+        else if (score < 75) status = 'in-review';
         else status = 'draft';
     }
 

@@ -1,5 +1,5 @@
-import { MasterQuestionItem } from '../types/master-schema.ts';
-import { enrichItemWithQuality } from '../utils/autoQuality.ts';
+import { MasterQuestionItem } from '../types/master-schema';
+import { enrichItemWithQuality } from '../utils/autoQuality';
 
 const STORAGE_KEY = 'ngn_item_bank';
 

@@ -227,8 +227,17 @@ Before outputting, you MUST internally verify:
         "anatomy": "Endothelial damage causes widespread leaking of capillaries (third-spacing).",
         "physiology": "Systemic vasodilation reduces systemic vascular resistance (SVR), leading to hypotension despite high cardiac output (early).",
         "pharm": "Norepinephrine (Levophed) is the first-line vasopressor if fluids fail to restore MAP > 65."
+      },
+      "difficulty": {
+        "score": 60,
+        "level": 3,
+        "label": "High Difficulty",
+        "subtext": "Requires identifying critical vital sign shifts amidst stable neuro findings.",
+        "clinicalStrategy": "In sepsis, vital sign trends (hypotension) are more reliable indicators of early shock than level of consciousness.",
+        "recommendedActions": ["Calculate MAP", "Review sepsis bundle timing"]
       }
     },
+
     "structure": {
       "type": "highlight",
       "prompt": "Highlight the findings requiring immediate follow-up.",

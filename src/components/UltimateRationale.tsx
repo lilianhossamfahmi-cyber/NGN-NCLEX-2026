@@ -89,6 +89,7 @@ export interface UltimateRationaleProps {
     metadata?: any;
     formulaMethod?: string;
     dimensionalAnalysis?: string;
+    clinicalStrategy?: string;
 }
 
 /* --------------------------------------------------------------
@@ -573,7 +574,8 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
     orderedReview,
     metadata,
     formulaMethod,
-    dimensionalAnalysis
+    dimensionalAnalysis,
+    clinicalStrategy
 }) => {
     // Detect if this is a calculation item
     const isCalculation = useMemo(() => {
@@ -912,7 +914,9 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                 score: embeddedDiff.score || (lvl * 20),
                 level: lvl,
                 label: embeddedDiff.label || def.label,
-                subtext: embeddedDiff.subtext || embeddedDiff.clinicalStrategy || def.subtext
+                subtext: embeddedDiff.subtext || embeddedDiff.clinicalStrategy || def.subtext,
+                clinicalStrategy: embeddedDiff.clinicalStrategy,
+                recommendedActions: embeddedDiff.recommendedActions
             };
         }
 
@@ -997,6 +1001,16 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
 
     const getRecommendedActions = () => {
         const isCorrect = outcome?.status === 'correct';
+
+        // Use embedded actions if available
+        if (diffData.recommendedActions && Array.isArray(diffData.recommendedActions)) {
+            return {
+                focus: coreConcept || 'Clinical Judgment',
+                immediate: diffData.recommendedActions[0] || "Review the core concept.",
+                next: diffData.recommendedActions[1] || "Try more questions at this level."
+            };
+        }
+
         const actions = {
             focus: coreConcept || 'Clinical Judgment',
             immediate: '',
@@ -1394,8 +1408,9 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                                         {/* Golden Rule (Integrated) */}
                                         <div className="p-3 rounded-xl border border-amber-500/20 bg-amber-500/5">
                                             <div className="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-1">Clinical Pearl</div>
-                                            <p className="text-xs font-medium opacity-90">"{goldenRule || "Focus on the patient's immediate physiological needs."}"</p>
+                                            <p className="text-xs font-medium opacity-90">"{diffData.clinicalStrategy || goldenRule || "Focus on the patient's immediate physiological needs."}"</p>
                                         </div>
+
                                     </div>
 
                                     {isCalculation && (formulaMethod || dimensionalAnalysis) && (
@@ -1977,6 +1992,23 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
                                         ))}
                                     </div>
                                 </div>
+
+                                {/* Strategy Section */}
+                                {clinicalStrategy && (
+                                    <div className="lg:col-span-2 rounded-2xl border border-blue-500/20 bg-blue-500/5 p-8 flex flex-col md:flex-row gap-8 items-center shadow-xl">
+                                        <div className="shrink-0 p-6 rounded-full bg-blue-500/10 border border-blue-500/20"><Zap className="w-10 h-10 text-blue-400" /></div>
+                                        <div className="flex-1 text-center md:text-left">
+                                            <h3 className="text-lg font-bold text-blue-400 mb-2 uppercase tracking-widest flex items-center gap-2 justify-center md:justify-start">
+                                                Rationalizing Your Approach
+                                            </h3>
+                                            <p className="text-white/90 text-sm font-medium italic leading-relaxed">
+                                                "{clinicalStrategy}"
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Pitfalls Section */}
                                 <div className="lg:col-span-2 rounded-2xl border border-neutral-800 bg-neutral-900 text-neutral-300 p-8 flex flex-col md:flex-row gap-8 items-center shadow-xl">
                                     <div className="shrink-0 p-6 rounded-full bg-red-500/10 border border-red-500/20"><AlertOctagon className="w-10 h-10 text-red-500" /></div>
                                     <div className="flex-1 text-center md:text-left">

@@ -1,9 +1,10 @@
 // src/services/itemApiService.ts
 // DIRECT SUPABASE - No Railway Backend Required!
 
-import { MasterQuestionItem } from '../types/master-schema.ts';
+import { MasterQuestionItem } from '../types/master-schema';
 import { supabase } from '../lib/supabase';
-import { enrichItemWithQuality } from '../utils/autoQuality.ts';
+import { enrichItemWithQuality } from '../utils/autoQuality';
+import { UnifiedDataPipeline } from './UnifiedDataPipeline';
 
 export interface ItemQueryOptions {
     page?: number;     // 1-based
@@ -125,7 +126,13 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
     for (const rawItem of items) {
         // 1. DUAL-LAYER ID PRESERVATION & REPAIR
         // BYPASS: If item is definitely High-Fidelity (has clinicalData & structure), skip pipeline to prevent mangling.
-        const isHighFidelity = rawItem.content?.clinicalData && rawItem.content?.structure && rawItem.content?.rationale?.itemOverviewAndActions;
+        // v3 check: itemOverviewAndActions
+        // v4 check: rationale.difficulty.subtext or rationale.steps
+        const isHighFidelity = (rawItem.content?.clinicalData && rawItem.content?.structure) && (
+            rawItem.content?.rationale?.itemOverviewAndActions ||
+            rawItem.content?.rationale?.difficulty?.subtext ||
+            (rawItem.content?.rationale?.steps && Array.isArray(rawItem.content?.rationale?.steps))
+        );
 
         let item = rawItem;
         if (!isHighFidelity) {
@@ -200,6 +207,36 @@ export async function updateItem(item: MasterQuestionItem): Promise<boolean> {
     return saveItemToBank(item, 'system');
 }
 
+/**
+ * Temporary debugging helper: fetch a single item by its ID and log its content.
+ * Used to inspect the state of an item after Smart Repair.
+ */
+export async function fetchItemById(itemId: string): Promise<void> {
+    try {
+        const { data, error } = await supabase
+            .from('item_bank')
+            .select('item_json')
+            .eq('id', itemId)
+            .single();
+        if (error) {
+            console.error('[fetchItemById] Supabase error:', error);
+            return;
+        }
+        const item = typeof data.item_json === 'string' ? JSON.parse(data.item_json) : data.item_json;
+        console.log('[fetchItemById] Retrieved item:', {
+            id: itemId,
+            difficulty: item?.content?.rationale?.difficulty?.level ?? item?.metadata?.difficultyLevel,
+            mnemonic: item?.content?.rationale?.mnemonic,
+            cheatSheet: item?.content?.rationale?.cheatSheet,
+            strategy: item?.content?.rationale?.strategy,
+            knowledge: item?.content?.rationale?.knowledge,
+        });
+    } catch (e) {
+        console.error('[fetchItemById] Unexpected error:', e);
+    }
+}
+
+
 export async function deleteItemFromBank(id: string): Promise<void> {
     const { error } = await supabase
         .from('item_bank')
@@ -239,7 +276,7 @@ export async function clearBank(): Promise<void> {
  * BULK REPAIR: Migrates all items in the bank through the Unified Data Pipeline
  * to ensure they follow the latest schemas and clinicalData nesting.
  */
-import { UnifiedDataPipeline } from './UnifiedDataPipeline';
+
 
 export async function repairAllItemsInBank(onProgress?: (count: number, total: number) => void): Promise<number> {
     console.log('🚀 Starting Bulk Bank Repair...');

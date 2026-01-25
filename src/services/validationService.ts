@@ -1,4 +1,4 @@
-import { GenerationSettings, MasterQuestionItem } from '../types/master-schema.ts';
+import { GenerationSettings, MasterQuestionItem } from '../types/master-schema';
 
 /**
  * Validation Service

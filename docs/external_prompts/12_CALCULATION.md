@@ -93,7 +93,50 @@ Populate metadata with:
   - **In Rationale**: Show the conversion step if relevant.
 - **Knowledge Safety Fill**: `referenceInfo` MUST be populated with specific Anatomy/Physiology/Pharm linking to *why* this dose matters (e.g., "Narrow therapeutic index in peds").
 
-## 4. RATIONALE REQUIREMENTS (HTML Structure)
+## 🧪 5. DIFFICULTY SCORING & STRATEGY ENGINE (CRITICAL)
+**Objective:** Calculate a **Difficulty Score (0–100)** and generate **Recommended Actions**.
+
+**A. SCORING ALGORITHM:**
+`totalScore = BaseScore + Structural + ClinicalModifier`
+*   **Base Score**: 20 pts (Calculation)
+*   **Structural Modifiers**:
+    *   +10 pts if multi-step (e.g., lbs->kg AND mg/kg/day->mg/dose).
+    *   +5 pts if rounding rule is complex (e.g., round to nearest whole number vs tenth).
+    *   +5 pts if unit conversion is required (e.g., mg to mcg).
+*   **Clinical Focus Modifier**:
+    *   +8: Critical Care (Heparin/Insulin gtts), Sepsis.
+    *   +6: Cardiac, Pharmacology.
+    *   +4: Med-Surg, Neuro.
+    *   +2: Peds, OB, Psych.
+
+**B. LEVEL MAPPING:**
+*   **0-20 (Level 1):** Recall ("Requires basic [cjmmStep].")
+*   **21-40 (Level 2):** Single-Step ("Requires [cjmmStep] of isolated cues.")
+*   **41-60 (Level 3):** Multi-Cue ("Requires linking [cueCount] data points.")
+*   **61-80 (Level 4):** Prioritization ("Requires prioritizing conflicting cues.")
+*   **81-100 (Level 5):** High-Stakes ("Requires critical safety/risk analysis.")
+
+**C. CLINICAL STRATEGY (Replaces Golden Rule):**
+*   **L1-3**: "Key Concept: In [Focus], [Key Cue] indicates [Condition]."
+*   **L4-5**: "Strategic Pivot: When [Cue A] conflicts with [Cue B], prioritize [Safety Action]."
+
+**D. RECOMMENDED ACTIONS:**
+*   "Verify the Chain: If the answer is incorrect, double-check the 'Safety Check' table. Most errors occur during lbs to kg conversion or unit shifts (mg to mcg)."
+
+**REQUIRED JSON FIELD (inside `rationale`):**
+```json
+"difficulty": {
+  "score": 0,
+  "level": 1,
+  "label": "String",
+  "subtext": "String",
+  "clinicalStrategy": "String",
+  "recommendedActions": ["Verify the conversion chain...", "Check lbs to kg step..."]
+}
+```
+
+## 6. RATIONALE REQUIREMENTS (HTML Structure)
+
 The `rationale.answerAnalysis` field MUST be a single string containing HTML markup to format the explanation. You must follow this exact HTML structure inside the string:
 
 **1. The Safety Stop (Top Section)**
@@ -190,8 +233,17 @@ Before outputting, you MUST internally verify:
       "steps": [],
       "mnemonic": {},
       "cheatSheet": {},
-      "referenceInfo": {}
+      "referenceInfo": {},
+      "difficulty": {
+        "score": 30,
+        "level": 2,
+        "label": "Moderate",
+        "subtext": "Requires two-step calculation (D/H x Q).",
+        "clinicalStrategy": "In pediatric dosages, always verify the weight-based safety range before administration.",
+        "recommendedActions": ["Check rounding to tenth", "Verify D/H variables"]
+      }
     },
+
     "structure": {
       "prompt": "The provider prescribes Acetaminophen... Calculate the volume. (Round to the nearest tenth).",
       "units": "mL",
