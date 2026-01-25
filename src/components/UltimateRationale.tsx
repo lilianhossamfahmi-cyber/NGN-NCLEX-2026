@@ -645,24 +645,41 @@ export const UltimateRationale: React.FC<UltimateRationaleProps> = ({
     // Use item-specific data first, then fall back to calculation defaults for calc items, otherwise generic
     const effectiveMnemonic = useMemo(() => {
         if (mnemonic?.title && mnemonic.title !== 'Not Available') return mnemonic;
+
+        const metaRationale = metadata?.rationale || metadata?.fullItem?.content?.rationale;
+        if (metaRationale?.mnemonic?.title && metaRationale.mnemonic.title !== 'Not Available') {
+            return metaRationale.mnemonic;
+        }
+
         return isCalculation ? CALC_DEFAULTS.mnemonic : GENERIC_DEFAULTS.mnemonic;
-    }, [mnemonic, isCalculation]);
+    }, [mnemonic, isCalculation, metadata]);
 
     const effectiveCheatSheet = useMemo(() => {
         if (cheatSheet?.points && cheatSheet.points.length > 0) return cheatSheet;
+
+        const metaRationale = metadata?.rationale || metadata?.fullItem?.content?.rationale;
+        if (metaRationale?.cheatSheet?.points && metaRationale.cheatSheet.points.length > 0) {
+            return metaRationale.cheatSheet;
+        }
+
         return isCalculation ? CALC_DEFAULTS.cheatSheet : GENERIC_DEFAULTS.cheatSheet;
-    }, [cheatSheet, isCalculation]);
+    }, [cheatSheet, isCalculation, metadata]);
 
     const effectiveReferenceInfo = useMemo(() => {
-        // Check if any field in referenceInfo has real content
+        // PRIORITY 1: The explicit referenceInfo prop
         const hasRealContent = referenceInfo && (
             (referenceInfo.anatomy && !referenceInfo.anatomy.includes('No anatomical')) ||
             (referenceInfo.physiology && !referenceInfo.physiology.includes('No physiological')) ||
             (referenceInfo.pharm && !referenceInfo.pharm.includes('No pharmacological'))
         );
         if (hasRealContent) return referenceInfo;
+
+        // PRIORITY 2: The metadata.rationale.referenceInfo (Backdoor check)
+        const metaRationale = metadata?.rationale || metadata?.fullItem?.content?.rationale;
+        if (metaRationale?.referenceInfo) return metaRationale.referenceInfo;
+
         return isCalculation ? CALC_DEFAULTS.referenceInfo : GENERIC_DEFAULTS.referenceInfo;
-    }, [referenceInfo, isCalculation]);
+    }, [referenceInfo, isCalculation, metadata]);
 
     // Fallback strings - prioritize item data
     const displayTrap = trap || (isCalculation ? CALC_DEFAULTS.trap : GENERIC_DEFAULTS.trap);
