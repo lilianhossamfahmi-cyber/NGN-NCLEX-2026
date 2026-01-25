@@ -2025,7 +2025,24 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
             <RationaleDrawer
                 isOpen={isRationaleOpen && !hideRationales}
                 onClose={() => setIsRationaleOpen(false)}
-                question={currentQ}
+                question={
+                    // FIX: Standalone items (like Trends) store rationale at item.content.rationale.
+                    // currentQ (item.content.structure) doesn't have it. We must inject it here.
+                    !isCaseStudy && item.content?.rationale
+                        ? {
+                            ...currentQ,
+                            content: {
+                                ...(currentQ?.content || {}),
+                                rationale: item.content.rationale
+                            },
+                            // Also ensure metadata flows through for Difficulty/Topic
+                            metadata: {
+                                ...(currentQ?.metadata || {}),
+                                ...(item.content?.metadata || {})
+                            }
+                        }
+                        : currentQ
+                }
                 result={sessionAnalytics.currentResult}
             />
 
