@@ -1198,7 +1198,7 @@ export function calculateMatrixScore(
     config: any
 ): { earned: number; total: number; percentage: number; breakdown: ScoreBreakdown } {
     const safeAnswers = userAnswers || {};
-    const rows = config.rows || [];
+    const rows = config.rows || config.structure?.rows || config.content?.structure?.rows || [];
     let earned = 0;
     const total = rows.length;
     const rowBreakdown: ScoreBreakdown['rows'] = [];
@@ -1270,7 +1270,7 @@ export function calculateSATAScore(
     userAnswers: Record<string, boolean> | string[] | null | undefined,
     config: any
 ): { earned: number; total: number; percentage: number } {
-    const options = config.options || [];
+    const options = config.options || config.structure?.options || config.content?.structure?.options || [];
     const correctIds = options.filter((o: any) => o.isCorrect).map((o: any) => o.id);
 
     // Handle both formats: array of IDs or object of {id: boolean}
@@ -1303,7 +1303,7 @@ export function calculateClozeScore(
     userAnswers: Record<string, string> | null | undefined,
     config: any
 ): { earned: number; total: number; percentage: number; breakdown: ScoreBreakdown } {
-    const dropdowns = config.dropdowns || [];
+    const dropdowns = config.dropdowns || config.structure?.dropdowns || config.content?.structure?.dropdowns || [];
     // Also check sentences.dropdowns for nested format
     const nestedDropdowns = (config.sentences || []).flatMap((s: any) => s.dropdowns || []);
     const allDropdowns = [...dropdowns, ...nestedDropdowns];
@@ -1417,7 +1417,7 @@ export function generateBowTieReview(config: any, userAnswers: any): BowTieRevie
  * Generate standard option reviews for MCQ/SATA
  */
 export function generateOptionReviews(config: any, userAnswers: any): OptionReview[] {
-    const options = config.options || [];
+    const options = config.options || config.structure?.options || config.content?.structure?.options || [];
 
     // Handle both array and object formats for user answers
     const selectedIds = Array.isArray(userAnswers)
@@ -1460,7 +1460,7 @@ export function generateRationale(
     userAnswers: any,
     existingRationale?: any
 ): CanonicalRationale {
-    const itemType = (config.type || '').toLowerCase().replace(/_/g, '-');
+    const itemType = (config.type || config.itemType || config.structure?.type || '').toLowerCase().replace(/_/g, '-');
 
     // Calculate score based on item type
     let outcome: OutcomeModel;

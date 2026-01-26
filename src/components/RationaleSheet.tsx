@@ -26,7 +26,8 @@ export const RationaleSheet: React.FC<RationaleSheetProps> = ({
         if (fullItem?.content?.rationale) {
             console.log('✅ RationaleSheet: Extracting from fullItem.content.rationale');
             try {
-                const processed = RationalePipeline.generateRationale(fullItem.content, metadata?.userAns, fullItem.content.rationale);
+                const configForPipeline = { ...fullItem.content, type: fullItem.type, id: fullItem.id };
+                const processed = RationalePipeline.generateRationale(configForPipeline, metadata?.userAns, fullItem.content.rationale);
                 console.log('✅ RationaleSheet: Successfully processed fullItem rationale', processed);
                 return processed;
             } catch (error) {
@@ -38,7 +39,8 @@ export const RationaleSheet: React.FC<RationaleSheetProps> = ({
         if (question?.content?.rationale) {
             console.log('✅ RationaleSheet: Extracting from question.content.rationale (fallback)');
             try {
-                const processed = RationalePipeline.generateRationale(question.content, metadata?.userAns, question.content.rationale);
+                const configForPipeline = { ...question.content, type: question.type, id: question.id };
+                const processed = RationalePipeline.generateRationale(configForPipeline, metadata?.userAns, question.content.rationale);
                 console.log('✅ RationaleSheet: Successfully processed question rationale', processed);
                 return processed;
             } catch (error) {
