@@ -1788,7 +1788,7 @@ export function generateRationale(
                 }));
             });
         }
-    } else if (itemType.includes('sata') || itemType.includes('multiple-response')) {
+    } else if (itemType.includes('sata') || itemType.includes('multiple-response') || itemType.includes('trend')) {
         const score = calculateSATAScore(userAnswers, config);
         outcome = {
             badge: score.percentage >= 80 ? 'CORRECT' : score.percentage >= 50 ? 'PARTIAL' : 'INCORRECT',

@@ -38,6 +38,7 @@ export interface RationaleSheetProps {
     fullItem?: FullItemData;
     rationale?: CanonicalRationale;
     metadata?: any;
+    onClose?: () => void;
 }
 
 export interface QuestionConfig {

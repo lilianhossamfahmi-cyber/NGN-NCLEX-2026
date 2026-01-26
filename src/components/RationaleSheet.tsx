@@ -8,6 +8,7 @@ export const RationaleSheet: React.FC<RationaleSheetProps> = ({
     fullItem,
     rationale: explicitRationale,
     metadata,
+    onClose,
 }) => {
     // ✅ Manage active tab state locally in RationaleSheet
     const [activeTab, setActiveTab] = React.useState<number>(0);
@@ -25,7 +26,7 @@ export const RationaleSheet: React.FC<RationaleSheetProps> = ({
         if (fullItem?.content?.rationale) {
             console.log('✅ RationaleSheet: Extracting from fullItem.content.rationale');
             try {
-                const processed = RationalePipeline.processQuestion(fullItem.content);
+                const processed = RationalePipeline.generateRationale(fullItem.content, metadata?.userAns, fullItem.content.rationale);
                 console.log('✅ RationaleSheet: Successfully processed fullItem rationale', processed);
                 return processed;
             } catch (error) {
@@ -37,7 +38,7 @@ export const RationaleSheet: React.FC<RationaleSheetProps> = ({
         if (question?.content?.rationale) {
             console.log('✅ RationaleSheet: Extracting from question.content.rationale (fallback)');
             try {
-                const processed = RationalePipeline.processQuestion(question.content);
+                const processed = RationalePipeline.generateRationale(question.content, metadata?.userAns, question.content.rationale);
                 console.log('✅ RationaleSheet: Successfully processed question rationale', processed);
                 return processed;
             } catch (error) {
@@ -61,7 +62,7 @@ export const RationaleSheet: React.FC<RationaleSheetProps> = ({
         <div>
             <UltimateRationale
                 isOpen={true}
-                onClose={() => { }}
+                onClose={onClose}
                 item={fullItem || question}
                 referenceInfo={smartRationale?.referenceInfo}
                 difficulty={smartRationale?.difficulty}

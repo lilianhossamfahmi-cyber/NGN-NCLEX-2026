@@ -64,6 +64,7 @@ export const RationaleDrawer: React.FC<RationaleDrawerProps> = ({
                         fullItem={fullItem}
                         rationale={rationale || undefined}
                         metadata={metadata}
+                        onClose={onClose}
                     />
                 </div>
             </div>
