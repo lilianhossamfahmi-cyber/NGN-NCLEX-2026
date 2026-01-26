@@ -1124,10 +1124,17 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
     };
 
     // FIX: Check both internal path AND Golden Prompt root path for screens
-    const screens = item.content?.structure?.screens || (item as any).structure?.screens || [];
+    let screens = item.content?.structure?.screens || (item as any).structure?.screens || [];
 
+    // EXPERT FIX: Standalone Item Auto-Wrapping
+    // If no screens array exists, but we have a root structure (Trend, SATA, bow-tie),
+    // wrap it in a virtual screen array to allow consistent rendering.
+    const hasStandaloneStructure = item.content?.structure || (item as any).structure;
+    if (screens.length === 0 && hasStandaloneStructure) {
+        screens = [item.content?.structure || (item as any).structure];
+    }
 
-    const isCaseStudy = screens.length > 0;
+    const isCaseStudy = screens.length > 1; // It's only a multi-step case study if multiple screens exist
     const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
     const [stressMetrics, setStressMetrics] = useState<InteractionData>({ changeCount: 0, timeSpent: 0, peerAvg: item.peerAverageTime || 60 });
     const [elapsedTime, setElapsedTime] = useState(0);
