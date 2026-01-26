@@ -22,36 +22,43 @@ export const RationaleSheet: React.FC<RationaleSheetProps> = ({
             return explicitRationale;
         }
 
-        // OPTION 2: Extract from fullItem (if available)
+        // OPTION 2: Use question (specific screen) FIRST for interaction mapping
+        // This is crucial for Case Studies where Question 2 is a Matrix but fullItem is "Case Study"
+        if (question) {
+            console.log('✅ RationaleSheet: Extracting from question (specific screen)');
+            try {
+                // Merge question content with full item rationale for the best of both worlds
+                const configForPipeline = {
+                    ...question,
+                    content: {
+                        ...(question.content || {}),
+                        // Inherit rationale from fullItem if screen-level is missing
+                        rationale: question.content?.rationale || fullItem?.content?.rationale
+                    }
+                };
+                const processed = RationalePipeline.generateRationale(configForPipeline, metadata?.userAns, configForPipeline.content.rationale);
+                console.log('✅ RationaleSheet: Successfully processed screen rationale', processed);
+                return processed;
+            } catch (error) {
+                console.error('❌ RationaleSheet: Error processing screen rationale', error);
+            }
+        }
+
+        // OPTION 3: Extract from fullItem (fallback)
         if (fullItem?.content?.rationale) {
-            console.log('✅ RationaleSheet: Extracting from fullItem.content.rationale');
+            console.log('✅ RationaleSheet: Extracting from fullItem.content.rationale (root)');
             try {
                 const configForPipeline = { ...fullItem.content, type: fullItem.type, id: fullItem.id };
                 const processed = RationalePipeline.generateRationale(configForPipeline, metadata?.userAns, fullItem.content.rationale);
-                console.log('✅ RationaleSheet: Successfully processed fullItem rationale', processed);
                 return processed;
             } catch (error) {
                 console.error('❌ RationaleSheet: Error processing fullItem rationale', error);
             }
         }
 
-        // OPTION 3: Try question as fallback
-        if (question?.content?.rationale) {
-            console.log('✅ RationaleSheet: Extracting from question.content.rationale (fallback)');
-            try {
-                const configForPipeline = { ...question.content, type: question.type, id: question.id };
-                const processed = RationalePipeline.generateRationale(configForPipeline, metadata?.userAns, question.content.rationale);
-                console.log('✅ RationaleSheet: Successfully processed question rationale', processed);
-                return processed;
-            } catch (error) {
-                console.error('❌ RationaleSheet: Error processing question rationale', error);
-            }
-        }
-
         // OPTION 4: Create default rationale (last resort)
-        console.error('🔴 RationaleSheet: No rationale found anywhere, creating defaults');
         return RationalePipeline.createDefaultRationale();
-    }, [explicitRationale, fullItem?.content?.rationale, question?.content?.rationale]);
+    }, [explicitRationale, fullItem?.content?.rationale, question]);
 
     // ✅ OPTIONAL: Log when we're using defaults
     useEffect(() => {

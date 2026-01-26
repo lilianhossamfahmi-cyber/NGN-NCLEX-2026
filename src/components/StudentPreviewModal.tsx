@@ -1123,15 +1123,19 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
         );
     };
 
-    // FIX: Check both internal path AND Golden Prompt root path for screens
-    // FIX: Check ALL possible locations for screens/questions (Matches UnifiedDataPipeline robustness)
-    let screens = item.content?.structure?.screens ||
-        item.content?.screens ||
-        (item as any).structure?.screens ||
-        (item as any).screens ||
-        item.content?.questions ||
-        (item as any).questions ||
-        [];
+    // FIX: Check ALL possible locations and take the LONGEST array (Robustness against AI hallucinations)
+    const possibleScreens = [
+        item.content?.structure?.screens,
+        item.content?.screens,
+        (item as any).structure?.screens,
+        (item as any).screens,
+        item.content?.questions,
+        (item as any).questions
+    ].filter(arr => Array.isArray(arr));
+
+    let screens = (possibleScreens.length > 0)
+        ? (possibleScreens.reduce((a, b) => (a.length >= b.length ? a : b), []) || [])
+        : [];
 
     // EXPERT FIX: Standalone Item Auto-Wrapping
     // If no screens array exists, but we have a root structure (Trend, SATA, bow-tie),

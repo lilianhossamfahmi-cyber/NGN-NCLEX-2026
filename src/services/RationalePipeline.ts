@@ -1559,6 +1559,18 @@ export function generateRationale(
                 rationale: configRow?.rationale || (row.correct ? 'Correctly identified.' : 'Incorrect classification.')
             };
         });
+
+        // 🟢 SYNC: Also populate optionReviews for Matrix (Unified Feedback)
+        if (matrixRows) {
+            optionReviews = matrixRows.map(row => ({
+                id: row.id,
+                text: row.text,
+                isCorrect: row.isCorrect,
+                userSelected: !!row.userAnswer,
+                rationale: row.rationale,
+                userStatus: row.isCorrect ? 'correct' : 'incorrect'
+            }));
+        }
     } else if (itemType.includes('ordered')) {
         // Handle Ordered Response explicitly
         // Normalize options so generateOptionReviews works

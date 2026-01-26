@@ -67,6 +67,10 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
             conditions: config.conditions || raw.conditions || raw.content?.conditions,
             parameters: config.parameters || raw.parameters || raw.content?.parameters,
             text: config.text || raw.text || raw.content?.text, // Explicitly hoist text for highlights
+            rows: config.rows || raw.rows || raw.content?.rows, // Hoist for Matrix
+            columns: config.columns || raw.columns || raw.content?.columns, // Hoist for Matrix
+            options: config.options || raw.options || raw.content?.options, // Hoist for SATA/MCQ
+            dropdowns: config.dropdowns || raw.dropdowns || raw.content?.dropdowns, // Hoist for Cloze
         } as QuestionConfig;
     }
 
