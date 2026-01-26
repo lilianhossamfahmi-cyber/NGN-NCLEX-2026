@@ -1202,15 +1202,18 @@ export const UltimateRationale = ({
                                     Next Question <Play className="w-4 h-4 fill-current" />
                                 </button>
                             )}
-
-                            <button
-                                onClick={onClose}
-                                className="p-2.5 hover:bg-red-500/20 hover:text-red-400 text-slate-400 rounded-lg transition-colors ml-2"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
                         </div>
                     </div>
+
+                    {/* ABSOLUTE CLOSE BUTTON (REPLACED FROM TOOLBAR FOR SAFETY) */}
+                    <button
+                        onClick={onClose}
+                        className="absolute top-6 right-8 z-[200] p-3 text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-all group"
+                        title="Close Reasoning (Esc)"
+                    >
+                        <X className="w-8 h-8 transition-transform group-hover:rotate-90" />
+                        <span className="sr-only">Close</span>
+                    </button>
 
                     {/* 🔹 CJ MAPPING BLOCK (ALWAYS VISIBLE) */}
                     {

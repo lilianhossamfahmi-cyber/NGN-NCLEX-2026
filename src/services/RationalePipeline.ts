@@ -1417,6 +1417,56 @@ export function generateBowTieReview(config: any, userAnswers: any): BowTieRevie
  * Generate standard option reviews for MCQ/SATA
  */
 export function generateOptionReviews(config: any, userAnswers: any): OptionReview[] {
+    const type = (config.type || config.itemType || config.structure?.type || '').toLowerCase();
+
+    // 🟢 HANDLE HIGHLIGHT SPECIFICALLY
+    if (type.includes('highlight')) {
+        const html = config.text || config.structure?.text || config.content?.structure?.text || '';
+        const regex = /<span[^>]*id=["']([^"']+)["'][^>]*>(.*?)<\/span>/gi;
+        let match;
+        const extractedItems = [];
+        while ((match = regex.exec(html)) !== null) {
+            extractedItems.push({ id: match[1], text: match[2].trim() });
+        }
+
+        const normalizeText = (text: string) => text.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "").replace(/\s+/g, " ").trim();
+        const correctSet = new Set<string>();
+        const addToCorrect = (val: any) => {
+            if (!val) return;
+            const cleanVal = typeof val === 'string' ? val.replace(/[,\s]+$/, '').trim() : String(val);
+            correctSet.add(cleanVal);
+            correctSet.add(normalizeText(cleanVal));
+        };
+
+        const struct = config.structure || config.content?.structure || config;
+        const correctArray = struct.correct || config.correct || [];
+        const correctIdsArray = struct.correctIds || config.correctIds || [];
+        if (Array.isArray(correctArray)) correctArray.forEach(addToCorrect);
+        if (Array.isArray(correctIdsArray)) correctIdsArray.forEach(addToCorrect);
+
+        const checkIsCorrect = (id: string, text: string) => {
+            const cleanText = text.trim();
+            const normText = normalizeText(cleanText);
+            return correctSet.has(id) || correctSet.has(cleanText) || correctSet.has(normText);
+        };
+
+        const rationalesMap = struct.rationales || config.rationales || {};
+
+        return extractedItems.map(item => {
+            const isCorrect = checkIsCorrect(item.id, item.text);
+            const isSelected = Array.isArray(userAnswers) ? userAnswers.includes(item.id) : false;
+
+            return {
+                id: item.id,
+                text: item.text,
+                isCorrect: isCorrect,
+                userSelected: isSelected,
+                rationale: rationalesMap[item.id] || (isCorrect ? 'Correct finding reflecting clinical significance.' : 'This finding is non-priority or normal.'),
+                userStatus: (isCorrect && isSelected) ? 'correct' : (!isCorrect && isSelected) ? 'incorrect' : (isCorrect && !isSelected) ? 'missed' : 'skipped'
+            };
+        });
+    }
+
     const options = config.options || config.structure?.options || config.content?.structure?.options || [];
 
     // Handle both array and object formats for user answers
@@ -1460,7 +1510,7 @@ export function generateRationale(
     userAnswers: any,
     existingRationale?: any
 ): CanonicalRationale {
-    const itemType = (config.type || config.itemType || config.structure?.type || '').toLowerCase().replace(/_/g, '-');
+    const itemType = (config.type || config.itemType || config.structure?.type || config.content?.structure?.type || config.content?.type || '').toLowerCase().replace(/_/g, '-');
 
     // Calculate score based on item type
     let outcome: OutcomeModel;

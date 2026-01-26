@@ -49,17 +49,24 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
 
     // 1. If already processed by the modern pipeline, just hoist the structure
     if (raw._unifiedPipelineProcessed) {
-        const config = raw.content?.structure || raw;
+        // FIXED: Only use structure if it actually has properties, otherwise fallback to root
+        const structure = raw.content?.structure || {};
+        const hasStructure = Object.keys(structure).length > 2; // type and id are usually there
+
+        const config = hasStructure ? structure : raw;
+
         return {
-            ...config,
+            ...raw, // Start with everything from raw
+            ...config, // Layers on structure or root values
             id: raw.id || config.id,
             type: raw.type || config.type || 'unknown',
             // Ensure essential clinical data persists for tooltips/rationale
-            clinicalData: raw.content?.clinicalData || config.clinicalData,
+            clinicalData: raw.content?.clinicalData || config.clinicalData || raw.clinicalData,
             // Individual renderers expect these at root
-            actions: config.actions || raw.actions,
-            conditions: config.conditions || raw.conditions,
-            parameters: config.parameters || raw.parameters,
+            actions: config.actions || raw.actions || raw.content?.actions,
+            conditions: config.conditions || raw.conditions || raw.content?.conditions,
+            parameters: config.parameters || raw.parameters || raw.content?.parameters,
+            text: config.text || raw.text || raw.content?.text, // Explicitly hoist text for highlights
         } as QuestionConfig;
     }
 

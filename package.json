@@ -10,8 +10,13 @@
         "build": "node node_modules/vite/bin/vite.js build",
         "preview": "vite preview",
         "type-check": "tsc --noEmit",
+        "lint": "eslint src --ext .ts,.tsx",
         "test": "jest",
-        "test:integration": "jest --testPathPattern=integration"
+        "test:integration": "jest --testPathPattern=integration",
+        "test:smoke": "jest --testPathPattern=smoke",
+        "deploy:staging": "vercel deploy --prod=false",
+        "deploy:production": "vercel deploy --prod",
+        "logs:production": "vercel logs production"
     },
     "dependencies": {
         "@google/generative-ai": "^0.24.1",

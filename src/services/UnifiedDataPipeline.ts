@@ -478,8 +478,15 @@ export class UnifiedDataPipeline {
         const cd = c.clinicalData;
 
         // ====== PATIENT INFO ======
-        const patientSources = [c.patient, cd.patient, cd.patientInfo, c.patientInfo];
-        const patient = patientSources.find(p => p && typeof p === 'object');
+        const patientSources = [
+            c.patient,
+            cd.patient,
+            cd.patientInfo,
+            c.patientInfo,
+            item.patient,
+            item.patientInfo
+        ];
+        const patient = patientSources.find(p => p && typeof p === 'object' && Object.keys(p).length > 0);
 
         if (patient) {
             cd.patientInfo = {
@@ -783,8 +790,19 @@ export class UnifiedDataPipeline {
      */
     private static normalizeCaseStudy(item: any, source: any): void {
         const s = item.content.structure;
+        const c = item.content;
 
-        s.screens = source.screens || [];
+        // EXPERT FIX: Search ALL possible locations for screens (Deep Greedy)
+        const screensSources = [
+            source.screens,
+            c.screens,
+            item.screens,
+            source.questions,
+            c.questions,
+            item.questions
+        ];
+
+        s.screens = screensSources.find(sc => Array.isArray(sc) && sc.length > 0) || [];
 
         // Recursively normalize each screen
         s.screens = s.screens.map((screen: any, idx: number) => {
