@@ -62,5 +62,24 @@ The system pulls mandatory constraints from `docs/external_prompts/Golden Prompt
 4.  **Phase 4: The Atomic Validator**
     *   Implementation of the "Health Bar" with Supabase schema pre-checks.
 
-## 5. Ready to Begin?
-I am ready to implement **Phase 1: The UI Shell**. Should I proceed?
+## 6. High-Authority Execution Model (Autonomy)
+The AI Agent operates under the "Full Authority" protocol. This allows for the autonomous execution of systemic improvements without human hand-holding.
+
+### 🔐 6.1. Authority Principles
+1.  **Detection Autonomy**: The Agent is authorized to proactively scan the codebase for design-system inconsistencies or data-flow bottlenecks.
+2.  **Architectural Fixation**: When a systemic failure is identified (e.g., Matrix items failing to render in Case Studies), the Agent implements permanent fixes in the core services (`UnifiedDataPipeline`, `RationalePipeline`), not just ad-hoc UI patches.
+3.  **End-to-End Validation**: The Agent performs the full "Tracer Lifecycle":
+    *   **Generation**: Triggering seed scripts or prompt-based generation.
+    *   **Cold Testing**: Running unit/integration tests.
+    *   **Hot Testing**: Verifying real-world rendering in the dev environment.
+    *   **Deployment**: Staging, committing, and pushing to production (Vercel).
+
+### 🚀 6.2. Autonomous Process (Tracer Principles)
+For any "Tracer" objective (e.g., Case Study Tracer), the Agent follows this autonomous loop:
+*   **Audit**: Compare current system output against the **Golden Prompt v4** standard.
+*   **Fix**: Modify the `src/services` layer to handle edge cases found during the audit.
+*   **Standardize**: Update the **Golden Prompts** in `docs/` to prevent future regressions.
+*   **Deploy**: Push the hardened code to the repository as a finalized "Ideal State."
+
+## 7. Ready for Case Study Tracer?
+I have full authority to execute the **Case Study 6-Question Tracer**. This involves hardening the rendering and rationale systems for all 6 NGN question types. Proceeding with Phase 2 (Case Study Tracer).

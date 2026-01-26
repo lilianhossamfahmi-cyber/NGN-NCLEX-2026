@@ -89,6 +89,20 @@ export const RationaleSheet: React.FC<RationaleSheetProps> = ({
                 trap={smartRationale?.trap}
                 steps={smartRationale?.steps}
                 optionReviews={smartRationale?.optionReviews}
+                reviewUnits={smartRationale?.reviewUnits || smartRationale?.optionReviews?.map((opt: any, idx: number) => ({
+                    id: opt.id || `opt-${idx}`,
+                    itemType: question?.type || 'multiple-choice',
+                    sequence: idx + 1,
+                    label: String.fromCharCode(65 + idx), // A, B, C...
+                    optionText: opt.text,
+                    keyIsCorrect: opt.isCorrect,
+                    userSelected: opt.userSelected,
+                    status: (opt.isCorrect && opt.userSelected) ? 'SELECTED_CORRECT' :
+                        (!opt.isCorrect && opt.userSelected) ? 'SELECTED_INCORRECT' :
+                            (opt.isCorrect && !opt.userSelected) ? 'MISSED_CORRECT' : 'NOT_SELECTED_INCORRECT',
+                    whyCorrect: opt.isCorrect ? opt.rationale : undefined,
+                    whyIncorrect: !opt.isCorrect ? opt.rationale : undefined
+                }))}
                 bowTieReview={smartRationale?.bowTieReview}
                 highlightReview={smartRationale?.highlightReview}
                 clozeReview={smartRationale?.clozeReview}

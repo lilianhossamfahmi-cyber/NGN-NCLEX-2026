@@ -1534,8 +1534,36 @@ export const UltimateRationale = ({
                         {activeTab === "1" && (
                             <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-right-4 duration-500 space-y-4">
 
-                                {/* FEATURE FLAG: V2 OPTION REVIEW SYSTEM */}
-                                {(true && reviewUnits && reviewUnits.length > 0) ? (
+                                {bowTieReview ? (
+                                    /* 1. BOW TIE REVIEW MODE (Highest Priority specialized visual) */
+                                    <div className="space-y-6">
+                                        <BowTieFeedback review={bowTieReview} />
+                                    </div>
+                                ) : highlightReview ? (
+                                    /* 2. HIGHLIGHT CHART REVIEW MODE */
+                                    <div className="space-y-6">
+                                        <HighlightFeedback review={highlightReview} />
+                                    </div>
+                                ) : clozeReview ? (
+                                    /* 3. DROP/CLOZE REVIEW MODE */
+                                    <div className="space-y-6">
+                                        <ClozeFeedback review={clozeReview} />
+                                    </div>
+                                ) : orderedReview ? (
+                                    /* 4. ORDERED RESPONSE REVIEW MODE */
+                                    <div className="space-y-6">
+                                        <OrderedFeedback review={orderedReview} />
+                                    </div>
+                                ) : (matrixRows && matrixRows.length > 0) ? (
+                                    /* 5. MATRIX ROW REVIEW MODE */
+                                    <div className="space-y-6">
+                                        <MatrixFeedback
+                                            rows={matrixRows}
+                                            columns={matrixColumns || []}
+                                        />
+                                    </div>
+                                ) : (reviewUnits && reviewUnits.length > 0) ? (
+                                    /* 6. FEATURE FLAG: V2 OPTION REVIEW SYSTEM (General SATA/MCQ fallback) */
                                     <div className="space-y-6">
                                         <div className="mb-6 flex flex-col gap-4">
                                             <div className="flex items-center gap-3 mb-2 px-1">
@@ -1565,413 +1593,385 @@ export const UltimateRationale = ({
                                         </div>
                                         <OptionReviewV2 units={reviewUnits} />
                                     </div>
-                                ) : bowTieReview ? (
-                                    /* BOW TIE REVIEW MODE */
-                                    <div className="space-y-6">
-                                        <BowTieFeedback review={bowTieReview} />
-                                    </div>
-                                ) : highlightReview ? (
-                                    /* HIGHLIGHT CHART REVIEW MODE */
-                                    <div className="space-y-6">
-                                        <HighlightFeedback review={highlightReview} />
-                                    </div>
-                                ) : clozeReview ? (
-                                    /* DROP/CLOZE REVIEW MODE */
-                                    <div className="space-y-6">
-                                        <ClozeFeedback review={clozeReview} />
-                                    </div>
-                                ) : orderedReview ? (
-                                    /* ORDERED RESPONSE REVIEW MODE */
-                                    <div className="space-y-6">
-                                        <OrderedFeedback review={orderedReview} />
-                                    </div>
                                 ) : (
-                                    <>
-                                        {/* MATRIX ROW REVIEW MODE */}
-                                        {matrixRows && matrixRows.length > 0 ? (
-                                            <div className="space-y-6">
-                                                <MatrixFeedback
-                                                    rows={matrixRows}
-                                                    columns={matrixColumns || []}
-                                                />
-                                            </div>
-                                        ) : (
+                                    /* 7. LEGACY FALLBACK */
+                                    <div className="space-y-6">
                                             /* STANDARD OPTION REVIEW MODE (Existing) */
-                                            <div className="space-y-2">
-                                                {(!optionReviews || optionReviews.length === 0) && (
-                                                    <div className="space-y-6">
-                                                        {/* Check if it's a calculation item */}
-                                                        {(metadata?.type?.toLowerCase().includes('calculation') || metadata?.correctValue !== undefined) ? (
-                                                            <>
-                                                                {/* Score Summary for Calculation */}
-                                                                <div className="mb-6 flex flex-col gap-4">
-                                                                    <div className="flex items-center gap-3 mb-2 px-1">
-                                                                        <div className="p-2 rounded-lg bg-blue-600 shadow-lg shadow-blue-500/20">
-                                                                            <Activity className="w-4 h-4 text-white" />
-                                                                        </div>
-                                                                        <h3 className="text-sm font-black uppercase tracking-[0.2em] text-blue-400">Calculation Analysis</h3>
+                                        <div className="space-y-2">
+                                            {(!optionReviews || optionReviews.length === 0) && (
+                                                <div className="space-y-6">
+                                                    {/* Check if it's a calculation item */}
+                                                    {(metadata?.type?.toLowerCase().includes('calculation') || metadata?.correctValue !== undefined) ? (
+                                                        <>
+                                                            {/* Score Summary for Calculation */}
+                                                            <div className="mb-6 flex flex-col gap-4">
+                                                                <div className="flex items-center gap-3 mb-2 px-1">
+                                                                    <div className="p-2 rounded-lg bg-blue-600 shadow-lg shadow-blue-500/20">
+                                                                        <Activity className="w-4 h-4 text-white" />
                                                                     </div>
-                                                                    {/* DIFFICULTY DISPLAY ADDED HERE FOR CALCULATION */}
-                                                                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-4">
-                                                                        <div className="flex items-center justify-between mb-4">
-                                                                            <div className="flex items-center gap-2">
-                                                                                <Zap className="w-4 h-4 text-amber-500" />
-                                                                                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Item Difficulty</span>
-                                                                            </div>
-                                                                            <span className="text-xs font-bold text-white bg-slate-800 px-2 py-1 rounded">
-                                                                                Level {metadata?.difficultyLevel || metadata?.rationaleDifficulty?.level || 3}
-                                                                            </span>
+                                                                    <h3 className="text-sm font-black uppercase tracking-[0.2em] text-blue-400">Calculation Analysis</h3>
+                                                                </div>
+                                                                {/* DIFFICULTY DISPLAY ADDED HERE FOR CALCULATION */}
+                                                                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-4">
+                                                                    <div className="flex items-center justify-between mb-4">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Zap className="w-4 h-4 text-amber-500" />
+                                                                            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Item Difficulty</span>
                                                                         </div>
-                                                                        <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                                                                            <div
-                                                                                className="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-red-600"
-                                                                                style={{ width: `${((metadata?.difficultyLevel || metadata?.rationaleDifficulty?.level || 3) / 5) * 100}%` }}
-                                                                            />
+                                                                        <span className="text-xs font-bold text-white bg-slate-800 px-2 py-1 rounded">
+                                                                            Level {metadata?.difficultyLevel || metadata?.rationaleDifficulty?.level || 3}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                                                                        <div
+                                                                            className="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-red-600"
+                                                                            style={{ width: `${((metadata?.difficultyLevel || metadata?.rationaleDifficulty?.level || 3) / 5) * 100}%` }}
+                                                                        />
+                                                                    </div>
+                                                                    <div className="mt-2 text-xs text-slate-400 font-medium">
+                                                                        {metadata?.rationaleDifficulty?.label || "Standard Difficulty"}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="grid grid-cols-2 gap-4">
+                                                                    <div className="bg-emerald-500/10 border-2 border-emerald-500/20 rounded-2xl p-6 flex flex-col items-center justify-center">
+                                                                        <div className="text-4xl font-black text-emerald-500 mb-1 leading-none text-center">
+                                                                            {outcome?.score !== undefined && outcome?.maxScore ? Math.round((Number(outcome.score) / Number(outcome.maxScore)) * 100) : 0}%
                                                                         </div>
-                                                                        <div className="mt-2 text-xs text-slate-400 font-medium">
-                                                                            {metadata?.rationaleDifficulty?.label || "Standard Difficulty"}
+                                                                        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500/50">Score</div>
+                                                                    </div>
+                                                                    <div className="bg-blue-600 rounded-2xl p-6 flex flex-col items-center justify-center shadow-xl shadow-blue-600/20">
+                                                                        <div className="text-4xl font-black text-white mb-1 leading-none text-center">
+                                                                            +{Number(outcome?.score || 0)}<span className="text-blue-200 text-xl font-bold ml-1">/ {Number(outcome?.maxScore || 1)}</span>
+                                                                        </div>
+                                                                        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-100/60">Points</div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Answer Comparison */}
+                                                            <div className="rounded-2xl border p-6" style={{ backgroundColor: THEME.card, borderColor: THEME.border }}>
+                                                                <h4 className="text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2 opacity-60">
+                                                                    <Calculator className="w-4 h-4" /> Answer Breakdown
+                                                                </h4>
+                                                                <div className="grid grid-cols-2 gap-4 mb-6">
+                                                                    <div className={`p-4 rounded-xl border-2 relative overflow-hidden ${outcome?.status === 'correct' ? 'border-emerald-500 bg-emerald-500/10' : 'border-red-500 bg-red-500/10'}`}>
+                                                                        <div className="flex justify-between items-start mb-2">
+                                                                            <div className="text-xs font-bold uppercase tracking-wider opacity-60">Your Answer</div>
+                                                                            {outcome?.status === 'correct' ? (
+                                                                                <span className="flex items-center gap-1 text-[10px] uppercase font-black tracking-widest bg-emerald-500 text-black px-2 py-0.5 rounded-full">
+                                                                                    <CheckCircle2 className="w-3 h-3" /> Correct
+                                                                                </span>
+                                                                            ) : (
+                                                                                <span className="flex items-center gap-1 text-[10px] uppercase font-black tracking-widest bg-red-500 text-white px-2 py-0.5 rounded-full">
+                                                                                    <XCircle className="w-3 h-3" /> Incorrect
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                        <div className="text-3xl font-black truncate">
+                                                                            {(outcome as any)?.userAnswer || '—'}
+                                                                            <span className="text-sm font-medium ml-2 opacity-60">{metadata?.inputLabel || metadata?.units || ''}</span>
                                                                         </div>
                                                                     </div>
-                                                                    <div className="grid grid-cols-2 gap-4">
-                                                                        <div className="bg-emerald-500/10 border-2 border-emerald-500/20 rounded-2xl p-6 flex flex-col items-center justify-center">
-                                                                            <div className="text-4xl font-black text-emerald-500 mb-1 leading-none text-center">
-                                                                                {outcome?.score !== undefined && outcome?.maxScore ? Math.round((Number(outcome.score) / Number(outcome.maxScore)) * 100) : 0}%
-                                                                            </div>
-                                                                            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500/50">Score</div>
-                                                                        </div>
-                                                                        <div className="bg-blue-600 rounded-2xl p-6 flex flex-col items-center justify-center shadow-xl shadow-blue-600/20">
-                                                                            <div className="text-4xl font-black text-white mb-1 leading-none text-center">
-                                                                                +{Number(outcome?.score || 0)}<span className="text-blue-200 text-xl font-bold ml-1">/ {Number(outcome?.maxScore || 1)}</span>
-                                                                            </div>
-                                                                            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-100/60">Points</div>
+                                                                    <div className="p-4 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 flex flex-col justify-center">
+                                                                        <div className="text-xs font-bold uppercase tracking-wider mb-2 opacity-60">Correct Answer</div>
+                                                                        <div className="text-3xl font-black text-emerald-400 truncate">
+                                                                            {metadata?.correctValue || 'N/A'}
+                                                                            <span className="text-sm font-medium ml-2 opacity-60">{metadata?.inputLabel || metadata?.units || ''}</span>
                                                                         </div>
                                                                     </div>
                                                                 </div>
 
-                                                                {/* Answer Comparison */}
-                                                                <div className="rounded-2xl border p-6" style={{ backgroundColor: THEME.card, borderColor: THEME.border }}>
-                                                                    <h4 className="text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2 opacity-60">
-                                                                        <Calculator className="w-4 h-4" /> Answer Breakdown
-                                                                    </h4>
-                                                                    <div className="grid grid-cols-2 gap-4 mb-6">
-                                                                        <div className={`p-4 rounded-xl border-2 relative overflow-hidden ${outcome?.status === 'correct' ? 'border-emerald-500 bg-emerald-500/10' : 'border-red-500 bg-red-500/10'}`}>
-                                                                            <div className="flex justify-between items-start mb-2">
-                                                                                <div className="text-xs font-bold uppercase tracking-wider opacity-60">Your Answer</div>
-                                                                                {outcome?.status === 'correct' ? (
-                                                                                    <span className="flex items-center gap-1 text-[10px] uppercase font-black tracking-widest bg-emerald-500 text-black px-2 py-0.5 rounded-full">
-                                                                                        <CheckCircle2 className="w-3 h-3" /> Correct
-                                                                                    </span>
-                                                                                ) : (
-                                                                                    <span className="flex items-center gap-1 text-[10px] uppercase font-black tracking-widest bg-red-500 text-white px-2 py-0.5 rounded-full">
-                                                                                        <XCircle className="w-3 h-3" /> Incorrect
-                                                                                    </span>
-                                                                                )}
-                                                                            </div>
-                                                                            <div className="text-3xl font-black truncate">
-                                                                                {(outcome as any)?.userAnswer || '—'}
-                                                                                <span className="text-sm font-medium ml-2 opacity-60">{metadata?.inputLabel || metadata?.units || ''}</span>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="p-4 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 flex flex-col justify-center">
-                                                                            <div className="text-xs font-bold uppercase tracking-wider mb-2 opacity-60">Correct Answer</div>
-                                                                            <div className="text-3xl font-black text-emerald-400 truncate">
-                                                                                {metadata?.correctValue || 'N/A'}
-                                                                                <span className="text-sm font-medium ml-2 opacity-60">{metadata?.inputLabel || metadata?.units || ''}</span>
-                                                                            </div>
-                                                                        </div>
+                                                                {/* Step-by-Step Explanation (Parsed or HTML) */}
+                                                                <div className="p-5 rounded-xl bg-blue-500/5 border border-blue-500/20">
+                                                                    <div className="flex items-center gap-2 mb-4">
+                                                                        <div className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400"><ListChecks className="w-4 h-4" /></div>
+                                                                        <div className="text-xs font-bold text-blue-400 uppercase tracking-wider">Solution Methodology</div>
                                                                     </div>
 
-                                                                    {/* Step-by-Step Explanation (Parsed or HTML) */}
-                                                                    <div className="p-5 rounded-xl bg-blue-500/5 border border-blue-500/20">
-                                                                        <div className="flex items-center gap-2 mb-4">
-                                                                            <div className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400"><ListChecks className="w-4 h-4" /></div>
-                                                                            <div className="text-xs font-bold text-blue-400 uppercase tracking-wider">Solution Methodology</div>
+                                                                    {/* Check if answerAnalysis is HTML (starts with <h3) */}
+                                                                    {(typeof displayAnalysis === 'string' ? displayAnalysis : '').trim().startsWith('<h3') ? (
+                                                                        <div
+                                                                            className="calculation-html-review prose prose-invert max-w-none text-sm"
+                                                                            dangerouslySetInnerHTML={{ __html: displayAnalysis }}
+                                                                            style={{
+                                                                                // Custom styles for the HTML content
+                                                                            }}
+                                                                        />
+                                                                    ) : (
+                                                                        <div className="space-y-4">
+                                                                            {(typeof displayAnalysis === 'string' ? displayAnalysis : '').split(/(?=Step \d+:|Method \d:)/g).map((step: string, idx: number) => {
+                                                                                const cleanStep = step.trim();
+                                                                                if (!cleanStep) return null;
+                                                                                const isStep = cleanStep.match(/^Step \d+:/);
+                                                                                const isMethod = cleanStep.match(/^Method \d:/);
+
+                                                                                return (
+                                                                                    <div key={idx} className={`text-sm leading-relaxed p-3 rounded-lg border ${isStep ? 'bg-blue-500/10 border-blue-500/20' : isMethod ? 'bg-indigo-500/10 border-indigo-500/20 font-bold text-indigo-300' : 'border-transparent opacity-90'}`}>
+                                                                                        {isStep ? (
+                                                                                            <>
+                                                                                                <strong className="text-blue-300 block mb-1 text-xs uppercase tracking-widest">{cleanStep.split(':')[0]}</strong>
+                                                                                                <span className="opacity-90">{cleanStep.split(':').slice(1).join(':').trim()}</span>
+                                                                                            </>
+                                                                                        ) : (
+                                                                                            cleanStep
+                                                                                        )}
+                                                                                    </div>
+                                                                                );
+                                                                            })}
                                                                         </div>
-
-                                                                        {/* Check if answerAnalysis is HTML (starts with <h3) */}
-                                                                        {(typeof displayAnalysis === 'string' ? displayAnalysis : '').trim().startsWith('<h3') ? (
-                                                                            <div
-                                                                                className="calculation-html-review prose prose-invert max-w-none text-sm"
-                                                                                dangerouslySetInnerHTML={{ __html: displayAnalysis }}
-                                                                                style={{
-                                                                                    // Custom styles for the HTML content
-                                                                                }}
-                                                                            />
-                                                                        ) : (
-                                                                            <div className="space-y-4">
-                                                                                {(typeof displayAnalysis === 'string' ? displayAnalysis : '').split(/(?=Step \d+:|Method \d:)/g).map((step: string, idx: number) => {
-                                                                                    const cleanStep = step.trim();
-                                                                                    if (!cleanStep) return null;
-                                                                                    const isStep = cleanStep.match(/^Step \d+:/);
-                                                                                    const isMethod = cleanStep.match(/^Method \d:/);
-
-                                                                                    return (
-                                                                                        <div key={idx} className={`text-sm leading-relaxed p-3 rounded-lg border ${isStep ? 'bg-blue-500/10 border-blue-500/20' : isMethod ? 'bg-indigo-500/10 border-indigo-500/20 font-bold text-indigo-300' : 'border-transparent opacity-90'}`}>
-                                                                                            {isStep ? (
-                                                                                                <>
-                                                                                                    <strong className="text-blue-300 block mb-1 text-xs uppercase tracking-widest">{cleanStep.split(':')[0]}</strong>
-                                                                                                    <span className="opacity-90">{cleanStep.split(':').slice(1).join(':').trim()}</span>
-                                                                                                </>
-                                                                                            ) : (
-                                                                                                cleanStep
-                                                                                            )}
-                                                                                        </div>
-                                                                                    );
-                                                                                })}
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
+                                                                    )}
                                                                 </div>
+                                                            </div>
 
-                                                                {/* Common Trap Alert */}
-                                                                <div className="rounded-xl border p-4 flex items-start gap-4" style={{ borderColor: `${COLORS.critical}40`, backgroundColor: `${COLORS.critical}10` }}>
-                                                                    <AlertOctagon className="w-5 h-5 shrink-0" style={{ color: COLORS.critical }} />
-                                                                    <div>
-                                                                        <h5 className="text-[10px] font-bold uppercase mb-1" style={{ color: COLORS.critical }}>Common Calculation Errors</h5>
-                                                                        <p className="text-xs opacity-90">
-                                                                            {displayTrap}
-                                                                        </p>
-                                                                    </div>
-                                                                </div>
-
-                                                                {/* Golden Rule */}
-                                                                <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
-                                                                    <div className="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-1">Calculation Safety Tip</div>
-                                                                    <p className="text-sm font-medium opacity-90">
-                                                                        "{displayGoldenRule}"
+                                                            {/* Common Trap Alert */}
+                                                            <div className="rounded-xl border p-4 flex items-start gap-4" style={{ borderColor: `${COLORS.critical}40`, backgroundColor: `${COLORS.critical}10` }}>
+                                                                <AlertOctagon className="w-5 h-5 shrink-0" style={{ color: COLORS.critical }} />
+                                                                <div>
+                                                                    <h5 className="text-[10px] font-bold uppercase mb-1" style={{ color: COLORS.critical }}>Common Calculation Errors</h5>
+                                                                    <p className="text-xs opacity-90">
+                                                                        {displayTrap}
                                                                     </p>
                                                                 </div>
-                                                            </>
-                                                        ) : (
-                                                            /* FALLBACK: Generic Analysis for Non-Calculation Items (e.g. Trend, Highlight, Matrix) */
-                                                            <>
-                                                                {(displayAnalysis || displayGoldenRule || displayTrap) ? (
-                                                                    <div className="space-y-6">
-                                                                        {/* Analysis Section */}
-                                                                        {displayAnalysis && (
-                                                                            <div className="p-5 rounded-xl bg-blue-500/5 border border-blue-500/20">
-                                                                                {/* DIFFICULTY DISPLAY ADDED HERE FOR GENERIC */}
-                                                                                <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 mb-6">
-                                                                                    <div className="flex items-center justify-between mb-3">
-                                                                                        <div className="flex items-center gap-2">
-                                                                                            <Zap className="w-4 h-4 text-amber-500" />
-                                                                                            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Item Difficulty</span>
-                                                                                        </div>
-                                                                                        <span className="text-xs font-bold text-white bg-slate-800 px-2 py-1 rounded">
-                                                                                            Level {metadata?.difficultyLevel || metadata?.rationaleDifficulty?.level || 3}
-                                                                                        </span>
-                                                                                    </div>
-                                                                                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                                                                                        <div
-                                                                                            className="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-red-600"
-                                                                                            style={{ width: `${((metadata?.difficultyLevel || metadata?.rationaleDifficulty?.level || 3) / 5) * 100}%` }}
-                                                                                        />
-                                                                                    </div>
-                                                                                    <div className="mt-2 text-[10px] text-slate-400 font-medium uppercase tracking-wider">
-                                                                                        {metadata?.rationaleDifficulty?.label || "Standard Difficulty"}
-                                                                                    </div>
-                                                                                </div>
-
-                                                                                <div className="flex items-center gap-2 mb-4">
-                                                                                    <div className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400"><ListChecks className="w-4 h-4" /></div>
-                                                                                    <div className="text-xs font-bold text-blue-400 uppercase tracking-wider">Clinical Reasoning</div>
-                                                                                </div>
-                                                                                {displayAnalysis.trim().startsWith('<h') ? (
-                                                                                    <div className="prose prose-sm max-w-none text-slate-300" dangerouslySetInnerHTML={{ __html: displayAnalysis }} />
-                                                                                ) : (
-                                                                                    <p className="text-sm leading-relaxed opacity-90">{displayAnalysis}</p>
-                                                                                )}
-                                                                            </div>
-                                                                        )}
-
-                                                                        {/* Trap Section */}
-                                                                        {displayTrap && (
-                                                                            <div className="rounded-xl border p-4 flex items-start gap-4" style={{ borderColor: `${COLORS.critical}40`, backgroundColor: `${COLORS.critical}10` }}>
-                                                                                <AlertOctagon className="w-5 h-5 shrink-0" style={{ color: COLORS.critical }} />
-                                                                                <div>
-                                                                                    <h5 className="text-[10px] font-bold uppercase mb-1" style={{ color: COLORS.critical }}>Clinical Pitfall</h5>
-                                                                                    <p className="text-xs opacity-90">{displayTrap}</p>
-                                                                                </div>
-                                                                            </div>
-                                                                        )}
-
-                                                                        {/* Golden Rule Section */}
-                                                                        {displayGoldenRule && (
-                                                                            <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
-                                                                                <div className="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-1">Golden Rule</div>
-                                                                                <p className="text-sm font-medium opacity-90">"{displayGoldenRule}"</p>
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                ) : (
-                                                                    <div className="p-8 text-center text-slate-400 border border-dashed border-white/10 rounded-xl bg-white/5">
-                                                                        <div className="mb-2 text-lg font-bold">No Option Analysis Available</div>
-                                                                        <p className="text-sm opacity-70">Detailed option breakdowns are not available for this item type yet.</p>
-                                                                    </div>
-                                                                )}
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                )}
-                                                {!isCalculation && optionReviews && optionReviews.length > 0 && (
-                                                    <div className="space-y-6">
-                                                        {/* 🔹 EXPERT SCORE SUMMARY (Transfer from Question Feedback) */}
-                                                        <div className="mb-6 flex flex-col gap-4">
-                                                            <div className="flex items-center gap-3 mb-2 px-1">
-                                                                <div className="p-2 rounded-lg bg-blue-600 shadow-lg shadow-blue-500/20">
-                                                                    <Activity className="w-4 h-4 text-white" />
-                                                                </div>
-                                                                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-blue-400">Expert Analytics</h3>
                                                             </div>
 
-                                                            <div className="grid grid-cols-2 gap-4">
-                                                                {/* 1. Overall Score */}
-                                                                <div className="bg-emerald-500/10 border-2 border-emerald-500/20 rounded-2xl p-6 flex flex-col items-center justify-center animate-in zoom-in-95 duration-500 overflow-hidden relative">
-                                                                    <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/5 rounded-bl-full pointer-events-none" />
-                                                                    <div className="text-4xl font-black text-emerald-500 mb-1 leading-none text-center">
-                                                                        {outcome?.score !== undefined && outcome?.maxScore ? Math.round((Number(outcome.score) / Number(outcome.maxScore)) * 100) : 0}%
-                                                                    </div>
-                                                                    <div className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500/50">Score</div>
-                                                                </div>
-
-                                                                {/* 2. Points (The +4/5 Block) */}
-                                                                <div className="bg-blue-600 rounded-2xl p-6 flex flex-col items-center justify-center animate-in zoom-in-95 duration-500 delay-75 shadow-xl shadow-blue-600/20 relative overflow-hidden">
-                                                                    <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-bl-full pointer-events-none" />
-                                                                    <div className="text-4xl font-black text-white mb-1 leading-none text-center">
-                                                                        +{Number(outcome?.score || 0)}<span className="text-blue-200 text-xl font-bold ml-1">/ {Number(outcome?.maxScore || 0) || 0}</span>
-                                                                    </div>
-                                                                    <div className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-100/60">Points</div>
-                                                                </div>
+                                                            {/* Golden Rule */}
+                                                            <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
+                                                                <div className="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-1">Calculation Safety Tip</div>
+                                                                <p className="text-sm font-medium opacity-90">
+                                                                    "{displayGoldenRule}"
+                                                                </p>
                                                             </div>
-                                                        </div>
-
-                                                        {/* Filter Bar for Standard Options */}
-                                                        <div className="flex bg-black/40 p-1.5 rounded-xl border border-white/5 w-max ml-auto mb-4">
-                                                            {(['all', 'correct', 'incorrect', 'missed'] as const).map(f => (
-                                                                <button
-                                                                    key={f}
-                                                                    onClick={() => setOptFilter(f)}
-                                                                    className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${optFilter === f ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'
-                                                                        }`}
-                                                                >
-                                                                    {f}
-                                                                </button>
-                                                            ))}
-                                                        </div>
-
-                                                        {Array.isArray(optionReviews) && optionReviews
-                                                            .filter(opt => !!opt)
-                                                            .filter(opt => {
-                                                                if (optFilter === 'all') return true;
-                                                                if (optFilter === 'correct') return opt.userStatus === 'correct';
-                                                                if (optFilter === 'incorrect') return opt.userStatus === 'incorrect';
-                                                                if (optFilter === 'missed') return opt.userStatus === 'missed' && opt.isCorrect;
-                                                                return true;
-                                                            })
-                                                            .map((opt) => {
-                                                                const isSelectedCorrect = opt.userStatus === 'correct';
-                                                                const isSelectedIncorrect = opt.userStatus === 'incorrect';
-                                                                const isMissedCorrect = opt.userStatus === 'missed' && opt.isCorrect;
-                                                                const isMissedIncorrect = (opt.userStatus === 'missed' || opt.userStatus === 'skipped') && !opt.isCorrect;
-                                                                const userSelected = opt.userSelected;
-                                                                const isOpen = openOptId === opt.id;
-
-                                                                // Row styling matching Question Feedback Image
-                                                                let rowBg = 'rgba(255,255,255,0.03)';
-                                                                let rowBorder = 'rgba(255,255,255,0.1)';
-                                                                let rowBorderStyle = 'solid';
-                                                                let checkboxColor = '#94a3b8';
-                                                                let statusIcon = null;
-
-                                                                if (isSelectedCorrect) {
-                                                                    rowBg = 'rgba(16, 185, 129, 0.1)';
-                                                                    rowBorder = '#10b981';
-                                                                    checkboxColor = '#10b981';
-                                                                    statusIcon = <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
-                                                                } else if (isSelectedIncorrect) {
-                                                                    rowBg = 'rgba(239, 68, 68, 0.1)';
-                                                                    rowBorder = '#ef4444';
-                                                                    checkboxColor = '#ef4444';
-                                                                    statusIcon = <XCircle className="w-5 h-5 text-red-500" />;
-                                                                } else if (isMissedCorrect) {
-                                                                    rowBg = 'rgba(245, 158, 11, 0.05)';
-                                                                    rowBorder = '#f59e0b';
-                                                                    checkboxColor = '#f59e0b';
-                                                                    rowBorderStyle = 'dashed';
-                                                                    statusIcon = <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
-                                                                } else if (isMissedIncorrect) {
-                                                                    rowBg = 'rgba(255,255,255,0.02)';
-                                                                    rowBorder = 'rgba(245, 158, 11, 0.3)';
-                                                                    checkboxColor = '#475569';
-                                                                    rowBorderStyle = 'dashed';
-                                                                }
-
-                                                                return (
-                                                                    <div key={opt.id} className="flex flex-col gap-2 group animate-in slide-in-from-bottom-2 duration-300">
-                                                                        {/* 1. SELECTION ROW (Matches Question Feedback Style) */}
-                                                                        <div
-                                                                            className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all cursor-pointer hover:brightness-110 active:scale-[0.99] ${isOpen ? 'ring-2 ring-blue-500/50' : ''}`}
-                                                                            onClick={() => setOpenOptId(isOpen ? null : opt.id)}
-                                                                            style={{
-                                                                                backgroundColor: rowBg,
-                                                                                borderColor: rowBorder,
-                                                                                borderStyle: rowBorderStyle as any
-                                                                            }}
-                                                                        >
-                                                                            <div className="shrink-0">
-                                                                                {userSelected ? (
-                                                                                    <CheckSquare className="w-6 h-6" style={{ color: checkboxColor }} />
-                                                                                ) : (
-                                                                                    <Square className="w-6 h-6" style={{ color: '#475569' }} />
-                                                                                )}
-                                                                            </div>
-
-                                                                            <div className="flex-1 text-base font-medium text-white/90">
-                                                                                {opt.text}
-                                                                            </div>
-
-                                                                            <div className="shrink-0 flex items-center gap-3">
-                                                                                {statusIcon && (
-                                                                                    <div className="ml-2">
-                                                                                        {statusIcon}
+                                                        </>
+                                                    ) : (
+                                                        /* FALLBACK: Generic Analysis for Non-Calculation Items (e.g. Trend, Highlight, Matrix) */
+                                                        <>
+                                                            {(displayAnalysis || displayGoldenRule || displayTrap) ? (
+                                                                <div className="space-y-6">
+                                                                    {/* Analysis Section */}
+                                                                    {displayAnalysis && (
+                                                                        <div className="p-5 rounded-xl bg-blue-500/5 border border-blue-500/20">
+                                                                            {/* DIFFICULTY DISPLAY ADDED HERE FOR GENERIC */}
+                                                                            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 mb-6">
+                                                                                <div className="flex items-center justify-between mb-3">
+                                                                                    <div className="flex items-center gap-2">
+                                                                                        <Zap className="w-4 h-4 text-amber-500" />
+                                                                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Item Difficulty</span>
                                                                                     </div>
-                                                                                )}
-                                                                                <ChevronDown className={`w-5 h-5 text-slate-500 transition-transform duration-300 ${isOpen ? 'rotate-180 text-blue-400' : ''}`} />
+                                                                                    <span className="text-xs font-bold text-white bg-slate-800 px-2 py-1 rounded">
+                                                                                        Level {metadata?.difficultyLevel || metadata?.rationaleDifficulty?.level || 3}
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                                                                    <div
+                                                                                        className="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-red-600"
+                                                                                        style={{ width: `${((metadata?.difficultyLevel || metadata?.rationaleDifficulty?.level || 3) / 5) * 100}%` }}
+                                                                                    />
+                                                                                </div>
+                                                                                <div className="mt-2 text-[10px] text-slate-400 font-medium uppercase tracking-wider">
+                                                                                    {metadata?.rationaleDifficulty?.label || "Standard Difficulty"}
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div className="flex items-center gap-2 mb-4">
+                                                                                <div className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400"><ListChecks className="w-4 h-4" /></div>
+                                                                                <div className="text-xs font-bold text-blue-400 uppercase tracking-wider">Clinical Reasoning</div>
+                                                                            </div>
+                                                                            {displayAnalysis.trim().startsWith('<h') ? (
+                                                                                <div className="prose prose-sm max-w-none text-slate-300" dangerouslySetInnerHTML={{ __html: displayAnalysis }} />
+                                                                            ) : (
+                                                                                <p className="text-sm leading-relaxed opacity-90">{displayAnalysis}</p>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+
+                                                                    {/* Trap Section */}
+                                                                    {displayTrap && (
+                                                                        <div className="rounded-xl border p-4 flex items-start gap-4" style={{ borderColor: `${COLORS.critical}40`, backgroundColor: `${COLORS.critical}10` }}>
+                                                                            <AlertOctagon className="w-5 h-5 shrink-0" style={{ color: COLORS.critical }} />
+                                                                            <div>
+                                                                                <h5 className="text-[10px] font-bold uppercase mb-1" style={{ color: COLORS.critical }}>Clinical Pitfall</h5>
+                                                                                <p className="text-xs opacity-90">{displayTrap}</p>
                                                                             </div>
                                                                         </div>
+                                                                    )}
 
-                                                                        {/* 2. RATIONALE BOX (Directly Underneath - Only if Open) */}
-                                                                        {isOpen && (
-                                                                            <div className="ml-10 p-5 rounded-xl relative overflow-hidden bg-black/40 border border-white/5 border-l-4 animate-in slide-in-from-top-2 duration-300" style={{ borderLeftColor: opt.isCorrect ? '#10b981' : '#ef4444' }}>
-                                                                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-full pointer-events-none blur-3xl opacity-20" style={{ backgroundColor: opt.isCorrect ? '#10b981' : '#ef4444' }} />
+                                                                    {/* Golden Rule Section */}
+                                                                    {displayGoldenRule && (
+                                                                        <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
+                                                                            <div className="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-1">Golden Rule</div>
+                                                                            <p className="text-sm font-medium opacity-90">"{displayGoldenRule}"</p>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            ) : (
+                                                                <div className="p-8 text-center text-slate-400 border border-dashed border-white/10 rounded-xl bg-white/5">
+                                                                    <div className="mb-2 text-lg font-bold">No Option Analysis Available</div>
+                                                                    <p className="text-sm opacity-70">Detailed option breakdowns are not available for this item type yet.</p>
+                                                                </div>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </div>
+                                            )}
+                                            {!isCalculation && optionReviews && optionReviews.length > 0 && (
+                                                <div className="space-y-6">
+                                                    {/* 🔹 EXPERT SCORE SUMMARY (Transfer from Question Feedback) */}
+                                                    <div className="mb-6 flex flex-col gap-4">
+                                                        <div className="flex items-center gap-3 mb-2 px-1">
+                                                            <div className="p-2 rounded-lg bg-blue-600 shadow-lg shadow-blue-500/20">
+                                                                <Activity className="w-4 h-4 text-white" />
+                                                            </div>
+                                                            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-blue-400">Expert Analytics</h3>
+                                                        </div>
 
-                                                                                <div className="flex items-center gap-2 mb-3">
-                                                                                    <div className={`text-[10px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded ${opt.isCorrect ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
-                                                                                        {opt.isCorrect ? 'Why this is correct' : 'Why this is incorrect'}
-                                                                                    </div>
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            {/* 1. Overall Score */}
+                                                            <div className="bg-emerald-500/10 border-2 border-emerald-500/20 rounded-2xl p-6 flex flex-col items-center justify-center animate-in zoom-in-95 duration-500 overflow-hidden relative">
+                                                                <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/5 rounded-bl-full pointer-events-none" />
+                                                                <div className="text-4xl font-black text-emerald-500 mb-1 leading-none text-center">
+                                                                    {outcome?.score !== undefined && outcome?.maxScore ? Math.round((Number(outcome.score) / Number(outcome.maxScore)) * 100) : 0}%
+                                                                </div>
+                                                                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500/50">Score</div>
+                                                            </div>
+
+                                                            {/* 2. Points (The +4/5 Block) */}
+                                                            <div className="bg-blue-600 rounded-2xl p-6 flex flex-col items-center justify-center animate-in zoom-in-95 duration-500 delay-75 shadow-xl shadow-blue-600/20 relative overflow-hidden">
+                                                                <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-bl-full pointer-events-none" />
+                                                                <div className="text-4xl font-black text-white mb-1 leading-none text-center">
+                                                                    +{Number(outcome?.score || 0)}<span className="text-blue-200 text-xl font-bold ml-1">/ {Number(outcome?.maxScore || 0) || 0}</span>
+                                                                </div>
+                                                                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-100/60">Points</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Filter Bar for Standard Options */}
+                                                    <div className="flex bg-black/40 p-1.5 rounded-xl border border-white/5 w-max ml-auto mb-4">
+                                                        {(['all', 'correct', 'incorrect', 'missed'] as const).map(f => (
+                                                            <button
+                                                                key={f}
+                                                                onClick={() => setOptFilter(f)}
+                                                                className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${optFilter === f ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'
+                                                                    }`}
+                                                            >
+                                                                {f}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+
+                                                    {Array.isArray(optionReviews) && optionReviews
+                                                        .filter(opt => !!opt)
+                                                        .filter(opt => {
+                                                            if (optFilter === 'all') return true;
+                                                            if (optFilter === 'correct') return opt.userStatus === 'correct';
+                                                            if (optFilter === 'incorrect') return opt.userStatus === 'incorrect';
+                                                            if (optFilter === 'missed') return opt.userStatus === 'missed' && opt.isCorrect;
+                                                            return true;
+                                                        })
+                                                        .map((opt) => {
+                                                            const isSelectedCorrect = opt.userStatus === 'correct';
+                                                            const isSelectedIncorrect = opt.userStatus === 'incorrect';
+                                                            const isMissedCorrect = opt.userStatus === 'missed' && opt.isCorrect;
+                                                            const isMissedIncorrect = (opt.userStatus === 'missed' || opt.userStatus === 'skipped') && !opt.isCorrect;
+                                                            const userSelected = opt.userSelected;
+                                                            const isOpen = openOptId === opt.id;
+
+                                                            // Row styling matching Question Feedback Image
+                                                            let rowBg = 'rgba(255,255,255,0.03)';
+                                                            let rowBorder = 'rgba(255,255,255,0.1)';
+                                                            let rowBorderStyle = 'solid';
+                                                            let checkboxColor = '#94a3b8';
+                                                            let statusIcon = null;
+
+                                                            if (isSelectedCorrect) {
+                                                                rowBg = 'rgba(16, 185, 129, 0.1)';
+                                                                rowBorder = '#10b981';
+                                                                checkboxColor = '#10b981';
+                                                                statusIcon = <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
+                                                            } else if (isSelectedIncorrect) {
+                                                                rowBg = 'rgba(239, 68, 68, 0.1)';
+                                                                rowBorder = '#ef4444';
+                                                                checkboxColor = '#ef4444';
+                                                                statusIcon = <XCircle className="w-5 h-5 text-red-500" />;
+                                                            } else if (isMissedCorrect) {
+                                                                rowBg = 'rgba(245, 158, 11, 0.05)';
+                                                                rowBorder = '#f59e0b';
+                                                                checkboxColor = '#f59e0b';
+                                                                rowBorderStyle = 'dashed';
+                                                                statusIcon = <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
+                                                            } else if (isMissedIncorrect) {
+                                                                rowBg = 'rgba(255,255,255,0.02)';
+                                                                rowBorder = 'rgba(245, 158, 11, 0.3)';
+                                                                checkboxColor = '#475569';
+                                                                rowBorderStyle = 'dashed';
+                                                            }
+
+                                                            return (
+                                                                <div key={opt.id} className="flex flex-col gap-2 group animate-in slide-in-from-bottom-2 duration-300">
+                                                                    {/* 1. SELECTION ROW (Matches Question Feedback Style) */}
+                                                                    <div
+                                                                        className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all cursor-pointer hover:brightness-110 active:scale-[0.99] ${isOpen ? 'ring-2 ring-blue-500/50' : ''}`}
+                                                                        onClick={() => setOpenOptId(isOpen ? null : opt.id)}
+                                                                        style={{
+                                                                            backgroundColor: rowBg,
+                                                                            borderColor: rowBorder,
+                                                                            borderStyle: rowBorderStyle as any
+                                                                        }}
+                                                                    >
+                                                                        <div className="shrink-0">
+                                                                            {userSelected ? (
+                                                                                <CheckSquare className="w-6 h-6" style={{ color: checkboxColor }} />
+                                                                            ) : (
+                                                                                <Square className="w-6 h-6" style={{ color: '#475569' }} />
+                                                                            )}
+                                                                        </div>
+
+                                                                        <div className="flex-1 text-base font-medium text-white/90">
+                                                                            {opt.text}
+                                                                        </div>
+
+                                                                        <div className="shrink-0 flex items-center gap-3">
+                                                                            {statusIcon && (
+                                                                                <div className="ml-2">
+                                                                                    {statusIcon}
                                                                                 </div>
+                                                                            )}
+                                                                            <ChevronDown className={`w-5 h-5 text-slate-500 transition-transform duration-300 ${isOpen ? 'rotate-180 text-blue-400' : ''}`} />
+                                                                        </div>
+                                                                    </div>
 
-                                                                                <div className="text-base leading-relaxed text-slate-200">
-                                                                                    {(() => {
-                                                                                        const text = opt.rationale || "No rationale provided.";
-                                                                                        const extract = (tag: string) => {
-                                                                                            const regex = new RegExp(`\\[${tag}\\](.*?)(?=\\[|$)`, 's');
-                                                                                            const match = text.match(regex);
-                                                                                            return match ? match[1].trim() : null;
-                                                                                        };
-                                                                                        const breakdown = extract('Breakdown');
-                                                                                        if (breakdown) return String(breakdown);
-                                                                                        return String(text).replace(/^(Correct|Incorrect|Why this is correct|Why this is incorrect)(\.|:)?/i, '').trim();
-                                                                                    })()}
+                                                                    {/* 2. RATIONALE BOX (Directly Underneath - Only if Open) */}
+                                                                    {isOpen && (
+                                                                        <div className="ml-10 p-5 rounded-xl relative overflow-hidden bg-black/40 border border-white/5 border-l-4 animate-in slide-in-from-top-2 duration-300" style={{ borderLeftColor: opt.isCorrect ? '#10b981' : '#ef4444' }}>
+                                                                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-full pointer-events-none blur-3xl opacity-20" style={{ backgroundColor: opt.isCorrect ? '#10b981' : '#ef4444' }} />
+
+                                                                            <div className="flex items-center gap-2 mb-3">
+                                                                                <div className={`text-[10px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded ${opt.isCorrect ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+                                                                                    {opt.isCorrect ? 'Why this is correct' : 'Why this is incorrect'}
                                                                                 </div>
                                                                             </div>
-                                                                        )}
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                    </div>
-                                                )}
-                                            </div>
+
+                                                                            <div className="text-base leading-relaxed text-slate-200">
+                                                                                {(() => {
+                                                                                    const text = opt.rationale || "No rationale provided.";
+                                                                                    const extract = (tag: string) => {
+                                                                                        const regex = new RegExp(`\\[${tag}\\](.*?)(?=\\[|$)`, 's');
+                                                                                        const match = text.match(regex);
+                                                                                        return match ? match[1].trim() : null;
+                                                                                    };
+                                                                                    const breakdown = extract('Breakdown');
+                                                                                    if (breakdown) return String(breakdown);
+                                                                                    return String(text).replace(/^(Correct|Incorrect|Why this is correct|Why this is incorrect)(\.|:)?/i, '').trim();
+                                                                                })()}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                </div>
+                                            )}
+                                        </div>
                                         )}
                                     </>
                                 )}

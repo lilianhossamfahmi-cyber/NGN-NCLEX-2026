@@ -1534,6 +1534,45 @@ export function generateRationale(
             breakdown: score.breakdown,
         };
         bowTieReview = generateBowTieReview(config, userAnswers);
+
+        // 🟢 SYNC: Populate optionReviews for Bow-Tie (Unified Feedback)
+        const combinedOptions: any[] = [];
+        if (bowTieReview.actions) {
+            bowTieReview.actions.forEach(a => combinedOptions.push({ ...a, text: `[Action] ${a.text}` }));
+        }
+        if (bowTieReview.condition) {
+            const bc = bowTieReview.condition;
+            combinedOptions.push({
+                id: bc.correctChoice.id,
+                text: `[Condition] ${bc.correctChoice.text}`,
+                isCorrect: true,
+                userSelected: bc.isCorrect,
+                rationale: bc.rationale,
+                userStatus: bc.isCorrect ? 'correct' : 'missed'
+            });
+            if (!bc.isCorrect && bc.userChoice) {
+                combinedOptions.push({
+                    id: bc.userChoice.id,
+                    text: `[Condition] ${bc.userChoice.text}`,
+                    isCorrect: false,
+                    userSelected: true,
+                    rationale: 'Incorrect selection based on the clinical cues.',
+                    userStatus: 'incorrect'
+                });
+            }
+        }
+        if (bowTieReview.parameters) {
+            bowTieReview.parameters.forEach(p => combinedOptions.push({ ...p, text: `[Parameter] ${p.text}` }));
+        }
+
+        optionReviews = combinedOptions.map(opt => ({
+            id: opt.id,
+            text: opt.text,
+            isCorrect: opt.isCorrect,
+            userSelected: opt.userSelected,
+            rationale: opt.rationale,
+            userStatus: opt.userStatus || (opt.isCorrect && opt.userSelected ? 'correct' : !opt.isCorrect && opt.userSelected ? 'incorrect' : opt.isCorrect ? 'missed' : 'skipped')
+        }));
     } else if (itemType.includes('matrix')) {
         const score = calculateMatrixScore(userAnswers, config);
         outcome = {
