@@ -1,0 +1,497 @@
+{
+    "id": "cs-critical-care-septic-shock-001",
+    "typeId": "case-study-6-screen",
+    "metadata": {
+        "title": "Case Study: Septic Shock Management (Critical Care Level 5)",
+        "authorId": "Expert_AI",
+        "createdAt": "2026-01-27T20:25:00Z",
+        "updatedAt": "2026-01-27T20:25:00Z",
+        "status": "draft",
+        "qualityScore": 98,
+        "hasStudentPreview": true
+    },
+    "pedagogy": {
+        "difficultyLevel": 5,
+        "clinicalFocus": "Critical Care",
+        "clinicalFocusTopics": [
+            "Septic Shock",
+            "Hemodynamics",
+            "Pharmacology",
+            "Prioritization"
+        ]
+    },
+    "content": {
+        "quickStart": {
+            "summary": "Complex case managing a 72-year-old male in early septic shock following abdominal surgery."
+        },
+        "clinicalData": {
+            "patientInfo": {
+                "name": "Arthur Vance",
+                "age": "72-year-old",
+                "sex": "Male",
+                "mrn": "MRN: 882-991-001",
+                "diagnosis": "Post-Operative Sepsis",
+                "ward": "Surgical ICU",
+                "allergies": "Latex (Severe), Penicillin (Rash)",
+                "codeStatus": "Full Code"
+            },
+            "historyPhysical": "<b>Chief Complaint:</b> Worsening hypotension and altered mental status on Post-Op Day 2.<br/><b>HPI:</b> Client underwent emergency exploratory laparotomy for a perforated bowel 48 hours ago. Initial recovery was stable, but over the last 6 hours, the client has developed increasing tachycardia and a decrease in mean arterial pressure (MAP). Fluid resuscitation was initiated on the ward, but the client was transferred to the ICU for vasopressor support.<br/><b>PMH:</b> Hypertension, Type 2 Diabetes, COPD (Gold Stage II).<br/><b>Physical Exam:</b> Client is lethargic but arousable to verbal stimuli. Skin is warm and flushed in the core but peripherally cool. Abdomen is distended and tender with hypoactive bowel sounds. Surgical incision is intact with serosanguinous drainage.",
+            "nursesNotes": [
+                {
+                    "time": "08:00",
+                    "author": "S. Miller, RN",
+                    "entry": "Client alert and oriented x3. MAP 72 mmHg on room air. Urine output 45 mL/hr over the last 4 hours. Abdominal dressing dry and intact."
+                },
+                {
+                    "time": "14:00",
+                    "author": "K. Chen, RN",
+                    "entry": "Client now shows increased lethargy and confusion. MAP has decreased to 58 mmHg despite a 1L Normal Saline bolus. HR is 134 bpm and regular. RR is 28 with shallow breaths. Called Rapid Response Team; transfer to ICU facilitated."
+                }
+            ],
+            "vitals": [
+                {
+                    "time": "08:00",
+                    "tempF": 100.2,
+                    "hr": 92,
+                    "rr": 18,
+                    "bp": "122/68",
+                    "o2": "95% RA",
+                    "pain": "3/10"
+                },
+                {
+                    "time": "11:00",
+                    "tempF": 101.8,
+                    "hr": 110,
+                    "rr": 22,
+                    "bp": "104/60",
+                    "o2": "93% 2L NC",
+                    "pain": "4/10"
+                },
+                {
+                    "time": "14:00",
+                    "tempF": 103.1,
+                    "hr": 134,
+                    "rr": 28,
+                    "bp": "88/44",
+                    "o2": "90% 4L NC",
+                    "pain": "5/10"
+                }
+            ],
+            "labs": [
+                {
+                    "test": "WBC",
+                    "value": "24.5",
+                    "units": "K/µL",
+                    "ref": "4.5-11.0",
+                    "flag": "H"
+                },
+                {
+                    "test": "Lactate",
+                    "value": "4.8",
+                    "units": "mmol/L",
+                    "ref": "0.5-2.2",
+                    "flag": "H"
+                },
+                {
+                    "test": "Creatinine",
+                    "value": "1.9",
+                    "units": "mg/dL",
+                    "ref": "0.7-1.3",
+                    "flag": "H"
+                },
+                {
+                    "test": "Procalcitonin",
+                    "value": "12.4",
+                    "units": "ng/mL",
+                    "ref": "< 0.1",
+                    "flag": "H"
+                },
+                {
+                    "test": "pH (ABG)",
+                    "value": "7.31",
+                    "units": "",
+                    "ref": "7.35-7.45",
+                    "flag": "L"
+                }
+            ],
+            "orders": [
+                {
+                    "order": "Norepinephrine titration for MAP > 65",
+                    "status": "Active"
+                },
+                {
+                    "order": "Blood cultures x2 (Aerobic/Anaerobic)",
+                    "status": "Pending"
+                },
+                {
+                    "order": "Urine culture",
+                    "status": "Pending"
+                },
+                {
+                    "order": "Piperacillin/Tazobactam 4.5g IV q6h",
+                    "status": "Start after cultures"
+                },
+                {
+                    "order": "Repeat Lactate in 2 hours",
+                    "status": "Scheduled"
+                }
+            ]
+        },
+        "structure": {
+            "type": "case-study",
+            "screens": [
+                {
+                    "id": "s1",
+                    "type": "highlight",
+                    "cjmmStep": "Recognize Cues",
+                    "prompt": "Highlight the clinical findings that indicate the client is experiencing a deterioration in hemodynamic status.",
+                    "text": "The client is currently <span id='h1'>lethargic but arousable</span>. Vital signs show a <span id='h2'>MAP of 58 mmHg</span> and a <span id='h3'>heart rate of 134 bpm</span>. The nurse notes <span id='h4'>hypoactive bowel sounds</span> and <span id='h5'>peripherally cool skin</span>. The client's <span id='h6'>lactate is 4.8 mmol/L</span> and the <span id='h7'>urine output has dropped</span> significantly over the last 2 hours.",
+                    "correct": [
+                        "h2",
+                        "h3",
+                        "h5",
+                        "h6",
+                        "h7"
+                    ],
+                    "decoys": [
+                        "h1",
+                        "h4"
+                    ],
+                    "rationales": {
+                        "h2": {
+                            "isCorrect": true,
+                            "whyCorrect": "A MAP < 65 indicates inadequate organ perfusion.",
+                            "whyIncorrect": "N/A"
+                        },
+                        "h3": {
+                            "isCorrect": true,
+                            "whyCorrect": "Tachycardia is a compensatory response to low cardiac output/vasodilation.",
+                            "whyIncorrect": "N/A"
+                        },
+                        "h5": {
+                            "isCorrect": true,
+                            "whyCorrect": "Cool extremities in later shock indicate shunting to core organs.",
+                            "whyIncorrect": "N/A"
+                        },
+                        "h6": {
+                            "isCorrect": true,
+                            "whyCorrect": "Elevated lactate indicates anaerobic metabolism due to tissue hypoxia.",
+                            "whyIncorrect": "N/A"
+                        },
+                        "h7": {
+                            "isCorrect": true,
+                            "whyCorrect": "Decreased urine output is a direct indicator of renal hypoperfusion.",
+                            "whyIncorrect": "N/A"
+                        }
+                    },
+                    "rationale": {
+                        "coreConcept": "Hemodynamic Deterioration",
+                        "answerAnalysis": "The key findings of shock include low MAP, compensatory tachycardia, evidence of hypoperfusion (cool skin, low urine output), and biochemical markers of anaerobic metabolism (lactate).",
+                        "goldenRule": "Perfusion is the priority in shock management."
+                    }
+                },
+                {
+                    "id": "s2",
+                    "type": "matrix",
+                    "cjmmStep": "Analyze Cues",
+                    "prompt": "For each finding, indicate whether it is consistent with early (compensated) sepsis or worsening septic shock.",
+                    "columns": [
+                        {
+                            "id": "c1",
+                            "text": "Compensated Sepsis"
+                        },
+                        {
+                            "id": "c2",
+                            "text": "Septic Shock"
+                        }
+                    ],
+                    "rows": [
+                        {
+                            "id": "r1",
+                            "text": "Warm, flushed skin (core)",
+                            "correctColumnId": "c1",
+                            "rationale": "Hyperdynamic phase."
+                        },
+                        {
+                            "id": "r2",
+                            "text": "Lactate 4.8 mmol/L",
+                            "correctColumnId": "c2",
+                            "rationale": "Cellular dysfunction."
+                        },
+                        {
+                            "id": "r3",
+                            "text": "Altered Mental Status (Lethargy)",
+                            "correctColumnId": "c2",
+                            "rationale": "Brain hypoperfusion."
+                        },
+                        {
+                            "id": "r4",
+                            "text": "Tachycardia (HR 110)",
+                            "correctColumnId": "c1",
+                            "rationale": "Early compensation."
+                        },
+                        {
+                            "id": "r5",
+                            "text": "MAP 58 mmHg despite fluids",
+                            "correctColumnId": "c2",
+                            "rationale": "Diagnostic of shock."
+                        }
+                    ],
+                    "rationale": {
+                        "coreConcept": "Sepsis Transformation",
+                        "answerAnalysis": "Septic shock is defined by persistent hypotension (MAP < 65) despite adequate fluid resuscitation and lactate > 2.",
+                        "clinicalTakeaway": "Early recognition of the transition to shock is critical for survival."
+                    }
+                },
+                {
+                    "id": "s3",
+                    "type": "multiple-choice",
+                    "cjmmStep": "Prioritize Hypotheses",
+                    "prompt": "The nurse should identify which cognitive hypothesis as the most immediate threat to the client's safety?",
+                    "options": [
+                        {
+                            "id": "o1",
+                            "text": "Impaired Gas Exchange related to COPD exacerbation",
+                            "isCorrect": false
+                        },
+                        {
+                            "id": "o2",
+                            "text": "Risk for Infection related to surgical incision",
+                            "isCorrect": false
+                        },
+                        {
+                            "id": "o3",
+                            "text": "Inadequate Tissue Perfusion related to systemic vasodilation",
+                            "isCorrect": true
+                        },
+                        {
+                            "id": "o4",
+                            "text": "Deficient Fluid Volume related to third-spacing",
+                            "isCorrect": false
+                        }
+                    ],
+                    "rationale": {
+                        "coreConcept": "Prioritization in Sepsis",
+                        "answerAnalysis": "While and COPD and fluid volume are factors, the systemic vasodilation in sepsis causes the profound drop in MAP, leading to tissue death (Inadequate Perfusion).",
+                        "clinicalStrategy": "Use the ABCs + Perfusion priority."
+                    }
+                },
+                {
+                    "id": "s4",
+                    "type": "bow-tie",
+                    "cjmmStep": "Generate Solutions",
+                    "prompt": "Complete the diagram by selecting the priority condition, the two most urgent nursing actions, and the two key parameters to monitor to evaluate the response to therapy.",
+                    "actions": [
+                        {
+                            "id": "a1",
+                            "text": "Initiate Norepinephrine Titration",
+                            "isCorrect": true
+                        },
+                        {
+                            "id": "a2",
+                            "text": "Obtain Blood Cultures",
+                            "isCorrect": true
+                        },
+                        {
+                            "id": "a3",
+                            "text": "Administer Furosemide IV",
+                            "isCorrect": false
+                        },
+                        {
+                            "id": "a4",
+                            "text": "Prepare for Intubation",
+                            "isCorrect": false
+                        },
+                        {
+                            "id": "a5",
+                            "text": "Apply SCDs",
+                            "isCorrect": false
+                        }
+                    ],
+                    "conditions": [
+                        {
+                            "id": "c1",
+                            "text": "Septic Shock",
+                            "isCorrect": true
+                        },
+                        {
+                            "id": "c2",
+                            "text": "Cardiogenic Shock",
+                            "isCorrect": false
+                        },
+                        {
+                            "id": "c3",
+                            "text": "Hypovolemic Shock",
+                            "isCorrect": false
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "id": "p1",
+                            "text": "Mean Arterial Pressure (MAP)",
+                            "isCorrect": true
+                        },
+                        {
+                            "id": "p2",
+                            "text": "Lactate Levels",
+                            "isCorrect": true
+                        },
+                        {
+                            "id": "p3",
+                            "text": "White Blood Cell Count",
+                            "isCorrect": false
+                        },
+                        {
+                            "id": "p4",
+                            "text": "Temperature",
+                            "isCorrect": false
+                        },
+                        {
+                            "id": "p5",
+                            "text": "Bowel Sounds",
+                            "isCorrect": false
+                        }
+                    ],
+                    "correct": {
+                        "center": "c1",
+                        "actions": [
+                            "a1",
+                            "a2"
+                        ],
+                        "parameters": [
+                            "p1",
+                            "p2"
+                        ]
+                    },
+                    "rationale": {
+                        "coreConcept": "Septic Shock Bundle",
+                        "answerAnalysis": "The priority condition is Septic Shock. Actions include cultures (before antibiotics) and vasopressors (for hypotension). Evaluation focuses on MAP and Lactate clearance."
+                    }
+                },
+                {
+                    "id": "s5",
+                    "type": "drop-cloze",
+                    "cjmmStep": "Take Action",
+                    "prompt": "Complete the following sentences regarding the implementation of the sepsis bundle.",
+                    "sentences": [
+                        {
+                            "text": "The nurse should administer %{d1} within the first hour, ideally after %{d2} are collected.",
+                            "dropdowns": [
+                                {
+                                    "id": "d1",
+                                    "options": [
+                                        {
+                                            "id": "o1",
+                                            "text": "Broad-spectrum antibiotics",
+                                            "isCorrect": true
+                                        },
+                                        {
+                                            "id": "o2",
+                                            "text": "Buffered saline boluses",
+                                            "isCorrect": false
+                                        },
+                                        {
+                                            "id": "o3",
+                                            "text": "Systemic corticosteroids",
+                                            "isCorrect": false
+                                        }
+                                    ]
+                                },
+                                {
+                                    "id": "d2",
+                                    "options": [
+                                        {
+                                            "id": "o4",
+                                            "text": "Blood cultures",
+                                            "isCorrect": true
+                                        },
+                                        {
+                                            "id": "o5",
+                                            "text": "Radiology studies",
+                                            "isCorrect": false
+                                        },
+                                        {
+                                            "id": "o6",
+                                            "text": "Wound dressings",
+                                            "isCorrect": false
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "blankMap": {
+                        "d1": {
+                            "correctOptionId": "o1",
+                            "whyCorrect": "Time-to-antibiotics is the strongest predictor of survival.",
+                            "distractorRationales": {
+                                "o2": "Already initiated.",
+                                "o3": "Secondary treatment."
+                            }
+                        },
+                        "d2": {
+                            "correctOptionId": "o4",
+                            "whyCorrect": "Must ensure pathogen identification before masking with drugs.",
+                            "distractorRationales": {
+                                "o5": "Not prior to drugs.",
+                                "o6": "Not prior to drugs."
+                            }
+                        }
+                    },
+                    "rationale": {
+                        "coreConcept": "Bundle Implementation",
+                        "answerAnalysis": "Standard NGN sequence: Cultures -> Antibiotics -> Support."
+                    }
+                },
+                {
+                    "id": "s6",
+                    "type": "multiple-response",
+                    "cjmmStep": "Evaluate Outcomes",
+                    "prompt": "The nurse evaluates the client 4 hours after initiating therapy. Which findings indicate the client's condition is stabilizing? Select all that apply.",
+                    "options": [
+                        {
+                            "id": "o1",
+                            "text": "MAP sustained at 68-70 mmHg on stable Norepinephrine dose",
+                            "isCorrect": true,
+                            "rationale": "Goal MAP reached."
+                        },
+                        {
+                            "id": "o2",
+                            "text": "Repeat lactate decreased from 4.8 to 3.2 mmol/L",
+                            "isCorrect": true,
+                            "rationale": "Lactate clearance indicates improved aerobic metabolism."
+                        },
+                        {
+                            "id": "o3",
+                            "text": "Urine output 0.5 mL/kg/hr",
+                            "isCorrect": true,
+                            "rationale": "Indicates adequate renal perfusion."
+                        },
+                        {
+                            "id": "o4",
+                            "text": "Heart rate has decreased to 118 bpm",
+                            "isCorrect": true,
+                            "rationale": "Reduction in tachycardia indicates improved stroke volume/reduced stress."
+                        },
+                        {
+                            "id": "o5",
+                            "text": "Client remains lethargic",
+                            "isCorrect": false,
+                            "rationale": "Persistent lethargy indicates ongoing brain hypoperfusion."
+                        },
+                        {
+                            "id": "o6",
+                            "text": "WBC count increased to 26.0 K/µL",
+                            "isCorrect": false,
+                            "rationale": "Indicates ongoing inflammatory response, not necessarily stability."
+                        }
+                    ],
+                    "rationale": {
+                        "coreConcept": "Evaluation of Shock",
+                        "answerAnalysis": "Stability is shown by meeting MAP goals, lactate clearance, and sufficient urine output."
+                    }
+                }
+            ]
+        }
+    }
+}

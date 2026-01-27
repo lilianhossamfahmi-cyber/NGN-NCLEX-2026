@@ -1,10 +1,10 @@
-import { Play, Save, Settings, CheckCircle, Layers, Activity } from 'lucide-react';
+import { Play, Save, Settings, CheckCircle, Layers, Activity, Database } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 // import { Badge } from '../ui/badge';
 
-import { getBankItems } from '../../services/itemStorage';
+import { getBankItems, saveBatchToBank } from '../../services/itemStorage';
 import { ItemBankGrid } from './ItemBankGrid';
 import { ItemEditor } from './ItemEditor';
 
@@ -33,25 +33,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
         setEditItemId(null);
     };
 
-    // Update stats whenever the bank changes
-    useEffect(() => {
-        (async () => {
-            const res = await getBankItems({ limit: 100000 }); // Fetch all for accurate stats
-            const bank = res.items || [];
-            const total = bank.length;
-            // Check metadata.status as source of truth
-            const draft = bank.filter(i => ((i as any).metadata?.status ?? 'draft') === 'draft').length;
-            const published = bank.filter(i => (i as any).metadata?.status === 'published').length;
+    const refreshStats = async () => {
+        const res = await getBankItems({ limit: 100000 });
+        const bank = res.items || [];
+        const total = bank.length;
+        const draft = bank.filter(i => ((i as any).metadata?.status ?? 'draft') === 'draft').length;
+        const published = bank.filter(i => (i as any).metadata?.status === 'published').length;
+        const now = new Date();
+        const week = bank.filter(i => {
+            const created = (i as any).metadata?.createdAt;
+            return created && (now.getTime() - new Date(created).getTime()) / (1000 * 60 * 60 * 24) <= 7;
+        }).length;
+        setStats({ totalItems: total, draftItems: draft, publishedItems: published, itemsThisWeek: week });
+    };
 
-            // Simple weekly calc: items created in last 7 days (assuming metadata.createdAt)
-            const now = new Date();
-            const week = bank.filter(i => {
-                const created = (i as any).metadata?.createdAt;
-                return created && (now.getTime() - new Date(created).getTime()) / (1000 * 60 * 60 * 24) <= 7;
-            }).length;
-            setStats({ totalItems: total, draftItems: draft, publishedItems: published, itemsThisWeek: week });
-        })();
+    useEffect(() => {
+        refreshStats();
     }, []);
+
+    const handleSeedCaseStudy = async () => {
+        try {
+            // We'll try to fetch the local file I just created
+            const response = await fetch('/src/dataStore/critical_care_case_study.json');
+            if (!response.ok) throw new Error("Failed to load local seed file");
+            const item = await response.json();
+
+            await saveBatchToBank([item]);
+            alert("✅ Successfully 'pushed' Critical Care Case Study to Admin Bank!");
+            refreshStats(); // Update UI
+        } catch (e: any) {
+            console.error("Seed failed:", e);
+            alert("Error seeding case study: " + e.message + "\n\nNote: If you are on Vercel, this file may not be served as a static asset yet. Try importing manually from the JSON I created.");
+        }
+    };
 
     return (
         <div className="flex h-full flex-col space-y-8 p-8">
@@ -64,6 +78,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                     <Button variant="outline" onClick={() => onNavigate('settings')}>
                         <Settings className="mr-2 h-4 w-4" />
                         Settings
+                    </Button>
+                    <Button variant="secondary" onClick={handleSeedCaseStudy} style={{ backgroundColor: '#4f46e5', color: 'white' }}>
+                        <Database className="mr-2 h-4 w-4" />
+                        Push New Case Study
                     </Button>
                     <Button onClick={() => onNavigate('batch')}>
                         <Play className="mr-2 h-4 w-4" />
