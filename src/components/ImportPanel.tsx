@@ -37,7 +37,7 @@ export const ImportPanel: React.FC<ImportPanelProps> = ({ onImport, onCancel }) 
         }
 
         // JSON Mode - Try Standard Parse First
-        const result = parseJsonInput(textInput);
+        const result = await parseJsonInput(textInput);
         if (result.success && result.data) {
             onImport(result.data);
             return;

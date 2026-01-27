@@ -1,16 +1,12 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import type {
-    UltimateRationaleProps,
-    FullItemData,
-    QuestionConfig,
-    CanonicalRationale
+    UltimateRationaleProps
 } from '../types';
-import { RationalePipeline } from '../services/RationalePipeline';
 import { MatrixFeedback } from './feedback/MatrixFeedback';
 import { OrderedFeedback } from './feedback/OrderedFeedback';
 import { OptionReviewV2 } from './OptionReviewV2';
-import { NCJMMPhase, OptionReview, OutcomeModel, MatrixRowAnalysis, CJFeedback, OrderedReview } from '../types/RationaleTypes';
+import { NCJMMPhase } from '../types/RationaleTypes';
 import {
     X,
     XCircle,
@@ -55,8 +51,6 @@ import {
 import { BowTieFeedback } from './feedback/BowTieFeedback';
 import { HighlightFeedback } from './feedback/HighlightFeedback';
 import ClozeFeedback from './feedback/ClozeFeedback';
-import { BowTieReview } from '../services/RationalePipeline';
-import { HighlightReview, ClozeReview } from '../types/RationaleTypes';
 
 
 
@@ -1803,16 +1797,12 @@ export const UltimateRationale = ({
                                                                         </div>
                                                                     )}
                                                                 </div>
-                                                            ) : (
-                                                                <div className="p-8 text-center text-slate-400 border border-dashed border-white/10 rounded-xl bg-white/5">
-                                                                    <div className="mb-2 text-lg font-bold">No Option Analysis Available</div>
-                                                                    <p className="text-sm opacity-70">Detailed option breakdowns are not available for this item type yet.</p>
-                                                                </div>
-                                                            )}
+                                                            ) : null}
                                                         </>
                                                     )}
                                                 </div>
                                             )}
+
                                             {!isCalculation && optionReviews && optionReviews.length > 0 && (
                                                 <div className="space-y-6">
                                                     {/* 🔹 EXPERT SCORE SUMMARY (Transfer from Question Feedback) */}
@@ -1972,8 +1962,7 @@ export const UltimateRationale = ({
                                                 </div>
                                             )}
                                         </div>
-                                        )}
-                                    </>
+                                    </div>
                                 )}
                             </div>
                         )}

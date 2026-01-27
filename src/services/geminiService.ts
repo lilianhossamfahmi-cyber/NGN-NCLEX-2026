@@ -40,6 +40,32 @@ SECTION 2: STANDARD ITEM STRUCTURE (structure object)
         { "id": "o2", "text": "Option text", "isCorrect": boolean }
     ]
 }`,
+    structure_highlight: `
+SECTION 2: HIGHLIGHT ITEM STRUCTURE (structure object)
+{
+    "type": "highlight",
+    "prompt": "Select the findings that...",
+    "text": "The patient with <span id='h0'>fever</span> and <span id='h1'>cough</span>...",
+    "correctIds": ["h0", "h1"],
+    "rationales": {
+        "h0": "[Correct] Fever indicates infection.",
+        "h1": "[Correct] Cough is a sign of respiratory distress."
+    }
+}`,
+    structure_case_study: `
+SECTION 2: CASE STUDY SCREEN STRUCTURE (structure object)
+{
+    "screens": [
+        {
+            "id": "s1",
+            "type": "multiple-choice",
+            "prompt": "What is the priority?",
+            "options": [...],
+            "cjmmStep": "Recognize Cues"
+        }
+    ]
+}
+`,
     // Specific structures for other types can be added here if needed, but 'structure_standard' covers most multiple choice
 
     // SECTION 3: RATIONALE & REASONING
@@ -131,11 +157,12 @@ export async function magicFixItem(
     if (sections.includes('structure')) {
         if (isBowTie) {
             schemaContext += GOLDEN_SCHEMAS.structure_bowtie + "\n\n";
+        } else if (typeId.includes('highlight')) {
+            schemaContext += GOLDEN_SCHEMAS.structure_highlight + "\n\n";
+        } else if (typeId.includes('case-study')) {
+            schemaContext += GOLDEN_SCHEMAS.structure_case_study + "\n\n";
         } else {
-            // Check for specific types if needed, otherwise standard
-            // For now, simpler is better, assume standard unless specific type logic exists
             schemaContext += GOLDEN_SCHEMAS.structure_standard + "\n\n";
-            // ... Add specific schemas for matrix, order, etc if needed later
         }
     }
 

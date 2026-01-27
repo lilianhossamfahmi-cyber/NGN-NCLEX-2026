@@ -1,16 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BowTieRenderer } from './renderers/BowTieRenderer';
-import { MatrixRenderer } from './renderers/MatrixRenderer';
-import { HighlightRenderer } from './renderers/HighlightRenderer';
-import { ClozeRenderer } from './renderers/ClozeRenderer';
-import { SATARenderer } from './renderers/SATARenderer';
-import { SingleChoiceRenderer } from './renderers/SingleChoiceRenderer';
-import { TrendRenderer } from './renderers/TrendRenderer';
-import { OrderedResponseRenderer } from './renderers/OrderedResponseRenderer';
-import { DropClozeRenderer } from './renderers/DropClozeRenderer';
-import { HotSpotRenderer } from './renderers/HotSpotRenderer';
-import { CalculationRenderer } from './renderers/CalculationRenderer';
-import { ErrorRenderer } from './renderers/ErrorRenderer'; // New: Validation Error Display
+import { InteractionDispatcher } from './InteractionDispatcher';
 import { UnifiedDataPipeline } from '../../services/UnifiedDataPipeline';
 
 // --- SHARED TYPES ---
@@ -103,6 +92,7 @@ const initializeAnswers = (config: QuestionConfig) => {
         return [];
     }
     if (type.includes('calculation')) return '';
+    if (type.includes('case-study')) return {}; // Indexed by screen index
     return null;
 };
 
@@ -155,46 +145,19 @@ const validateAnswers = (answers: any, config: QuestionConfig) => {
     if (type.includes('ordered-response')) return Array.isArray(answers) && answers.length > 0;
 
     if (type.includes('calculation')) return answers !== '' && answers !== null;
+    if (type.includes('case-study')) {
+        const screens = config.screens || [];
+        if (screens.length === 0) return true;
+        // Case Study is valid if every screen has a valid answer
+        return screens.every((screen: any, idx: number) => {
+            const screenAns = answers[idx];
+            return validateAnswers(screenAns, screen);
+        });
+    }
     return !!answers;
 };
 
-const InteractionDispatcher = (props: any) => {
-    const { config } = props;
-    const type = (config.type || '').toLowerCase().trim();
 
-    // console.log('[ItemRenderer] Dispatching Type:', type); 
-
-    if (type === 'error') return <ErrorRenderer {...props} />; // New: Validation Errors
-    if (type.includes('bow-tie')) return <BowTieRenderer {...props} />;
-    if (type.includes('matrix')) return <MatrixRenderer {...props} />;
-    if (type.includes('highlight')) return <HighlightRenderer {...props} />;
-
-    // FIX: Check drop-cloze BEFORE cloze (drop-cloze contains "cloze")
-    if (type.includes('drop-cloze')) return <DropClozeRenderer {...props} />;
-    if (type.includes('cloze')) return <ClozeRenderer {...props} />;
-
-    if (type.includes('multiple-response') || type.includes('multiple_response') || type.includes('sata')) return <SATARenderer {...props} />;
-    if (type.includes('trend')) return <TrendRenderer {...props} />;
-    if (type.includes('ordered-response')) return <OrderedResponseRenderer {...props} />;
-
-    // New Types (Robust Handling)
-    if (type.includes('hot-spot') || type.includes('hot_spot') || type.includes('hotspot')) return <HotSpotRenderer {...props} />;
-    if (type.includes('calculation') || type.includes('numeric') || type === 'math') return <CalculationRenderer {...props} />;
-
-    // Explicit check for Single Response to avoid Fallback Renderer
-    if (type.includes('single-response') || type.includes('single_response') || type.includes('single-choice') || type.includes('single_choice')) return <SingleChoiceRenderer {...props} />;
-
-    // Default Fallback
-    return (
-        <div className="p-4 border-2 border-red-500 rounded text-red-600 bg-red-50 mb-4">
-            <strong>DEBUG: Fallback Renderer Triggered</strong><br />
-            Resolved Type: "{type}"<br />
-            Original Type: "{config.type}"<br />
-            Please report this to the developer.
-            <SingleChoiceRenderer {...props} />
-        </div>
-    );
-};
 
 const RationaleDisplay = ({ config }: { config: any }) => {
     const [isExpanded, setIsExpanded] = useState(true);

@@ -1,7 +1,6 @@
 
 import { ItemManager, GradingResult, ValidationResult } from './ItemManager';
 import { MasterQuestionItem } from '../../types/master-schema';
-import { aggressiveRepairJson } from '../importService';
 import { ClinicalDataStandardizer } from './ClinicalDataStandardizer'; // Phase 1.5
 import { magicFixItem } from '../geminiService';
 
@@ -96,6 +95,10 @@ export abstract class AbstractItemManager implements ItemManager {
                             repaired.content = {
                                 ...repaired.content,
                                 ...aiRepaired.content,
+                                structure: {
+                                    ...(repaired.content?.structure || {}),
+                                    ...(aiRepaired.content?.structure || {})
+                                },
                                 rationale: {
                                     ...existingRationale,
                                     ...newRationale,

@@ -17,4 +17,5 @@ export type QuestionType =
     | 'standard'
     | 'mcq'
     | 'sata'
+    | 'case-study'
     | 'unknown';

@@ -132,4 +132,5 @@ export interface CanonicalRationale {
     dimensionalAnalysis?: string;
     cjmmStep?: string;
     itemType?: string;
+    reviewUnits?: any[];
 }
