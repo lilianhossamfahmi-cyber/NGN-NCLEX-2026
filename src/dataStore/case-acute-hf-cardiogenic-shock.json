@@ -307,49 +307,58 @@
             "H7",
             "H9"
           ],
+          "rationales": {
+            "h1": {
+              "isCorrect": false,
+              "whyCorrect": "N/A",
+              "whyIncorrect": "[Hook] While dyspnea and chest pressure are concerning symptoms, they confirm the diagnosis of heart failure rather than indicating shock severity. [Breakdown] The expected symptoms are already captured by the chief complaint—what we need to recognize NOW is the evidence of end-organ damage. [Trap] Don't confuse diagnostic symptoms with shock markers."
+            },
+            "h2": {
+              "isCorrect": true,
+              "whyCorrect": "[Hook] BP 88/54 (MAP ~65) represents critical hypoperfusion territory. [Breakdown] This is below the threshold for adequate organ perfusion and meets the hemodynamic criteria for cardiogenic shock. [Trap] A 'normal' systolic of 90 in a hypertensive patient is actually severely low for them.",
+              "whyIncorrect": "N/A"
+            },
+            "h3": {
+              "isCorrect": false,
+              "whyCorrect": "N/A",
+              "whyIncorrect": "[Hook] Tachycardia is a compensatory response, not a primary shock indicator. [Breakdown] The heart is racing to maintain cardiac output—this is expected physiology, not the problem itself. [Trap] Don't prioritize the body's compensation over the root issue."
+            },
+            "h4": {
+              "isCorrect": false,
+              "whyCorrect": "N/A",
+              "whyIncorrect": "[Hook] RR 28 is elevated but has improved from admission (was 32). [Breakdown] Respiratory distress is being addressed with O2 support—it's a symptom we're managing, not an unrecognized emergency. [Trap] Trending data matters; this is improving."
+            },
+            "h5": {
+              "isCorrect": true,
+              "whyCorrect": "[Hook] Increasing lethargy signals cerebral hypoperfusion—the brain is not getting enough blood. [Breakdown] This is one of the most critical signs of shock because it represents end-organ dysfunction at the highest level. [Trap] Don't dismiss 'tired' as expected; new confusion/lethargy in shock is an emergency.",
+              "whyIncorrect": "N/A"
+            },
+            "h6": {
+              "isCorrect": true,
+              "whyCorrect": "[Hook] Cool, clammy skin with 4-second cap refill = peripheral shutdown. [Breakdown] The body is shunting blood away from the extremities to preserve core organs—this is classic shock physiology. [Trap] Warm skin in early septic shock is different; cardiogenic shock = COLD extremities.",
+              "whyIncorrect": "N/A"
+            },
+            "h7": {
+              "isCorrect": true,
+              "whyCorrect": "[Hook] Lactate 3.2 mmol/L is above critical threshold (>2.0). [Breakdown] Elevated lactate proves cells are switching to anaerobic metabolism due to inadequate oxygen delivery—this is biochemical evidence of shock. [Trap] Even 'mildly' elevated lactate in the right context is a red flag.",
+              "whyIncorrect": "N/A"
+            },
+            "h8": {
+              "isCorrect": false,
+              "whyCorrect": "N/A",
+              "whyIncorrect": "[Hook] BNP confirms heart failure but doesn't change immediate management. [Breakdown] We already know he has heart failure—the BNP is diagnostic, not a monitoring tool for acute shock. [Trap] Don't treat the number; treat the patient's perfusion status."
+            },
+            "h9": {
+              "isCorrect": true,
+              "whyCorrect": "[Hook] 30 mL/hr of dark urine = renal hypoperfusion. [Breakdown] The kidneys are failing to filter because they're not receiving adequate blood flow—this is a hallmark sign of shock affecting a vulnerable organ. [Trap] Don't normalize low urine output; in shock, kidneys are 'first to fail.'",
+              "whyIncorrect": "N/A"
+            }
+          },
           "rationale": {
             "coreConcept": "Recognizing signs of end-organ hypoperfusion.",
             "answerAnalysis": "The correct highlights represent the classic triad of cardiogenic shock: hypotension (h2), altered mental status (h5), peripheral hypoperfusion (h6), elevated lactate (h7), and oliguria (h9). Findings like BNP or dyspnea confirm the underlying diagnosis but are not as critically time-sensitive as the shock indicators.",
             "clinicalStrategy": "Focus on the 'Perfusion Triangle': Pressure (MAP), Periphery (skin/urine), and Products (lactate).",
-            "difficulty": 5,
-            "highlightReview": {
-              "h1": {
-                "isCorrect": false,
-                "rationale": "Expected with heart failure but not the most critical indicator of shock state at this moment."
-              },
-              "h2": {
-                "isCorrect": true,
-                "rationale": "Hypotension indicating inadequate perfusion and possible cardiogenic shock."
-              },
-              "h3": {
-                "isCorrect": false,
-                "rationale": "Compensatory tachycardia—concerning but secondary to the shock state."
-              },
-              "h4": {
-                "isCorrect": false,
-                "rationale": "Elevated but improving from admission (was 32); respiratory support is in place."
-              },
-              "h5": {
-                "isCorrect": true,
-                "rationale": "Altered mental status from decreased cerebral perfusion."
-              },
-              "h6": {
-                "isCorrect": true,
-                "rationale": "Peripheral hypoperfusion and compensatory vasoconstriction."
-              },
-              "h7": {
-                "isCorrect": true,
-                "rationale": "Elevated lactate indicates tissue hypoxia and anaerobic metabolism."
-              },
-              "h8": {
-                "isCorrect": false,
-                "rationale": "Confirms heart failure but doesn't change immediate shock management."
-              },
-              "h9": {
-                "isCorrect": true,
-                "rationale": "Oliguria from poor renal perfusion, a hallmark of shock."
-              }
-            }
+            "difficulty": 5
           },
           "cjmmPhase": "Recognize Cues."
         },
@@ -432,22 +441,26 @@
             {
               "id": "o1",
               "text": "Acute anxiety related to dyspnea and fear of suffocation.",
-              "isCorrect": false
+              "isCorrect": false,
+              "rationale": "Anxiety is a symptom of hypoperfusion, not the root cause. Perfusion must be fixed first."
             },
             {
               "id": "o2",
               "text": "Cardiogenic shock secondary to acute decompensated heart failure.",
-              "isCorrect": true
+              "isCorrect": true,
+              "rationale": "Shock involves global tissue hypoxia and is the top life threat according to ABC priority."
             },
             {
               "id": "o3",
               "text": "Atrial fibrillation with rapid ventricular response.",
-              "isCorrect": false
+              "isCorrect": false,
+              "rationale": "AFib with RVR decreases output but is secondary to the primary pump failure (shock)."
             },
             {
               "id": "o4",
               "text": "Fluid volume overload secondary to medication non-adherence.",
-              "isCorrect": false
+              "isCorrect": false,
+              "rationale": "Volume overload is the precipitant, but the current acute crisis is shock physiology."
             }
           ],
           "rationale": {
@@ -486,36 +499,116 @@
           "cjmmStep": "Generate Solutions.",
           "prompt": "Complete the diagram below by selecting the priority condition at the center, two nursing actions that address this condition (left side), and two parameters for evaluating treatment effectiveness (right side).",
           "conditions": [
-            "Cardiogenic shock from acute decompensated heart failure.",
-            "Acute respiratory failure from pulmonary edema.",
-            "Medication non-adherence causing heart failure exacerbation.",
-            "Volume overload from diuretic discontinuation."
+            {
+              "id": "cond1",
+              "text": "Cardiogenic shock from acute decompensated heart failure.",
+              "isCorrect": true,
+              "rationale": "The patient meets all criteria for cardiogenic shock: hypotension, hypoperfusion signs, and elevated lactate in the setting of known HFrEF."
+            },
+            {
+              "id": "cond2",
+              "text": "Acute respiratory failure from pulmonary edema.",
+              "isCorrect": false,
+              "rationale": "While pulmonary edema is present, it's a consequence of the failing pump—the primary issue is cardiogenic shock."
+            },
+            {
+              "id": "cond3",
+              "text": "Medication non-adherence causing heart failure exacerbation.",
+              "isCorrect": false,
+              "rationale": "Non-adherence is the root cause but not the immediate priority—we must stabilize the shock first."
+            },
+            {
+              "id": "cond4",
+              "text": "Volume overload from diuretic discontinuation.",
+              "isCorrect": false,
+              "rationale": "Volume overload triggered this episode, but the urgent problem is pump failure causing shock."
+            }
           ],
           "actions": [
-            "Initiate inotropic support (dobutamine) per protocol.",
-            "Apply BiPAP to reduce work of breathing and improve oxygenation.",
-            "Administer additional IV fluid bolus to improve blood pressure.",
-            "Encourage deep breathing and coughing exercises.",
-            "Position patient supine to improve venous return.",
-            "Administer beta blocker to control heart rate."
+            {
+              "id": "act1",
+              "text": "Initiate inotropic support (dobutamine) per protocol.",
+              "isCorrect": true,
+              "rationale": "Inotropes improve cardiac contractility and output—mandatory for pump failure."
+            },
+            {
+              "id": "act2",
+              "text": "Apply BiPAP to reduce work of breathing and improve oxygenation.",
+              "isCorrect": true,
+              "rationale": "BiPAP reduces preload/afterload and improves gas exchange without the risks of intubation."
+            },
+            {
+              "id": "act3",
+              "text": "Administer additional IV fluid bolus to improve blood pressure.",
+              "isCorrect": false,
+              "rationale": "Fluids are contraindicated in cardiogenic shock—the heart cannot handle additional volume."
+            },
+            {
+              "id": "act4",
+              "text": "Encourage deep breathing and coughing exercises.",
+              "isCorrect": false,
+              "rationale": "Not appropriate for a patient in acute respiratory distress and shock."
+            },
+            {
+              "id": "act5",
+              "text": "Position patient supine to improve venous return.",
+              "isCorrect": false,
+              "rationale": "Supine positioning would worsen pulmonary edema by increasing venous return."
+            },
+            {
+              "id": "act6",
+              "text": "Administer beta blocker to control heart rate.",
+              "isCorrect": false,
+              "rationale": "Beta blockers are negative inotropes—contraindicated in acute decompensated HF with shock."
+            }
           ],
           "parameters": [
-            "Mean arterial pressure (MAP) trending toward ≥65 mmHg.",
-            "Serum lactate clearance (decreasing toward normal <2.0 mmol/L).",
-            "BNP level returning to normal range.",
-            "Chest X-ray showing complete resolution of pulmonary edema.",
-            "Patient's anxiety level on 0-10 scale.",
-            "Heart rate converting to <100 bpm."
+            {
+              "id": "param1",
+              "text": "Mean arterial pressure (MAP) trending toward ≥65 mmHg.",
+              "isCorrect": true,
+              "rationale": "MAP ≥65 is the gold standard perfusion target in shock management."
+            },
+            {
+              "id": "param2",
+              "text": "Serum lactate clearance (decreasing toward normal <2.0 mmol/L).",
+              "isCorrect": true,
+              "rationale": "Lactate clearance indicates cells are returning to aerobic metabolism—shock is resolving."
+            },
+            {
+              "id": "param3",
+              "text": "BNP level returning to normal range.",
+              "isCorrect": false,
+              "rationale": "BNP changes too slowly (days) to be useful for acute monitoring."
+            },
+            {
+              "id": "param4",
+              "text": "Chest X-ray showing complete resolution of pulmonary edema.",
+              "isCorrect": false,
+              "rationale": "CXR changes lag behind clinical improvement—not useful for real-time monitoring."
+            },
+            {
+              "id": "param5",
+              "text": "Patient's anxiety level on 0-10 scale.",
+              "isCorrect": false,
+              "rationale": "Anxiety is subjective and secondary to physiological stabilization."
+            },
+            {
+              "id": "param6",
+              "text": "Heart rate converting to <100 bpm.",
+              "isCorrect": false,
+              "rationale": "Heart rate normalization is helpful but secondary to perfusion markers."
+            }
           ],
           "correct": {
-            "condition": "Cardiogenic shock from acute decompensated heart failure.",
+            "condition": "cond1",
             "actions": [
-              "Initiate inotropic support (dobutamine) per protocol.",
-              "Apply BiPAP to reduce work of breathing and improve oxygenation."
+              "act1",
+              "act2"
             ],
             "parameters": [
-              "Mean arterial pressure (MAP) trending toward ≥65 mmHg.",
-              "Serum lactate clearance (decreasing toward normal <2.0 mmol/L)."
+              "param1",
+              "param2"
             ]
           },
           "rationale": {
@@ -539,22 +632,26 @@
                 {
                   "id": "d1-o0",
                   "text": "High-Fowler's position (sitting upright 90 degrees).",
-                  "isCorrect": true
+                  "isCorrect": true,
+                  "rationale": "Correct. Upright positioning reduces venous return (preload), decreases pulmonary congestion, and improves diaphragmatic excursion—essential for a patient in pulmonary edema."
                 },
                 {
                   "id": "d1-o1",
                   "text": "Supine position with legs elevated.",
-                  "isCorrect": false
+                  "isCorrect": false,
+                  "rationale": "Incorrect. Elevating legs increases venous return, which would worsen pulmonary edema in a patient already fluid-overloaded."
                 },
                 {
                   "id": "d1-o2",
                   "text": "Left lateral recumbent position.",
-                  "isCorrect": false
+                  "isCorrect": false,
+                  "rationale": "Incorrect. While used in some cardiac scenarios, this position does not reduce preload or optimize BiPAP effectiveness for pulmonary edema."
                 },
                 {
                   "id": "d1-o3",
                   "text": "Trendelenburg position (head down, feet up).",
-                  "isCorrect": false
+                  "isCorrect": false,
+                  "rationale": "Incorrect. Trendelenburg dramatically increases venous return and would acutely worsen pulmonary edema—this is contraindicated in cardiogenic shock."
                 }
               ],
               "correctAnswer": "High-Fowler's position (sitting upright 90 degrees)."
@@ -565,22 +662,26 @@
                 {
                   "id": "d2-o0",
                   "text": "A bag-valve-mask with endotracheal intubation equipment.",
-                  "isCorrect": true
+                  "isCorrect": true,
+                  "rationale": "Correct. BiPAP can fail in unstable patients; having airway rescue equipment immediately available is a critical safety measure for non-invasive ventilation."
                 },
                 {
                   "id": "d2-o1",
                   "text": "Additional IV fluid boluses.",
-                  "isCorrect": false
+                  "isCorrect": false,
+                  "rationale": "Incorrect. This patient is already fluid-overloaded; additional fluids would worsen pulmonary edema and are contraindicated in cardiogenic shock."
                 },
                 {
                   "id": "d2-o2",
                   "text": "A bedside commode for toileting.",
-                  "isCorrect": false
+                  "isCorrect": false,
+                  "rationale": "Incorrect. While comfort is important, a commode is not an immediate priority for a patient in respiratory distress requiring BiPAP."
                 },
                 {
                   "id": "d2-o3",
                   "text": "Beta blocker medication for rate control.",
-                  "isCorrect": false
+                  "isCorrect": false,
+                  "rationale": "Incorrect. Beta blockers are negative inotropes and are contraindicated in acute decompensated heart failure with cardiogenic shock—they would worsen cardiac output."
                 }
               ],
               "correctAnswer": "A bag-valve-mask with endotracheal intubation equipment."
@@ -603,32 +704,38 @@
             {
               "id": "o1",
               "text": "Blood pressure increased from 88/54 to 102/66 mmHg (MAP 65→78 mmHg).",
-              "isCorrect": true
+              "isCorrect": true,
+              "rationale": "MAP ≥65 mmHg ensures adequate vital organ perfusion pressure—this is the primary hemodynamic goal in shock."
             },
             {
               "id": "o2",
               "text": "Heart rhythm converted from atrial fibrillation to normal sinus rhythm.",
-              "isCorrect": true
+              "isCorrect": true,
+              "rationale": "Rhythm conversion indicates decreased sympathetic stress and better cardiac efficiency with restored atrial kick."
             },
             {
               "id": "o3",
               "text": "Urine output increased from 30 mL/hr to 200 mL/hr, urine color light yellow.",
-              "isCorrect": true
+              "isCorrect": true,
+              "rationale": "Robust diuresis indicates successful renal perfusion and effective fluid mobilization from lungs."
             },
             {
               "id": "o4",
               "text": "Respiratory rate decreased from 28 to 18 breaths/min with less accessory muscle use.",
-              "isCorrect": true
+              "isCorrect": true,
+              "rationale": "Reduced respiratory distress shows BiPAP and inotropes are successfully clearing pulmonary edema."
             },
             {
               "id": "o5",
               "text": "Lactate decreased from 3.2 mmol/L to 1.8 mmol/L.",
-              "isCorrect": true
+              "isCorrect": true,
+              "rationale": "Lactate clearance is the gold standard marker for resolution of cellular hypoxia and successful shock reversal."
             },
             {
               "id": "o6",
               "text": "BNP decreased from 5,240 pg/mL to 3,800 pg/mL.",
-              "isCorrect": false
+              "isCorrect": false,
+              "rationale": "BNP is a diagnostic marker, not an acute monitoring tool—it changes too slowly (days) to reflect short-term treatment response."
             }
           ],
           "rationale": {
