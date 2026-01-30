@@ -781,6 +781,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                         <div className="text-right">
                                             <div className={`font-bold text-lg flex items-center gap-1 justify-end ${isCritical ? 'text-red-700' : isAbnormal ? 'text-orange-600' : 'text-slate-900'}`}>
                                                 {lab.value || lab.result}
+                                                <span className="text-xs font-normal text-slate-400 ml-1">{lab.unit}</span>
                                                 {labStatus.flag && (
                                                     <span className={`text-[10px] px-1 rounded transform -translate-y-1 ${labStatus.flag.includes('!')
                                                         ? 'bg-red-600 text-white font-black animate-pulse'

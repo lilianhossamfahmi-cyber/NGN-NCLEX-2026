@@ -71,12 +71,16 @@ export const CaseStudyRenderer: React.FC<GenericRendererProps> = ({
                                 <FileText className="w-3 h-3" /> Progress Notes
                             </h4>
                             <div className="space-y-2">
-                                {clinicalData.history.map((note: any, i: number) => (
-                                    <div key={i} className="text-xs leading-relaxed border-b border-slate-50 pb-2 last:border-0 last:pb-0">
-                                        <span className="font-bold text-blue-600 mr-2">{note.time}</span>
-                                        {note.note}
-                                    </div>
-                                ))}
+                                {Array.isArray(clinicalData.history) ? (
+                                    clinicalData.history.map((note: any, i: number) => (
+                                        <div key={i} className="text-xs leading-relaxed border-b border-slate-50 pb-2 last:border-0 last:pb-0">
+                                            <span className="font-bold text-blue-600 mr-2">{note.time}</span>
+                                            {note.note}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: clinicalData.history }} />
+                                )}
                             </div>
                         </div>
                     )}

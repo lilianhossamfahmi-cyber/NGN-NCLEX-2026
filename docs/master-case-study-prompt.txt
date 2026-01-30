@@ -1,0 +1,272 @@
+ROLE: You are an expert NCLEX-NGN case study architect specializing in Level 5 Clinical Judgment assessment items for nursing education.
+
+OUTPUT FORMAT: Generate a complete, production-ready JSON case study that can be directly integrated into an educational platform without any manual corrections.
+
+CASE STUDY REQUIREMENTS:
+
+=== METADATA STRUCTURE ===
+- id: Descriptive kebab-case (e.g., "cs-critical-care-septic-shock-001")
+- type: "case-study"
+- typeId: "case-study-6-screen"
+- metadata: Include title, authorId, timestamps, status, qualityScore, clientNeeds, difficulty
+- pedagogy: difficultyLevel (1-5), clinicalFocus, clinicalFocusTopics (array)
+
+=== PATIENT & CLINICAL DATA ===
+Generate realistic, complete clinical scenarios with:
+
+1. Patient demographics (age, gender, diagnosis)
+2. Clinical data including:
+   - patientInfo (name, age, sex, admission date, location, provider)
+   - historyPhysical (comprehensive H&P with HTML formatting)
+   - nursesNotes (array of time-stamped entries with categories)
+   - vitals (array with at least 3 time points, all fields including o2_device)
+   - labs (array with test, value, unit, ref, flag)
+   - orders (array with time, order text, status)
+
+CRITICAL: Ensure all vitals include o2_device field (empty string if room air).
+CRITICAL: Ensure all labs include unit field with proper special characters (K/µL, mmol/L, mg/dL, ng/mL).
+
+=== 6-SCREEN STRUCTURE (MANDATORY) ===
+
+Your case study MUST include exactly 6 screens following this sequence:
+
+Screen 1: HIGHLIGHT (Recognize Cues)
+- Type: "highlight"
+- cjmmStep: "Recognize Cues"
+- Text with <span id="h1"> through <span id="h7"> or more
+- Each span represents a highlightable clinical finding
+
+Screen 2: MATRIX (Analyze Cues)
+- Type: "matrix"
+- cjmmStep: "Analyze Cues"
+- columns: Array of 2-3 columns with id and text
+- rows: Array of 5+ findings with id, text, correctColumnId, and INDIVIDUAL rationale per row
+
+Screen 3: MULTIPLE-CHOICE (Prioritize Hypotheses)
+- Type: "multiple-choice"
+- cjmmStep: "Prioritize Hypotheses"
+- 4 options with id, text, isCorrect
+
+Screen 4: BOW-TIE (Generate Solutions)
+- Type: "bow-tie"
+- cjmmStep: "Generate Solutions"
+- actions: Array of 5 actions
+- correctActions: Array of 2 correct action IDs
+- conditions: Array of 3 conditions
+- correctCondition: Single condition ID
+- parameters: Array of 5 parameters
+- correctParameters: Array of 2 correct parameter IDs
+
+Screen 5: DROP-CLOZE (Take Action)
+- Type: "drop-cloze"
+- cjmmStep: "Take Action"
+- text: Sentence with %{d1}% and %{d2}% placeholders
+- dropdowns: Array of dropdown objects with id, options array, correctAnswer
+
+Screen 6: MULTIPLE-RESPONSE (Evaluate Outcomes)
+- Type: "multiple-response"
+- cjmmStep: "Evaluate Outcomes"
+- 6 options with id, text, isCorrect (select all that apply format)
+
+=== RATIONALE STRUCTURE (CRITICAL - THIS PREVENTS ALL ISSUES) ===
+
+**CASE-LEVEL RATIONALE** (under content.rationale):
+"rationale": {
+"coreConcept": "[Specific condition name, NOT generic 'Clinical Judgment']",
+"caseSummary": "[2-3 sentence case-specific summary with patient name, key vitals, and clinical trajectory]",
+"goldenRule": "[Case-specific safety priority or clinical pearl]",
+"pitfalls": [
+"[Common error 1 specific to this case]",
+"[Common error 2 specific to this case]",
+"[Common error 3 specific to this case]"
+],
+"cheatSheet": {
+"title": "[Case-specific title like 'Post-Op Sepsis Surveillance']",
+"points": [
+"[Clinical pearl 1 with case data references]",
+"[Clinical pearl 2 with case data references]",
+"[Clinical pearl 3 with case data references]",
+"[Clinical pearl 4 with case data references]"
+]
+},
+"mnemonic": {
+"title": "[Condition-specific mnemonic, NOT generic]",
+"content": "[Mnemonic acronym]",
+"explanation": "[Full expansion with clinical application]"
+},
+"answerAnalysis": "[Overall case analysis]",
+"steps": []
+}
+
+**SCREEN-LEVEL RATIONALE** (MANDATORY for each screen):
+
+For Screen 1 (Highlight):
+"rationale": {
+"coreConcept": "[Specific concept for THIS screen]",
+"answerAnalysis": "[Explanation of which spans are correct and why]",
+"clinicalStrategy": "[Assessment approach]",
+"highlightReview": {
+"h1": { "isCorrect": false, "rationale": "[Why this span is incorrect]" },
+"h2": { "isCorrect": true, "rationale": "[Why this span is correct]" },
+"h3": { "isCorrect": true, "rationale": "[Why this span is correct]" },
+... [for ALL spans h1-h7 or however many you have]
+},
+"mnemonic": {
+"title": "[Screen-specific mnemonic]",
+"content": "[Acronym]",
+"explanation": "[Full expansion]"
+},
+"difficulty": 5
+}
+
+For Screen 2 (Matrix):
+"rationale": {
+"coreConcept": "[Specific concept]",
+"answerAnalysis": "[Explanation of categorization logic]",
+"matrixReview": "[How to differentiate between columns]",
+"mnemonic": {
+"title": "[Matrix-specific mnemonic]",
+"content": "[Acronym]",
+"explanation": "[Expansion]"
+},
+"difficulty": 5
+}
+
+For Screen 3 (Multiple Choice):
+"rationale": {
+"coreConcept": "[Specific concept]",
+"answerAnalysis": "[Comparison of all options]",
+"clinicalStrategy": "[Prioritization framework]",
+"optionReviews": [
+{
+"optionId": "o1",
+"isCorrect": false,
+"whyCorrect": "",
+"whyIncorrect": "[Detailed explanation]"
+},
+{
+"optionId": "o2",
+"isCorrect": false,
+"whyCorrect": "",
+"whyIncorrect": "[Detailed explanation]"
+},
+{
+"optionId": "o3",
+"isCorrect": true,
+"whyCorrect": "[Detailed explanation]",
+"whyIncorrect": ""
+},
+{
+"optionId": "o4",
+"isCorrect": false,
+"whyCorrect": "",
+"whyIncorrect": "[Detailed explanation]"
+}
+],
+"mnemonic": {
+"title": "[Prioritization mnemonic]",
+"content": "[Acronym]",
+"explanation": "[Expansion]"
+},
+"difficulty": 5
+}
+
+For Screen 4 (Bow-Tie):
+"rationale": {
+"coreConcept": "[Specific concept]",
+"bowTieReview": {
+"condition": "[Why this condition is the priority]",
+"actions": "[Why these actions are most urgent]",
+"parameters": "[Why these parameters are key monitoring points]"
+},
+"clinicalStrategy": "[Intervention framework]",
+"mnemonic": {
+"title": "[Intervention mnemonic]",
+"content": "[Acronym]",
+"explanation": "[Expansion]"
+},
+"difficulty": 5
+}
+
+For Screen 5 (Drop-Cloze):
+"rationale": {
+"coreConcept": "[Specific concept]",
+"clozeReview": "[Analysis of correct dropdown selections]",
+"clinicalStrategy": "[Sequencing/timing framework]",
+"mnemonic": {
+"title": "[Timing/sequence mnemonic]",
+"content": "[Acronym]",
+"explanation": "[Expansion]"
+},
+"difficulty": 5
+}
+
+For Screen 6 (Multiple Response):
+"rationale": {
+"coreConcept": "[Specific concept]",
+"answerAnalysis": "[Explanation of evaluation criteria]",
+"clinicalStrategy": "[Evaluation framework]",
+"optionReviews": [
+{
+"optionId": "opt1",
+"isCorrect": true,
+"whyCorrect": "[Detailed explanation]",
+"whyIncorrect": ""
+},
+{
+"optionId": "opt2",
+"isCorrect": true,
+"whyCorrect": "[Detailed explanation]",
+"whyIncorrect": ""
+},
+... [for ALL 6 options]
+],
+"orderedReview": "[If applicable, recommended sequence with rationale]",
+"mnemonic": {
+"title": "[Evaluation mnemonic]",
+"content": "[Acronym]",
+"explanation": "[Expansion]"
+},
+"difficulty": 5
+}
+
+=== MNEMONIC MAPPING RULES (CRITICAL) ===
+
+NEVER use generic or incorrect mnemonics. Match mnemonics to the actual clinical condition:
+
+SEPSIS/SHOCK CONDITIONS:
+- Topic: "Septic Shock" → Mnemonic: "SEPSIS-6" or "qSOFA" or "SOFA Score"
+- Topic: "Hemodynamic deterioration" in sepsis → Mnemonic: "qSOFA" (NOT "MONA")
+- Topic: "Sepsis bundle" → Mnemonic: "Sepsis-6" or "Hour-1 Bundle"
+
+CARDIAC CONDITIONS:
+- Topic: "Myocardial Infarction" → Mnemonic: "MONA"
+- Topic: "Heart Failure" → Mnemonic: "LMNOP"
+- Topic: "Chest Pain" → Mnemonic: "PQRST"
+
+RESPIRATORY CONDITIONS:
+- Topic: "Asthma" → Mnemonic: "ASTHMA"
+- Topic: "COPD exacerbation" → Mnemonic: "GOLD"
+
+ALWAYS ensure the mnemonic matches the PRIMARY condition, not associated symptoms.
+
+=== QUALITY STANDARDS ===
+
+1. All rationale content must be CASE-SPECIFIC, not generic
+2. Use patient name and actual clinical data in explanations
+3. Reference specific vital signs, labs, and timeline from the case
+4. Mnemonics must match the condition being assessed
+5. Every option/span/row must have individual rationale
+6. Clinical strategy should reflect the difficulty level (Level 5 = advanced reasoning)
+7. Avoid placeholder text like "See option review" - provide actual analysis
+
+=== OUTPUT COMPLETENESS ===
+
+Your JSON output must be:
+- Syntactically valid (proper quotes, commas, brackets)
+- Complete (no truncation, no "[...]" placeholders)
+- Ready to paste directly into a .json file
+- Include ALL 6 screens with complete rationale
+- Include case-level rationale with all required fields
+
+Now generate a case study on: [YOUR TOPIC HERE]

@@ -18,6 +18,7 @@
 
 import { MasterQuestionItem, InputMode } from '../types/master-schema';
 import { ItemManagerFactory } from './managers/ItemManagerFactory';
+import { applySystemicFixes, validateCaseStudy, sanitizeCaseStudyDeep } from '../utils/question-validators';
 
 // ============================================================================
 // CANONICAL INTERFACES
@@ -322,7 +323,6 @@ export class UnifiedDataPipeline {
 
         // CRITICAL: Ensure pedagogy.clinicalFocus exists (DB Requirement)
         if (!item.pedagogy.clinicalFocus) {
-            // Try to infer from metadata or content
             item.pedagogy.clinicalFocus = item.metadata?.clinicalFocus || item.metadata?.topic || item.content?.topic || 'General';
         }
         if (!item.pedagogy.difficultyLevel) {
@@ -332,7 +332,24 @@ export class UnifiedDataPipeline {
         // Step 9: Ensure metadata structure
         UnifiedDataPipeline.ensureMetadata(item);
 
-        // Step 10: Mark as processed
+        // Step 10: AUTHORITATIVE SYSTEM FIX & NORMALIZATION
+        // This includes Matrix pluralization and Drop-Cloze objectification
+        const fixed = applySystemicFixes(item);
+        Object.assign(item, fixed);
+
+        // Step 11: FINAL AUTHORITATIVE TEXT PASS
+        // No modifications allowed after this pass
+        const finalCleaned = sanitizeCaseStudyDeep(item);
+        Object.assign(item, finalCleaned);
+
+        // Step 12: FINAL GATEKEEPER VALIDATION
+        const errors = validateCaseStudy(item);
+        if (errors.length > 0) {
+            console.warn(`[UnifiedDataPipeline] Item ${item.id} failed structural validation:`, errors);
+            item._validationErrors = errors;
+        }
+
+        // Step 13: Mark as processed
         item._unifiedPipelineProcessed = true;
         item._sanitized = true;
 
@@ -340,8 +357,7 @@ export class UnifiedDataPipeline {
             id: item.id,
             type: item.type,
             difficulty: difficulty,
-            hasActions: !!item.content?.structure?.actions,
-            hasVitals: !!item.content?.clinicalData?.vitals?.length
+            errors: errors.length
         });
     }
 

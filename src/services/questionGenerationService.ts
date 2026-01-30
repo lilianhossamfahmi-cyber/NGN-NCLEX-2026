@@ -68,7 +68,13 @@ export const generateQuestions = async (
 
             try {
                 if (onProgress) onProgress(`Attempting generation with model: ${modelName}...`);
-                const model = genAI.getGenerativeModel({ model: modelName });
+                const model = genAI.getGenerativeModel({
+                    model: modelName,
+                    generationConfig: {
+                        maxOutputTokens: 8192,
+                        temperature: settings.temperature
+                    }
+                });
                 await limiter.checkLimit(); // Enforce Rate Limit
 
                 // Using a manual race for abort signal support
@@ -110,12 +116,19 @@ export const generateQuestions = async (
         let generatedItems: MasterQuestionItem[] = [];
 
         try {
-            // AI might return structure with outer object, handle that if needed
             const parsed = JSON.parse(cleanJson);
-            generatedItems = Array.isArray(parsed) ? parsed : (parsed.items || []);
+            if (Array.isArray(parsed)) {
+                generatedItems = parsed;
+            } else if (parsed.items && Array.isArray(parsed.items)) {
+                generatedItems = parsed.items;
+            } else {
+                // Handle single object response (common for Case Studies)
+                generatedItems = [parsed];
+            }
         } catch (parseError) {
-            console.error("FAILED JSON PARSE. RAW TEXT:", responseText);
-            return { success: false, error: "AI produced invalid JSON structure." };
+            console.error("FAILED JSON PARSE. RAW TEXT LENGTH:", responseText.length);
+            console.error("END OF TEXT:", responseText.slice(-200));
+            return { success: false, error: "AI produced invalid JSON structure (Possibly truncated)." };
         }
 
         // 2. Post-Process, Hydrate, and strictly Ingest (Normalizes + AI Auto-Fill)

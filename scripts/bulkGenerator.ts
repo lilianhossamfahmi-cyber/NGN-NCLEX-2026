@@ -47,7 +47,7 @@ const ALL_TYPES = [
  */
 function buildSettings(topic: string, difficulty: number): GenerationSettings {
     const shuffled = ALL_TYPES.sort(() => 0.5 - Math.random());
-    const selectedTypes = shuffled.slice(0, 3); // Limit to 3 types per batch call
+    const selectedTypes = shuffled.slice(0, 1); // Limit to 1 type per batch call to avoid truncation
 
     return {
         mode: 'hybrid',

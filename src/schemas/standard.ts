@@ -1,6 +1,13 @@
 import { z } from 'zod';
 import { ContentSchema, MetadataSchema, RationaleUnion, TextSchema } from './shared';
 
+/**
+ * standard.ts
+ * 
+ * Canonical Zod schemas for NGN items.
+ * Enforces Option-based Drop-Cloze and Plural-based Matrix Rows.
+ */
+
 // --- SHARED OPTION COMPONENTS ---
 
 export const OptionSchema = z.object({
@@ -10,6 +17,7 @@ export const OptionSchema = z.object({
     isCorrect: z.boolean().optional().default(false),
     order: z.number().optional(), // For ordered response
     value: z.any().optional(), // For numeric answers
+    rationale: z.string().optional(),
 }).passthrough();
 
 // --- 1. MULTIPLE RESPONSE / SINGLE RESPONSE / TREND ---
@@ -39,8 +47,6 @@ export const OrderedResponseSchema = z.object({
     metadata: MetadataSchema.optional(),
     structure: z.object({
         options: z.array(OptionSchema).min(2),
-        // Ordered items usually rely on the provided list being the "correct info" or having an 'order' field
-        // We'll enforce that enough info exists to determine order
     }).passthrough()
 });
 
@@ -54,8 +60,9 @@ export const MatrixColumnSchema = z.object({
 export const MatrixRowSchema = z.object({
     id: z.string(),
     text: z.string(),
-    correctColumnId: z.string().optional(), // If single choice per row
-    correctColumnIds: z.array(z.string()).optional() // If multiple choice per row
+    rationale: z.string().optional().default(""),
+    correctColumnIds: z.array(z.string()).min(1), // CANONICAL Plural
+    correctColumnId: z.string().optional(), // Allowed for compat, but IDs[] is source of truth
 }).passthrough();
 
 export const MatrixItemSchema = z.object({
@@ -87,11 +94,9 @@ export const HighlightItemSchema = z.object({
     rationale: RationaleUnion,
     metadata: MetadataSchema.optional(),
     structure: z.object({
-        // Highlight prompt text is usually segmented into tokens or provided as a full text with [tokens]
-        // But the normalized format usually outputs a list of "tokens" or "sentences" to highlight
         tokens: z.array(HighlightTokenSchema).optional(),
-        text: z.string().optional(), // The raw text if tokens aren't pre-split
-        highlights: z.array(z.string()).optional() // List of correct substrings
+        text: z.string().optional(),
+        highlights: z.array(z.string()).optional()
     }).passthrough()
 });
 
@@ -117,7 +122,8 @@ export const DropClozeItemSchema = z.object({
     rationale: RationaleUnion,
     metadata: MetadataSchema.optional(),
     structure: z.object({
-        sentence: z.string(), // "The nurse should monitor [1] and [2]."
+        sentence: z.string().optional(),
+        text: z.string().optional(),
         dropdowns: z.array(DropClozeDropdownSchema).min(1)
     })
 });
@@ -127,7 +133,7 @@ export const DropClozeItemSchema = z.object({
 export const HotSpotAreaSchema = z.object({
     id: z.string(),
     shape: z.enum(['rect', 'circle', 'poly']).default('rect'),
-    coords: z.array(z.number()), // [x, y, w, h] or similar
+    coords: z.array(z.number()),
     isCorrect: z.boolean()
 });
 
@@ -139,7 +145,7 @@ export const HotSpotItemSchema = z.object({
     rationale: RationaleUnion,
     metadata: MetadataSchema.optional(),
     structure: z.object({
-        image: z.string().url().or(z.string()), // URL or base64 placeholder
+        image: z.string().url().or(z.string()),
         areas: z.array(HotSpotAreaSchema).min(1)
     })
 });

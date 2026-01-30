@@ -27,13 +27,25 @@ export const RationaleSheet: React.FC<RationaleSheetProps> = ({
         if (question) {
             console.log('✅ RationaleSheet: Extracting from question (specific screen)');
             try {
+                // Determine screen-specific rationale
+                // Case Study screens have rationale directly at root, not inside .content
+                const screenRationale = question.rationale || question.content?.rationale || {};
+                const rootRationale = fullItem?.content?.rationale || {};
+
                 // Merge question content with full item rationale for the best of both worlds
                 const configForPipeline = {
                     ...question,
                     content: {
                         ...(question.content || {}),
-                        // Inherit rationale from fullItem if screen-level is missing
-                        rationale: question.content?.rationale || fullItem?.content?.rationale
+                        // Cascade knowledge from root if missing at screen level
+                        rationale: {
+                            ...rootRationale,
+                            ...screenRationale,
+                            // Ensure nested fields like referenceInfo are preserved if missing on screen
+                            referenceInfo: screenRationale.referenceInfo || rootRationale.referenceInfo,
+                            mnemonic: screenRationale.mnemonic || rootRationale.mnemonic,
+                            cheatSheet: screenRationale.cheatSheet || rootRationale.cheatSheet
+                        }
                     }
                 };
                 const processed = RationalePipeline.generateRationale(configForPipeline, metadata?.userAns, configForPipeline.content.rationale);

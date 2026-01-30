@@ -239,7 +239,7 @@ export const MatrixRenderer: React.FC<GenericRendererProps> = ({ config, answers
                             </th>
                             {config.columns?.map((col: any) => (
                                 <th key={col.id} className="matrix-th">
-                                    {col.label}
+                                    {col.label || col.text}
                                 </th>
                             ))}
                         </tr>

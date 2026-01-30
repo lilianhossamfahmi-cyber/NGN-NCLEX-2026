@@ -1,0 +1,1491 @@
+{
+  "type": "case-study",
+  "content": {
+    "metadata": {
+      "title": "Post-Op Pulmonary Embolism.",
+      "clinicalFocus": "Respiratory Distress, Pulmonary Embolism.",
+      "level": 5,
+      "targetScore": 95,
+      "generator": "Golden NGN v3.",
+      "difficulty": 5
+    },
+    "setting": "Post-Surgical Unit.",
+    "chiefComplaint": "Sudden onset shortness of breath and chest pain.",
+    "assessmentData": {
+      "screening": {
+        "tool": "Wells Score for PE.",
+        "score": 7,
+        "interpretation": "High probability of Pulmonary Embolism."
+      }
+    },
+    "rationale": {
+      "coreConcept": "Pulmonary embolism (PE) is a life-threatening condition that occurs when a blood clot blocks one or more arteries in the lungs, leading to respiratory distress and potential cardiovascular collapse.",
+      "caseSummary": "Eleanor Vance, a 68-year-old female, presents with sudden onset dyspnea and pleuritic chest pain three days post-hip replacement. Her clinical presentation, including vital signs, ABG results, and elevated D-dimer, strongly suggests a pulmonary embolism.",
+      "answerAnalysis": "This case requires rapid recognition of PE symptoms, analysis of lab values, prioritization of interventions, and evaluation of treatment effectiveness. The patient's post-operative status increases her risk for deep vein thrombosis (DVT), a common source of PE.",
+      "trap": "A common mistake is to attribute the patient's symptoms solely to post-operative pain or anxiety, delaying critical interventions for PE.",
+      "goldenRule": "Time is lung: Rapid identification and treatment of pulmonary embolism are crucial to prevent morbidity and mortality.",
+      "steps": [
+        {
+          "tag": "Recognize.",
+          "description": "Identify signs and symptoms of PE, such as sudden dyspnea, chest pain, tachypnea, tachycardia, and hypoxia."
+        },
+        {
+          "tag": "Analyze.",
+          "description": "Interpret lab values (D-dimer, ABGs), vital signs, and patient history to assess the likelihood of PE."
+        },
+        {
+          "tag": "Act",
+          "description": "Initiate appropriate interventions, including oxygen therapy, anticoagulation, and monitoring for complications."
+        }
+      ],
+      "difficulty": {
+        "level": 5,
+        "score": 100,
+        "label": "Evaluation.",
+        "clinicalStrategy": "Level 5 clinical reasoning required.",
+        "recommendedActions": [
+          "Practice advanced scenarios."
+        ]
+      },
+      "mnemonic": {
+        "title": "PERC",
+        "content": "Pulmonary Embolism Rule-out Criteria.",
+        "explanation": "Helps to quickly assess the probability of PE based on specific criteria (age, heart rate, SpO2, etc.)."
+      },
+      "cheatSheet": {
+        "title": "Pulmonary Embolism Management.",
+        "points": [
+          "Maintain adequate oxygenation and ventilation.",
+          "Initiate anticoagulation therapy promptly.",
+          "Monitor for signs of bleeding or hemodynamic instability."
+        ]
+      },
+      "referenceInfo": {
+        "anatomy": "Pulmonary arteries, right ventricle of the heart, lung lobes.",
+        "physiology": "Gas exchange in the alveoli, pulmonary circulation, ventilation-perfusion matching.",
+        "pharm": "Anticoagulants (e.g., heparin, enoxaparin, warfarin), thrombolytics (e.g., alteplase)."
+      },
+      "clinicalStrategy": "Level 5 clinical reasoning required."
+    },
+    "clinicalData": {
+      "patientInfo": {
+        "name": "Client, A.",
+        "age": "Unknown",
+        "gender": "O",
+        "codeStatus": "FULL CODE.",
+        "admissionDate": "1/30/2026 07:30.",
+        "room": "MedSurg-12.",
+        "physician": "Dr. S. Specialist.",
+        "nurse": "RN Staff.",
+        "allergies": "NKDA",
+        "isolation": "Standard Precautions.",
+        "history": [],
+        "homeMeds": []
+      },
+      "vitals": [
+        {
+          "time": "0800",
+          "tempF": "99.1",
+          "hr": 110,
+          "rr": 28,
+          "bp": "90/60",
+          "o2": "88",
+          "o2_device": "2L NC.",
+          "pain": 7
+        }
+      ],
+      "labs": [
+        {
+          "test": "D-dimer.",
+          "value": "6.0",
+          "unit": "Mcg/mL.",
+          "ref": "<0.5",
+          "flag": "H!"
+        },
+        {
+          "test": "Troponin.",
+          "value": "0.02",
+          "unit": "Ng/mL",
+          "ref": "<0.04",
+          "flag": ""
+        },
+        {
+          "test": "ABG pH.",
+          "value": "7.30",
+          "unit": "",
+          "ref": "7.35-7.45.",
+          "flag": "L"
+        },
+        {
+          "test": "ABG PaCO2.",
+          "value": "55",
+          "unit": "MmHg",
+          "ref": "35-45",
+          "flag": "H"
+        },
+        {
+          "test": "ABG PaO2.",
+          "value": "60",
+          "unit": "MmHg",
+          "ref": "80-100.",
+          "flag": "L!"
+        }
+      ],
+      "orders": [],
+      "history": [
+        {
+          "time": "0800",
+          "note": "Chief complaint: Sudden onset shortness of breath and chest pain.",
+          "initial": "RN"
+        }
+      ],
+      "historyPhysical": "Chief complaint and history documented.",
+      "radiology": [],
+      "setting": "Post-Surgical Unit."
+    },
+    "structure": {
+      "type": "case-study",
+      "prompt": "Review the case study and answer the question.",
+      "screens": [
+        {
+          "id": "s1",
+          "type": "highlight",
+          "cjmmStep": "Recognize Cues.",
+          "prompt": "Highlight the findings that are most concerning and require immediate action.",
+          "text": "Eleanor Vance, a 68-year-old female, POD 3 from a right hip arthroplasty, reports sudden onset <span id='h1'>dyspnea</span> and <span id='h2'>pleuritic chest pain</span>. Vital signs: HR <span id='h3'>110</span>, RR <span id='h4'>28</span>, BP <span id='h5'>90/60</span>, SpO2 <span id='h6'>88% on 2L NC</span>. She appears <span id='h7'>anxious</span> and diaphoretic. Lung auscultation reveals <span id='h8'>scattered wheezes</span>. D-dimer is <span id='h9'>6.0 mcg/mL</span>.",
+          "correct": [
+            "H1",
+            "H2",
+            "H3",
+            "H4",
+            "H5",
+            "H6",
+            "H9"
+          ],
+          "rationales": {
+            "h1": {
+              "isCorrect": true,
+              "whyCorrect": "Dyspnea is a key symptom of pulmonary embolism, indicating impaired gas exchange.",
+              "whyIncorrect": "N/A"
+            },
+            "h2": {
+              "isCorrect": true,
+              "whyCorrect": "Pleuritic chest pain, which worsens with breathing, is a common symptom of PE due to pulmonary infarction or inflammation.",
+              "whyIncorrect": "N/A"
+            },
+            "h3": {
+              "isCorrect": true,
+              "whyCorrect": "Tachycardia is a compensatory mechanism to maintain cardiac output in the setting of hypoxia and hypotension.",
+              "whyIncorrect": "N/A"
+            },
+            "h4": {
+              "isCorrect": true,
+              "whyCorrect": "Tachypnea is a compensatory mechanism to increase oxygen intake and eliminate carbon dioxide due to impaired gas exchange.",
+              "whyIncorrect": "N/A"
+            },
+            "h5": {
+              "isCorrect": true,
+              "whyCorrect": "Hypotension suggests hemodynamic instability and potential right ventricular dysfunction due to the PE.",
+              "whyIncorrect": "N/A"
+            },
+            "h6": {
+              "isCorrect": true,
+              "whyCorrect": "Hypoxemia indicates impaired gas exchange in the lungs due to the pulmonary embolism.",
+              "whyIncorrect": "N/A"
+            },
+            "h7": {
+              "isCorrect": false,
+              "whyCorrect": "N/A",
+              "whyIncorrect": "Anxiety is a common symptom in respiratory distress but is not as critical as the physiological findings."
+            },
+            "h8": {
+              "isCorrect": false,
+              "whyCorrect": "N/A",
+              "whyIncorrect": "Wheezes are less specific for PE and could be related to other respiratory conditions."
+            },
+            "h9": {
+              "isCorrect": true,
+              "whyCorrect": "An elevated D-dimer indicates the presence of fibrin degradation products, suggesting a possible thromboembolic event.",
+              "whyIncorrect": "N/A"
+            }
+          },
+          "rationale": {
+            "coreConcept": "Recognizing critical cues is the first step in the clinical judgment model, enabling prompt intervention and improved patient outcomes.",
+            "caseSummary": "Eleanor Vance presents with several critical cues indicative of a pulmonary embolism, including dyspnea, chest pain, tachycardia, tachypnea, hypotension, hypoxemia, and an elevated D-dimer.",
+            "answerAnalysis": "The highlighted findings are the most concerning because they directly reflect the physiological consequences of a pulmonary embolism, such as impaired gas exchange, hemodynamic instability, and potential right ventricular dysfunction. These cues necessitate immediate action to stabilize the patient and prevent further deterioration.",
+            "trap": "A common mistake is to focus solely on one symptom, such as chest pain, without considering the constellation of findings that suggest a more serious condition like PE.",
+            "goldenRule": "Trust your assessment: Prioritize findings that indicate physiological compromise and require immediate intervention.",
+            "steps": [
+              {
+                "tag": "Recognize.",
+                "description": "Identify key signs and symptoms of PE, including dyspnea, chest pain, tachycardia, tachypnea, hypotension, and hypoxemia."
+              },
+              {
+                "tag": "Analyze.",
+                "description": "Interpret the significance of vital sign abnormalities and lab values, such as elevated D-dimer, in the context of the patient's post-operative status."
+              },
+              {
+                "tag": "Act",
+                "description": "Prioritize interventions based on the severity of the patient's condition and the likelihood of PE."
+              }
+            ],
+            "mnemonic": {
+              "title": "THREAT.",
+              "content": "Tachycardia, Hypotension, Respiratory distress, Elevated D-dimer, Anxious, Tachypnea.",
+              "explanation": "Helps to remember the key signs and symptoms of PE."
+            },
+            "cheatSheet": {
+              "title": "Pulmonary Embolism Assessment.",
+              "points": [
+                "Assess for risk factors, such as recent surgery or immobilization.",
+                "Evaluate vital signs for signs of respiratory distress or hemodynamic instability.",
+                "Review lab results, including D-dimer and ABGs, to assess the likelihood of PE."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Pulmonary arteries, right ventricle of the heart, lung lobes.",
+              "physiology": "Gas exchange in the alveoli, pulmonary circulation, ventilation-perfusion matching.",
+              "pharm": "Anticoagulants (e.g., heparin, enoxaparin, warfarin), thrombolytics (e.g., alteplase)."
+            },
+            "difficulty": {
+              "score": 95,
+              "level": 5,
+              "label": "Expert."
+            }
+          },
+          "cjmmPhase": "Recognize Cues."
+        },
+        {
+          "id": "s2",
+          "type": "matrix",
+          "cjmmStep": "Analyze Cues.",
+          "prompt": "Categorize the following clinical findings as either related to Hypoxia, Hemodynamic Instability, or Pain.",
+          "columns": [
+            {
+              "id": "c1",
+              "text": "Hypoxia."
+            },
+            {
+              "id": "c2",
+              "text": "Hemodynamic Instability."
+            },
+            {
+              "id": "c3",
+              "text": "Pain"
+            }
+          ],
+          "rows": [
+            {
+              "id": "r1",
+              "text": "SpO2 88% on 2L NC.",
+              "correctColumnId": "c1",
+              "rationale": "Low SpO2 indicates inadequate oxygen saturation in the blood, a direct sign of hypoxia.",
+              "correctColumnIds": [
+                "c1"
+              ]
+            },
+            {
+              "id": "r2",
+              "text": "Blood Pressure 90/60.",
+              "correctColumnId": "c2",
+              "rationale": "Hypotension indicates inadequate tissue perfusion and hemodynamic instability.",
+              "correctColumnIds": [
+                "c2"
+              ]
+            },
+            {
+              "id": "r3",
+              "text": "Pleuritic Chest Pain.",
+              "correctColumnId": "c3",
+              "rationale": "Pleuritic chest pain is a specific type of pain associated with inflammation of the pleura, often exacerbated by breathing.",
+              "correctColumnIds": [
+                "c3"
+              ]
+            },
+            {
+              "id": "r4",
+              "text": "PaO2 60 mmHg.",
+              "correctColumnId": "c1",
+              "rationale": "A PaO2 of 60 mmHg indicates significant hypoxemia, reflecting impaired gas exchange in the lungs.",
+              "correctColumnIds": [
+                "c1"
+              ]
+            },
+            {
+              "id": "r5",
+              "text": "Heart Rate 110.",
+              "correctColumnId": "c2",
+              "rationale": "Tachycardia can be a compensatory mechanism for hypotension and hypoxia, indicating hemodynamic instability.",
+              "correctColumnIds": [
+                "c2"
+              ]
+            }
+          ],
+          "rationale": {
+            "coreConcept": "Analyzing cues involves categorizing clinical findings to identify underlying physiological problems and guide appropriate interventions.",
+            "caseSummary": "Eleanor Vance's clinical findings are categorized into hypoxia, hemodynamic instability, and pain to prioritize interventions and address the most critical issues.",
+            "answerAnalysis": "Correctly categorizing the findings allows for a targeted approach to managing the patient's condition. Hypoxia requires immediate oxygenation, hemodynamic instability requires fluid resuscitation and vasopressors if needed, and pain requires appropriate analgesia.",
+            "trap": "A common mistake is to focus on individual symptoms without recognizing the underlying physiological problems they represent, leading to fragmented and ineffective care.",
+            "goldenRule": "Connect the dots: Analyze cues to identify the root cause of the patient's symptoms and guide appropriate interventions.",
+            "steps": [
+              {
+                "tag": "Recognize.",
+                "description": "Identify key clinical findings, such as SpO2, blood pressure, PaO2, heart rate, and pain."
+              },
+              {
+                "tag": "Analyze.",
+                "description": "Categorize the findings based on their relationship to hypoxia, hemodynamic instability, or pain."
+              },
+              {
+                "tag": "Act",
+                "description": "Prioritize interventions based on the identified physiological problems."
+              }
+            ],
+            "mnemonic": {
+              "title": "HHP",
+              "content": "Hypoxia, Hemodynamic Instability, Pain.",
+              "explanation": "Helps to remember the key categories for analyzing clinical findings in this case."
+            },
+            "cheatSheet": {
+              "title": "Analyzing Clinical Findings.",
+              "points": [
+                "Consider the underlying physiological problems represented by the findings.",
+                "Prioritize interventions based on the severity of the problems.",
+                "Monitor the patient's response to interventions and adjust as needed."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Pulmonary arteries, right ventricle of the heart, lung lobes.",
+              "physiology": "Gas exchange in the alveoli, pulmonary circulation, ventilation-perfusion matching.",
+              "pharm": "Oxygen, vasopressors, analgesics."
+            },
+            "difficulty": {
+              "score": 95,
+              "level": 5,
+              "label": "Expert."
+            }
+          },
+          "cjmmPhase": "Analyze Cues."
+        },
+        {
+          "id": "s3",
+          "type": "ordered-response",
+          "cjmmStep": "Prioritize Hypotheses.",
+          "prompt": "Based on the patient's presentation, lab results, and history, rank the following potential problems in order of priority, with the most urgent at the top.",
+          "options": [
+            "Pulmonary Embolism.",
+            "Post-operative Pain.",
+            "Atelectasis.",
+            "Anxiety."
+          ],
+          "correctOrder": [
+            "Pulmonary Embolism.",
+            "Atelectasis.",
+            "Post-operative Pain.",
+            "Anxiety."
+          ],
+          "rationale": {
+            "coreConcept": "Prioritizing hypotheses involves ranking potential problems based on their likelihood and potential impact on patient outcomes.",
+            "caseSummary": "Eleanor Vance's potential problems are prioritized based on the severity of her symptoms, lab results, and post-operative status.",
+            "answerAnalysis": "Pulmonary embolism is the highest priority due to the patient's sudden onset dyspnea, chest pain, hypoxemia, and elevated D-dimer. Atelectasis is a common post-operative complication that can contribute to hypoxemia. Post-operative pain and anxiety are important to address but are lower priorities than the potentially life-threatening PE and atelectasis.",
+            "trap": "A common mistake is to underestimate the likelihood of PE in a post-operative patient, leading to delayed diagnosis and treatment.",
+            "goldenRule": "Rule out the worst: Prioritize potential problems based on their potential to cause harm and the likelihood of their occurrence.",
+            "steps": [
+              {
+                "tag": "Recognize.",
+                "description": "Identify potential problems based on the patient's presentation, lab results, and history."
+              },
+              {
+                "tag": "Analyze.",
+                "description": "Evaluate the likelihood and potential impact of each problem."
+              },
+              {
+                "tag": "Act",
+                "description": "Rank the problems in order of priority, with the most urgent at the top."
+              }
+            ],
+            "mnemonic": {
+              "title": "ABCDE",
+              "content": "Airway, Breathing, Circulation, Disability, Exposure.",
+              "explanation": "Helps to prioritize problems based on their potential impact on the patient's physiological stability."
+            },
+            "cheatSheet": {
+              "title": "Prioritizing Patient Problems.",
+              "points": [
+                "Consider the potential for harm and the likelihood of occurrence.",
+                "Prioritize problems that affect airway, breathing, and circulation.",
+                "Address pain and anxiety after addressing more critical problems."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Pulmonary arteries, right ventricle of the heart, lung lobes.",
+              "physiology": "Gas exchange in the alveoli, pulmonary circulation, ventilation-perfusion matching.",
+              "pharm": "Anticoagulants (e.g., heparin, enoxaparin, warfarin), oxygen, analgesics."
+            },
+            "difficulty": {
+              "score": 95,
+              "level": 5,
+              "label": "Expert."
+            }
+          },
+          "cjmmPhase": "Prioritize Hypotheses."
+        },
+        {
+          "id": "s4",
+          "type": "bow-tie",
+          "cjmmStep": "Generate Solutions.",
+          "prompt": "For the potential problem of Pulmonary Embolism, identify the appropriate actions and parameters to monitor.",
+          "conditions": [
+            {
+              "id": "c1",
+              "content": "Pulmonary Embolism."
+            }
+          ],
+          "actions": [
+            {
+              "id": "a1",
+              "content": "Administer Oxygen."
+            },
+            {
+              "id": "a2",
+              "content": "Initiate Anticoagulation."
+            },
+            {
+              "id": "a3",
+              "content": "Elevate Head of Bed."
+            },
+            {
+              "id": "a4",
+              "content": "Prepare for CT Angiogram."
+            }
+          ],
+          "parameters": [
+            {
+              "id": "p1",
+              "content": "Oxygen Saturation."
+            },
+            {
+              "id": "p2",
+              "content": "Blood Pressure."
+            },
+            {
+              "id": "p3",
+              "content": "Respiratory Rate."
+            },
+            {
+              "id": "p4",
+              "content": "Bleeding."
+            }
+          ],
+          "connections": {
+            "c1": {
+              "actions": [
+                "A1",
+                "A2",
+                "A3",
+                "A4"
+              ],
+              "parameters": [
+                "P1",
+                "P2",
+                "P3",
+                "P4"
+              ]
+            }
+          },
+          "rationale": {
+            "coreConcept": "Generating solutions involves identifying appropriate actions and parameters to monitor for a specific patient problem.",
+            "caseSummary": "For Eleanor Vance's potential pulmonary embolism, appropriate actions include administering oxygen, initiating anticoagulation, elevating the head of the bed, and preparing for a CT angiogram. Parameters to monitor include oxygen saturation, blood pressure, respiratory rate, and signs of bleeding.",
+            "answerAnalysis": "Administering oxygen addresses hypoxemia, initiating anticoagulation prevents further clot formation, elevating the head of the bed improves ventilation, and preparing for a CT angiogram confirms the diagnosis. Monitoring oxygen saturation, blood pressure, and respiratory rate assesses the patient's response to interventions, while monitoring for bleeding is crucial due to anticoagulation therapy.",
+            "trap": "A common mistake is to focus solely on one aspect of treatment, such as oxygen administration, without considering the need for anticoagulation and diagnostic confirmation.",
+            "goldenRule": "Treat the whole patient: Address all aspects of the patient's condition and monitor for potential complications.",
+            "steps": [
+              {
+                "tag": "Recognize.",
+                "description": "Identify the potential problem of pulmonary embolism."
+              },
+              {
+                "tag": "Analyze.",
+                "description": "Determine appropriate actions to address the problem, such as administering oxygen and initiating anticoagulation."
+              },
+              {
+                "tag": "Act",
+                "description": "Monitor parameters to assess the patient's response to interventions and detect potential complications."
+              }
+            ],
+            "mnemonic": {
+              "title": "OXYGEN.",
+              "content": "Oxygen, CT Angiogram, Y-site (IV access), Gene (Anticoagulation), Elevate HOB, No Valsalva.",
+              "explanation": "Helps to remember the key actions for managing pulmonary embolism."
+            },
+            "cheatSheet": {
+              "title": "Pulmonary Embolism Management.",
+              "points": [
+                "Administer oxygen to maintain adequate oxygen saturation.",
+                "Initiate anticoagulation therapy to prevent further clot formation.",
+                "Monitor for signs of bleeding or hemodynamic instability."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Pulmonary arteries, right ventricle of the heart, lung lobes.",
+              "physiology": "Gas exchange in the alveoli, pulmonary circulation, ventilation-perfusion matching.",
+              "pharm": "Anticoagulants (e.g., heparin, enoxaparin, warfarin), oxygen."
+            },
+            "difficulty": {
+              "score": 95,
+              "level": 5,
+              "label": "Expert."
+            }
+          },
+          "cjmmPhase": "Generate Solutions."
+        },
+        {
+          "id": "s5",
+          "type": "drop-cloze",
+          "cjmmStep": "Take Action.",
+          "prompt": "Complete the following nursing orders for Eleanor Vance.",
+          "sentences": [
+            {
+              "text": "1. Apply %{d1} via %{d2} to maintain SpO2 > 92%.",
+              "dropdowns": [
+                {
+                  "id": "d1",
+                  "options": [
+                    {
+                      "id": "d1-o0",
+                      "text": "Oxygen.",
+                      "isCorrect": true
+                    },
+                    {
+                      "id": "d1-o1",
+                      "text": "Normal Saline.",
+                      "isCorrect": false
+                    },
+                    {
+                      "id": "d1-o2",
+                      "text": "Furosemide.",
+                      "isCorrect": false
+                    }
+                  ],
+                  "correctAnswer": "Oxygen."
+                },
+                {
+                  "id": "d2",
+                  "options": [
+                    {
+                      "id": "d2-o0",
+                      "text": "Nasal Cannula.",
+                      "isCorrect": true
+                    },
+                    {
+                      "id": "d2-o1",
+                      "text": "IV",
+                      "isCorrect": false
+                    },
+                    {
+                      "id": "d2-o2",
+                      "text": "Foley Catheter.",
+                      "isCorrect": false
+                    }
+                  ],
+                  "correctAnswer": "Nasal Cannula."
+                }
+              ]
+            },
+            {
+              "text": "2. Initiate %{d3} therapy with %{d4} per protocol.",
+              "dropdowns": [
+                {
+                  "id": "d3",
+                  "options": [
+                    {
+                      "id": "d3-o0",
+                      "text": "Anticoagulation.",
+                      "isCorrect": true
+                    },
+                    {
+                      "id": "d3-o1",
+                      "text": "Analgesic.",
+                      "isCorrect": false
+                    },
+                    {
+                      "id": "d3-o2",
+                      "text": "Antibiotic.",
+                      "isCorrect": false
+                    }
+                  ],
+                  "correctAnswer": "Anticoagulation."
+                },
+                {
+                  "id": "d4",
+                  "options": [
+                    {
+                      "id": "d4-o0",
+                      "text": "Enoxaparin.",
+                      "isCorrect": true
+                    },
+                    {
+                      "id": "d4-o1",
+                      "text": "Acetaminophen.",
+                      "isCorrect": false
+                    },
+                    {
+                      "id": "d4-o2",
+                      "text": "Ceftriaxone.",
+                      "isCorrect": false
+                    }
+                  ],
+                  "correctAnswer": "Enoxaparin."
+                }
+              ]
+            },
+            {
+              "text": "3. Prepare the patient for a %{d5} to confirm the diagnosis.",
+              "dropdowns": [
+                {
+                  "id": "d5",
+                  "options": [
+                    {
+                      "id": "d5-o0",
+                      "text": "CT Angiogram.",
+                      "isCorrect": true
+                    },
+                    {
+                      "id": "d5-o1",
+                      "text": "Chest X-Ray.",
+                      "isCorrect": false
+                    },
+                    {
+                      "id": "d5-o2",
+                      "text": "EKG",
+                      "isCorrect": false
+                    }
+                  ],
+                  "correctAnswer": "CT Angiogram."
+                }
+              ]
+            }
+          ],
+          "blankMap": {
+            "d1": {
+              "whyCorrect": "Oxygen is essential to treat hypoxemia associated with pulmonary embolism.",
+              "distractorRationales": {
+                "Normal Saline": "Normal saline is not indicated for hypoxemia.",
+                "Furosemide": "Furosemide is a diuretic and not indicated for hypoxemia."
+              }
+            },
+            "d2": {
+              "whyCorrect": "Nasal cannula is an appropriate initial method for oxygen delivery.",
+              "distractorRationales": {
+                "IV": "IV is a route of administration, not an oxygen delivery device.",
+                "Foley Catheter": "Foley catheter is used for urinary drainage, not oxygen delivery."
+              }
+            },
+            "d3": {
+              "whyCorrect": "Anticoagulation therapy is crucial to prevent further clot formation in pulmonary embolism.",
+              "distractorRationales": {
+                "Analgesic": "Analgesics address pain but do not treat the underlying cause of pulmonary embolism.",
+                "Antibiotic": "Antibiotics are used for infections and are not indicated for pulmonary embolism."
+              }
+            },
+            "d4": {
+              "whyCorrect": "Enoxaparin is a low-molecular-weight heparin commonly used for initial anticoagulation in PE.",
+              "distractorRationales": {
+                "Acetaminophen": "Acetaminophen is an analgesic and not an anticoagulant.",
+                "Ceftriaxone": "Ceftriaxone is an antibiotic and not an anticoagulant."
+              }
+            },
+            "d5": {
+              "whyCorrect": "CT Angiogram is the gold standard for diagnosing pulmonary embolism.",
+              "distractorRationales": {
+                "Chest X-Ray": "Chest X-ray may show some abnormalities but is not definitive for PE.",
+                "EKG": "EKG may show signs of right heart strain but is not diagnostic for PE."
+              }
+            }
+          },
+          "rationale": {
+            "coreConcept": "Taking action involves implementing appropriate nursing orders to address the patient's condition and prevent further complications.",
+            "caseSummary": "For Eleanor Vance, appropriate nursing orders include administering oxygen, initiating anticoagulation therapy with enoxaparin, and preparing the patient for a CT angiogram to confirm the diagnosis of pulmonary embolism.",
+            "answerAnalysis": "These orders directly address the patient's hypoxemia, prevent further clot formation, and confirm the diagnosis, allowing for targeted treatment.",
+            "trap": "A common mistake is to delay anticoagulation therapy or diagnostic confirmation, leading to potential complications and delayed treatment.",
+            "goldenRule": "Act decisively: Implement appropriate nursing orders promptly to address the patient's condition and prevent further deterioration.",
+            "steps": [
+              {
+                "tag": "Recognize.",
+                "description": "Identify the need for oxygen, anticoagulation, and diagnostic confirmation."
+              },
+              {
+                "tag": "Analyze.",
+                "description": "Determine the appropriate methods for oxygen delivery, anticoagulation therapy, and diagnostic imaging."
+              },
+              {
+                "tag": "Act",
+                "description": "Implement the nursing orders promptly and monitor the patient's response."
+              }
+            ],
+            "mnemonic": {
+              "title": "ACT FAST.",
+              "content": "Anticoagulate, CT Angiogram, Treat Hypoxia, Fluid Resuscitation, Assess for Bleeding, Support Vitals.",
+              "explanation": "Helps to remember the key actions for managing pulmonary embolism."
+            },
+            "cheatSheet": {
+              "title": "Nursing Orders for Pulmonary Embolism.",
+              "points": [
+                "Administer oxygen to maintain adequate oxygen saturation.",
+                "Initiate anticoagulation therapy to prevent further clot formation.",
+                "Prepare the patient for a CT angiogram to confirm the diagnosis."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Pulmonary arteries, right ventricle of the heart, lung lobes.",
+              "physiology": "Gas exchange in the alveoli, pulmonary circulation, ventilation-perfusion matching.",
+              "pharm": "Anticoagulants (e.g., heparin, enoxaparin, warfarin), oxygen."
+            },
+            "difficulty": {
+              "score": 95,
+              "level": 5,
+              "label": "Expert."
+            }
+          },
+          "cjmmPhase": "Take Action."
+        },
+        {
+          "id": "s6",
+          "type": "multiple-response",
+          "cjmmStep": "Evaluate Outcomes.",
+          "prompt": "Which of the following findings indicate a positive response to the interventions implemented for Eleanor Vance?",
+          "options": [
+            {
+              "id": "o1",
+              "text": "SpO2 increased to 95% on 2L NC.",
+              "isCorrect": true,
+              "rationale": ""
+            },
+            {
+              "id": "o2",
+              "text": "Blood pressure increased to 120/80.",
+              "isCorrect": true,
+              "rationale": ""
+            },
+            {
+              "id": "o3",
+              "text": "Respiratory rate decreased to 20.",
+              "isCorrect": true,
+              "rationale": ""
+            },
+            {
+              "id": "o4",
+              "text": "Patient reports decreased chest pain.",
+              "isCorrect": true,
+              "rationale": ""
+            },
+            {
+              "id": "o5",
+              "text": "D-dimer remains elevated at 5.8 mcg/mL.",
+              "isCorrect": false,
+              "rationale": ""
+            }
+          ],
+          "correct": [
+            "SpO2 increased to 95% on 2L NC.",
+            "Blood pressure increased to 120/80.",
+            "Respiratory rate decreased to 20.",
+            "Patient reports decreased chest pain."
+          ],
+          "rationale": {
+            "coreConcept": "Evaluating outcomes involves assessing the patient's response to interventions and determining whether the desired goals have been achieved.",
+            "caseSummary": "Positive responses to interventions for Eleanor Vance include improved oxygen saturation, increased blood pressure, decreased respiratory rate, and decreased chest pain.",
+            "answerAnalysis": "An SpO2 of 95% on 2L NC indicates improved oxygenation, a blood pressure of 120/80 indicates improved hemodynamic stability, a respiratory rate of 20 indicates decreased respiratory distress, and decreased chest pain indicates improved comfort. An elevated D-dimer indicates the presence of fibrin degradation products, suggesting ongoing clot lysis, but does not necessarily indicate a positive response to interventions.",
+            "trap": "A common mistake is to focus solely on one parameter, such as oxygen saturation, without considering the overall clinical picture and the patient's subjective experience.",
+            "goldenRule": "Look at the big picture: Evaluate the patient's response to interventions based on multiple parameters and the patient's subjective experience.",
+            "steps": [
+              {
+                "tag": "Recognize.",
+                "description": "Identify key parameters to monitor, such as SpO2, blood pressure, respiratory rate, and pain."
+              },
+              {
+                "tag": "Analyze.",
+                "description": "Evaluate the patient's response to interventions based on changes in these parameters."
+              },
+              {
+                "tag": "Act",
+                "description": "Adjust interventions as needed based on the patient's response."
+              }
+            ],
+            "mnemonic": {
+              "title": "SOAP",
+              "content": "Subjective, Objective, Assessment, Plan.",
+              "explanation": "Helps to remember the key components of evaluating patient outcomes."
+            },
+            "cheatSheet": {
+              "title": "Evaluating Patient Outcomes.",
+              "points": [
+                "Monitor key parameters to assess the patient's response to interventions.",
+                "Consider the patient's subjective experience and overall clinical picture.",
+                "Adjust interventions as needed based on the patient's response."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Pulmonary arteries, right ventricle of the heart, lung lobes.",
+              "physiology": "Gas exchange in the alveoli, pulmonary circulation, ventilation-perfusion matching.",
+              "pharm": "Anticoagulants (e.g., heparin, enoxaparin, warfarin), oxygen."
+            },
+            "difficulty": {
+              "score": 95,
+              "level": 5,
+              "label": "Expert."
+            }
+          },
+          "cjmmPhase": "Evaluate Outcomes."
+        }
+      ],
+      "difficulty": 5
+    },
+    "patient": {
+      "age": "Unknown",
+      "gender": "Unknown",
+      "diagnosis": "Pending"
+    }
+  },
+  "structure": {
+    "type": "case-study",
+    "screens": [
+      {
+        "id": "s1",
+        "type": "highlight",
+        "cjmmStep": "Recognize Cues.",
+        "prompt": "Highlight the findings that are most concerning and require immediate action.",
+        "text": "Eleanor Vance, a 68-year-old female, POD 3 from a right hip arthroplasty, reports sudden onset <span id='h1'>dyspnea</span> and <span id='h2'>pleuritic chest pain</span>. Vital signs: HR <span id='h3'>110</span>, RR <span id='h4'>28</span>, BP <span id='h5'>90/60</span>, SpO2 <span id='h6'>88% on 2L NC</span>. She appears <span id='h7'>anxious</span> and diaphoretic. Lung auscultation reveals <span id='h8'>scattered wheezes</span>. D-dimer is <span id='h9'>6.0 mcg/mL</span>.",
+        "correct": [
+          "H1",
+          "H2",
+          "H3",
+          "H4",
+          "H5",
+          "H6",
+          "H9"
+        ],
+        "rationales": {
+          "h1": {
+            "isCorrect": true,
+            "whyCorrect": "Dyspnea is a key symptom of pulmonary embolism, indicating impaired gas exchange.",
+            "whyIncorrect": "N/A"
+          },
+          "h2": {
+            "isCorrect": true,
+            "whyCorrect": "Pleuritic chest pain, which worsens with breathing, is a common symptom of PE due to pulmonary infarction or inflammation.",
+            "whyIncorrect": "N/A"
+          },
+          "h3": {
+            "isCorrect": true,
+            "whyCorrect": "Tachycardia is a compensatory mechanism to maintain cardiac output in the setting of hypoxia and hypotension.",
+            "whyIncorrect": "N/A"
+          },
+          "h4": {
+            "isCorrect": true,
+            "whyCorrect": "Tachypnea is a compensatory mechanism to increase oxygen intake and eliminate carbon dioxide due to impaired gas exchange.",
+            "whyIncorrect": "N/A"
+          },
+          "h5": {
+            "isCorrect": true,
+            "whyCorrect": "Hypotension suggests hemodynamic instability and potential right ventricular dysfunction due to the PE.",
+            "whyIncorrect": "N/A"
+          },
+          "h6": {
+            "isCorrect": true,
+            "whyCorrect": "Hypoxemia indicates impaired gas exchange in the lungs due to the pulmonary embolism.",
+            "whyIncorrect": "N/A"
+          },
+          "h7": {
+            "isCorrect": false,
+            "whyCorrect": "N/A",
+            "whyIncorrect": "Anxiety is a common symptom in respiratory distress but is not as critical as the physiological findings."
+          },
+          "h8": {
+            "isCorrect": false,
+            "whyCorrect": "N/A",
+            "whyIncorrect": "Wheezes are less specific for PE and could be related to other respiratory conditions."
+          },
+          "h9": {
+            "isCorrect": true,
+            "whyCorrect": "An elevated D-dimer indicates the presence of fibrin degradation products, suggesting a possible thromboembolic event.",
+            "whyIncorrect": "N/A"
+          }
+        },
+        "rationale": {
+          "coreConcept": "Recognizing critical cues is the first step in the clinical judgment model, enabling prompt intervention and improved patient outcomes.",
+          "caseSummary": "Eleanor Vance presents with several critical cues indicative of a pulmonary embolism, including dyspnea, chest pain, tachycardia, tachypnea, hypotension, hypoxemia, and an elevated D-dimer.",
+          "answerAnalysis": "The highlighted findings are the most concerning because they directly reflect the physiological consequences of a pulmonary embolism, such as impaired gas exchange, hemodynamic instability, and potential right ventricular dysfunction. These cues necessitate immediate action to stabilize the patient and prevent further deterioration.",
+          "trap": "A common mistake is to focus solely on one symptom, such as chest pain, without considering the constellation of findings that suggest a more serious condition like PE.",
+          "goldenRule": "Trust your assessment: Prioritize findings that indicate physiological compromise and require immediate intervention.",
+          "steps": [
+            {
+              "tag": "Recognize.",
+              "description": "Identify key signs and symptoms of PE, including dyspnea, chest pain, tachycardia, tachypnea, hypotension, and hypoxemia."
+            },
+            {
+              "tag": "Analyze.",
+              "description": "Interpret the significance of vital sign abnormalities and lab values, such as elevated D-dimer, in the context of the patient's post-operative status."
+            },
+            {
+              "tag": "Act",
+              "description": "Prioritize interventions based on the severity of the patient's condition and the likelihood of PE."
+            }
+          ],
+          "mnemonic": {
+            "title": "THREAT.",
+            "content": "Tachycardia, Hypotension, Respiratory distress, Elevated D-dimer, Anxious, Tachypnea.",
+            "explanation": "Helps to remember the key signs and symptoms of PE."
+          },
+          "cheatSheet": {
+            "title": "Pulmonary Embolism Assessment.",
+            "points": [
+              "Assess for risk factors, such as recent surgery or immobilization.",
+              "Evaluate vital signs for signs of respiratory distress or hemodynamic instability.",
+              "Review lab results, including D-dimer and ABGs, to assess the likelihood of PE."
+            ]
+          },
+          "referenceInfo": {
+            "anatomy": "Pulmonary arteries, right ventricle of the heart, lung lobes.",
+            "physiology": "Gas exchange in the alveoli, pulmonary circulation, ventilation-perfusion matching.",
+            "pharm": "Anticoagulants (e.g., heparin, enoxaparin, warfarin), thrombolytics (e.g., alteplase)."
+          },
+          "difficulty": {
+            "score": 95,
+            "level": 5,
+            "label": "Expert."
+          }
+        }
+      },
+      {
+        "id": "s2",
+        "type": "matrix",
+        "cjmmStep": "Analyze Cues.",
+        "prompt": "Categorize the following clinical findings as either related to Hypoxia, Hemodynamic Instability, or Pain.",
+        "columns": [
+          {
+            "id": "c1",
+            "text": "Hypoxia."
+          },
+          {
+            "id": "c2",
+            "text": "Hemodynamic Instability."
+          },
+          {
+            "id": "c3",
+            "text": "Pain"
+          }
+        ],
+        "rows": [
+          {
+            "id": "r1",
+            "text": "SpO2 88% on 2L NC.",
+            "correctColumnId": "c1",
+            "rationale": "Low SpO2 indicates inadequate oxygen saturation in the blood, a direct sign of hypoxia."
+          },
+          {
+            "id": "r2",
+            "text": "Blood Pressure 90/60.",
+            "correctColumnId": "c2",
+            "rationale": "Hypotension indicates inadequate tissue perfusion and hemodynamic instability."
+          },
+          {
+            "id": "r3",
+            "text": "Pleuritic Chest Pain.",
+            "correctColumnId": "c3",
+            "rationale": "Pleuritic chest pain is a specific type of pain associated with inflammation of the pleura, often exacerbated by breathing."
+          },
+          {
+            "id": "r4",
+            "text": "PaO2 60 mmHg.",
+            "correctColumnId": "c1",
+            "rationale": "A PaO2 of 60 mmHg indicates significant hypoxemia, reflecting impaired gas exchange in the lungs."
+          },
+          {
+            "id": "r5",
+            "text": "Heart Rate 110.",
+            "correctColumnId": "c2",
+            "rationale": "Tachycardia can be a compensatory mechanism for hypotension and hypoxia, indicating hemodynamic instability."
+          }
+        ],
+        "rationale": {
+          "coreConcept": "Analyzing cues involves categorizing clinical findings to identify underlying physiological problems and guide appropriate interventions.",
+          "caseSummary": "Eleanor Vance's clinical findings are categorized into hypoxia, hemodynamic instability, and pain to prioritize interventions and address the most critical issues.",
+          "answerAnalysis": "Correctly categorizing the findings allows for a targeted approach to managing the patient's condition. Hypoxia requires immediate oxygenation, hemodynamic instability requires fluid resuscitation and vasopressors if needed, and pain requires appropriate analgesia.",
+          "trap": "A common mistake is to focus on individual symptoms without recognizing the underlying physiological problems they represent, leading to fragmented and ineffective care.",
+          "goldenRule": "Connect the dots: Analyze cues to identify the root cause of the patient's symptoms and guide appropriate interventions.",
+          "steps": [
+            {
+              "tag": "Recognize.",
+              "description": "Identify key clinical findings, such as SpO2, blood pressure, PaO2, heart rate, and pain."
+            },
+            {
+              "tag": "Analyze.",
+              "description": "Categorize the findings based on their relationship to hypoxia, hemodynamic instability, or pain."
+            },
+            {
+              "tag": "Act",
+              "description": "Prioritize interventions based on the identified physiological problems."
+            }
+          ],
+          "mnemonic": {
+            "title": "HHP",
+            "content": "Hypoxia, Hemodynamic Instability, Pain.",
+            "explanation": "Helps to remember the key categories for analyzing clinical findings in this case."
+          },
+          "cheatSheet": {
+            "title": "Analyzing Clinical Findings.",
+            "points": [
+              "Consider the underlying physiological problems represented by the findings.",
+              "Prioritize interventions based on the severity of the problems.",
+              "Monitor the patient's response to interventions and adjust as needed."
+            ]
+          },
+          "referenceInfo": {
+            "anatomy": "Pulmonary arteries, right ventricle of the heart, lung lobes.",
+            "physiology": "Gas exchange in the alveoli, pulmonary circulation, ventilation-perfusion matching.",
+            "pharm": "Oxygen, vasopressors, analgesics."
+          },
+          "difficulty": {
+            "score": 95,
+            "level": 5,
+            "label": "Expert."
+          }
+        }
+      },
+      {
+        "id": "s3",
+        "type": "ordered-response",
+        "cjmmStep": "Prioritize Hypotheses.",
+        "prompt": "Based on the patient's presentation, lab results, and history, rank the following potential problems in order of priority, with the most urgent at the top.",
+        "options": [
+          "Pulmonary Embolism.",
+          "Post-operative Pain.",
+          "Atelectasis.",
+          "Anxiety."
+        ],
+        "correctOrder": [
+          "Pulmonary Embolism.",
+          "Atelectasis.",
+          "Post-operative Pain.",
+          "Anxiety."
+        ],
+        "rationale": {
+          "coreConcept": "Prioritizing hypotheses involves ranking potential problems based on their likelihood and potential impact on patient outcomes.",
+          "caseSummary": "Eleanor Vance's potential problems are prioritized based on the severity of her symptoms, lab results, and post-operative status.",
+          "answerAnalysis": "Pulmonary embolism is the highest priority due to the patient's sudden onset dyspnea, chest pain, hypoxemia, and elevated D-dimer. Atelectasis is a common post-operative complication that can contribute to hypoxemia. Post-operative pain and anxiety are important to address but are lower priorities than the potentially life-threatening PE and atelectasis.",
+          "trap": "A common mistake is to underestimate the likelihood of PE in a post-operative patient, leading to delayed diagnosis and treatment.",
+          "goldenRule": "Rule out the worst: Prioritize potential problems based on their potential to cause harm and the likelihood of their occurrence.",
+          "steps": [
+            {
+              "tag": "Recognize.",
+              "description": "Identify potential problems based on the patient's presentation, lab results, and history."
+            },
+            {
+              "tag": "Analyze.",
+              "description": "Evaluate the likelihood and potential impact of each problem."
+            },
+            {
+              "tag": "Act",
+              "description": "Rank the problems in order of priority, with the most urgent at the top."
+            }
+          ],
+          "mnemonic": {
+            "title": "ABCDE",
+            "content": "Airway, Breathing, Circulation, Disability, Exposure.",
+            "explanation": "Helps to prioritize problems based on their potential impact on the patient's physiological stability."
+          },
+          "cheatSheet": {
+            "title": "Prioritizing Patient Problems.",
+            "points": [
+              "Consider the potential for harm and the likelihood of occurrence.",
+              "Prioritize problems that affect airway, breathing, and circulation.",
+              "Address pain and anxiety after addressing more critical problems."
+            ]
+          },
+          "referenceInfo": {
+            "anatomy": "Pulmonary arteries, right ventricle of the heart, lung lobes.",
+            "physiology": "Gas exchange in the alveoli, pulmonary circulation, ventilation-perfusion matching.",
+            "pharm": "Anticoagulants (e.g., heparin, enoxaparin, warfarin), oxygen, analgesics."
+          },
+          "difficulty": {
+            "score": 95,
+            "level": 5,
+            "label": "Expert."
+          }
+        }
+      },
+      {
+        "id": "s4",
+        "type": "bow-tie",
+        "cjmmStep": "Generate Solutions.",
+        "prompt": "For the potential problem of Pulmonary Embolism, identify the appropriate actions and parameters to monitor.",
+        "conditions": [
+          {
+            "id": "c1",
+            "content": "Pulmonary Embolism."
+          }
+        ],
+        "actions": [
+          {
+            "id": "a1",
+            "content": "Administer Oxygen."
+          },
+          {
+            "id": "a2",
+            "content": "Initiate Anticoagulation."
+          },
+          {
+            "id": "a3",
+            "content": "Elevate Head of Bed."
+          },
+          {
+            "id": "a4",
+            "content": "Prepare for CT Angiogram."
+          }
+        ],
+        "parameters": [
+          {
+            "id": "p1",
+            "content": "Oxygen Saturation."
+          },
+          {
+            "id": "p2",
+            "content": "Blood Pressure."
+          },
+          {
+            "id": "p3",
+            "content": "Respiratory Rate."
+          },
+          {
+            "id": "p4",
+            "content": "Bleeding."
+          }
+        ],
+        "connections": {
+          "c1": {
+            "actions": [
+              "A1",
+              "A2",
+              "A3",
+              "A4"
+            ],
+            "parameters": [
+              "P1",
+              "P2",
+              "P3",
+              "P4"
+            ]
+          }
+        },
+        "rationale": {
+          "coreConcept": "Generating solutions involves identifying appropriate actions and parameters to monitor for a specific patient problem.",
+          "caseSummary": "For Eleanor Vance's potential pulmonary embolism, appropriate actions include administering oxygen, initiating anticoagulation, elevating the head of the bed, and preparing for a CT angiogram. Parameters to monitor include oxygen saturation, blood pressure, respiratory rate, and signs of bleeding.",
+          "answerAnalysis": "Administering oxygen addresses hypoxemia, initiating anticoagulation prevents further clot formation, elevating the head of the bed improves ventilation, and preparing for a CT angiogram confirms the diagnosis. Monitoring oxygen saturation, blood pressure, and respiratory rate assesses the patient's response to interventions, while monitoring for bleeding is crucial due to anticoagulation therapy.",
+          "trap": "A common mistake is to focus solely on one aspect of treatment, such as oxygen administration, without considering the need for anticoagulation and diagnostic confirmation.",
+          "goldenRule": "Treat the whole patient: Address all aspects of the patient's condition and monitor for potential complications.",
+          "steps": [
+            {
+              "tag": "Recognize.",
+              "description": "Identify the potential problem of pulmonary embolism."
+            },
+            {
+              "tag": "Analyze.",
+              "description": "Determine appropriate actions to address the problem, such as administering oxygen and initiating anticoagulation."
+            },
+            {
+              "tag": "Act",
+              "description": "Monitor parameters to assess the patient's response to interventions and detect potential complications."
+            }
+          ],
+          "mnemonic": {
+            "title": "OXYGEN.",
+            "content": "Oxygen, CT Angiogram, Y-site (IV access), Gene (Anticoagulation), Elevate HOB, No Valsalva.",
+            "explanation": "Helps to remember the key actions for managing pulmonary embolism."
+          },
+          "cheatSheet": {
+            "title": "Pulmonary Embolism Management.",
+            "points": [
+              "Administer oxygen to maintain adequate oxygen saturation.",
+              "Initiate anticoagulation therapy to prevent further clot formation.",
+              "Monitor for signs of bleeding or hemodynamic instability."
+            ]
+          },
+          "referenceInfo": {
+            "anatomy": "Pulmonary arteries, right ventricle of the heart, lung lobes.",
+            "physiology": "Gas exchange in the alveoli, pulmonary circulation, ventilation-perfusion matching.",
+            "pharm": "Anticoagulants (e.g., heparin, enoxaparin, warfarin), oxygen."
+          },
+          "difficulty": {
+            "score": 95,
+            "level": 5,
+            "label": "Expert."
+          }
+        }
+      },
+      {
+        "id": "s5",
+        "type": "drop-cloze",
+        "cjmmStep": "Take Action.",
+        "prompt": "Complete the following nursing orders for Eleanor Vance.",
+        "sentences": [
+          {
+            "text": "1. Apply %{d1} via %{d2} to maintain SpO2 > 92%.",
+            "dropdowns": [
+              {
+                "id": "d1",
+                "options": [
+                  "Oxygen.",
+                  "Normal Saline.",
+                  "Furosemide."
+                ],
+                "correctAnswer": "Oxygen."
+              },
+              {
+                "id": "d2",
+                "options": [
+                  "Nasal Cannula.",
+                  "IV",
+                  "Foley Catheter."
+                ],
+                "correctAnswer": "Nasal Cannula."
+              }
+            ]
+          },
+          {
+            "text": "2. Initiate %{d3} therapy with %{d4} per protocol.",
+            "dropdowns": [
+              {
+                "id": "d3",
+                "options": [
+                  "Anticoagulation.",
+                  "Analgesic.",
+                  "Antibiotic."
+                ],
+                "correctAnswer": "Anticoagulation."
+              },
+              {
+                "id": "d4",
+                "options": [
+                  "Enoxaparin.",
+                  "Acetaminophen.",
+                  "Ceftriaxone."
+                ],
+                "correctAnswer": "Enoxaparin."
+              }
+            ]
+          },
+          {
+            "text": "3. Prepare the patient for a %{d5} to confirm the diagnosis.",
+            "dropdowns": [
+              {
+                "id": "d5",
+                "options": [
+                  "CT Angiogram.",
+                  "Chest X-Ray.",
+                  "EKG"
+                ],
+                "correctAnswer": "CT Angiogram."
+              }
+            ]
+          }
+        ],
+        "blankMap": {
+          "d1": {
+            "whyCorrect": "Oxygen is essential to treat hypoxemia associated with pulmonary embolism.",
+            "distractorRationales": {
+              "Normal Saline": "Normal saline is not indicated for hypoxemia.",
+              "Furosemide": "Furosemide is a diuretic and not indicated for hypoxemia."
+            }
+          },
+          "d2": {
+            "whyCorrect": "Nasal cannula is an appropriate initial method for oxygen delivery.",
+            "distractorRationales": {
+              "IV": "IV is a route of administration, not an oxygen delivery device.",
+              "Foley Catheter": "Foley catheter is used for urinary drainage, not oxygen delivery."
+            }
+          },
+          "d3": {
+            "whyCorrect": "Anticoagulation therapy is crucial to prevent further clot formation in pulmonary embolism.",
+            "distractorRationales": {
+              "Analgesic": "Analgesics address pain but do not treat the underlying cause of pulmonary embolism.",
+              "Antibiotic": "Antibiotics are used for infections and are not indicated for pulmonary embolism."
+            }
+          },
+          "d4": {
+            "whyCorrect": "Enoxaparin is a low-molecular-weight heparin commonly used for initial anticoagulation in PE.",
+            "distractorRationales": {
+              "Acetaminophen": "Acetaminophen is an analgesic and not an anticoagulant.",
+              "Ceftriaxone": "Ceftriaxone is an antibiotic and not an anticoagulant."
+            }
+          },
+          "d5": {
+            "whyCorrect": "CT Angiogram is the gold standard for diagnosing pulmonary embolism.",
+            "distractorRationales": {
+              "Chest X-Ray": "Chest X-ray may show some abnormalities but is not definitive for PE.",
+              "EKG": "EKG may show signs of right heart strain but is not diagnostic for PE."
+            }
+          }
+        },
+        "rationale": {
+          "coreConcept": "Taking action involves implementing appropriate nursing orders to address the patient's condition and prevent further complications.",
+          "caseSummary": "For Eleanor Vance, appropriate nursing orders include administering oxygen, initiating anticoagulation therapy with enoxaparin, and preparing the patient for a CT angiogram to confirm the diagnosis of pulmonary embolism.",
+          "answerAnalysis": "These orders directly address the patient's hypoxemia, prevent further clot formation, and confirm the diagnosis, allowing for targeted treatment.",
+          "trap": "A common mistake is to delay anticoagulation therapy or diagnostic confirmation, leading to potential complications and delayed treatment.",
+          "goldenRule": "Act decisively: Implement appropriate nursing orders promptly to address the patient's condition and prevent further deterioration.",
+          "steps": [
+            {
+              "tag": "Recognize.",
+              "description": "Identify the need for oxygen, anticoagulation, and diagnostic confirmation."
+            },
+            {
+              "tag": "Analyze.",
+              "description": "Determine the appropriate methods for oxygen delivery, anticoagulation therapy, and diagnostic imaging."
+            },
+            {
+              "tag": "Act",
+              "description": "Implement the nursing orders promptly and monitor the patient's response."
+            }
+          ],
+          "mnemonic": {
+            "title": "ACT FAST.",
+            "content": "Anticoagulate, CT Angiogram, Treat Hypoxia, Fluid Resuscitation, Assess for Bleeding, Support Vitals.",
+            "explanation": "Helps to remember the key actions for managing pulmonary embolism."
+          },
+          "cheatSheet": {
+            "title": "Nursing Orders for Pulmonary Embolism.",
+            "points": [
+              "Administer oxygen to maintain adequate oxygen saturation.",
+              "Initiate anticoagulation therapy to prevent further clot formation.",
+              "Prepare the patient for a CT angiogram to confirm the diagnosis."
+            ]
+          },
+          "referenceInfo": {
+            "anatomy": "Pulmonary arteries, right ventricle of the heart, lung lobes.",
+            "physiology": "Gas exchange in the alveoli, pulmonary circulation, ventilation-perfusion matching.",
+            "pharm": "Anticoagulants (e.g., heparin, enoxaparin, warfarin), oxygen."
+          },
+          "difficulty": {
+            "score": 95,
+            "level": 5,
+            "label": "Expert."
+          }
+        }
+      },
+      {
+        "id": "s6",
+        "type": "multiple-response",
+        "cjmmStep": "Evaluate Outcomes.",
+        "prompt": "Which of the following findings indicate a positive response to the interventions implemented for Eleanor Vance?",
+        "options": [
+          "SpO2 increased to 95% on 2L NC.",
+          "Blood pressure increased to 120/80.",
+          "Respiratory rate decreased to 20.",
+          "Patient reports decreased chest pain.",
+          "D-dimer remains elevated at 5.8 mcg/mL."
+        ],
+        "correct": [
+          "SpO2 increased to 95% on 2L NC.",
+          "Blood pressure increased to 120/80.",
+          "Respiratory rate decreased to 20.",
+          "Patient reports decreased chest pain."
+        ],
+        "rationale": {
+          "coreConcept": "Evaluating outcomes involves assessing the patient's response to interventions and determining whether the desired goals have been achieved.",
+          "caseSummary": "Positive responses to interventions for Eleanor Vance include improved oxygen saturation, increased blood pressure, decreased respiratory rate, and decreased chest pain.",
+          "answerAnalysis": "An SpO2 of 95% on 2L NC indicates improved oxygenation, a blood pressure of 120/80 indicates improved hemodynamic stability, a respiratory rate of 20 indicates decreased respiratory distress, and decreased chest pain indicates improved comfort. An elevated D-dimer indicates the presence of fibrin degradation products, suggesting ongoing clot lysis, but does not necessarily indicate a positive response to interventions.",
+          "trap": "A common mistake is to focus solely on one parameter, such as oxygen saturation, without considering the overall clinical picture and the patient's subjective experience.",
+          "goldenRule": "Look at the big picture: Evaluate the patient's response to interventions based on multiple parameters and the patient's subjective experience.",
+          "steps": [
+            {
+              "tag": "Recognize.",
+              "description": "Identify key parameters to monitor, such as SpO2, blood pressure, respiratory rate, and pain."
+            },
+            {
+              "tag": "Analyze.",
+              "description": "Evaluate the patient's response to interventions based on changes in these parameters."
+            },
+            {
+              "tag": "Act",
+              "description": "Adjust interventions as needed based on the patient's response."
+            }
+          ],
+          "mnemonic": {
+            "title": "SOAP",
+            "content": "Subjective, Objective, Assessment, Plan.",
+            "explanation": "Helps to remember the key components of evaluating patient outcomes."
+          },
+          "cheatSheet": {
+            "title": "Evaluating Patient Outcomes.",
+            "points": [
+              "Monitor key parameters to assess the patient's response to interventions.",
+              "Consider the patient's subjective experience and overall clinical picture.",
+              "Adjust interventions as needed based on the patient's response."
+            ]
+          },
+          "referenceInfo": {
+            "anatomy": "Pulmonary arteries, right ventricle of the heart, lung lobes.",
+            "physiology": "Gas exchange in the alveoli, pulmonary circulation, ventilation-perfusion matching.",
+            "pharm": "Anticoagulants (e.g., heparin, enoxaparin, warfarin), oxygen."
+          },
+          "difficulty": {
+            "score": 95,
+            "level": 5,
+            "label": "Expert."
+          }
+        }
+      }
+    ]
+  },
+  "typeId": "case-study",
+  "id": "39d7767b-04e0-44f9-a7fb-d99d06a9bd59",
+  "pedagogy": {
+    "difficultyLevel": 5,
+    "clinicalFocus": "Respiratory Distress.",
+    "clinicalFocusTopics": [
+      "Respiratory Distress.",
+      "Pulmonary Embolism."
+    ]
+  },
+  "metadata": {
+    "title": "Generated case-study.",
+    "authorId": "AI_Gen.",
+    "createdAt": "2026-01-29T20:35:08.184Z.",
+    "updatedAt": "2026-01-30T13:43:13.595Z.",
+    "status": "Draft",
+    "sourceOrigin": "Ai",
+    "sourceReferences": [],
+    "qualityScore": 90,
+    "hasStudentPreview": true,
+    "batchInfo": {
+      "batchId": "Baa1fe5b-6f42-46a1-b29b-6d327016b52c.",
+      "batchSize": 0,
+      "temperature": 0.2,
+      "generationDate": "2026-01-29T20:35:08.184Z."
+    },
+    "difficulty": 5,
+    "difficultyLevel": 5
+  },
+  "aiSafetyChecks": {
+    "runId": "1eaa7ddd-efdc-4f68-9f73-39efbc6fcb47.",
+    "timestamp": "2026-01-29T20:35:08.184Z.",
+    "copyrightScore": 100,
+    "duplicationCheck": {
+      "isDuplicate": false,
+      "similarityScore": 0
+    },
+    "validationStatus": "Warnings.",
+    "issues": [
+      {
+        "type": "format",
+        "severity": "Warning.",
+        "message": "Temperature units missing Celsius conversion."
+      }
+    ],
+    "autoFixHistory": []
+  },
+  "difficulty": 5,
+  "difficultyLevel": 5,
+  "_unifiedPipelineProcessed": true,
+  "_sanitized": true
+}

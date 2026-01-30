@@ -1,0 +1,528 @@
+{
+  "id": "cs-critical-care-001",
+  "type": "case-study-6-screen",
+  "title": "Unfolding Septic Shock Management.",
+  "content": {
+    "clinicalData": {
+      "patientInfo": {
+        "name": "Client, A.",
+        "age": "Unknown",
+        "gender": "O",
+        "codeStatus": "FULL CODE.",
+        "admissionDate": "1/30/2026 07:30.",
+        "room": "MedSurg-12.",
+        "physician": "Dr. S. Specialist.",
+        "nurse": "RN Staff.",
+        "allergies": "NKDA",
+        "isolation": "Standard Precautions.",
+        "history": [],
+        "homeMeds": []
+      },
+      "history": [
+        {
+          "time": "0800",
+          "note": "68-year-old male with history of DM type 2 and BPH. Presenting from long-term care facility with 2-day history of confusion, productive cough, and decreased oral intake. LTC staff reports increased lethargy this morning.",
+          "initial": "RN"
+        }
+      ],
+      "historyPhysical": {
+        "sections": [
+          {
+            "title": "Chief Complaint.",
+            "content": [
+              "Acute change in mental status, probable pneumonia."
+            ]
+          },
+          {
+            "title": "History of Present Illness.",
+            "content": [
+              "Patient was managed at LTC for mild cough. This morning, temp was 102.1°F and O2 sats dropped to 89% on RA."
+            ]
+          }
+        ]
+      },
+      "vitals": [
+        {
+          "time": "08:30",
+          "tempF": "102.4",
+          "hr": 112,
+          "rr": 24,
+          "bp": "94/58",
+          "o2": "90",
+          "o2_device": "RA",
+          "pain": 0
+        },
+        {
+          "time": "09:00",
+          "tempF": "101.8",
+          "hr": 108,
+          "rr": 26,
+          "bp": "88/50",
+          "o2": "94",
+          "o2_device": "2LLC",
+          "pain": 0
+        }
+      ],
+      "labs": [
+        {
+          "test": "WBC",
+          "value": "18.5",
+          "unit": "10^3/uL",
+          "ref": "4.5-11.0",
+          "flag": "H"
+        },
+        {
+          "test": "Lactic Acid.",
+          "value": "4.2",
+          "unit": "Mmol/L",
+          "ref": "0.5-2.2",
+          "flag": "H!"
+        },
+        {
+          "test": "Creatinine.",
+          "value": "1.8",
+          "unit": "Mg/dL",
+          "ref": "0.7-1.3",
+          "flag": "H"
+        }
+      ],
+      "orders": [
+        {
+          "drug": "Infuse immediately.",
+          "dose": "30 mL/kg bolus.",
+          "route": "IV",
+          "freq": "Per protocol.",
+          "status": "Active",
+          "indication": ""
+        },
+        {
+          "drug": "Administer STAT after cultures.",
+          "dose": "1g IVPB.",
+          "route": "IV",
+          "freq": "Per protocol.",
+          "status": "Pending",
+          "indication": ""
+        }
+      ],
+      "radiology": [
+        {
+          "study": "Diagnostic Imaging.",
+          "findings": "Portable Chest X-Ray (08:45): Patchy opacity in right lower lobe, consistent with pneumonia. No cardiomegaly.",
+          "impression": "",
+          "indication": "",
+          "radiologist": "",
+          "date": "Recent"
+        }
+      ],
+      "setting": "MedSurg Unit."
+    },
+    "structure": {
+      "prompt": "Review the EHR and clinical findings to manage this client's condition.",
+      "screens": [
+        {
+          "id": "screen1",
+          "type": "highlight",
+          "prompt": "Highlight the clinical findings that require immediate nursing intervention.",
+          "text": "Client is a <span id='h1'>68-year-old male</span> with a history of <span id='h2'>diabetes</span>. Vital signs show <span id='h3'>temperature 102.4°F</span>, <span id='h4'>heart rate 112 bpm</span>, and <span id='h5'>blood pressure 94/58 mmHg</span>. The client is <span id='h6'>lethargic</span> and has a <span id='h7'>productive cough</span>. <span id='h8'>Lactic acid is 4.2 mmol/L</span>.",
+          "correct": [
+            "H3",
+            "H5",
+            "H6",
+            "H8"
+          ],
+          "rationale": {
+            "coreConcept": "Sepsis Recognition.",
+            "caseSummary": "The patient presents with systemic inflammatory response syndrome (SIRS) criteria and evidence of organ dysfunction (lactic acidosis).",
+            "answerAnalysis": "Fever, hypotension, lethargy, and elevated lactate are all 'red flags' for sepsis and septic shock.",
+            "trap": "Do not ignore 'mild' hypotension in the context of tachycardia and fever; this often represents the compensated phase of shock.",
+            "goldenRule": "Always prioritize findings that indicate impaired tissue perfusion.",
+            "clinicalStrategy": "Identify triad of sepsis: Infection source, Systemic response, Organ dysfunction.",
+            "referenceInfo": {
+              "anatomy": "Systemic vasodilation reduces effective circulating volume.",
+              "physiology": "Elevated lactate levels indicative of anaerobic metabolism due to cellular hypoxia.",
+              "pharm": "Early antibiotic administration is correlated with improved survival rates in sepsis."
+            },
+            "mnemonic": {
+              "title": "SEPSIS-6",
+              "content": "S-Send cultures, E-Empiric antibiotics, P-Put in fluids, S-Serum lactate, I-I/O monitoring, S-Supplement O2.",
+              "explanation": "Immediate interventions focus on restoring perfusion and treating the infection."
+            },
+            "cheatSheet": {
+              "title": "Sepsis Red Flags.",
+              "points": [
+                "Lactate > 2.0 mmol/L.",
+                "SBP < 90 mmHg or Fall > 40 mmHg.",
+                "Altered mental status (GCS < 15)."
+              ]
+            },
+            "difficulty": {
+              "level": 3,
+              "label": "Moderate",
+              "clinicalStrategy": "Recognize signs of systemic infection and shock."
+            }
+          },
+          "metadata": {
+            "cjmmStep": "Recognize Cues."
+          },
+          "cjmmPhase": "Recognize Cues."
+        },
+        {
+          "id": "screen2",
+          "type": "matrix-mr",
+          "prompt": "For each finding, click to specify if it is consistent with Compensated Sepsis or Septic Shock.",
+          "rowLabel": "Clinical Finding.",
+          "columns": [
+            {
+              "id": "c1",
+              "label": "Compensated Sepsis."
+            },
+            {
+              "id": "c2",
+              "label": "Septic Shock."
+            }
+          ],
+          "rows": [
+            {
+              "id": "r1",
+              "text": "Blood Pressure 118/76 mmHg.",
+              "correctColumnIds": [
+                "C1"
+              ],
+              "correctColumnId": "C1"
+            },
+            {
+              "id": "r2",
+              "text": "Lactic Acid 4.2 mmol/L.",
+              "correctColumnIds": [
+                "C2"
+              ],
+              "correctColumnId": "C2"
+            },
+            {
+              "id": "r3",
+              "text": "Heart Rate 112 bpm.",
+              "correctColumnIds": [
+                "C1",
+                "C2"
+              ],
+              "correctColumnId": "C1"
+            },
+            {
+              "id": "r4",
+              "text": "MAP 55 mmHg.",
+              "correctColumnIds": [
+                "C2"
+              ],
+              "correctColumnId": "C2"
+            }
+          ],
+          "rationale": {
+            "coreConcept": "Stages of Sepsis.",
+            "caseSummary": "Distinguishing between compensated sepsis and decompensated septic shock is vital for determining the urgency of vasopressor therapy.",
+            "answerAnalysis": "Normal BP can exist in compensated phases, while high lactate and low MAP define shock.",
+            "trap": "A 'normal' blood pressure does not rule out sepsis if other perfusion markers (lactate, mentation) are abnormal.",
+            "goldenRule": "Shock is a state of cellular hypoxia, not just low blood pressure.",
+            "referenceInfo": {
+              "anatomy": "Peripheral vasculature loses tone due to inflammatory mediators.",
+              "physiology": "Compensatory mechanisms (tachycardia) maintain CO initially, but fail as lactate rises.",
+              "pharm": "Vasopressors are required when fluid resuscitation fails to maintain MAP > 65."
+            },
+            "difficulty": {
+              "level": 4,
+              "label": "Advanced",
+              "clinicalStrategy": "Differentiate stages of perfusion failure."
+            }
+          },
+          "metadata": {
+            "cjmmStep": "Analyze Cues."
+          },
+          "cjmmPhase": "Analyze Cues."
+        },
+        {
+          "id": "screen3",
+          "type": "ordered-response",
+          "prompt": "The nurse has received several orders. Sequence the nursing actions in the correct order of priority.",
+          "options": [
+            {
+              "id": "o1",
+              "text": "Ensure patent IV access."
+            },
+            {
+              "id": "o2",
+              "text": "Obtain blood and urine cultures."
+            },
+            {
+              "id": "o3",
+              "text": "Administer STAT Ceftriaxone."
+            },
+            {
+              "id": "o4",
+              "text": "Initiate 30 mL/kg Saline bolus."
+            }
+          ],
+          "correctOrder": [
+            "O1",
+            "O2",
+            "O4",
+            "O3"
+          ],
+          "rationale": {
+            "coreConcept": "Hour-1 Sepsis Bundle.",
+            "caseSummary": "Priority must be given to access, diagnostics, then therapy.",
+            "answerAnalysis": "Access is first. Cultures MUST precede antibiotics to avoid masking the pathogen.",
+            "goldenRule": "Never administer antibiotics before obtaining cultures in a septic patient.",
+            "referenceInfo": {
+              "anatomy": "Venous access is essential for rapid fluid delivery.",
+              "physiology": "Pathogen identification allows for narrowed antibiotic therapy later.",
+              "pharm": "Empiric antibiotics should be started within 1 hour of recognition."
+            },
+            "difficulty": {
+              "level": 4,
+              "label": "Advanced",
+              "clinicalStrategy": "Prioritize the Sepsis Bundle steps."
+            }
+          },
+          "metadata": {
+            "cjmmStep": "Prioritize Hypotheses."
+          },
+          "cjmmPhase": "Prioritize Hypotheses."
+        },
+        {
+          "id": "screen4",
+          "type": "bow-tie",
+          "prompt": "A nursing student is reviewing the plan of care. Complete the Bow-Tie by selecting the condition the client is most likely experiencing, the priority action, and the parameter to monitor.",
+          "actions": {
+            "pool": [
+              {
+                "id": "a1",
+                "text": "Fluid Bolus.",
+                "isCorrect": true
+              },
+              {
+                "id": "a2",
+                "text": "Incentive Spirometry."
+              },
+              {
+                "id": "a3",
+                "text": "Encourage PO Fluids."
+              }
+            ]
+          },
+          "conditions": {
+            "pool": [
+              {
+                "id": "c1",
+                "text": "Septic Shock.",
+                "isCorrect": true
+              },
+              {
+                "id": "c2",
+                "text": "Simple Pneumonia."
+              },
+              {
+                "id": "c3",
+                "text": "Hypovolemic Shock."
+              }
+            ]
+          },
+          "parameters": {
+            "pool": [
+              {
+                "id": "p1",
+                "text": "MAP > 65.",
+                "isCorrect": true
+              },
+              {
+                "id": "p2",
+                "text": "Daily Weight."
+              },
+              {
+                "id": "p3",
+                "text": "Oral Intake."
+              }
+            ]
+          },
+          "rationale": {
+            "coreConcept": "Bow-Tie: Clinical Synthesis.",
+            "caseSummary": "Synthesizing cues leads to a diagnosis of Septic Shock requiring aggressive fluid resuscitation.",
+            "answerAnalysis": "Action: IV fluids are the first-line treatment. Condition: Patient meets criteria for Septic Shock. Parameter: MAP is the gold standard for monitoring shock perfusion.",
+            "goldenRule": "Fluid resuscitation is the foundation of early sepsis management.",
+            "difficulty": {
+              "level": 5,
+              "label": "Expert",
+              "clinicalStrategy": "Synthesize multiple data points into a cohesive plan."
+            }
+          },
+          "metadata": {
+            "cjmmStep": "Generate Solutions."
+          },
+          "cjmmPhase": "Generate Solutions."
+        },
+        {
+          "id": "screen5",
+          "type": "drop-cloze",
+          "prompt": "Complete the statement regarding medication administration.",
+          "sentences": [
+            {
+              "text": "The nurse should administer %{d1}% within the first hour of recognition, ideally after %{d2}% are collected.",
+              "dropdowns": [
+                {
+                  "id": "d1",
+                  "options": [
+                    {
+                      "text": "Broad-spectrum antibiotics.",
+                      "isCorrect": true,
+                      "id": "d1-o0"
+                    },
+                    {
+                      "text": "Low-dose heparin.",
+                      "id": "d1-o1",
+                      "isCorrect": false
+                    }
+                  ]
+                },
+                {
+                  "id": "d2",
+                  "options": [
+                    {
+                      "text": "Blood cultures.",
+                      "isCorrect": true,
+                      "id": "d2-o0"
+                    },
+                    {
+                      "text": "Electrolyte panels.",
+                      "id": "d2-o1",
+                      "isCorrect": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "rationale": {
+            "coreConcept": "Antibiotic Stewardship.",
+            "caseSummary": "Timing and sequence of antibiotics and cultures is a major safety metric.",
+            "answerAnalysis": "Antibiotics (broad-spectrum) should be given STAT, but only after blood cultures are drawn to ensure accurate microbiology.",
+            "referenceInfo": {
+              "pharm": "Broad-spectrum coverage is narrowed once sensitivity results are available (usually 48-72 hours)."
+            },
+            "difficulty": {
+              "level": 3,
+              "label": "Moderate",
+              "clinicalStrategy": "Correct sequencing of sepsis bundle."
+            }
+          },
+          "metadata": {
+            "cjmmStep": "Take Action."
+          },
+          "cjmmPhase": "Take Action."
+        },
+        {
+          "id": "screen6",
+          "type": "multiple-response",
+          "prompt": "The nurse evaluates the effectiveness of the interventions at 10:00. Which findings indicate improvement? Select all that apply.",
+          "options": [
+            {
+              "id": "o1",
+              "text": "MAP increases to 72 mmHg.",
+              "isCorrect": true,
+              "rationale": "MAP > 65 indicates improved perfusion."
+            },
+            {
+              "id": "o2",
+              "text": "Urine output is 45 mL/hr.",
+              "isCorrect": true,
+              "rationale": "UOP > 0.5 mL/kg/hr indicates adequate renal perfusion."
+            },
+            {
+              "id": "o3",
+              "text": "Mentation remains lethargic.",
+              "isCorrect": false,
+              "rationale": "Persistent lethargy suggests continuing cerebral hypoperfusion."
+            },
+            {
+              "id": "o4",
+              "text": "Heart rate decreases to 94 bpm.",
+              "isCorrect": true,
+              "rationale": "Decreased HR suggests compensatory mechanisms are no longer needed."
+            },
+            {
+              "id": "o5",
+              "text": "Lactic acid increases to 5.1.",
+              "isCorrect": false,
+              "rationale": "Rising lactate indicates worsening tissue acidosis."
+            }
+          ],
+          "rationale": {
+            "coreConcept": "Evaluation of Shock.",
+            "caseSummary": "Assessment of outcomes depends on objective perfusion metrics (MAP, UOP, mentation).",
+            "answerAnalysis": "Improved MAP, decreased HR, and adequate UOP are positive signs of recovery from shock.",
+            "goldenRule": "Always look for signs of end-organ perfusion (brain, kidneys, heart) when evaluating shock.",
+            "difficulty": {
+              "level": 4,
+              "label": "Advanced",
+              "clinicalStrategy": "Evaluate indices of perfusion recovery."
+            }
+          },
+          "metadata": {
+            "cjmmStep": "Evaluate Outcomes."
+          },
+          "cjmmPhase": "Evaluate Outcomes."
+        }
+      ],
+      "type": "case-study-6-screen",
+      "difficulty": 3
+    },
+    "rationale": {
+      "coreConcept": "Clinical Judgment.",
+      "caseSummary": "Clinical scenario analysis required.",
+      "answerAnalysis": "See option review for detailed analysis.",
+      "goldenRule": "Prioritize patient safety.",
+      "steps": [],
+      "difficulty": {
+        "level": 3,
+        "score": 60,
+        "label": "Analysis",
+        "clinicalStrategy": "Level 3 clinical reasoning required.",
+        "recommendedActions": [
+          "Review core concepts."
+        ]
+      },
+      "clinicalStrategy": "Level 3 clinical reasoning required."
+    },
+    "patient": {
+      "age": "Unknown",
+      "gender": "Unknown",
+      "diagnosis": "Pending"
+    }
+  },
+  "metadata": {
+    "status": "Published",
+    "difficulty": 3,
+    "clientNeeds": "Physiological Integrity.",
+    "topic": "Cardiovascular/Sepsis.",
+    "difficultyLevel": 3,
+    "title": "Clinical Assessment Item.",
+    "authorId": "UnifiedPipeline",
+    "createdAt": "2026-01-30T13:04:49.067Z.",
+    "updatedAt": "2026-01-30T13:43:13.610Z.",
+    "qualityScore": 80,
+    "hasStudentPreview": true,
+    "sourceOrigin": "Ai",
+    "batchInfo": {
+      "batchId": "unified",
+      "batchSize": 1,
+      "temperature": 0,
+      "generationDate": "2026-01-30T13:04:49.067Z."
+    }
+  },
+  "pedagogy": {
+    "difficultyLevel": 3,
+    "clinicalFocus": "Cardiovascular/Sepsis."
+  },
+  "difficulty": 3,
+  "difficultyLevel": 3,
+  "typeId": "case-study-6-screen",
+  "_unifiedPipelineProcessed": true,
+  "_sanitized": true
+}

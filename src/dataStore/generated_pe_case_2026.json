@@ -1,0 +1,401 @@
+{
+  "id": "cs-pe-respiratory-distress-002",
+  "typeId": "case-study-6-screen",
+  "metadata": {
+    "title": "Case Study: Post-Operative Pulmonary Embolism (Critical Care Level 5).",
+    "authorId": "Expert_AI",
+    "createdAt": "2026-01-29T23:30:00Z.",
+    "updatedAt": "2026-01-30T13:43:13.606Z.",
+    "status": "Draft",
+    "qualityScore": 99,
+    "hasStudentPreview": true,
+    "clinicalFocus": "Respiratory Distress.",
+    "level": 5,
+    "targetScore": 95,
+    "generator": "Golden NGN v3.2 (Simulated).",
+    "difficulty": 5,
+    "difficultyLevel": 5,
+    "sourceOrigin": "Ai",
+    "batchInfo": {
+      "batchId": "unified",
+      "batchSize": 1,
+      "temperature": 0,
+      "generationDate": "2026-01-30T13:04:49.064Z."
+    }
+  },
+  "pedagogy": {
+    "difficultyLevel": 5,
+    "clinicalFocus": "Respiratory / Critical Care.",
+    "clinicalFocusTopics": [
+      "Pulmonary Embolism.",
+      "Post-Operative Complications.",
+      "Acid-Base Balance.",
+      "Emergency Management."
+    ]
+  },
+  "content": {
+    "quickStart": {
+      "summary": "Management of a 68-year-old female developing acute pulmonary embolism on POD 3 after total hip arthroplasty."
+    },
+    "setting": "Orthopedic Surgical Unit / Rapid Response.",
+    "chiefComplaint": "Sudden onset of 'sharp' chest pain and severe shortness of breath.",
+    "clinicalData": {
+      "patientInfo": {
+        "name": "Client, A.",
+        "age": "Unknown",
+        "gender": "O",
+        "codeStatus": "FULL CODE.",
+        "admissionDate": "1/30/2026 07:30.",
+        "room": "MedSurg-12.",
+        "physician": "Dr. S. Specialist.",
+        "nurse": "RN Staff.",
+        "allergies": "NKDA",
+        "isolation": "Standard Precautions.",
+        "history": [],
+        "homeMeds": []
+      },
+      "vitals": [
+        {
+          "time": "08:00",
+          "tempF": "98.4",
+          "hr": 78,
+          "rr": 16,
+          "bp": "132/74",
+          "o2": "96",
+          "o2_device": "RA",
+          "pain": 0
+        },
+        {
+          "time": "11:20",
+          "tempF": "99.2",
+          "hr": 122,
+          "rr": 32,
+          "bp": "104/62",
+          "o2": "86",
+          "o2_device": "RA",
+          "pain": 0
+        },
+        {
+          "time": "11:35",
+          "tempF": "99.1",
+          "hr": 118,
+          "rr": 26,
+          "bp": "108/64",
+          "o2": "93",
+          "o2_device": "10L Non-Rebreather.",
+          "pain": 0
+        }
+      ],
+      "labs": [
+        {
+          "test": "D-Dimer",
+          "value": "4.2",
+          "unit": "Μg/mL FEU.",
+          "ref": "<0.50",
+          "flag": "H!"
+        },
+        {
+          "test": "Troponin I.",
+          "value": "0.15",
+          "unit": "Ng/mL",
+          "ref": "<0.04",
+          "flag": "H"
+        },
+        {
+          "test": "PH",
+          "value": "7.52",
+          "unit": "",
+          "ref": "7.35-11.45.",
+          "flag": "H"
+        },
+        {
+          "test": "PaO2",
+          "value": "58",
+          "unit": "MmHg",
+          "ref": "80-100",
+          "flag": "L!"
+        },
+        {
+          "test": "PaCO2",
+          "value": "29",
+          "unit": "MmHg",
+          "ref": "35-45",
+          "flag": "L"
+        }
+      ],
+      "nursesNotes": [
+        {
+          "time": "11:20",
+          "initial": "R. James, RN.",
+          "note": "Client suddenly reported 'stabbing' chest pain. Appears extremely anxious (impending doom). Diaphoretic and tachypneic. O2 sat dropped to 86%. Lung sounds clear bilaterally. Rapid Response Team (RRT) called."
+        }
+      ],
+      "historyPhysical": "68yo female POD 3 status-post right total hip arthroplasty. Surgery was uncomplicated. Client has been slow to ambulate due to pain. Suddenly developed acute distress at 11:20 while sitting in chair. No prior history of VTE. Leg assessment reveals slight swelling of the right calf compared to left.",
+      "orders": [],
+      "history": [
+        {
+          "time": "11:20",
+          "note": "Client suddenly reported 'stabbing' chest pain. Appears extremely anxious (impending doom). Diaphoretic and tachypneic. O2 sat dropped to 86%. Lung sounds clear bilaterally. Rapid Response Team (RRT) called.",
+          "initial": "R. James, RN."
+        }
+      ],
+      "radiology": [],
+      "setting": "Orthopedic Surgical Unit / Rapid Response."
+    },
+    "rationale": {
+      "coreConcept": "Acute Pulmonary Embolism (PE) is a life-threatening complication of immobility following major orthopedic surgery.",
+      "caseSummary": "Evelyn Graves demonstrates the classic triad of sudden dyspnea, pleuritic chest pain, and hypoxemia. Her elevated D-Dimer and troponin, combined with respiratory alkalosis (compensatory hyperventilation), strongly indicate PE with potential right heart strain.",
+      "answerAnalysis": "See option review for detailed analysis.",
+      "trap": "Failure to recognize that 'clear lung sounds' in the presence of severe hypoxia is often a hallmark of PE (it is a ventilation/perfusion mismatch, not an airway obstruction).",
+      "goldenRule": "Always assume Pulmonary Embolism in any post-operative patient with sudden-onset respiratory distress and sharp chest pain until proven otherwise.",
+      "steps": [],
+      "difficulty": {
+        "level": 5,
+        "score": 100,
+        "label": "Evaluation.",
+        "clinicalStrategy": "Prioritize rapid assessment of perfusion vs ventilation markers.",
+        "recommendedActions": [
+          "Check D-Dimer.",
+          "Prepare for Heparin.",
+          "Monitor Cardiac Output."
+        ]
+      },
+      "mnemonic": {
+        "title": "STOP-VTE",
+        "content": "S: Sudden Onset; T: Tachycardia; O: Oxygen Drop; P: Pleuritic Pain; V: Venous Stasis.",
+        "explanation": "These are the five hallmarks of a post-operative embolic event."
+      },
+      "cheatSheet": {
+        "title": "PE Management Protocol.",
+        "points": [
+          "Stabilize: High-flow oxygen (NRB) is the first action.",
+          "Anticoagulate: Heparin drip initiated immediately once confirmed.",
+          "Surveillance: Monitor for RV strain (JVD, Hypotension, Troponin).",
+          "Confirmation: CT Pulmonary Angiography (CTPA) is the gold standard."
+        ]
+      },
+      "referenceInfo": {
+        "anatomy": "The pulmonary artery system and right ventricle interaction.",
+        "physiology": "V/Q Mismatch: Perfusion is blocked while ventilation continues, leading to dead-space ventilation.",
+        "pharm": "Unfractionated Heparin (prevents clot propagation) vs. Thrombolytics (dissolves clot)."
+      },
+      "clinicalStrategy": "Prioritize rapid assessment of perfusion vs ventilation markers."
+    },
+    "structure": {
+      "type": "case-study",
+      "screens": [
+        {
+          "id": "s1",
+          "type": "highlight",
+          "cjmmStep": "Recognize Cues.",
+          "prompt": "Highlight the clinical findings that most strongly suggest an embolic event.",
+          "text": "The client reports <span id='h1'>stabbing chest pain</span> and appears <span id='h2'>extremely anxious</span>. She is <span id='h3'>diaphoretic</span> and <span id='h4'>tachypneic</span> with clear lung sounds. Assessment of the lower extremities shows <span id='h5'>right calf swelling</span>. Oxygen saturation is <span id='h6'>86% on room air</span>.",
+          "correct": [
+            "H1",
+            "H5",
+            "H6"
+          ],
+          "rationales": {
+            "h1": {
+              "isCorrect": true,
+              "whyCorrect": "Pleuritic (stabbing) pain is a hallmark of PE-induced lung infarction.",
+              "whyIncorrect": "N/A"
+            },
+            "h5": {
+              "isCorrect": true,
+              "whyCorrect": "Unilateral swelling is the primary indicator of the source-clot (DVT).",
+              "whyIncorrect": "N/A"
+            },
+            "h6": {
+              "isCorrect": true,
+              "whyCorrect": "Refractory hypoxemia is the primary physiological threat.",
+              "whyIncorrect": "N/A"
+            },
+            "h2": {
+              "isCorrect": false,
+              "whyCorrect": "N/A",
+              "whyIncorrect": "Anxiety is a non-specific 'impending doom' feeling common to many emergencies."
+            },
+            "h3": {
+              "isCorrect": false,
+              "whyCorrect": "N/A",
+              "whyIncorrect": "Diaphoresis is a general sympathetic response."
+            },
+            "h4": {
+              "isCorrect": false,
+              "whyCorrect": "N/A",
+              "whyIncorrect": "Tachypnea is a compensatory sign rather than a diagnostic one for emboli."
+            }
+          },
+          "rationale": {
+            "coreConcept": "Clinical Recognition.",
+            "answerAnalysis": "The combination of pleuritic pain, calf swelling (source), and severe hypoxia defines the embolic picture.",
+            "difficulty": {
+              "level": 5,
+              "score": 95,
+              "label": "Expert"
+            }
+          },
+          "cjmmPhase": "Recognize Cues."
+        },
+        {
+          "id": "s2",
+          "type": "matrix",
+          "cjmmStep": "Analyze Cues.",
+          "prompt": "For each finding, indicate whether it is consistent with Pulmonary Embolism or Acute MI.",
+          "columns": [
+            {
+              "id": "c1",
+              "text": "Pulmonary Embolism."
+            },
+            {
+              "id": "c2",
+              "text": "Acute MI."
+            }
+          ],
+          "rows": [
+            {
+              "id": "r1",
+              "text": "Sharp, pleuritic pain worsened by breathing.",
+              "correctColumnId": "c1",
+              "rationale": "PE pain is pleuritic (distal infarction); MI pain is usually pressure-like.",
+              "correctColumnIds": [
+                "c1"
+              ]
+            },
+            {
+              "id": "r2",
+              "text": "Clear Lung Sounds with 86% O2.",
+              "correctColumnId": "c1",
+              "rationale": "Clear lungs + hypoxia = V/Q mismatch (PE); MI often leads to crackles (HF).",
+              "correctColumnIds": [
+                "c1"
+              ]
+            },
+            {
+              "id": "r3",
+              "text": "Respiratory Alkalosis (pH 7.52).",
+              "correctColumnId": "c1",
+              "rationale": "Hyperventilation in early PE blows off CO2, causing alkalosis.",
+              "correctColumnIds": [
+                "c1"
+              ]
+            },
+            {
+              "id": "r4",
+              "text": "Significant Troponin elevation (0.15).",
+              "correctColumnId": "c2",
+              "rationale": "While PE causes minor elevation, significant rise is diagnostic for MI.",
+              "correctColumnIds": [
+                "c2"
+              ]
+            }
+          ],
+          "rationale": {
+            "coreConcept": "Differential Diagnosis.",
+            "answerAnalysis": "Differentiating between pulmonary and cardiac chest pain is a critical Level 5 skill.",
+            "difficulty": {
+              "level": 5,
+              "score": 95,
+              "label": "Expert"
+            }
+          },
+          "cjmmPhase": "Analyze Cues."
+        },
+        {
+          "id": "s5",
+          "type": "drop-cloze",
+          "cjmmStep": "Take Action.",
+          "prompt": "Complete the statement regarding priority nursing actions.",
+          "sentences": [
+            {
+              "text": "The nurse should initially place the patient on %{d1} and then prepare for %{d2} once the diagnosis is confirmed.",
+              "dropdowns": [
+                {
+                  "id": "d1",
+                  "options": [
+                    {
+                      "id": "d1-o0",
+                      "text": "High-flow oxygen.",
+                      "isCorrect": true
+                    },
+                    {
+                      "id": "d1-o1",
+                      "text": "Low-flow nasal cannula.",
+                      "isCorrect": false
+                    },
+                    {
+                      "id": "d1-o2",
+                      "text": "Mechanical ventilation.",
+                      "isCorrect": false
+                    }
+                  ],
+                  "correctAnswer": "High-flow oxygen."
+                },
+                {
+                  "id": "d2",
+                  "options": [
+                    {
+                      "id": "d2-o0",
+                      "text": "Intravenous Heparin.",
+                      "isCorrect": true
+                    },
+                    {
+                      "id": "d2-o1",
+                      "text": "Warfarin therapy.",
+                      "isCorrect": false
+                    },
+                    {
+                      "id": "d2-o2",
+                      "text": "Aspirin 325mg.",
+                      "isCorrect": false
+                    }
+                  ],
+                  "correctAnswer": "Intravenous Heparin."
+                }
+              ]
+            }
+          ],
+          "blankMap": {
+            "d1": {
+              "whyCorrect": "Hypoxemia is the immediate threat; NRB is required for 86% saturation.",
+              "distractorRationales": {
+                "Low-flow nasal cannula": "Insufficient for severe hypoxia.",
+                "Mechanical ventilation": "Premature; non-invasive support should be tried first."
+              }
+            },
+            "d2": {
+              "whyCorrect": "Heparin stops the growth of the clot, allowing the body's natural fibrinolysis to work.",
+              "distractorRationales": {
+                "Warfarin therapy": "Too slow; takes days to reach therapeutic levels.",
+                "Aspirin 325mg": "Inadequate for a large arterial pulmonary clot."
+              }
+            }
+          },
+          "rationale": {
+            "coreConcept": "Emergency Interventions.",
+            "answerAnalysis": "Oxygenation must precede pharmaceutical stabilization.",
+            "difficulty": {
+              "level": 5,
+              "score": 95,
+              "label": "Expert"
+            }
+          },
+          "cjmmPhase": "Prioritize Hypotheses."
+        }
+      ],
+      "prompt": "Review the case study and answer the question.",
+      "difficulty": 5
+    },
+    "patient": {
+      "age": "Unknown",
+      "gender": "Unknown",
+      "diagnosis": "Pending"
+    }
+  },
+  "type": "case-study",
+  "difficulty": 5,
+  "difficultyLevel": 5,
+  "_unifiedPipelineProcessed": true,
+  "_sanitized": true
+}

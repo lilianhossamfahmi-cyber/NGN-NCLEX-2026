@@ -1,0 +1,1466 @@
+{
+  "type": "case-study",
+  "content": {
+    "metadata": {
+      "title": "Post-Op Pulmonary Embolism.",
+      "clinicalFocus": "Respiratory Distress, Pulmonary Embolism.",
+      "level": 5,
+      "targetScore": 95,
+      "generator": "Golden NGN v3.",
+      "difficulty": 5
+    },
+    "setting": "Post-Surgical Unit.",
+    "chiefComplaint": "Sudden onset shortness of breath and chest pain.",
+    "assessmentData": {
+      "screening": {
+        "tool": "Wells Score for PE.",
+        "score": 7,
+        "interpretation": "High probability of Pulmonary Embolism."
+      }
+    },
+    "rationale": {
+      "coreConcept": "Pulmonary embolism (PE) is a life-threatening condition that occurs when a blood clot lodges in the pulmonary arteries, obstructing blood flow to the lungs.",
+      "caseSummary": "Eleanor Vance, a 68-year-old female, presents with sudden onset dyspnea and pleuritic chest pain three days post-hip replacement. Her elevated D-dimer, hypoxemia, and clinical presentation strongly suggest a pulmonary embolism.",
+      "answerAnalysis": "This case requires rapid recognition of PE symptoms, prompt diagnostic testing, and immediate intervention to prevent further complications and potential mortality.",
+      "trap": "Failing to recognize the signs and symptoms of PE in a post-operative patient can lead to delayed treatment and adverse outcomes.",
+      "goldenRule": "Time is lung: Rapid recognition and intervention are crucial in managing pulmonary embolism.",
+      "steps": [
+        {
+          "tag": "Recognize",
+          "description": "Identify risk factors (post-op), symptoms (dyspnea, chest pain), and abnormal findings (hypoxemia, elevated D-dimer)."
+        },
+        {
+          "tag": "Analyze",
+          "description": "Interpret the clinical data to determine the likelihood of PE and the severity of respiratory compromise."
+        },
+        {
+          "tag": "Take Action.",
+          "description": "Initiate oxygen therapy, notify the provider, prepare for diagnostic testing (e.g., CT angiography), and administer anticoagulation therapy as prescribed."
+        }
+      ],
+      "difficulty": {
+        "level": 5,
+        "score": 100,
+        "label": "Evaluation.",
+        "clinicalStrategy": "Prioritization, Clinical Recognition, Intervention.",
+        "recommendedActions": [
+          "Assess respiratory status.",
+          "Administer oxygen.",
+          "Prepare for diagnostic testing.",
+          "Administer anticoagulants."
+        ]
+      },
+      "mnemonic": {
+        "title": "PERC",
+        "content": "Pulmonary Embolism Rule-out Criteria.",
+        "explanation": "Helps to quickly assess the probability of PE based on specific criteria."
+      },
+      "cheatSheet": {
+        "title": "Pulmonary Embolism Management.",
+        "points": [
+          "Maintain adequate oxygenation and ventilation.",
+          "Administer anticoagulation therapy promptly.",
+          "Monitor for signs of bleeding or complications."
+        ]
+      },
+      "referenceInfo": {
+        "anatomy": "Pulmonary arteries: Vessels that carry deoxygenated blood from the heart to the lungs.",
+        "physiology": "PE obstructs pulmonary blood flow, leading to ventilation-perfusion mismatch, hypoxemia, and potential right ventricular strain.",
+        "pharm": "Anticoagulants (e.g., heparin, enoxaparin, warfarin) prevent further clot formation and allow the body to break down existing clots."
+      },
+      "clinicalStrategy": "Prioritization, Clinical Recognition, Intervention."
+    },
+    "clinicalData": {
+      "patientInfo": {
+        "name": "Client, A.",
+        "age": "Unknown",
+        "gender": "O",
+        "codeStatus": "FULL CODE.",
+        "admissionDate": "1/30/2026 07:30.",
+        "room": "MedSurg-12.",
+        "physician": "Dr. S. Specialist.",
+        "nurse": "RN Staff.",
+        "allergies": "NKDA",
+        "isolation": "Standard Precautions.",
+        "history": [],
+        "homeMeds": []
+      },
+      "vitals": [
+        {
+          "time": "0700",
+          "tempF": "98.8",
+          "hr": 82,
+          "rr": 18,
+          "bp": "130/80",
+          "o2": "96",
+          "o2_device": "Room Air.",
+          "pain": 3
+        },
+        {
+          "time": "0900",
+          "tempF": "99.1",
+          "hr": 112,
+          "rr": 28,
+          "bp": "90/50",
+          "o2": "88",
+          "o2_device": "2L NC.",
+          "pain": 7
+        }
+      ],
+      "labs": [
+        {
+          "test": "D-dimer",
+          "value": "6.2",
+          "unit": "Mcg/mL",
+          "ref": "<0.5 mcg/mL.",
+          "flag": "H!"
+        },
+        {
+          "test": "Troponin",
+          "value": "0.02",
+          "unit": "Ng/mL",
+          "ref": "<0.04 ng/mL.",
+          "flag": ""
+        },
+        {
+          "test": "ABG pH.",
+          "value": "7.32",
+          "unit": "",
+          "ref": "7.35-7.45",
+          "flag": "L"
+        },
+        {
+          "test": "ABG PaCO2.",
+          "value": "50",
+          "unit": "MmHg",
+          "ref": "35-45 mmHg.",
+          "flag": "H"
+        },
+        {
+          "test": "ABG PaO2.",
+          "value": "60",
+          "unit": "MmHg",
+          "ref": "80-100 mmHg.",
+          "flag": "L!"
+        }
+      ],
+      "orders": [],
+      "history": [
+        {
+          "time": "0800",
+          "note": "Chief complaint: Sudden onset shortness of breath and chest pain.",
+          "initial": "RN"
+        }
+      ],
+      "historyPhysical": "Chief complaint and history documented.",
+      "radiology": [],
+      "setting": "Post-Surgical Unit."
+    },
+    "structure": {
+      "type": "case-study",
+      "prompt": "Review the case study and answer the question.",
+      "screens": [
+        {
+          "id": "s1",
+          "type": "highlight",
+          "cjmmStep": "Recognize Cues.",
+          "prompt": "Highlight the findings that are most concerning and require immediate attention.",
+          "text": "Eleanor Vance, a 68-year-old female, post-operative day 3 following total hip arthroplasty, presents with sudden onset <span id='h1'>dyspnea</span> and <span id='h2'>pleuritic chest pain</span>. Her vital signs are: Temperature 99.1°F (37.3°C), Heart Rate <span id='h3'>112</span> bpm, Respiratory Rate <span id='h4'>28</span> breaths/min, Blood Pressure <span id='h5'>90/50</span> mmHg, Oxygen Saturation <span id='h6'>88%</span> on 2L NC. She rates her pain as a <span id='h7'>7/10</span>. The patient appears <span id='h8'>anxious</span> and <span id='h9'>restless</span>.",
+          "correct": [
+            "H1",
+            "H2",
+            "H3",
+            "H4",
+            "H5",
+            "H6",
+            "H7",
+            "H8",
+            "H9"
+          ],
+          "rationales": {
+            "h1": {
+              "isCorrect": true,
+              "whyCorrect": "Dyspnea, or shortness of breath, is a key symptom of pulmonary embolism due to impaired gas exchange.",
+              "whyIncorrect": "N/A"
+            },
+            "h2": {
+              "isCorrect": true,
+              "whyCorrect": "Pleuritic chest pain, which worsens with breathing, is a common symptom of PE due to pulmonary infarction or inflammation.",
+              "whyIncorrect": "N/A"
+            },
+            "h3": {
+              "isCorrect": true,
+              "whyCorrect": "Tachycardia (HR > 100 bpm) is a compensatory mechanism to maintain cardiac output in the setting of hypoxemia and hypotension.",
+              "whyIncorrect": "N/A"
+            },
+            "h4": {
+              "isCorrect": true,
+              "whyCorrect": "Tachypnea (RR > 20 breaths/min) is a compensatory mechanism to increase oxygen uptake in response to hypoxemia.",
+              "whyIncorrect": "N/A"
+            },
+            "h5": {
+              "isCorrect": true,
+              "whyCorrect": "Hypotension (BP < 90/60 mmHg) can indicate right ventricular failure or shock due to massive PE.",
+              "whyIncorrect": "N/A"
+            },
+            "h6": {
+              "isCorrect": true,
+              "whyCorrect": "Hypoxemia (SpO2 < 90%) indicates impaired gas exchange due to pulmonary artery obstruction.",
+              "whyIncorrect": "N/A"
+            },
+            "h7": {
+              "isCorrect": true,
+              "whyCorrect": "Pain level of 7/10 indicates significant discomfort that needs to be addressed.",
+              "whyIncorrect": "N/A"
+            },
+            "h8": {
+              "isCorrect": true,
+              "whyCorrect": "Anxiety is a common response to dyspnea and chest pain, and can exacerbate respiratory distress.",
+              "whyIncorrect": "N/A"
+            },
+            "h9": {
+              "isCorrect": true,
+              "whyCorrect": "Restlessness can be a sign of hypoxemia and decreased cerebral oxygenation.",
+              "whyIncorrect": "N/A"
+            }
+          },
+          "rationale": {
+            "coreConcept": "Recognizing critical cues is the first step in the clinical judgment model, enabling prompt intervention.",
+            "caseSummary": "Eleanor Vance presents with multiple concerning findings, including respiratory distress, hemodynamic instability, and pain, all suggestive of a serious underlying condition.",
+            "answerAnalysis": "The highlighted findings are critical indicators of respiratory compromise and potential pulmonary embolism. Dyspnea, pleuritic chest pain, tachycardia, tachypnea, hypotension, hypoxemia, pain, anxiety, and restlessness collectively paint a picture of a patient in acute distress requiring immediate attention.",
+            "trap": "Overlooking subtle signs or attributing them solely to post-operative pain can delay diagnosis and treatment.",
+            "goldenRule": "Trust your instincts: If something doesn't seem right, investigate further.",
+            "steps": [
+              {
+                "tag": "Recognize",
+                "description": "Identify abnormal vital signs (HR, RR, BP, SpO2), respiratory symptoms (dyspnea, chest pain), and signs of distress (anxiety, restlessness)."
+              },
+              {
+                "tag": "Analyze",
+                "description": "Interpret these cues as potential indicators of pulmonary embolism and respiratory compromise."
+              },
+              {
+                "tag": "Take Action.",
+                "description": "Prioritize immediate interventions to stabilize the patient and prevent further deterioration."
+              }
+            ],
+            "mnemonic": {
+              "title": "ABCDE",
+              "content": "Airway, Breathing, Circulation, Disability, Exposure.",
+              "explanation": "A systematic approach to assess and manage critical patients."
+            },
+            "cheatSheet": {
+              "title": "Early Warning Signs of PE.",
+              "points": [
+                "Sudden onset dyspnea.",
+                "Pleuritic chest pain.",
+                "Tachycardia and tachypnea."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Pulmonary vasculature: The network of blood vessels that carry blood to and from the lungs.",
+              "physiology": "Pulmonary embolism obstructs blood flow, leading to ventilation-perfusion mismatch and hypoxemia.",
+              "pharm": "Oxygen therapy: Provides supplemental oxygen to improve oxygen saturation and alleviate hypoxemia."
+            },
+            "difficulty": {
+              "score": 95,
+              "level": 5,
+              "label": "Expert",
+              "clinicalStrategy": "Recognizing critical cues, prioritizing interventions.",
+              "recommendedActions": [
+                "Assess respiratory status.",
+                "Administer oxygen.",
+                "Notify the provider."
+              ]
+            }
+          },
+          "cjmmPhase": "Recognize Cues."
+        },
+        {
+          "id": "s2",
+          "type": "matrix",
+          "cjmmStep": "Analyze Cues.",
+          "prompt": "Categorize the following clinical findings based on whether they indicate hypoxemia, hemodynamic instability, or pain.",
+          "columns": [
+            {
+              "id": "c1",
+              "text": "Hypoxemia"
+            },
+            {
+              "id": "c2",
+              "text": "Hemodynamic Instability."
+            },
+            {
+              "id": "c3",
+              "text": "Pain"
+            }
+          ],
+          "rows": [
+            {
+              "id": "r1",
+              "text": "Oxygen Saturation 88% on 2L NC.",
+              "correctColumnId": "c1",
+              "rationale": "Oxygen saturation of 88% indicates hypoxemia, which is a deficiency of oxygen in the blood.",
+              "correctColumnIds": [
+                "c1"
+              ]
+            },
+            {
+              "id": "r2",
+              "text": "Blood Pressure 90/50 mmHg.",
+              "correctColumnId": "c2",
+              "rationale": "Blood pressure of 90/50 mmHg indicates hypotension, which is a sign of hemodynamic instability.",
+              "correctColumnIds": [
+                "c2"
+              ]
+            },
+            {
+              "id": "r3",
+              "text": "Pleuritic Chest Pain.",
+              "correctColumnId": "c3",
+              "rationale": "Pleuritic chest pain is a type of pain that worsens with breathing and is often associated with pulmonary embolism.",
+              "correctColumnIds": [
+                "c3"
+              ]
+            },
+            {
+              "id": "r4",
+              "text": "Respiratory Rate 28 breaths/min.",
+              "correctColumnId": "c1",
+              "rationale": "Elevated respiratory rate is a compensatory mechanism for hypoxemia.",
+              "correctColumnIds": [
+                "c1"
+              ]
+            },
+            {
+              "id": "r5",
+              "text": "Heart Rate 112 bpm.",
+              "correctColumnId": "c2",
+              "rationale": "Elevated heart rate can be a compensatory mechanism to maintain cardiac output in the setting of hypotension and hypoxemia.",
+              "correctColumnIds": [
+                "c2"
+              ]
+            },
+            {
+              "id": "r6",
+              "text": "Pain level 7/10.",
+              "correctColumnId": "c3",
+              "rationale": "A pain level of 7/10 indicates significant discomfort that needs to be addressed.",
+              "correctColumnIds": [
+                "c3"
+              ]
+            }
+          ],
+          "rationale": {
+            "coreConcept": "Analyzing cues involves categorizing clinical findings to identify patterns and prioritize interventions.",
+            "caseSummary": "Eleanor Vance's clinical findings can be categorized into hypoxemia, hemodynamic instability, and pain, each requiring specific interventions.",
+            "answerAnalysis": "Correctly categorizing the findings allows for a targeted approach to managing the patient's condition. Hypoxemia (low SpO2, tachypnea) requires oxygen therapy. Hemodynamic instability (hypotension, tachycardia) requires fluid resuscitation and vasopressors if necessary. Pain requires analgesia and further investigation into its cause.",
+            "trap": "Misinterpreting the significance of vital signs or symptoms can lead to inappropriate or delayed treatment.",
+            "goldenRule": "Know your normals: Understanding normal ranges for vital signs and lab values is essential for accurate interpretation.",
+            "steps": [
+              {
+                "tag": "Recognize",
+                "description": "Identify abnormal vital signs and symptoms."
+              },
+              {
+                "tag": "Analyze",
+                "description": "Categorize the findings based on their clinical significance (hypoxemia, hemodynamic instability, pain)."
+              },
+              {
+                "tag": "Take Action.",
+                "description": "Prioritize interventions based on the categorized findings."
+              }
+            ],
+            "mnemonic": {
+              "title": "VITALS",
+              "content": "Vital signs, Intervention, Trends, Actions, Labs, Symptoms.",
+              "explanation": "A structured approach to assess and manage vital signs and symptoms."
+            },
+            "cheatSheet": {
+              "title": "Interpreting Vital Signs.",
+              "points": [
+                "Hypoxemia: SpO2 < 90%, PaO2 < 80 mmHg.",
+                "Hypotension: SBP < 90 mmHg, MAP < 65 mmHg.",
+                "Tachycardia: HR > 100 bpm."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Cardiovascular system: The heart and blood vessels that circulate blood throughout the body.",
+              "physiology": "Hypoxemia triggers compensatory mechanisms such as increased respiratory rate and heart rate.",
+              "pharm": "Analgesics: Medications used to relieve pain."
+            },
+            "difficulty": {
+              "score": 95,
+              "level": 5,
+              "label": "Expert",
+              "clinicalStrategy": "Data Analysis, Prioritization.",
+              "recommendedActions": [
+                "Assess respiratory status.",
+                "Monitor vital signs.",
+                "Administer pain medication."
+              ]
+            }
+          },
+          "cjmmPhase": "Analyze Cues."
+        },
+        {
+          "id": "s3",
+          "type": "ordered-response",
+          "cjmmStep": "Prioritize Hypotheses.",
+          "prompt": "Based on the patient's presentation, prioritize the following potential problems in order of most to least likely.",
+          "options": [
+            "Pulmonary Embolism.",
+            "Pneumonia",
+            "Myocardial Infarction.",
+            "Anxiety Attack.",
+            "Post-operative Pain."
+          ],
+          "correctOrder": [
+            "Pulmonary Embolism.",
+            "Myocardial Infarction.",
+            "Pneumonia",
+            "Post-operative Pain.",
+            "Anxiety Attack."
+          ],
+          "rationale": {
+            "coreConcept": "Prioritizing hypotheses involves ranking potential problems based on their likelihood and potential severity.",
+            "caseSummary": "Eleanor Vance's presentation strongly suggests pulmonary embolism, but other possibilities must be considered and ruled out.",
+            "answerAnalysis": "Pulmonary embolism is the most likely diagnosis given the sudden onset dyspnea, pleuritic chest pain, hypoxemia, and post-operative status. Myocardial infarction should be considered due to chest pain, although less likely given the pleuritic nature. Pneumonia is possible but less likely without fever or productive cough. Post-operative pain is expected but does not explain the respiratory distress. Anxiety attack is the least likely given the objective findings of hypoxemia and hemodynamic instability.",
+            "trap": "Focusing solely on one diagnosis without considering alternatives can lead to delayed or inappropriate treatment.",
+            "goldenRule": "Consider the worst-case scenario: Always rule out life-threatening conditions first.",
+            "steps": [
+              {
+                "tag": "Recognize",
+                "description": "Identify potential problems based on the patient's presentation."
+              },
+              {
+                "tag": "Analyze",
+                "description": "Evaluate the likelihood of each problem based on the available data."
+              },
+              {
+                "tag": "Take Action.",
+                "description": "Prioritize interventions based on the prioritized list of potential problems."
+              }
+            ],
+            "mnemonic": {
+              "title": "STAAR",
+              "content": "Stop, Think, Act, Assess, Re-evaluate.",
+              "explanation": "A systematic approach to clinical decision-making."
+            },
+            "cheatSheet": {
+              "title": "Differential Diagnosis of Chest Pain.",
+              "points": [
+                "Pulmonary Embolism: Sudden onset dyspnea, pleuritic chest pain.",
+                "Myocardial Infarction: Substernal chest pain, radiating to arm or jaw.",
+                "Pneumonia: Cough, fever, productive sputum."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Pulmonary system: The lungs and airways responsible for gas exchange.",
+              "physiology": "Pulmonary embolism obstructs blood flow, leading to ventilation-perfusion mismatch and hypoxemia.",
+              "pharm": "Anticoagulants: Medications used to prevent further clot formation in pulmonary embolism."
+            },
+            "difficulty": {
+              "score": 95,
+              "level": 5,
+              "label": "Expert",
+              "clinicalStrategy": "Prioritization, Differential Diagnosis.",
+              "recommendedActions": [
+                "Assess respiratory status.",
+                "Obtain diagnostic tests.",
+                "Administer appropriate medications."
+              ]
+            }
+          },
+          "cjmmPhase": "Prioritize Hypotheses."
+        },
+        {
+          "id": "s4",
+          "type": "bow-tie",
+          "cjmmStep": "Generate Solutions.",
+          "prompt": "For the patient with suspected pulmonary embolism, match the condition, actions, and parameters to monitor.",
+          "options": {
+            "conditions": [
+              "Pulmonary Embolism.",
+              "Hypoxemia",
+              "Hypotension."
+            ],
+            "actions": [
+              "Administer Oxygen.",
+              "Administer Anticoagulants.",
+              "Elevate Head of Bed.",
+              "Prepare for CT Angiography.",
+              "Administer IV Fluids."
+            ],
+            "parameters": [
+              "Oxygen Saturation.",
+              "Blood Pressure.",
+              "Respiratory Rate.",
+              "Pain Level.",
+              "Signs of Bleeding."
+            ]
+          },
+          "solution": {
+            "condition": "Pulmonary Embolism.",
+            "action": "Prepare for CT Angiography.",
+            "parameter": "Oxygen Saturation."
+          },
+          "rationale": {
+            "coreConcept": "Generating solutions involves identifying appropriate actions to address the patient's condition and parameters to monitor their response.",
+            "caseSummary": "In the case of suspected pulmonary embolism, preparing for CT angiography is crucial for diagnosis, and monitoring oxygen saturation is essential to assess respiratory status.",
+            "answerAnalysis": "Preparing for CT angiography is the definitive diagnostic test for PE. Monitoring oxygen saturation is critical to assess the effectiveness of oxygen therapy and the patient's respiratory status. Administering oxygen addresses hypoxemia. Administering anticoagulants prevents further clot formation. Elevating the head of bed improves ventilation. Administering IV fluids supports blood pressure. Monitoring blood pressure assesses hemodynamic stability. Monitoring respiratory rate assesses respiratory effort. Monitoring pain level assesses comfort. Monitoring for signs of bleeding is crucial with anticoagulant therapy.",
+            "trap": "Focusing solely on symptomatic treatment without addressing the underlying cause can lead to delayed diagnosis and treatment.",
+            "goldenRule": "Diagnose before you treat: Accurate diagnosis is essential for effective treatment.",
+            "steps": [
+              {
+                "tag": "Recognize",
+                "description": "Identify the patient's condition (pulmonary embolism)."
+              },
+              {
+                "tag": "Analyze",
+                "description": "Determine appropriate actions to address the condition (prepare for CT angiography)."
+              },
+              {
+                "tag": "Take Action.",
+                "description": "Monitor relevant parameters to assess the patient's response (oxygen saturation)."
+              }
+            ],
+            "mnemonic": {
+              "title": "PAUSE",
+              "content": "Plan, Assess, Understand, Solve, Evaluate.",
+              "explanation": "A structured approach to problem-solving."
+            },
+            "cheatSheet": {
+              "title": "Management of Pulmonary Embolism.",
+              "points": [
+                "Diagnose: CT angiography.",
+                "Treat: Anticoagulation.",
+                "Monitor: Oxygen saturation, signs of bleeding."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Pulmonary vasculature: The network of blood vessels that carry blood to and from the lungs.",
+              "physiology": "Pulmonary embolism obstructs blood flow, leading to ventilation-perfusion mismatch and hypoxemia.",
+              "pharm": "Anticoagulants: Medications used to prevent further clot formation in pulmonary embolism."
+            },
+            "difficulty": {
+              "score": 95,
+              "level": 5,
+              "label": "Expert",
+              "clinicalStrategy": "Problem-Solving, Critical Thinking.",
+              "recommendedActions": [
+                "Prepare for diagnostic tests.",
+                "Administer appropriate medications.",
+                "Monitor patient response."
+              ]
+            }
+          },
+          "cjmmPhase": "Generate Solutions."
+        },
+        {
+          "id": "s5",
+          "type": "drop-cloze",
+          "cjmmStep": "Take Action.",
+          "prompt": "Complete the following nursing orders for Eleanor Vance.",
+          "sentences": [
+            {
+              "text": "1. Apply oxygen via %{d1} to maintain SpO2 > 92%.",
+              "dropdowns": [
+                {
+                  "id": "d1",
+                  "options": [
+                    {
+                      "id": "d1-o0",
+                      "text": "Nasal cannula.",
+                      "isCorrect": false
+                    },
+                    {
+                      "id": "d1-o1",
+                      "text": "Non-rebreather mask.",
+                      "isCorrect": true
+                    },
+                    {
+                      "id": "d1-o2",
+                      "text": "Simple mask.",
+                      "isCorrect": false
+                    },
+                    {
+                      "id": "d1-o3",
+                      "text": "Venturi mask.",
+                      "isCorrect": false
+                    }
+                  ],
+                  "correctAnswer": "Non-rebreather mask."
+                }
+              ]
+            },
+            {
+              "text": "2. Initiate %{d2} therapy as prescribed by the provider.",
+              "dropdowns": [
+                {
+                  "id": "d2",
+                  "options": [
+                    {
+                      "id": "d2-o0",
+                      "text": "Antibiotic.",
+                      "isCorrect": false
+                    },
+                    {
+                      "id": "d2-o1",
+                      "text": "Anticoagulation.",
+                      "isCorrect": true
+                    },
+                    {
+                      "id": "d2-o2",
+                      "text": "Bronchodilator.",
+                      "isCorrect": false
+                    },
+                    {
+                      "id": "d2-o3",
+                      "text": "Analgesic",
+                      "isCorrect": false
+                    }
+                  ],
+                  "correctAnswer": "Anticoagulation."
+                }
+              ]
+            },
+            {
+              "text": "3. Monitor vital signs, including heart rate, blood pressure, respiratory rate, and %{d3} every 15 minutes.",
+              "dropdowns": [
+                {
+                  "id": "d3",
+                  "options": [
+                    {
+                      "id": "d3-o0",
+                      "text": "Temperature.",
+                      "isCorrect": false
+                    },
+                    {
+                      "id": "d3-o1",
+                      "text": "Oxygen saturation.",
+                      "isCorrect": true
+                    },
+                    {
+                      "id": "d3-o2",
+                      "text": "Pain level.",
+                      "isCorrect": false
+                    },
+                    {
+                      "id": "d3-o3",
+                      "text": "Level of consciousness.",
+                      "isCorrect": false
+                    }
+                  ],
+                  "correctAnswer": "Oxygen saturation."
+                }
+              ]
+            }
+          ],
+          "blankMap": {
+            "d1": {
+              "whyCorrect": "A non-rebreather mask delivers a high concentration of oxygen, which is necessary to improve oxygen saturation in a patient with hypoxemia due to pulmonary embolism.",
+              "distractorRationales": {
+                "nasal cannula": "A nasal cannula delivers a lower concentration of oxygen and may not be sufficient to maintain adequate oxygen saturation in this patient.",
+                "simple mask": "A simple mask delivers a moderate concentration of oxygen but may not be as effective as a non-rebreather mask in this situation.",
+                "venturi mask": "A venturi mask delivers a precise concentration of oxygen but may not be necessary in the initial management of hypoxemia."
+              }
+            },
+            "d2": {
+              "whyCorrect": "Anticoagulation therapy is the primary treatment for pulmonary embolism to prevent further clot formation and allow the body to break down existing clots.",
+              "distractorRationales": {
+                "antibiotic": "Antibiotics are used to treat infections, which is not the primary problem in this case.",
+                "bronchodilator": "Bronchodilators are used to treat bronchospasm, which is not the primary problem in this case.",
+                "analgesic": "Analgesics are used to relieve pain, but addressing the underlying cause of the pulmonary embolism is more important."
+              }
+            },
+            "d3": {
+              "whyCorrect": "Monitoring oxygen saturation is crucial to assess the effectiveness of oxygen therapy and the patient's respiratory status.",
+              "distractorRationales": {
+                "temperature": "Temperature is important to monitor for infection, but oxygen saturation is more critical in this case.",
+                "pain level": "Pain level is important to assess comfort, but oxygen saturation is more critical in this case.",
+                "level of consciousness": "Level of consciousness is important to monitor for neurological changes, but oxygen saturation is more critical in this case."
+              }
+            }
+          },
+          "rationale": {
+            "coreConcept": "Taking action involves implementing appropriate nursing orders to address the patient's condition and prevent further complications.",
+            "caseSummary": "In the case of Eleanor Vance, applying oxygen, initiating anticoagulation therapy, and monitoring vital signs are essential nursing actions.",
+            "answerAnalysis": "Applying oxygen via non-rebreather mask is necessary to improve oxygen saturation. Initiating anticoagulation therapy is the primary treatment for pulmonary embolism. Monitoring vital signs, including oxygen saturation, is crucial to assess the patient's response to treatment.",
+            "trap": "Delaying or omitting essential nursing actions can lead to adverse outcomes.",
+            "goldenRule": "Act decisively: Prompt and appropriate action can save lives.",
+            "steps": [
+              {
+                "tag": "Recognize",
+                "description": "Identify the patient's needs based on their condition."
+              },
+              {
+                "tag": "Analyze",
+                "description": "Determine appropriate nursing actions to address those needs."
+              },
+              {
+                "tag": "Take Action.",
+                "description": "Implement the nursing orders and monitor the patient's response."
+              }
+            ],
+            "mnemonic": {
+              "title": "ADPIE",
+              "content": "Assess, Diagnose, Plan, Implement, Evaluate.",
+              "explanation": "The nursing process provides a systematic approach to patient care."
+            },
+            "cheatSheet": {
+              "title": "Nursing Interventions for Pulmonary Embolism.",
+              "points": [
+                "Apply oxygen.",
+                "Initiate anticoagulation therapy.",
+                "Monitor vital signs."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Respiratory system: The lungs and airways responsible for gas exchange.",
+              "physiology": "Pulmonary embolism obstructs blood flow, leading to ventilation-perfusion mismatch and hypoxemia.",
+              "pharm": "Anticoagulants: Medications used to prevent further clot formation in pulmonary embolism."
+            },
+            "difficulty": {
+              "score": 95,
+              "level": 5,
+              "label": "Expert",
+              "clinicalStrategy": "Implementation, Monitoring.",
+              "recommendedActions": [
+                "Administer medications.",
+                "Monitor patient response.",
+                "Communicate with provider."
+              ]
+            }
+          },
+          "cjmmPhase": "Take Action."
+        },
+        {
+          "id": "s6",
+          "type": "multiple-response",
+          "cjmmStep": "Evaluate Outcomes.",
+          "prompt": "Which of the following findings indicate that the interventions have been effective?",
+          "options": [
+            {
+              "id": "o1",
+              "text": "Oxygen saturation increases to 95% on non-rebreather mask.",
+              "isCorrect": true,
+              "rationale": ""
+            },
+            {
+              "id": "o2",
+              "text": "Blood pressure remains at 90/50 mmHg.",
+              "isCorrect": false,
+              "rationale": ""
+            },
+            {
+              "id": "o3",
+              "text": "Respiratory rate decreases to 20 breaths/min.",
+              "isCorrect": true,
+              "rationale": ""
+            },
+            {
+              "id": "o4",
+              "text": "Patient reports decreased chest pain.",
+              "isCorrect": true,
+              "rationale": ""
+            },
+            {
+              "id": "o5",
+              "text": "D-dimer level increases.",
+              "isCorrect": false,
+              "rationale": ""
+            }
+          ],
+          "correct": [
+            "Oxygen saturation increases to 95% on non-rebreather mask.",
+            "Respiratory rate decreases to 20 breaths/min.",
+            "Patient reports decreased chest pain."
+          ],
+          "rationale": {
+            "coreConcept": "Evaluating outcomes involves assessing the patient's response to interventions and determining whether the desired goals have been achieved.",
+            "caseSummary": "In the case of Eleanor Vance, effective interventions should result in improved oxygen saturation, decreased respiratory rate, and reduced chest pain.",
+            "answerAnalysis": "An increase in oxygen saturation to 95% indicates improved oxygenation. A decrease in respiratory rate to 20 breaths/min indicates reduced respiratory effort. A report of decreased chest pain indicates improved comfort. Blood pressure remaining at 90/50 mmHg indicates persistent hemodynamic instability. An increase in D-dimer level indicates ongoing clot formation.",
+            "trap": "Failing to recognize signs of improvement or deterioration can lead to inappropriate adjustments in treatment.",
+            "goldenRule": "Evaluate continuously: Ongoing assessment is essential to ensure optimal patient outcomes.",
+            "steps": [
+              {
+                "tag": "Recognize",
+                "description": "Identify expected outcomes based on the interventions implemented."
+              },
+              {
+                "tag": "Analyze",
+                "description": "Assess the patient's response to the interventions and compare it to the expected outcomes."
+              },
+              {
+                "tag": "Take Action.",
+                "description": "Adjust the interventions as needed based on the evaluation of outcomes."
+              }
+            ],
+            "mnemonic": {
+              "title": "SMART",
+              "content": "Specific, Measurable, Achievable, Relevant, Time-bound.",
+              "explanation": "A framework for setting effective goals and evaluating outcomes."
+            },
+            "cheatSheet": {
+              "title": "Evaluating Outcomes in Pulmonary Embolism.",
+              "points": [
+                "Improved oxygen saturation.",
+                "Decreased respiratory rate.",
+                "Reduced chest pain."
+              ]
+            },
+            "referenceInfo": {
+              "anatomy": "Respiratory system: The lungs and airways responsible for gas exchange.",
+              "physiology": "Effective interventions should improve oxygenation, reduce respiratory effort, and alleviate pain.",
+              "pharm": "Anticoagulants: Medications used to prevent further clot formation in pulmonary embolism."
+            },
+            "difficulty": {
+              "score": 95,
+              "level": 5,
+              "label": "Expert",
+              "clinicalStrategy": "Evaluation, Critical Thinking.",
+              "recommendedActions": [
+                "Monitor patient response.",
+                "Adjust interventions as needed.",
+                "Communicate with provider."
+              ]
+            }
+          },
+          "cjmmPhase": "Evaluate Outcomes."
+        }
+      ],
+      "difficulty": 5
+    },
+    "patient": {
+      "age": "Unknown",
+      "gender": "Unknown",
+      "diagnosis": "Pending"
+    }
+  },
+  "structure": {
+    "type": "case-study",
+    "screens": [
+      {
+        "id": "s1",
+        "type": "highlight",
+        "cjmmStep": "Recognize Cues.",
+        "prompt": "Highlight the findings that are most concerning and require immediate attention.",
+        "text": "Eleanor Vance, a 68-year-old female, post-operative day 3 following total hip arthroplasty, presents with sudden onset <span id='h1'>dyspnea</span> and <span id='h2'>pleuritic chest pain</span>. Her vital signs are: Temperature 99.1°F (37.3°C), Heart Rate <span id='h3'>112</span> bpm, Respiratory Rate <span id='h4'>28</span> breaths/min, Blood Pressure <span id='h5'>90/50</span> mmHg, Oxygen Saturation <span id='h6'>88%</span> on 2L NC. She rates her pain as a <span id='h7'>7/10</span>. The patient appears <span id='h8'>anxious</span> and <span id='h9'>restless</span>.",
+        "correct": [
+          "H1",
+          "H2",
+          "H3",
+          "H4",
+          "H5",
+          "H6",
+          "H7",
+          "H8",
+          "H9"
+        ],
+        "rationales": {
+          "h1": {
+            "isCorrect": true,
+            "whyCorrect": "Dyspnea, or shortness of breath, is a key symptom of pulmonary embolism due to impaired gas exchange.",
+            "whyIncorrect": "N/A"
+          },
+          "h2": {
+            "isCorrect": true,
+            "whyCorrect": "Pleuritic chest pain, which worsens with breathing, is a common symptom of PE due to pulmonary infarction or inflammation.",
+            "whyIncorrect": "N/A"
+          },
+          "h3": {
+            "isCorrect": true,
+            "whyCorrect": "Tachycardia (HR > 100 bpm) is a compensatory mechanism to maintain cardiac output in the setting of hypoxemia and hypotension.",
+            "whyIncorrect": "N/A"
+          },
+          "h4": {
+            "isCorrect": true,
+            "whyCorrect": "Tachypnea (RR > 20 breaths/min) is a compensatory mechanism to increase oxygen uptake in response to hypoxemia.",
+            "whyIncorrect": "N/A"
+          },
+          "h5": {
+            "isCorrect": true,
+            "whyCorrect": "Hypotension (BP < 90/60 mmHg) can indicate right ventricular failure or shock due to massive PE.",
+            "whyIncorrect": "N/A"
+          },
+          "h6": {
+            "isCorrect": true,
+            "whyCorrect": "Hypoxemia (SpO2 < 90%) indicates impaired gas exchange due to pulmonary artery obstruction.",
+            "whyIncorrect": "N/A"
+          },
+          "h7": {
+            "isCorrect": true,
+            "whyCorrect": "Pain level of 7/10 indicates significant discomfort that needs to be addressed.",
+            "whyIncorrect": "N/A"
+          },
+          "h8": {
+            "isCorrect": true,
+            "whyCorrect": "Anxiety is a common response to dyspnea and chest pain, and can exacerbate respiratory distress.",
+            "whyIncorrect": "N/A"
+          },
+          "h9": {
+            "isCorrect": true,
+            "whyCorrect": "Restlessness can be a sign of hypoxemia and decreased cerebral oxygenation.",
+            "whyIncorrect": "N/A"
+          }
+        },
+        "rationale": {
+          "coreConcept": "Recognizing critical cues is the first step in the clinical judgment model, enabling prompt intervention.",
+          "caseSummary": "Eleanor Vance presents with multiple concerning findings, including respiratory distress, hemodynamic instability, and pain, all suggestive of a serious underlying condition.",
+          "answerAnalysis": "The highlighted findings are critical indicators of respiratory compromise and potential pulmonary embolism. Dyspnea, pleuritic chest pain, tachycardia, tachypnea, hypotension, hypoxemia, pain, anxiety, and restlessness collectively paint a picture of a patient in acute distress requiring immediate attention.",
+          "trap": "Overlooking subtle signs or attributing them solely to post-operative pain can delay diagnosis and treatment.",
+          "goldenRule": "Trust your instincts: If something doesn't seem right, investigate further.",
+          "steps": [
+            {
+              "tag": "Recognize",
+              "description": "Identify abnormal vital signs (HR, RR, BP, SpO2), respiratory symptoms (dyspnea, chest pain), and signs of distress (anxiety, restlessness)."
+            },
+            {
+              "tag": "Analyze",
+              "description": "Interpret these cues as potential indicators of pulmonary embolism and respiratory compromise."
+            },
+            {
+              "tag": "Take Action.",
+              "description": "Prioritize immediate interventions to stabilize the patient and prevent further deterioration."
+            }
+          ],
+          "mnemonic": {
+            "title": "ABCDE",
+            "content": "Airway, Breathing, Circulation, Disability, Exposure.",
+            "explanation": "A systematic approach to assess and manage critical patients."
+          },
+          "cheatSheet": {
+            "title": "Early Warning Signs of PE.",
+            "points": [
+              "Sudden onset dyspnea.",
+              "Pleuritic chest pain.",
+              "Tachycardia and tachypnea."
+            ]
+          },
+          "referenceInfo": {
+            "anatomy": "Pulmonary vasculature: The network of blood vessels that carry blood to and from the lungs.",
+            "physiology": "Pulmonary embolism obstructs blood flow, leading to ventilation-perfusion mismatch and hypoxemia.",
+            "pharm": "Oxygen therapy: Provides supplemental oxygen to improve oxygen saturation and alleviate hypoxemia."
+          },
+          "difficulty": {
+            "score": 95,
+            "level": 5,
+            "label": "Expert",
+            "clinicalStrategy": "Recognizing critical cues, prioritizing interventions.",
+            "recommendedActions": [
+              "Assess respiratory status.",
+              "Administer oxygen.",
+              "Notify the provider."
+            ]
+          }
+        }
+      },
+      {
+        "id": "s2",
+        "type": "matrix",
+        "cjmmStep": "Analyze Cues.",
+        "prompt": "Categorize the following clinical findings based on whether they indicate hypoxemia, hemodynamic instability, or pain.",
+        "columns": [
+          {
+            "id": "c1",
+            "text": "Hypoxemia"
+          },
+          {
+            "id": "c2",
+            "text": "Hemodynamic Instability."
+          },
+          {
+            "id": "c3",
+            "text": "Pain"
+          }
+        ],
+        "rows": [
+          {
+            "id": "r1",
+            "text": "Oxygen Saturation 88% on 2L NC.",
+            "correctColumnId": "c1",
+            "rationale": "Oxygen saturation of 88% indicates hypoxemia, which is a deficiency of oxygen in the blood."
+          },
+          {
+            "id": "r2",
+            "text": "Blood Pressure 90/50 mmHg.",
+            "correctColumnId": "c2",
+            "rationale": "Blood pressure of 90/50 mmHg indicates hypotension, which is a sign of hemodynamic instability."
+          },
+          {
+            "id": "r3",
+            "text": "Pleuritic Chest Pain.",
+            "correctColumnId": "c3",
+            "rationale": "Pleuritic chest pain is a type of pain that worsens with breathing and is often associated with pulmonary embolism."
+          },
+          {
+            "id": "r4",
+            "text": "Respiratory Rate 28 breaths/min.",
+            "correctColumnId": "c1",
+            "rationale": "Elevated respiratory rate is a compensatory mechanism for hypoxemia."
+          },
+          {
+            "id": "r5",
+            "text": "Heart Rate 112 bpm.",
+            "correctColumnId": "c2",
+            "rationale": "Elevated heart rate can be a compensatory mechanism to maintain cardiac output in the setting of hypotension and hypoxemia."
+          },
+          {
+            "id": "r6",
+            "text": "Pain level 7/10.",
+            "correctColumnId": "c3",
+            "rationale": "A pain level of 7/10 indicates significant discomfort that needs to be addressed."
+          }
+        ],
+        "rationale": {
+          "coreConcept": "Analyzing cues involves categorizing clinical findings to identify patterns and prioritize interventions.",
+          "caseSummary": "Eleanor Vance's clinical findings can be categorized into hypoxemia, hemodynamic instability, and pain, each requiring specific interventions.",
+          "answerAnalysis": "Correctly categorizing the findings allows for a targeted approach to managing the patient's condition. Hypoxemia (low SpO2, tachypnea) requires oxygen therapy. Hemodynamic instability (hypotension, tachycardia) requires fluid resuscitation and vasopressors if necessary. Pain requires analgesia and further investigation into its cause.",
+          "trap": "Misinterpreting the significance of vital signs or symptoms can lead to inappropriate or delayed treatment.",
+          "goldenRule": "Know your normals: Understanding normal ranges for vital signs and lab values is essential for accurate interpretation.",
+          "steps": [
+            {
+              "tag": "Recognize",
+              "description": "Identify abnormal vital signs and symptoms."
+            },
+            {
+              "tag": "Analyze",
+              "description": "Categorize the findings based on their clinical significance (hypoxemia, hemodynamic instability, pain)."
+            },
+            {
+              "tag": "Take Action.",
+              "description": "Prioritize interventions based on the categorized findings."
+            }
+          ],
+          "mnemonic": {
+            "title": "VITALS",
+            "content": "Vital signs, Intervention, Trends, Actions, Labs, Symptoms.",
+            "explanation": "A structured approach to assess and manage vital signs and symptoms."
+          },
+          "cheatSheet": {
+            "title": "Interpreting Vital Signs.",
+            "points": [
+              "Hypoxemia: SpO2 < 90%, PaO2 < 80 mmHg.",
+              "Hypotension: SBP < 90 mmHg, MAP < 65 mmHg.",
+              "Tachycardia: HR > 100 bpm."
+            ]
+          },
+          "referenceInfo": {
+            "anatomy": "Cardiovascular system: The heart and blood vessels that circulate blood throughout the body.",
+            "physiology": "Hypoxemia triggers compensatory mechanisms such as increased respiratory rate and heart rate.",
+            "pharm": "Analgesics: Medications used to relieve pain."
+          },
+          "difficulty": {
+            "score": 95,
+            "level": 5,
+            "label": "Expert",
+            "clinicalStrategy": "Data Analysis, Prioritization.",
+            "recommendedActions": [
+              "Assess respiratory status.",
+              "Monitor vital signs.",
+              "Administer pain medication."
+            ]
+          }
+        }
+      },
+      {
+        "id": "s3",
+        "type": "ordered-response",
+        "cjmmStep": "Prioritize Hypotheses.",
+        "prompt": "Based on the patient's presentation, prioritize the following potential problems in order of most to least likely.",
+        "options": [
+          "Pulmonary Embolism.",
+          "Pneumonia",
+          "Myocardial Infarction.",
+          "Anxiety Attack.",
+          "Post-operative Pain."
+        ],
+        "correctOrder": [
+          "Pulmonary Embolism.",
+          "Myocardial Infarction.",
+          "Pneumonia",
+          "Post-operative Pain.",
+          "Anxiety Attack."
+        ],
+        "rationale": {
+          "coreConcept": "Prioritizing hypotheses involves ranking potential problems based on their likelihood and potential severity.",
+          "caseSummary": "Eleanor Vance's presentation strongly suggests pulmonary embolism, but other possibilities must be considered and ruled out.",
+          "answerAnalysis": "Pulmonary embolism is the most likely diagnosis given the sudden onset dyspnea, pleuritic chest pain, hypoxemia, and post-operative status. Myocardial infarction should be considered due to chest pain, although less likely given the pleuritic nature. Pneumonia is possible but less likely without fever or productive cough. Post-operative pain is expected but does not explain the respiratory distress. Anxiety attack is the least likely given the objective findings of hypoxemia and hemodynamic instability.",
+          "trap": "Focusing solely on one diagnosis without considering alternatives can lead to delayed or inappropriate treatment.",
+          "goldenRule": "Consider the worst-case scenario: Always rule out life-threatening conditions first.",
+          "steps": [
+            {
+              "tag": "Recognize",
+              "description": "Identify potential problems based on the patient's presentation."
+            },
+            {
+              "tag": "Analyze",
+              "description": "Evaluate the likelihood of each problem based on the available data."
+            },
+            {
+              "tag": "Take Action.",
+              "description": "Prioritize interventions based on the prioritized list of potential problems."
+            }
+          ],
+          "mnemonic": {
+            "title": "STAAR",
+            "content": "Stop, Think, Act, Assess, Re-evaluate.",
+            "explanation": "A systematic approach to clinical decision-making."
+          },
+          "cheatSheet": {
+            "title": "Differential Diagnosis of Chest Pain.",
+            "points": [
+              "Pulmonary Embolism: Sudden onset dyspnea, pleuritic chest pain.",
+              "Myocardial Infarction: Substernal chest pain, radiating to arm or jaw.",
+              "Pneumonia: Cough, fever, productive sputum."
+            ]
+          },
+          "referenceInfo": {
+            "anatomy": "Pulmonary system: The lungs and airways responsible for gas exchange.",
+            "physiology": "Pulmonary embolism obstructs blood flow, leading to ventilation-perfusion mismatch and hypoxemia.",
+            "pharm": "Anticoagulants: Medications used to prevent further clot formation in pulmonary embolism."
+          },
+          "difficulty": {
+            "score": 95,
+            "level": 5,
+            "label": "Expert",
+            "clinicalStrategy": "Prioritization, Differential Diagnosis.",
+            "recommendedActions": [
+              "Assess respiratory status.",
+              "Obtain diagnostic tests.",
+              "Administer appropriate medications."
+            ]
+          }
+        }
+      },
+      {
+        "id": "s4",
+        "type": "bow-tie",
+        "cjmmStep": "Generate Solutions.",
+        "prompt": "For the patient with suspected pulmonary embolism, match the condition, actions, and parameters to monitor.",
+        "options": {
+          "conditions": [
+            "Pulmonary Embolism.",
+            "Hypoxemia",
+            "Hypotension."
+          ],
+          "actions": [
+            "Administer Oxygen.",
+            "Administer Anticoagulants.",
+            "Elevate Head of Bed.",
+            "Prepare for CT Angiography.",
+            "Administer IV Fluids."
+          ],
+          "parameters": [
+            "Oxygen Saturation.",
+            "Blood Pressure.",
+            "Respiratory Rate.",
+            "Pain Level.",
+            "Signs of Bleeding."
+          ]
+        },
+        "solution": {
+          "condition": "Pulmonary Embolism.",
+          "action": "Prepare for CT Angiography.",
+          "parameter": "Oxygen Saturation."
+        },
+        "rationale": {
+          "coreConcept": "Generating solutions involves identifying appropriate actions to address the patient's condition and parameters to monitor their response.",
+          "caseSummary": "In the case of suspected pulmonary embolism, preparing for CT angiography is crucial for diagnosis, and monitoring oxygen saturation is essential to assess respiratory status.",
+          "answerAnalysis": "Preparing for CT angiography is the definitive diagnostic test for PE. Monitoring oxygen saturation is critical to assess the effectiveness of oxygen therapy and the patient's respiratory status. Administering oxygen addresses hypoxemia. Administering anticoagulants prevents further clot formation. Elevating the head of bed improves ventilation. Administering IV fluids supports blood pressure. Monitoring blood pressure assesses hemodynamic stability. Monitoring respiratory rate assesses respiratory effort. Monitoring pain level assesses comfort. Monitoring for signs of bleeding is crucial with anticoagulant therapy.",
+          "trap": "Focusing solely on symptomatic treatment without addressing the underlying cause can lead to delayed diagnosis and treatment.",
+          "goldenRule": "Diagnose before you treat: Accurate diagnosis is essential for effective treatment.",
+          "steps": [
+            {
+              "tag": "Recognize",
+              "description": "Identify the patient's condition (pulmonary embolism)."
+            },
+            {
+              "tag": "Analyze",
+              "description": "Determine appropriate actions to address the condition (prepare for CT angiography)."
+            },
+            {
+              "tag": "Take Action.",
+              "description": "Monitor relevant parameters to assess the patient's response (oxygen saturation)."
+            }
+          ],
+          "mnemonic": {
+            "title": "PAUSE",
+            "content": "Plan, Assess, Understand, Solve, Evaluate.",
+            "explanation": "A structured approach to problem-solving."
+          },
+          "cheatSheet": {
+            "title": "Management of Pulmonary Embolism.",
+            "points": [
+              "Diagnose: CT angiography.",
+              "Treat: Anticoagulation.",
+              "Monitor: Oxygen saturation, signs of bleeding."
+            ]
+          },
+          "referenceInfo": {
+            "anatomy": "Pulmonary vasculature: The network of blood vessels that carry blood to and from the lungs.",
+            "physiology": "Pulmonary embolism obstructs blood flow, leading to ventilation-perfusion mismatch and hypoxemia.",
+            "pharm": "Anticoagulants: Medications used to prevent further clot formation in pulmonary embolism."
+          },
+          "difficulty": {
+            "score": 95,
+            "level": 5,
+            "label": "Expert",
+            "clinicalStrategy": "Problem-Solving, Critical Thinking.",
+            "recommendedActions": [
+              "Prepare for diagnostic tests.",
+              "Administer appropriate medications.",
+              "Monitor patient response."
+            ]
+          }
+        }
+      },
+      {
+        "id": "s5",
+        "type": "drop-cloze",
+        "cjmmStep": "Take Action.",
+        "prompt": "Complete the following nursing orders for Eleanor Vance.",
+        "sentences": [
+          {
+            "text": "1. Apply oxygen via %{d1} to maintain SpO2 > 92%.",
+            "dropdowns": [
+              {
+                "id": "d1",
+                "options": [
+                  "Nasal cannula.",
+                  "Non-rebreather mask.",
+                  "Simple mask.",
+                  "Venturi mask."
+                ],
+                "correctAnswer": "Non-rebreather mask."
+              }
+            ]
+          },
+          {
+            "text": "2. Initiate %{d2} therapy as prescribed by the provider.",
+            "dropdowns": [
+              {
+                "id": "d2",
+                "options": [
+                  "Antibiotic.",
+                  "Anticoagulation.",
+                  "Bronchodilator.",
+                  "Analgesic"
+                ],
+                "correctAnswer": "Anticoagulation."
+              }
+            ]
+          },
+          {
+            "text": "3. Monitor vital signs, including heart rate, blood pressure, respiratory rate, and %{d3} every 15 minutes.",
+            "dropdowns": [
+              {
+                "id": "d3",
+                "options": [
+                  "Temperature.",
+                  "Oxygen saturation.",
+                  "Pain level.",
+                  "Level of consciousness."
+                ],
+                "correctAnswer": "Oxygen saturation."
+              }
+            ]
+          }
+        ],
+        "blankMap": {
+          "d1": {
+            "whyCorrect": "A non-rebreather mask delivers a high concentration of oxygen, which is necessary to improve oxygen saturation in a patient with hypoxemia due to pulmonary embolism.",
+            "distractorRationales": {
+              "nasal cannula": "A nasal cannula delivers a lower concentration of oxygen and may not be sufficient to maintain adequate oxygen saturation in this patient.",
+              "simple mask": "A simple mask delivers a moderate concentration of oxygen but may not be as effective as a non-rebreather mask in this situation.",
+              "venturi mask": "A venturi mask delivers a precise concentration of oxygen but may not be necessary in the initial management of hypoxemia."
+            }
+          },
+          "d2": {
+            "whyCorrect": "Anticoagulation therapy is the primary treatment for pulmonary embolism to prevent further clot formation and allow the body to break down existing clots.",
+            "distractorRationales": {
+              "antibiotic": "Antibiotics are used to treat infections, which is not the primary problem in this case.",
+              "bronchodilator": "Bronchodilators are used to treat bronchospasm, which is not the primary problem in this case.",
+              "analgesic": "Analgesics are used to relieve pain, but addressing the underlying cause of the pulmonary embolism is more important."
+            }
+          },
+          "d3": {
+            "whyCorrect": "Monitoring oxygen saturation is crucial to assess the effectiveness of oxygen therapy and the patient's respiratory status.",
+            "distractorRationales": {
+              "temperature": "Temperature is important to monitor for infection, but oxygen saturation is more critical in this case.",
+              "pain level": "Pain level is important to assess comfort, but oxygen saturation is more critical in this case.",
+              "level of consciousness": "Level of consciousness is important to monitor for neurological changes, but oxygen saturation is more critical in this case."
+            }
+          }
+        },
+        "rationale": {
+          "coreConcept": "Taking action involves implementing appropriate nursing orders to address the patient's condition and prevent further complications.",
+          "caseSummary": "In the case of Eleanor Vance, applying oxygen, initiating anticoagulation therapy, and monitoring vital signs are essential nursing actions.",
+          "answerAnalysis": "Applying oxygen via non-rebreather mask is necessary to improve oxygen saturation. Initiating anticoagulation therapy is the primary treatment for pulmonary embolism. Monitoring vital signs, including oxygen saturation, is crucial to assess the patient's response to treatment.",
+          "trap": "Delaying or omitting essential nursing actions can lead to adverse outcomes.",
+          "goldenRule": "Act decisively: Prompt and appropriate action can save lives.",
+          "steps": [
+            {
+              "tag": "Recognize",
+              "description": "Identify the patient's needs based on their condition."
+            },
+            {
+              "tag": "Analyze",
+              "description": "Determine appropriate nursing actions to address those needs."
+            },
+            {
+              "tag": "Take Action.",
+              "description": "Implement the nursing orders and monitor the patient's response."
+            }
+          ],
+          "mnemonic": {
+            "title": "ADPIE",
+            "content": "Assess, Diagnose, Plan, Implement, Evaluate.",
+            "explanation": "The nursing process provides a systematic approach to patient care."
+          },
+          "cheatSheet": {
+            "title": "Nursing Interventions for Pulmonary Embolism.",
+            "points": [
+              "Apply oxygen.",
+              "Initiate anticoagulation therapy.",
+              "Monitor vital signs."
+            ]
+          },
+          "referenceInfo": {
+            "anatomy": "Respiratory system: The lungs and airways responsible for gas exchange.",
+            "physiology": "Pulmonary embolism obstructs blood flow, leading to ventilation-perfusion mismatch and hypoxemia.",
+            "pharm": "Anticoagulants: Medications used to prevent further clot formation in pulmonary embolism."
+          },
+          "difficulty": {
+            "score": 95,
+            "level": 5,
+            "label": "Expert",
+            "clinicalStrategy": "Implementation, Monitoring.",
+            "recommendedActions": [
+              "Administer medications.",
+              "Monitor patient response.",
+              "Communicate with provider."
+            ]
+          }
+        }
+      },
+      {
+        "id": "s6",
+        "type": "multiple-response",
+        "cjmmStep": "Evaluate Outcomes.",
+        "prompt": "Which of the following findings indicate that the interventions have been effective?",
+        "options": [
+          "Oxygen saturation increases to 95% on non-rebreather mask.",
+          "Blood pressure remains at 90/50 mmHg.",
+          "Respiratory rate decreases to 20 breaths/min.",
+          "Patient reports decreased chest pain.",
+          "D-dimer level increases."
+        ],
+        "correct": [
+          "Oxygen saturation increases to 95% on non-rebreather mask.",
+          "Respiratory rate decreases to 20 breaths/min.",
+          "Patient reports decreased chest pain."
+        ],
+        "rationale": {
+          "coreConcept": "Evaluating outcomes involves assessing the patient's response to interventions and determining whether the desired goals have been achieved.",
+          "caseSummary": "In the case of Eleanor Vance, effective interventions should result in improved oxygen saturation, decreased respiratory rate, and reduced chest pain.",
+          "answerAnalysis": "An increase in oxygen saturation to 95% indicates improved oxygenation. A decrease in respiratory rate to 20 breaths/min indicates reduced respiratory effort. A report of decreased chest pain indicates improved comfort. Blood pressure remaining at 90/50 mmHg indicates persistent hemodynamic instability. An increase in D-dimer level indicates ongoing clot formation.",
+          "trap": "Failing to recognize signs of improvement or deterioration can lead to inappropriate adjustments in treatment.",
+          "goldenRule": "Evaluate continuously: Ongoing assessment is essential to ensure optimal patient outcomes.",
+          "steps": [
+            {
+              "tag": "Recognize",
+              "description": "Identify expected outcomes based on the interventions implemented."
+            },
+            {
+              "tag": "Analyze",
+              "description": "Assess the patient's response to the interventions and compare it to the expected outcomes."
+            },
+            {
+              "tag": "Take Action.",
+              "description": "Adjust the interventions as needed based on the evaluation of outcomes."
+            }
+          ],
+          "mnemonic": {
+            "title": "SMART",
+            "content": "Specific, Measurable, Achievable, Relevant, Time-bound.",
+            "explanation": "A framework for setting effective goals and evaluating outcomes."
+          },
+          "cheatSheet": {
+            "title": "Evaluating Outcomes in Pulmonary Embolism.",
+            "points": [
+              "Improved oxygen saturation.",
+              "Decreased respiratory rate.",
+              "Reduced chest pain."
+            ]
+          },
+          "referenceInfo": {
+            "anatomy": "Respiratory system: The lungs and airways responsible for gas exchange.",
+            "physiology": "Effective interventions should improve oxygenation, reduce respiratory effort, and alleviate pain.",
+            "pharm": "Anticoagulants: Medications used to prevent further clot formation in pulmonary embolism."
+          },
+          "difficulty": {
+            "score": 95,
+            "level": 5,
+            "label": "Expert",
+            "clinicalStrategy": "Evaluation, Critical Thinking.",
+            "recommendedActions": [
+              "Monitor patient response.",
+              "Adjust interventions as needed.",
+              "Communicate with provider."
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "typeId": "case-study",
+  "id": "f6263f5b-e6ea-473f-bb82-0eb76fdc3ccb",
+  "pedagogy": {
+    "difficultyLevel": 5,
+    "clinicalFocus": "Respiratory Distress.",
+    "clinicalFocusTopics": [
+      "Respiratory Distress.",
+      "Pulmonary Embolism."
+    ]
+  },
+  "metadata": {
+    "title": "Generated case-study.",
+    "authorId": "AI_Gen",
+    "createdAt": "2026-01-30T13:18:04.848Z.",
+    "updatedAt": "2026-01-30T13:43:13.601Z.",
+    "status": "Draft",
+    "sourceOrigin": "Ai",
+    "sourceReferences": [],
+    "qualityScore": 90,
+    "hasStudentPreview": true,
+    "batchInfo": {
+      "batchId": "75d9e39d-b244-4a4d-8262-3fbe97729db8",
+      "batchSize": 0,
+      "temperature": 0.2,
+      "generationDate": "2026-01-30T13:18:04.848Z."
+    },
+    "difficulty": 5,
+    "difficultyLevel": 5
+  },
+  "aiSafetyChecks": {
+    "runId": "2874eabf-b6e7-41fe-bd69-e882b1bfa5b5",
+    "timestamp": "2026-01-30T13:18:04.848Z.",
+    "copyrightScore": 100,
+    "duplicationCheck": {
+      "isDuplicate": false,
+      "similarityScore": 0
+    },
+    "validationStatus": "Pass",
+    "issues": [],
+    "autoFixHistory": []
+  },
+  "difficulty": 5,
+  "difficultyLevel": 5,
+  "_validationErrors": [
+    "Obj.options.forEach is not a function."
+  ],
+  "_unifiedPipelineProcessed": true,
+  "_sanitized": true
+}

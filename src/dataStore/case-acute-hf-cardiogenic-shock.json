@@ -1,0 +1,689 @@
+{
+  "id": "ACS-HF-001",
+  "type": "case-study",
+  "typeId": "case-study-6-screen",
+  "metadata": {
+    "title": "Acute Decompensated Heart Failure with Cardiogenic Shock.",
+    "difficulty": 5,
+    "clientNeeds": "Physiological Integrity.",
+    "status": "Final",
+    "clinicalFocus": "Critical Care.",
+    "difficultyLevel": 5,
+    "authorId": "UnifiedPipeline",
+    "createdAt": "2026-01-30T13:43:11.661Z.",
+    "updatedAt": "2026-01-30T13:43:11.662Z.",
+    "qualityScore": 80,
+    "hasStudentPreview": true,
+    "sourceOrigin": "Ai",
+    "batchInfo": {
+      "batchId": "unified",
+      "batchSize": 1,
+      "temperature": 0,
+      "generationDate": "2026-01-30T13:43:11.662Z."
+    }
+  },
+  "pedagogy": {
+    "difficultyLevel": 5,
+    "clinicalFocus": "Critical Care.",
+    "clinicalFocusTopics": [
+      "Heart Failure.",
+      "Cardiogenic Shock.",
+      "Hemodynamics.",
+      "Perfusion"
+    ]
+  },
+  "content": {
+    "clinicalData": {
+      "patientInfo": {
+        "name": "Robert Chen.",
+        "age": 68,
+        "gender": "M",
+        "codeStatus": "FULL CODE.",
+        "admissionDate": "2026-01-30 08:00.",
+        "room": "MedSurg-12.",
+        "physician": "Dr. S. Specialist.",
+        "nurse": "RN Staff.",
+        "allergies": "NKDA",
+        "isolation": "Standard Precautions.",
+        "weightKg": 90,
+        "history": [],
+        "homeMeds": []
+      },
+      "historyPhysical": "<div class='h-p-data'><h3>History of Present Illness</h3><p>68-year-old male with history of CAD, previous MI (3 years ago), HTN, and T2DM presents to ED via EMS with acute onset dyspnea and chest pressure that began 4 hours ago. Patient reports progressive orthopnea over past week, now sleeping upright in recliner. Gained 12 pounds in 10 days. Denies chest pain but describes 'heavy pressure.' Reports medication non-adherence due to cost—has not taken furosemide for 2 weeks.</p><h3>Past Medical History</h3><ul><li>CAD with anterior MI (2023), PCI with stent placement</li><li>Heart failure with reduced ejection fraction (HFrEF), last EF 30%</li><li>Hypertension</li><li>Type 2 Diabetes Mellitus</li><li>Chronic kidney disease, Stage 3</li></ul><h3>Home Medications</h3><ul><li>Furosemide 40 mg daily (not taken × 2 weeks)</li><li>Carvedilol 12.5 mg BID</li><li>Lisinopril 20 mg daily</li><li>Atorvastatin 80 mg daily</li><li>Metformin 1000 mg BID</li></ul><h3>Physical Examination</h3><p><strong>General:</strong> Anxious, tripod position, labored breathing</p><p><strong>Respiratory:</strong> Crackles bilateral bases to mid-lung fields, no wheezing</p><p><strong>Cardiovascular:</strong> S3 gallop present, JVD to angle of jaw, 3+ pitting edema bilateral lower extremities to knees</p><p><strong>Skin:</strong> Cool, pale, diaphoretic</p><p><strong>Abdomen:</strong> Soft, hepatomegaly, positive hepatojugular reflux</p></div>.",
+      "vitals": [
+        {
+          "time": "08:00",
+          "tempF": "97.8",
+          "hr": 118,
+          "rr": 32,
+          "bp": "92/58",
+          "o2": "84",
+          "o2_device": "Room Air.",
+          "pain": 0
+        },
+        {
+          "time": "09:00",
+          "tempF": "97.6",
+          "hr": 124,
+          "rr": 28,
+          "bp": "88/54",
+          "o2": "88",
+          "o2_device": "6L NC.",
+          "pain": 0
+        },
+        {
+          "time": "10:30",
+          "tempF": "98.2",
+          "hr": 96,
+          "rr": 18,
+          "bp": "102/66",
+          "o2": "94",
+          "o2_device": "BiPAP",
+          "pain": 0
+        }
+      ],
+      "nursesNotes": [
+        {
+          "time": "08:15",
+          "author": "ED Nurse.",
+          "category": "Admission Note.",
+          "note": "Patient arrived via EMS in acute respiratory distress. Placed on cardiac monitor showing atrial fibrillation with rapid ventricular response. IV access established × 2 (18g bilateral AC). O₂ via NC applied, titrated to 6L for SpO₂ 90%. Patient extremely anxious, stating 'I feel like I'm drowning.' Sitting upright, using accessory muscles. Pink frothy sputum noted when coughing. Skin cool and clammy. Foley catheter inserted—50 mL concentrated, dark amber urine obtained. MD notified. Nitroglycerin 0.4 mg SL given × 1 for chest pressure with minimal relief. Awaiting stat labs and CXR."
+        },
+        {
+          "time": "09:20",
+          "author": "ED Nurse.",
+          "category": "Clinical Update.",
+          "note": "Patient increasingly lethargic despite continued dyspnea. Urine output 30 mL over past hour (dark, concentrated). BP trending down despite 500 mL NS bolus. Extremities remain cool with delayed cap refill (4 seconds). Patient's daughter at bedside, states father 'doesn't look right—his color is gray.' Lactate 3.2 mmol/L (critical called from lab). BNP >5000 pg/mL. CXR shows bilateral pulmonary edema, cardiomegaly. Cardiology consulted. Patient needs higher level of care. Preparing for MICU transfer. BiPAP setup requested."
+        },
+        {
+          "time": "10:45",
+          "author": "MICU Nurse.",
+          "category": "Transfer Note.",
+          "note": "Patient transferred to MICU on BiPAP. Tolerating non-invasive ventilation well. Work of breathing decreased, less accessory muscle use. Dobutamine infusion initiated at 5 mcg/kg/min per cardiology. Furosemide 80 mg IV given—good diuretic response with 400 mL clear yellow urine output in first 30 minutes. Skin warmer, color improving from gray to pale pink. Patient more alert, nods appropriately to questions. Daughter reassured. Continuous cardiac monitoring shows conversion to normal sinus rhythm. Will continue to monitor MAP, urine output, and respiratory status closely."
+        }
+      ],
+      "labs": [
+        {
+          "test": "BNP",
+          "value": "5240",
+          "unit": "Pg/mL",
+          "ref": "<100 pg/mL.",
+          "flag": "H!"
+        },
+        {
+          "test": "Troponin I.",
+          "value": "0.18",
+          "unit": "Ng/mL",
+          "ref": "<0.04 ng/mL.",
+          "flag": "H"
+        },
+        {
+          "test": "Lactate",
+          "value": "3.2",
+          "unit": "Mmol/L",
+          "ref": "0.5-2.2 mmol/L.",
+          "flag": "H!"
+        },
+        {
+          "test": "BUN",
+          "value": "42",
+          "unit": "Mg/dL",
+          "ref": "7-20 mg/dL.",
+          "flag": "H"
+        },
+        {
+          "test": "Creatinine.",
+          "value": "2.1",
+          "unit": "Mg/dL",
+          "ref": "0.7-1.3 mg/dL.",
+          "flag": "H"
+        },
+        {
+          "test": "Sodium",
+          "value": "132",
+          "unit": "MEq/L",
+          "ref": "135-145 mEq/L.",
+          "flag": "L"
+        },
+        {
+          "test": "Potassium",
+          "value": "5.4",
+          "unit": "MEq/L",
+          "ref": "3.5-5.0 mEq/L.",
+          "flag": "H"
+        },
+        {
+          "test": "Lactate",
+          "value": "1.8",
+          "unit": "Mmol/L",
+          "ref": "0.5-2.2 mmol/L.",
+          "flag": ""
+        },
+        {
+          "test": "Potassium",
+          "value": "4.2",
+          "unit": "MEq/L",
+          "ref": "3.5-5.0 mEq/L.",
+          "flag": ""
+        }
+      ],
+      "orders": [
+        {
+          "drug": "O₂ via nasal cannula, titrate to SpO₂ ≥92%.",
+          "dose": "As ordered.",
+          "route": "IV",
+          "freq": "Per protocol.",
+          "status": "Completed",
+          "indication": ""
+        },
+        {
+          "drug": "Cardiac monitor continuous.",
+          "dose": "As ordered.",
+          "route": "IV",
+          "freq": "Per protocol.",
+          "status": "Completed",
+          "indication": ""
+        },
+        {
+          "drug": "Furosemide 80 mg IV push.",
+          "dose": "As ordered.",
+          "route": "IV",
+          "freq": "Per protocol.",
+          "status": "Completed",
+          "indication": ""
+        },
+        {
+          "drug": "BiPAP: IPAP 12, EPAP 5, FiO₂ 50%.",
+          "dose": "As ordered.",
+          "route": "IV",
+          "freq": "Per protocol.",
+          "status": "Active",
+          "indication": ""
+        },
+        {
+          "drug": "Dobutamine infusion 5 mcg/kg/min.",
+          "dose": "As ordered.",
+          "route": "IV",
+          "freq": "Per protocol.",
+          "status": "Active",
+          "indication": ""
+        },
+        {
+          "drug": "Furosemide 10 mg/hr continuous infusion.",
+          "dose": "As ordered.",
+          "route": "IV",
+          "freq": "Per protocol.",
+          "status": "Active",
+          "indication": ""
+        }
+      ],
+      "radiology": [
+        {
+          "study": "Diagnostic Imaging.",
+          "findings": "Bilateral pulmonary edema with bat-wing pattern. Cardiomegaly. Small bilateral pleural effusions. No pneumothorax.",
+          "impression": "",
+          "indication": "",
+          "radiologist": "",
+          "date": "08:45"
+        }
+      ],
+      "ekg": [
+        {
+          "time": "08:10",
+          "test": "12-Lead EKG.",
+          "result": "Atrial fibrillation with rapid ventricular response (rate 118). Old anterior Q waves. No acute ST-segment changes."
+        }
+      ],
+      "echocardiogram": [
+        {
+          "time": "10:15",
+          "test": "Echocardiogram.",
+          "result": "Severely reduced LV systolic function, EF 25%. Global hypokinesis with akinetic anterior wall. Moderate mitral regurgitation. Dilated left atrium."
+        }
+      ],
+      "history": [
+        {
+          "time": "08:15",
+          "note": "Patient arrived via EMS in acute respiratory distress. Placed on cardiac monitor showing atrial fibrillation with rapid ventricular response. IV access established × 2 (18g bilateral AC). O₂ via NC applied, titrated to 6L for SpO₂ 90%. Patient extremely anxious, stating 'I feel like I'm drowning.' Sitting upright, using accessory muscles. Pink frothy sputum noted when coughing. Skin cool and clammy. Foley catheter inserted—50 mL concentrated, dark amber urine obtained. MD notified. Nitroglycerin 0.4 mg SL given × 1 for chest pressure with minimal relief. Awaiting stat labs and CXR.",
+          "initial": "ED Nurse."
+        },
+        {
+          "time": "09:20",
+          "note": "Patient increasingly lethargic despite continued dyspnea. Urine output 30 mL over past hour (dark, concentrated). BP trending down despite 500 mL NS bolus. Extremities remain cool with delayed cap refill (4 seconds). Patient's daughter at bedside, states father 'doesn't look right—his color is gray.' Lactate 3.2 mmol/L (critical called from lab). BNP >5000 pg/mL. CXR shows bilateral pulmonary edema, cardiomegaly. Cardiology consulted. Patient needs higher level of care. Preparing for MICU transfer. BiPAP setup requested.",
+          "initial": "ED Nurse."
+        },
+        {
+          "time": "10:45",
+          "note": "Patient transferred to MICU on BiPAP. Tolerating non-invasive ventilation well. Work of breathing decreased, less accessory muscle use. Dobutamine infusion initiated at 5 mcg/kg/min per cardiology. Furosemide 80 mg IV given—good diuretic response with 400 mL clear yellow urine output in first 30 minutes. Skin warmer, color improving from gray to pale pink. Patient more alert, nods appropriately to questions. Daughter reassured. Continuous cardiac monitoring shows conversion to normal sinus rhythm. Will continue to monitor MAP, urine output, and respiratory status closely.",
+          "initial": "MICU Nurse."
+        }
+      ],
+      "setting": "MedSurg Unit."
+    },
+    "rationale": {
+      "coreConcept": "Cardiogenic Shock in Acute Decompensated Heart Failure.",
+      "caseSummary": "Robert Chen represents a classic scenario of preventable ADHF progression triggered by medication non-adherence. After discontinuing furosemide for 2 weeks, he developed progressive volume overload that precipitated acute pulmonary edema and cardiogenic shock, marked by hypotension, end-organ hypoperfusion, and elevated lactate.",
+      "answerAnalysis": "See option review for detailed analysis.",
+      "goldenRule": "In cardiogenic shock, the heart is both the problem and the victim—you cannot improve perfusion with volume alone because the pump cannot handle the load. Inotropic support is mandatory to break the vicious cycle of poor contractility → low output → hypoperfusion → further myocardial dysfunction.",
+      "steps": [],
+      "difficulty": {
+        "level": 5,
+        "score": 100,
+        "label": "Evaluation.",
+        "clinicalStrategy": "Level 5 clinical reasoning required.",
+        "recommendedActions": [
+          "Practice advanced scenarios."
+        ]
+      },
+      "mnemonic": {
+        "title": "PUMP-FAIL",
+        "content": "P: Perfusion markers; U: Upright positioning; M: MAP goal ≥65; P: Positive-pressure (BiPAP); F: Furosemide (with inotropes); A: Avoid fluids; I: Inotropic support; L: Lactate clearance.",
+        "explanation": "Reminds clinicians to support the pump while avoiding common pitfalls like excessive fluid or supine positioning."
+      },
+      "cheatSheet": {
+        "title": "SHOCK-HF Protocol.",
+        "points": [
+          "Recognize Triad: Hypotension, organ hypoperfusion (cool skin, oliguria, confusion), and elevated lactate.",
+          "Immediate Positioning: High-Fowler's to reduce preload.",
+          "Early BiPAP: Reduces cardiac workload and improves gas exchange.",
+          "Inotropic Support: Mandatory for pump failure (Dobutamine/Milrinone).",
+          "Monitor Perfusion: Lactate clearance and MAP are the gold standards."
+        ]
+      },
+      "clinicalStrategy": "Level 5 clinical reasoning required."
+    },
+    "structure": {
+      "screens": [
+        {
+          "id": "s1",
+          "type": "highlight",
+          "cjmmStep": "Recognize Cues.",
+          "prompt": "The nurse is reviewing the patient's clinical data at 0900 in the ED. Highlight the findings below that require immediate follow-up.",
+          "text": "The 68-year-old patient presents with <span id=\"h1\">acute dyspnea and chest pressure</span> that began 4 hours ago. Vital signs show <span id=\"h2\">BP 88/54 mmHg</span>, <span id=\"h3\">heart rate 124 bpm irregular</span>, and <span id=\"h4\">respiratory rate 28 breaths/min</span>. The patient appears <span id=\"h5\">increasingly lethargic</span> despite oxygen support. Physical exam reveals <span id=\"h6\">cool, clammy extremities with delayed capillary refill of 4 seconds</span>. Recent labs show <span id=\"h7\">lactate 3.2 mmol/L</span> and <span id=\"h8\">BNP >5000 pg/mL</span>. The patient has produced <span id=\"h9\">only 30 mL of dark, concentrated urine</span> in the past hour.",
+          "correct": [
+            "H2",
+            "H5",
+            "H6",
+            "H7",
+            "H9"
+          ],
+          "rationale": {
+            "coreConcept": "Recognizing signs of end-organ hypoperfusion.",
+            "answerAnalysis": "The correct highlights represent the classic triad of cardiogenic shock: hypotension (h2), altered mental status (h5), peripheral hypoperfusion (h6), elevated lactate (h7), and oliguria (h9). Findings like BNP or dyspnea confirm the underlying diagnosis but are not as critically time-sensitive as the shock indicators.",
+            "clinicalStrategy": "Focus on the 'Perfusion Triangle': Pressure (MAP), Periphery (skin/urine), and Products (lactate).",
+            "difficulty": 5,
+            "highlightReview": {
+              "h1": {
+                "isCorrect": false,
+                "rationale": "Expected with heart failure but not the most critical indicator of shock state at this moment."
+              },
+              "h2": {
+                "isCorrect": true,
+                "rationale": "Hypotension indicating inadequate perfusion and possible cardiogenic shock."
+              },
+              "h3": {
+                "isCorrect": false,
+                "rationale": "Compensatory tachycardia—concerning but secondary to the shock state."
+              },
+              "h4": {
+                "isCorrect": false,
+                "rationale": "Elevated but improving from admission (was 32); respiratory support is in place."
+              },
+              "h5": {
+                "isCorrect": true,
+                "rationale": "Altered mental status from decreased cerebral perfusion."
+              },
+              "h6": {
+                "isCorrect": true,
+                "rationale": "Peripheral hypoperfusion and compensatory vasoconstriction."
+              },
+              "h7": {
+                "isCorrect": true,
+                "rationale": "Elevated lactate indicates tissue hypoxia and anaerobic metabolism."
+              },
+              "h8": {
+                "isCorrect": false,
+                "rationale": "Confirms heart failure but doesn't change immediate shock management."
+              },
+              "h9": {
+                "isCorrect": true,
+                "rationale": "Oliguria from poor renal perfusion, a hallmark of shock."
+              }
+            }
+          },
+          "cjmmPhase": "Recognize Cues."
+        },
+        {
+          "id": "s2",
+          "type": "matrix",
+          "cjmmStep": "Analyze Cues.",
+          "prompt": "For each assessment finding below, indicate whether it reflects an expected response to initial heart failure therapy OR indicates worsening cardiogenic shock requiring escalation of care.",
+          "columns": [
+            {
+              "id": "c1",
+              "text": "Expected Response to HF Therapy."
+            },
+            {
+              "id": "c2",
+              "text": "Worsening Cardiogenic Shock."
+            }
+          ],
+          "rows": [
+            {
+              "id": "r1",
+              "text": "Increased urine output from 30 mL/hr to 400 mL in 30 minutes after IV furosemide.",
+              "correctColumnIds": [
+                "c1"
+              ],
+              "rationale": "Brisk diuresis after IV furosemide is the desired therapeutic effect.",
+              "correctColumnId": "c1"
+            },
+            {
+              "id": "r2",
+              "text": "Blood pressure decreased from 92/58 to 88/54 mmHg despite interventions.",
+              "correctColumnIds": [
+                "c2"
+              ],
+              "rationale": "Persistent hypotension despite diuretics indicates the need for inotropic support.",
+              "correctColumnId": "c2"
+            },
+            {
+              "id": "r3",
+              "text": "Heart rate decreased from 124 bpm irregular to 96 bpm regular on monitor.",
+              "correctColumnIds": [
+                "c1"
+              ],
+              "rationale": "Normalization of rate and rhythm indicates improved cardiac stability.",
+              "correctColumnId": "c1"
+            },
+            {
+              "id": "r4",
+              "text": "Mental status change from alert/anxious to increasingly lethargic.",
+              "correctColumnIds": [
+                "c2"
+              ],
+              "rationale": "Progressive lethargy indicates worsening cerebral hypoperfusion.",
+              "correctColumnId": "c2"
+            },
+            {
+              "id": "r5",
+              "text": "Lactate level decreased from 3.2 mmol/L to 1.8 mmol/L.",
+              "correctColumnIds": [
+                "c1"
+              ],
+              "rationale": "Lactate clearance demonstrates improved tissue oxygen delivery.",
+              "correctColumnId": "c1"
+            }
+          ],
+          "rationale": {
+            "coreConcept": "Distinguishing therapy success from clinical deterioration.",
+            "answerAnalysis": "Improvement in perfusion (lactate, UOP, mentation, rhythm) signals success, while declining MAP or awareness despite standard HF care indicates shock progression requiring inotropes.",
+            "clinicalStrategy": "Trend markers: Pressure, Lactate, UOP, and Mentation. Escalation is needed when volume removal alone fails to restore perfusion.",
+            "difficulty": 5
+          },
+          "cjmmPhase": "Analyze Cues."
+        },
+        {
+          "id": "s3",
+          "type": "multiple-choice",
+          "cjmmStep": "Prioritize Hypotheses.",
+          "prompt": "Based on the patient's current clinical presentation at 0920, which condition represents the highest priority nursing concern requiring immediate intervention?",
+          "options": [
+            {
+              "id": "o1",
+              "text": "Acute anxiety related to dyspnea and fear of suffocation.",
+              "isCorrect": false
+            },
+            {
+              "id": "o2",
+              "text": "Cardiogenic shock secondary to acute decompensated heart failure.",
+              "isCorrect": true
+            },
+            {
+              "id": "o3",
+              "text": "Atrial fibrillation with rapid ventricular response.",
+              "isCorrect": false
+            },
+            {
+              "id": "o4",
+              "text": "Fluid volume overload secondary to medication non-adherence.",
+              "isCorrect": false
+            }
+          ],
+          "rationale": {
+            "coreConcept": "ABC Prioritization in Critical Care.",
+            "answerAnalysis": "Cardiogenic shock (Option B) is the immediate life threat. Anxiety, AFib, and Volume overload are all relevant but secondary to the circulation (C) failure defined by shock physiology.",
+            "clinicalStrategy": "Use the 'Will This Kill My Patient First?' rule. Shock is the most proximal threat to life.",
+            "difficulty": 5,
+            "optionReviews": [
+              {
+                "optionId": "o1",
+                "isCorrect": false,
+                "whyIncorrect": "Anxiety is a symptom of hypoperfusion, not the root cause. Perfusion must be fixed first."
+              },
+              {
+                "optionId": "o2",
+                "isCorrect": true,
+                "whyCorrect": "Shock involves global tissue hypoxia and is the top life threat according to ABC priority."
+              },
+              {
+                "optionId": "o3",
+                "isCorrect": false,
+                "whyIncorrect": "AFib with RVR decreases output but is secondary to the primary pump failure (shock)."
+              },
+              {
+                "optionId": "o4",
+                "isCorrect": false,
+                "whyIncorrect": "Volume overload is the precipitant, but the current acute crisis is shock physiology."
+              }
+            ]
+          },
+          "cjmmPhase": "Prioritize Hypotheses."
+        },
+        {
+          "id": "s4",
+          "type": "bow-tie",
+          "cjmmStep": "Generate Solutions.",
+          "prompt": "Complete the diagram below by selecting the priority condition at the center, two nursing actions that address this condition (left side), and two parameters for evaluating treatment effectiveness (right side).",
+          "conditions": [
+            "Cardiogenic shock from acute decompensated heart failure.",
+            "Acute respiratory failure from pulmonary edema.",
+            "Medication non-adherence causing heart failure exacerbation.",
+            "Volume overload from diuretic discontinuation."
+          ],
+          "actions": [
+            "Initiate inotropic support (dobutamine) per protocol.",
+            "Apply BiPAP to reduce work of breathing and improve oxygenation.",
+            "Administer additional IV fluid bolus to improve blood pressure.",
+            "Encourage deep breathing and coughing exercises.",
+            "Position patient supine to improve venous return.",
+            "Administer beta blocker to control heart rate."
+          ],
+          "parameters": [
+            "Mean arterial pressure (MAP) trending toward ≥65 mmHg.",
+            "Serum lactate clearance (decreasing toward normal <2.0 mmol/L).",
+            "BNP level returning to normal range.",
+            "Chest X-ray showing complete resolution of pulmonary edema.",
+            "Patient's anxiety level on 0-10 scale.",
+            "Heart rate converting to <100 bpm."
+          ],
+          "correct": {
+            "condition": "Cardiogenic shock from acute decompensated heart failure.",
+            "actions": [
+              "Initiate inotropic support (dobutamine) per protocol.",
+              "Apply BiPAP to reduce work of breathing and improve oxygenation."
+            ],
+            "parameters": [
+              "Mean arterial pressure (MAP) trending toward ≥65 mmHg.",
+              "Serum lactate clearance (decreasing toward normal <2.0 mmol/L)."
+            ]
+          },
+          "rationale": {
+            "coreConcept": "Matching interventions to physiology.",
+            "answerAnalysis": "Inotropes fix the pump; BiPAP reduces workload. MAP and Lactate clearance are the primary objective monitors for shock resolution.",
+            "clinicalStrategy": "Fix the Pump (contractility) and the Puddle (pulmonary edema). Monitor objective perfusion markers.",
+            "difficulty": 5
+          },
+          "cjmmPhase": "Generate Solutions."
+        },
+        {
+          "id": "s5",
+          "type": "drop-cloze",
+          "cjmmStep": "Take Action.",
+          "prompt": "The nurse is preparing the patient for transfer to the MICU and initiation of BiPAP. Complete the sentence below by selecting the most appropriate action for each dropdown.",
+          "text": "The nurse should position the patient in %{d1}% and ensure %{d2}% is immediately available at the bedside.",
+          "dropdowns": [
+            {
+              "id": "d1",
+              "options": [
+                {
+                  "id": "d1-o0",
+                  "text": "High-Fowler's position (sitting upright 90 degrees).",
+                  "isCorrect": true
+                },
+                {
+                  "id": "d1-o1",
+                  "text": "Supine position with legs elevated.",
+                  "isCorrect": false
+                },
+                {
+                  "id": "d1-o2",
+                  "text": "Left lateral recumbent position.",
+                  "isCorrect": false
+                },
+                {
+                  "id": "d1-o3",
+                  "text": "Trendelenburg position (head down, feet up).",
+                  "isCorrect": false
+                }
+              ],
+              "correctAnswer": "High-Fowler's position (sitting upright 90 degrees)."
+            },
+            {
+              "id": "d2",
+              "options": [
+                {
+                  "id": "d2-o0",
+                  "text": "A bag-valve-mask with endotracheal intubation equipment.",
+                  "isCorrect": true
+                },
+                {
+                  "id": "d2-o1",
+                  "text": "Additional IV fluid boluses.",
+                  "isCorrect": false
+                },
+                {
+                  "id": "d2-o2",
+                  "text": "A bedside commode for toileting.",
+                  "isCorrect": false
+                },
+                {
+                  "id": "d2-o3",
+                  "text": "Beta blocker medication for rate control.",
+                  "isCorrect": false
+                }
+              ],
+              "correctAnswer": "A bag-valve-mask with endotracheal intubation equipment."
+            }
+          ],
+          "rationale": {
+            "coreConcept": "Safety and stabilization during high-risk interventions.",
+            "answerAnalysis": "High-Fowler's reduces preload and improves lung mechanics. Airway equipment must be ready because non-invasive ventilation can fail in shock patients.",
+            "clinicalStrategy": "Always have a 'Plan B'. Airway rescue is mandatory for unstable BiPAP patients.",
+            "difficulty": 5
+          },
+          "cjmmPhase": "Take Action."
+        },
+        {
+          "id": "s6",
+          "type": "multiple-response",
+          "cjmmStep": "Evaluate Outcomes.",
+          "prompt": "Two hours after transfer to the MICU and initiation of BiPAP with dobutamine infusion, which assessment findings indicate that treatment has been effective? Select all that apply.",
+          "options": [
+            {
+              "id": "o1",
+              "text": "Blood pressure increased from 88/54 to 102/66 mmHg (MAP 65→78 mmHg).",
+              "isCorrect": true
+            },
+            {
+              "id": "o2",
+              "text": "Heart rhythm converted from atrial fibrillation to normal sinus rhythm.",
+              "isCorrect": true
+            },
+            {
+              "id": "o3",
+              "text": "Urine output increased from 30 mL/hr to 200 mL/hr, urine color light yellow.",
+              "isCorrect": true
+            },
+            {
+              "id": "o4",
+              "text": "Respiratory rate decreased from 28 to 18 breaths/min with less accessory muscle use.",
+              "isCorrect": true
+            },
+            {
+              "id": "o5",
+              "text": "Lactate decreased from 3.2 mmol/L to 1.8 mmol/L.",
+              "isCorrect": true
+            },
+            {
+              "id": "o6",
+              "text": "BNP decreased from 5,240 pg/mL to 3,800 pg/mL.",
+              "isCorrect": false
+            }
+          ],
+          "rationale": {
+            "coreConcept": "Global Perfusion Recovery Markers.",
+            "answerAnalysis": "Successful shock reversal is marked by improved MAP, lactate clearance, robust diuresis, and reduced respiratory distress. BNP (Option F) is not a reliable marker for acute evaluation.",
+            "clinicalStrategy": "Use the 'Rule of Threes': Hemodynamics, Perfusion markers, and Respiratory status must all show improvement.",
+            "difficulty": 5,
+            "optionReviews": [
+              {
+                "optionId": "o1",
+                "isCorrect": true,
+                "whyCorrect": "MAP ≥65 ensures adequate vital organ perfusion pressure."
+              },
+              {
+                "optionId": "o2",
+                "isCorrect": true,
+                "whyCorrect": "Rhythm conversion indicates decreased sympathetic stress and better cardiac efficiency."
+              },
+              {
+                "optionId": "o3",
+                "isCorrect": true,
+                "whyCorrect": "Diuresis indicates successful renal perfusion and fluid mobilization."
+              },
+              {
+                "optionId": "o4",
+                "isCorrect": true,
+                "whyCorrect": "Reduced respiratory distress shows BiPAP/Inotropes are clearing pulmonary edema."
+              },
+              {
+                "optionId": "o5",
+                "isCorrect": true,
+                "whyCorrect": "Lactate clearance is the gold standard for resolution of cellular hypoxia."
+              },
+              {
+                "optionId": "o6",
+                "isCorrect": false,
+                "whyIncorrect": "BNP is a diagnostic marker, not an acute monitoring tool; it changes too slowly."
+              }
+            ]
+          },
+          "cjmmPhase": "Evaluate Outcomes."
+        }
+      ],
+      "type": "case-study",
+      "prompt": "Review the case study and answer the question.",
+      "difficulty": 5
+    },
+    "patient": {
+      "age": "Unknown",
+      "gender": "Unknown",
+      "diagnosis": "Pending"
+    }
+  },
+  "difficulty": 5,
+  "difficultyLevel": 5,
+  "_unifiedPipelineProcessed": true,
+  "_sanitized": true
+}

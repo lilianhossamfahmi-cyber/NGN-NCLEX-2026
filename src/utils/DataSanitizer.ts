@@ -29,6 +29,7 @@ export interface StructuredVital {
 export interface StructuredLab {
     test: string;
     value: string;
+    unit: string;
     ref: string;
     flag: string;
     category?: string;
@@ -68,8 +69,8 @@ export const DataSanitizer = {
         if (Array.isArray(data)) {
             return data.map(item => ({
                 time: DataSanitizer.normalizeTime(item.time || item[0] || "00:00"),
-                note: typeof item.note === 'string' ? item.note : (item.text || JSON.stringify(item)),
-                initial: DataSanitizer.normalizeInitial(item.initial)
+                note: item.note || item.entry || item.text || (typeof item === 'string' ? item : JSON.stringify(item)),
+                initial: DataSanitizer.normalizeInitial(item.initial || item.author)
             }));
         }
 
@@ -268,6 +269,7 @@ export const DataSanitizer = {
             return {
                 test: testName,
                 value: value,
+                unit: lab.unit || lab.units || "",
                 ref: ref,
                 flag: flag,
                 category: lab.category || DataSanitizer.detectLabCategory(testName),
@@ -292,6 +294,7 @@ export const DataSanitizer = {
                     labs.push({
                         test: parts[0],
                         value: parts[1],
+                        unit: "",
                         ref: "N/A",
                         flag: "",
                         category: DataSanitizer.detectLabCategory(parts[0])
@@ -870,9 +873,9 @@ export const DataSanitizer = {
                 // Convert array format to HTML
                 const notesHtml = c.nursesNotes.map((note: any) => {
                     const time = note.time || '';
-                    const author = note.author || 'RN';
-                    const entry = note.entry || note.text || note.note || '';
-                    return `<p><strong>${time} - ${author}:</strong> ${entry}</p>`;
+                    const initial = note.initial || note.author || 'RN';
+                    const entry = note.note || note.entry || note.text || '';
+                    return `<p><strong>${time} - ${initial}:</strong> ${entry}</p>`;
                 }).join('\n');
                 cd.history = notesHtml;
             } else if (c.chiefComplaint) {
@@ -949,6 +952,40 @@ export const DataSanitizer = {
                         'sata': 'Evaluate Outcomes'
                     };
                     screen.cjmmStep = cjmmMap[screen.type] || `Screen ${idx + 1}`;
+                }
+
+                // --- TYPE SPECIFIC NORMALIZATION ---
+
+                // 1. Matrix Normalization (assessmentFindings -> rows, correct -> row.correctColumnId)
+                if (screen.type === 'matrix') {
+                    if (screen.assessmentFindings && !screen.rows) {
+                        screen.rows = screen.assessmentFindings;
+                    }
+                    if (screen.correct && Array.isArray(screen.correct) && screen.rows) {
+                        screen.correct.forEach((c: any) => {
+                            const row = screen.rows.find((r: any) => r.id === c.rowId);
+                            if (row) row.correctColumnId = c.colId;
+                        });
+                    }
+                }
+
+                // 2. Bow-Tie Normalization (correctCondition/Actions/Params -> isCorrect)
+                if (screen.type === 'bow-tie') {
+                    if (screen.correctCondition && screen.conditions) {
+                        screen.conditions.forEach((c: any) => {
+                            if (c.id === screen.correctCondition) c.isCorrect = true;
+                        });
+                    }
+                    if (screen.correctActions && Array.isArray(screen.correctActions) && screen.actions) {
+                        screen.actions.forEach((a: any) => {
+                            if (screen.correctActions.includes(a.id)) a.isCorrect = true;
+                        });
+                    }
+                    if (screen.correctParameters && Array.isArray(screen.correctParameters) && screen.parameters) {
+                        screen.parameters.forEach((p: any) => {
+                            if (screen.correctParameters.includes(p.id)) p.isCorrect = true;
+                        });
+                    }
                 }
 
                 // Enrich rationale with smart defaults

@@ -20,6 +20,8 @@ export const COMMON_RULES = `
 1. **Zero Hallucination Policy**: All clinical data, symptoms, and associations MUST be medically accurate.
 2. **Plausible Distractors**: Distractors must be realistic "near-miss" options relevant to the context.
 3. **Logical Consistency**: The correct answer must be indisputably correct based on the provided Case/EHR data.
+4. **CONTEXTUAL MNEMONICS**: Mnemonics MUST be specific to the clinical topic (e.g., for Sepsis use SEPSIS-6, qSOFA, or SIRS; NEVER use MONA/HEART for infection).
+5. **SYSTEMIC LINGUISTICS**: Use professional medical terminology. Start every sentence with a capital letter. End every clinical finding with a period.
 `;
 
 // ==========================================
@@ -69,6 +71,35 @@ You MUST generate exactly 6 screens. Do not skip. Do not reorder.
 
 ## ⚠️ MANDATORY FIELD ENFORCEMENT (CRITICAL)
 **YOU MUST INCLUDE ALL OF THE FOLLOWING IN EVERY RESPONSE:**
+
+### 1. MATRIX ARCHITECTURE (Question 2)
+- **Constraint:** Every row MUST have a \`correctColumnId\` that exactly matches one of the IDs in the \`columns\` array.
+- **Example:**
+\`\`\`json
+"rows": [
+  { "id": "r1", "text": "Fever", "correctColumnId": "c1", "rationale": "Infection sign" }
+]
+\`\`\`
+
+### 2. DROP-CLOZE SCHEMA (Question 5)
+- **Constraint:** Options MUST be a flat array of strings. Do NOT use objects.
+- **Constraint:** Include a separate \`correctAnswer\` string that matches one item in the options.
+- **Example:**
+\`\`\`json
+"dropdowns": [
+  {
+    "id": "d1",
+    "options": ["Option A", "Option B", "Option C", "Option D"],
+    "correctAnswer": "Option A"
+  }
+]
+\`\`\`
+
+### 3. TEXT SANITIZATION (System-wide)
+- **Constraint:** NO leading/trailing spaces in rationales.
+- **Constraint:** Start every sentence with a Capital Letter.
+- **Constraint:** End every rationale/finding with a period.
+- **Constraint:** Remove double spaces.
 
 ### For EACH SCREEN's rationale:
 \`\`\`json
@@ -312,12 +343,31 @@ Use this EXACT schema for \`content.rationale\` (global) AND \`structure.screens
   "structure": {
     "type": "case-study",
     "screens": [
-      { "...screen 1 object with type, cjmmStep, prompt, and full rationale..." },
-      { "...screen 2 object..." },
-      { "...screen 3 object..." },
-      { "...screen 4 object..." },
-      { "...screen 5 object..." },
-      { "...screen 6 object..." }
+      {
+        "id": "s1", "type": "highlight", "cjmmStep": "Recognize Cues",
+        "prompt": "Highlight cues...",
+        "text": "The patient is <span id='h1'>lethargic</span>...",
+        "correct": ["h1"],
+        "rationales": { "h1": { "isCorrect": true, "whyCorrect": "Logic...", "whyIncorrect": "N/A" } },
+        "rationale": { "...full object..." }
+      },
+      {
+        "id": "s2", "type": "matrix", "cjmmStep": "Analyze Cues",
+        "prompt": "Distinguish between...",
+        "columns": [ { "id": "c1", "text": "Infection" }, { "id": "c2", "text": "Inflammation" } ],
+        "rows": [ { "id": "r1", "text": "Fever", "correctColumnId": "c1", "rationale": "Reason..." } ],
+        "rationale": { "...full object..." }
+      },
+      {
+        "id": "s5", "type": "drop-cloze", "cjmmStep": "Take Action",
+        "prompt": "Complete the statement...",
+        "sentences": [ {
+          "text": "The nurse should %{d1} for the patient.",
+          "dropdowns": [ { "id": "d1", "options": ["Administer Med", "Monitor"], "correctAnswer": "Administer Med" } ]
+        } ],
+        "blankMap": { "d1": { "whyCorrect": "Explanation...", "distractorRationales": { "Monitor": "Why wrong..." } } },
+        "rationale": { "...full object..." }
+      }
     ]
   }
 }
@@ -530,28 +580,26 @@ GENERATE: [QUANTITY] Standalone Drop-Cloze Item(s)
           "dropdowns": [
             {
               "id": "d1",
-              "options": [
-                { "id": "o1", "text": "Correct Drug", "isCorrect": true },
-                { "id": "o2", "text": "Distractor", "isCorrect": false }
-              ]
+              "options": ["Correct Drug", "Distractor 1", "Distractor 2"],
+              "correctAnswer": "Correct Drug"
             },
             {
               "id": "d2",
-              "options": [ ... ]
+              "options": ["Risk 1", "Risk 2", "Risk 3"],
+              "correctAnswer": "Risk 1"
             }
           ]
         }
       ],
       "blankMap": {
         "d1": {
-          "correctOptionId": "o1",
           "whyCorrect": "Detailed reason...",
           "distractorRationales": {
-            "o2": "Why incorrect..."
+            "Distractor 1": "Why incorrect...",
+            "Distractor 2": "Why incorrect..."
           }
         },
         "d2": {
-          "correctOptionId": "o3",
           "whyCorrect": "Detailed reason...",
           "distractorRationales": { ... }
         }

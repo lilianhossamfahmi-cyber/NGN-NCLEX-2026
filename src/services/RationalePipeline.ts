@@ -1483,14 +1483,15 @@ export function generateOptionReviews(config: any, userAnswers: any): OptionRevi
         if (opt.isCorrect && isSelected) userStatus = 'correct';
         else if (opt.isCorrect && !isSelected) userStatus = 'missed';
         else if (!opt.isCorrect && isSelected) userStatus = 'incorrect';
-        // else correctly avoided = skipped
+
+        const rat = (config.rationale?.optionReviews || config.content?.rationale?.optionReviews)?.find((r: any) => (r.optionId === opt.id || r.id === opt.id || r.text === opt.text));
 
         return {
             id: opt.id,
             text: opt.text,
             isCorrect: opt.isCorrect,
             userSelected: isSelected,
-            rationale: opt.rationale || (opt.isCorrect
+            rationale: rat?.rationale || rat?.whyCorrect || rat?.whyIncorrect || opt.rationale || (opt.isCorrect
                 ? 'This is the correct answer based on the clinical scenario.'
                 : 'This option is incorrect because it does not address the priority concern.'),
             userStatus,
@@ -2100,7 +2101,7 @@ export function generateRationale(
         cheatSheet: effectiveCheatSheet?.points ? effectiveCheatSheet : DEFAULT_CHEAT_SHEET(existingData.coreConcept || config.topic),
         pitfalls: effectivePitfalls,
 
-        referenceInfo: referenceInfoData || DEFAULT_REFERENCE(existingData.coreConcept || config.topic),
+        referenceInfo: referenceInfoData || existingData.referenceInfo || DEFAULT_REFERENCE(existingData.coreConcept || config.topic),
         clinicalStrategy: existingData.clinicalStrategy,
 
         cjmmStep: existingData.cjmmStep || inferCJMMStep(itemType),
