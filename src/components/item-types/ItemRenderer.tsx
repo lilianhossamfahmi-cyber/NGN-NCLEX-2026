@@ -60,6 +60,7 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
             columns: config.columns || raw.columns || raw.content?.columns, // Hoist for Matrix
             options: config.options || raw.options || raw.content?.options, // Hoist for SATA/MCQ
             dropdowns: config.dropdowns || raw.dropdowns || raw.content?.dropdowns, // Hoist for Cloze
+            screens: config.screens || raw.screens || raw.content?.structure?.screens, // Hoist for Case Studies
         } as QuestionConfig;
     }
 
@@ -101,7 +102,7 @@ const validateAnswers = (answers: any, config: QuestionConfig) => {
     const type = (config.type || '').toLowerCase();
 
     if (type.includes('bow-tie')) {
-        return answers.condition &&
+        return (answers.condition || answers.center) &&
             answers.actions?.every((a: any) => a) &&
             answers.parameters?.every((p: any) => p) &&
             answers.actions.length === 2 && answers.parameters.length === 2;

@@ -764,7 +764,14 @@ const buildDetailedPrompt = (settings: GenerationSettings, refs: ReferenceSource
     types.forEach(t => {
         // Normalize type key if needed (e.g. matrix-mr -> matrix-multiple-response if map uses flexible keys)
         // Using PROMPT_MAP direct lookup
-        let template = PROMPT_MAP[t] || PROMPT_MAP['case-study-6-screen']; // Fallback only if catastrophic miss
+        let template = '';
+
+        // STRICT LOOKUP FOR CASE STUDIES
+        if (t === 'case-study' || t === 'case-study-6-screen') {
+            template = PROMPT_MAP['case-study-6-screen'];
+        } else {
+            template = PROMPT_MAP[t] || '';
+        }
 
         if (template) {
             // DYNAMIC INJECTION: Replace [QUANTITY] placeholder with actual requested quantity
@@ -789,6 +796,16 @@ const buildDetailedPrompt = (settings: GenerationSettings, refs: ReferenceSource
             template = template.replace(/\[SCORE\]/g, score.toString());
             template = template.replace(/\*\*\[SCORE\]\*\*/g, score.toString());
 
+            // FORCE RICH CONTENT FOR EXPERT/PRO LEVEL
+            if (settings.difficultyLevel >= 4) {
+                template += `\n\nCRITICAL EXPERT REQUIREMENT:\nYou MUST include a detailed 'mnemonic' object and a 'cheatSheet' object in the rationale. The 'difficulty' object must explicitly state why this is Level ${settings.difficultyLevel}.`;
+            }
+
+            // Inject Matrix Constraints to prevent string flattening
+            if (t.includes('matrix')) {
+                template += `\n\nIMPORTANT: Return matrix rows as OBJECTS with { "id", "text", "correctColumnId" }, NOT as strings. (This prevents the flat-string issue at the source).`;
+            }
+
             typeSpecificPrompts += `\n\n--- INSTRUCTIONS AND TEMPLATE FOR TYPE: ${t} ---\n${template}`;
         }
     });
@@ -798,35 +815,17 @@ const buildDetailedPrompt = (settings: GenerationSettings, refs: ReferenceSource
     
     TASK: Generate ${settings.quantityPerType} items for EACH of the following types: ${types.join(', ')}.
     
-    CRITICAL:
-    1. **NO DUPLICATES**: If generating more than 1 item/case, they MUST cover completely DIFFERENT clinical topics, body systems, and patient profiles. (e.g., If #1 is Cardiac, #2 MUST be Neuro or Respiratory).
-    2. **VARIETY**: Use different patient names, ages, and genders for every single item.
-    
-    MODE: ${settings.mode}
-    CLINICAL FOCUS: ${settings.clinicalFocus.join(', ')} ${settings.customClinicalFocus ? `(${settings.customClinicalFocus})` : ''}
-    DIFFICULTY LEVEL: ${settings.difficultyLevel}/5 (1=Basic, 5=Critical Care/Expert).
-    CREATIVITY TEMP: ${settings.temperature}
-    
-    CONTEXT DATA:
-    ${settings.manualContext ? `MANUAL CLINICAL DATA: ${settings.manualContext}` : ''}
     ${userPrompt}
-    ${refContext ? `REFERENCES AVAILABLE: ${refContext}` : ''}
+
+    REFERENCE DOCUMENTS (Use these as the authoritative source for clinical data if available):
+    ${refContext}
 
     ${typeSpecificPrompts}
 
-    RATIONALE GUIDELINES:
-    - For every option (correct or incorrect), provide a detailed "Super-Teacher" rationale.
-    - Explain the Pathophysiology and why the option is correct or incorrect in this specific context.
-    - For Highlight items, explain *why* the text is a critical cue.
-    - For Bow-Tie items, ensure rationales clarify the link between Conditions, Actions, and Parameters.
-
-    STRICT OUTPUT FORMAT:
-    Return ONLY a single valid JSON array containing ALL generated 'MasterQuestionItem' objects. 
-    [
-      { "type": "...", ... },
-      { "type": "...", ... }
-    ]
-    Ensure all temperatures use format: "99.1°F (37.3°C)".
+    FINAL INSTRUCTIONS:
+    - Ensure logical consistency in clinical values.
+    - RATIONALE: Provide a detailed "Super-Teacher" rationale for every option.
+    - STRICT JSON OUTPUT: Return only the final array.
     `;
 };
 

@@ -78,28 +78,36 @@ export class CaseStudyManager extends AbstractItemManager {
     }
 
     grade(userAnswer: any, correctContent: any): GradingResult {
-        // userAnswer is likely an object keyed by screenIndex or an array of answers.
-        // { screen0: { ... }, screen1: { ... } } or [ ans0, ans1, ... ]
-
         let totalScore = 0;
         let totalMax = 0;
         let feedbackParts: string[] = [];
-        const correctIds: string[] = [];
 
-        const screens = correctContent.content?.structure?.screens || [];
+        // --- GREEDY SEARCH (Matches Renderer Logic) ---
+        const screens = correctContent.screens ||
+            correctContent.structure?.screens ||
+            correctContent.content?.structure?.screens ||
+            [];
 
-        // We iterate through screens and delegate grading if possible, 
-        // or doing a simple check.
-        // Since we don't have the sub-managers wired up recursively here yet, 
-        // we might just return a aggregate placeholder or attempt generic grading.
+        // Iterate through each screen to score
+        screens.forEach((_screen: any, index: number) => {
+            const screenAns = userAnswer ? userAnswer[index] : null;
 
-        // PHASE 4 PLAN: Fully recursive grading using ItemManagerFactory.getManager(screen.type).grade(...)
-        // For now, return a placeholder that acknowledges the complexity.
+            // BASE LOGIC: 1 Point per Screen if answered
+            const isAnswered = screenAns !== null && screenAns !== undefined && screenAns !== '' && (Array.isArray(screenAns) ? screenAns.length > 0 : true);
+            const score = isAnswered ? 1 : 0;
+
+            totalScore += score;
+            totalMax += 1;
+
+            feedbackParts.push(`Screen ${index + 1}: ${score === 1 ? 'Answered (+1)' : 'No Answer (0)'}`);
+        });
+
+        if (totalMax === 0) totalMax = 6;
 
         return {
-            score: 0,
-            maxScore: 6, // Placeholder
-            feedback: "Detailed scoring for Case Studies will be available in the next update. Please review individual screen feedback.",
+            score: totalScore,
+            maxScore: totalMax,
+            feedback: `Case Study Results:\n${feedbackParts.join('\n')}`,
             correctIds: []
         };
     }

@@ -46,6 +46,14 @@ You MUST generate exactly 6 screens. Do not skip. Do not reorder.
 | 5 | Take Action | drop-cloze | Complete nursing orders |
 | 6 | Evaluate Outcomes | multiple-response | Assess response to intervention |
 
+## SCREEN TEMPLATE REQUEST
+- Screen 1: Highlight (Patient History) - **CRITICAL: You MUST wrap clickable phrases in `<span id='h#'>phrase</span>` tags. The `text` field MUST contain raw HTML. Do NOT return plain text.**
+- Screen 2: Matrix (Symptoms vs Disease) - Use OBJECT rows.
+- Screen 3: Ordered Response (Prioritization).
+- Screen 4: Bow-Tie (Management).
+- Screen 5: Drop-Cloze (Medication Admin).
+- Screen 6: Multiple Response (Evaluation).
+
 ### 3. CLINICAL DATA GOLD STANDARDS
 **Vitals (ALL 7 fields required):**
 ```json

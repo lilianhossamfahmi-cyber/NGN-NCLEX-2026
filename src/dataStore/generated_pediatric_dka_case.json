@@ -1,0 +1,553 @@
+{
+    "id": "case-pediatric-dka-1738260466000",
+    "typeId": "case-study",
+    "difficulty": 5,
+    "content": {
+        "clinicalData": {
+            "patientProfile": {
+                "name": "Marcus Johnson",
+                "age": "7 years",
+                "sex": "Male",
+                "weight": "24 kg",
+                "allergies": [
+                    "NKDA"
+                ],
+                "comorbidities": [
+                    "None known - new onset Type 1 Diabetes suspected"
+                ],
+                "chiefComplaint": "Lethargy, vomiting, and rapid breathing for 2 days"
+            },
+            "setting": "Pediatric Emergency Department",
+            "timeProgression": [
+                {
+                    "timestamp": "1430",
+                    "label": "Initial Presentation",
+                    "vitals": {
+                        "temperature": "99.2°F (37.3°C)",
+                        "heartRate": "142 bpm",
+                        "respiratoryRate": "36 breaths/min",
+                        "bloodPressure": "88/52 mmHg",
+                        "oxygenSaturation": "98% on room air",
+                        "capillaryRefill": "4 seconds",
+                        "weight": "24 kg (down from 27 kg at last well-child visit 3 weeks ago)"
+                    },
+                    "nursingNotes": "7-year-old male brought in by mother. Mom reports Marcus has been increasingly tired over the past 2 weeks, drinking 'gallons' of water, and urinating frequently including bedwetting (unusual for him). Started vomiting yesterday, unable to keep anything down. Today he seems 'out of it' and breathing fast. On exam: child is lethargic but arousable, responds to verbal stimuli. Skin is dry and tenting present. Lips are cracked. Eyes appear sunken. Fruity odor noted on breath. Kussmaul respirations observed. Peripheral pulses weak. Child moans and clutches abdomen when asked about pain.",
+                    "labs": {
+                        "bloodGlucose": "486 mg/dL",
+                        "venousBloodGas": "pH 7.12, pCO2 18 mmHg, HCO3 8 mEq/L",
+                        "serumSodium": "131 mEq/L (corrected: 138 mEq/L)",
+                        "serumPotassium": "5.8 mEq/L",
+                        "BUN": "32 mg/dL",
+                        "creatinine": "1.4 mg/dL",
+                        "anionGap": "28 mEq/L",
+                        "urinalysis": "Glucose 4+, Ketones 4+, Specific gravity 1.035",
+                        "betaHydroxybutyrate": "6.2 mmol/L"
+                    },
+                    "orders": [
+                        "Establish two large-bore IV access",
+                        "Begin 0.9% NS bolus 10 mL/kg over 1 hour",
+                        "Cardiac monitor",
+                        "Strict I&O",
+                        "Obtain baseline ECG",
+                        "Contact PICU for admission",
+                        "Hold insulin until after initial fluid resuscitation"
+                    ]
+                },
+                {
+                    "timestamp": "1530",
+                    "label": "After Initial Fluid Bolus",
+                    "vitals": {
+                        "temperature": "99.0°F (37.2°C)",
+                        "heartRate": "128 bpm",
+                        "respiratoryRate": "34 breaths/min",
+                        "bloodPressure": "94/58 mmHg",
+                        "oxygenSaturation": "99% on room air",
+                        "capillaryRefill": "3 seconds"
+                    },
+                    "nursingNotes": "Patient received 240 mL (10 mL/kg) 0.9% NS bolus. Slight improvement in mental status - now more responsive to questions. Still lethargic. Kussmaul respirations persist. No urine output yet since arrival. ECG shows peaked T waves consistent with hyperkalemia. Mother at bedside, very anxious, asking 'Does my son have diabetes?'",
+                    "labs": {
+                        "repeatBloodGlucose": "462 mg/dL",
+                        "repeatPotassium": "5.6 mEq/L"
+                    },
+                    "orders": [
+                        "Start maintenance IV fluids: 0.45% NS with 20 mEq/L KCl at 1.5x maintenance rate",
+                        "Begin Regular Insulin infusion at 0.05 units/kg/hour",
+                        "Hourly blood glucose checks",
+                        "Q2hr BMP",
+                        "Continue cardiac monitoring - watch for ECG changes"
+                    ]
+                },
+                {
+                    "timestamp": "1730",
+                    "label": "2 Hours After Insulin Started",
+                    "vitals": {
+                        "temperature": "98.8°F (37.1°C)",
+                        "heartRate": "112 bpm",
+                        "respiratoryRate": "28 breaths/min",
+                        "bloodPressure": "100/64 mmHg",
+                        "oxygenSaturation": "99% on room air",
+                        "capillaryRefill": "2 seconds"
+                    },
+                    "nursingNotes": "Marcus is more alert, able to answer simple questions. Kussmaul respirations improving. Urine output established - 80 mL in last hour. Skin turgor improved. Still complaining of mild abdominal discomfort. Mother informed of new-onset Type 1 Diabetes diagnosis - providing emotional support. PICU bed available, transfer planned.",
+                    "labs": {
+                        "bloodGlucose": "312 mg/dL",
+                        "venousBloodGas": "pH 7.24, pCO2 24 mmHg, HCO3 12 mEq/L",
+                        "serumPotassium": "4.8 mEq/L",
+                        "anionGap": "22 mEq/L"
+                    },
+                    "orders": [
+                        "Continue insulin infusion - do NOT decrease rate until glucose <300 mg/dL with improved pH",
+                        "Add D5 to IV fluids when glucose reaches 250-300 mg/dL",
+                        "Continue hourly neuro checks for cerebral edema signs",
+                        "Prepare for PICU transfer"
+                    ]
+                }
+            ]
+        },
+        "structure": {
+            "type": "case-study",
+            "screens": [
+                {
+                    "id": "s1",
+                    "type": "highlight",
+                    "cjmmStep": "Recognize Cues",
+                    "cjmmPhase": "Recognize Cues",
+                    "prompt": "Highlight the findings in the initial assessment that indicate diabetic ketoacidosis (DKA) and require immediate nursing intervention.",
+                    "text": "7-year-old male brought in by mother. Mom reports Marcus has been increasingly tired over the past 2 weeks, <span id='h1'>drinking 'gallons' of water</span>, and <span id='h2'>urinating frequently including bedwetting</span>. Started vomiting yesterday, unable to keep anything down. Today he seems 'out of it' and <span id='h3'>breathing fast with deep respirations</span>. On exam: child is <span id='h4'>lethargic but arousable</span>. <span id='h5'>Skin is dry and tenting present</span>. Lips are cracked. Eyes appear sunken. <span id='h6'>Fruity odor noted on breath</span>. Peripheral pulses weak. Vital signs: HR 142, RR 36, BP 88/52, <span id='h7'>blood glucose 486 mg/dL</span>, <span id='h8'>pH 7.12, HCO3 8 mEq/L</span>. Child moans and clutches abdomen when asked about pain.",
+                    "correct": [
+                        "h3",
+                        "h4",
+                        "h5",
+                        "h6",
+                        "h7",
+                        "h8"
+                    ],
+                    "rationales": {
+                        "h1": {
+                            "isCorrect": false,
+                            "whyIncorrect": "[Hook] Polydipsia is a classic symptom of diabetes but is a historical finding, not an immediate intervention trigger. [Breakdown] While this symptom contributes to the diagnosis of new-onset diabetes, it describes the patient's history over 2 weeks rather than the current acute crisis. [Trap] Don't confuse diagnostic history with acute assessment findings requiring immediate action."
+                        },
+                        "h2": {
+                            "isCorrect": false,
+                            "whyIncorrect": "[Hook] Polyuria and enuresis are diagnostic clues but not acute intervention triggers. [Breakdown] Frequent urination reflects the osmotic diuresis from hyperglycemia and helps establish the diabetes diagnosis, but the immediate priority is the acidosis and dehydration present now. [Trap] Historical symptoms guide diagnosis; current vital signs guide intervention."
+                        },
+                        "h3": {
+                            "isCorrect": true,
+                            "whyCorrect": "[Hook] Kussmaul respirations (RR 36, deep breathing) are the body's attempt to compensate for metabolic acidosis. [Breakdown] This respiratory pattern indicates severe acidosis (pH 7.12) as the lungs try to blow off CO2 to raise pH. A slowing of this pattern could indicate fatigue and impending respiratory failure. [Trap] Don't interpret fast breathing as anxiety; in DKA, it's compensatory and life-sustaining."
+                        },
+                        "h4": {
+                            "isCorrect": true,
+                            "whyCorrect": "[Hook] Lethargy in a child with DKA indicates altered cerebral perfusion and is a red flag for deterioration. [Breakdown] This reflects both dehydration-induced hypoperfusion and the metabolic effects of acidosis on brain function. Any further decline in mental status could indicate cerebral edema, a life-threatening DKA complication, especially in pediatric patients. [Trap] Never dismiss lethargy as 'just being tired' in a sick child."
+                        },
+                        "h5": {
+                            "isCorrect": true,
+                            "whyCorrect": "[Hook] Skin tenting indicates significant dehydration (>5% body weight lost). [Breakdown] Combined with sunken eyes, cracked lips, weak pulses, and hypotension (88/52), this child shows signs of hypovolemic shock. The 3 kg weight loss (11% of body weight) confirms severe dehydration requiring aggressive fluid resuscitation. [Trap] Don't underestimate dehydration severity in children; they compensate until sudden decompensation."
+                        },
+                        "h6": {
+                            "isCorrect": true,
+                            "whyCorrect": "[Hook] Fruity breath odor (acetone) is pathognomonic for ketoacidosis. [Breakdown] This occurs when the body breaks down fat for energy due to insulin deficiency, producing ketones. The presence of this odor confirms ketosis and, combined with acidosis, establishes DKA. [Trap] This finding differentiates DKA from hyperosmolar hyperglycemic state (HHS), which lacks significant ketosis."
+                        },
+                        "h7": {
+                            "isCorrect": true,
+                            "whyCorrect": "[Hook] Blood glucose of 486 mg/dL confirms severe hyperglycemia. [Breakdown] This level, combined with ketones and acidosis, meets DKA diagnostic criteria. The hyperglycemia causes osmotic diuresis leading to the dehydration. However, glucose level alone doesn't determine DKA severity—acidosis does. [Trap] Don't focus solely on glucose; a child can have severe DKA with glucose as low as 200 mg/dL (euglycemic DKA)."
+                        },
+                        "h8": {
+                            "isCorrect": true,
+                            "whyCorrect": "[Hook] pH 7.12 and HCO3 8 mEq/L indicate severe metabolic acidosis requiring immediate intervention. [Breakdown] These values classify this as severe DKA (pH <7.1 or HCO3 <5 is critical). The low bicarbonate shows the body's buffer system is nearly exhausted. Untreated, this can lead to cardiac arrhythmias, coma, and death. [Trap] Acidosis severity, not glucose level, drives DKA management urgency."
+                        }
+                    }
+                },
+                {
+                    "id": "s2",
+                    "type": "matrix",
+                    "cjmmStep": "Analyze Cues",
+                    "cjmmPhase": "Analyze Cues",
+                    "prompt": "For each laboratory finding, indicate whether it represents an expected finding requiring monitoring or a critical finding requiring immediate intervention.",
+                    "columns": [
+                        {
+                            "id": "c1",
+                            "text": "Expected DKA Finding - Monitor"
+                        },
+                        {
+                            "id": "c2",
+                            "text": "Critical Finding - Immediate Action"
+                        }
+                    ],
+                    "rows": [
+                        {
+                            "id": "r1",
+                            "text": "Serum potassium 5.8 mEq/L with peaked T waves on ECG",
+                            "correctColumnId": "c2",
+                            "correctColumnIds": [
+                                "c2"
+                            ],
+                            "rationale": "Hyperkalemia with ECG changes (peaked T waves) is immediately life-threatening. Although total body potassium is depleted in DKA, serum levels appear elevated due to acidosis-driven intracellular-to-extracellular shift. Peaked T waves indicate myocardial effects that can progress to fatal arrhythmias. This requires continuous cardiac monitoring and will correct with insulin and fluid therapy."
+                        },
+                        {
+                            "id": "r2",
+                            "text": "Blood glucose 486 mg/dL",
+                            "correctColumnId": "c1",
+                            "correctColumnIds": [
+                                "c1"
+                            ],
+                            "rationale": "While significantly elevated, this glucose level is expected in DKA and will be addressed by insulin therapy. The glucose should decrease slowly (50-100 mg/dL/hour) to prevent cerebral edema. Rapid glucose correction is dangerous in pediatric DKA. The priority is correcting acidosis and dehydration; glucose management follows established protocols."
+                        },
+                        {
+                            "id": "r3",
+                            "text": "pH 7.12 with anion gap 28 mEq/L",
+                            "correctColumnId": "c2",
+                            "correctColumnIds": [
+                                "c2"
+                            ],
+                            "rationale": "pH below 7.15 indicates severe DKA requiring immediate aggressive management. The elevated anion gap (normal 8-12) confirms accumulation of ketoacids. This level of acidosis impairs cardiac contractility, causes vasodilation, and can lead to cardiovascular collapse. Immediate IV fluids and insulin are required; bicarbonate may be considered if pH drops below 6.9."
+                        },
+                        {
+                            "id": "r4",
+                            "text": "Serum sodium 131 mEq/L (corrected 138 mEq/L)",
+                            "correctColumnId": "c1",
+                            "correctColumnIds": [
+                                "c1"
+                            ],
+                            "rationale": "Pseudohyponatremia is expected in DKA due to hyperglycemia drawing water into the intravascular space. The corrected sodium of 138 mEq/L (adding 1.6 mEq/L for every 100 mg/dL glucose above 100) is normal. This finding requires monitoring as sodium will rise with treatment—a sodium that fails to rise may indicate free water excess and cerebral edema risk."
+                        },
+                        {
+                            "id": "r5",
+                            "text": "BUN 32 mg/dL, Creatinine 1.4 mg/dL",
+                            "correctColumnId": "c1",
+                            "correctColumnIds": [
+                                "c1"
+                            ],
+                            "rationale": "Elevated BUN and creatinine reflect prerenal azotemia from severe dehydration, not intrinsic kidney injury. The BUN:Cr ratio >20:1 is consistent with hypovolemia. These values are expected to improve with fluid resuscitation and do not require specific intervention beyond volume replacement. Monitor for improvement with rehydration."
+                        }
+                    ],
+                    "rationale": {
+                        "coreConcept": "Differentiating expected DKA findings from immediately life-threatening findings",
+                        "answerAnalysis": "Critical findings (hyperkalemia with ECG changes, severe acidosis) require immediate intervention, while other abnormalities (glucose, sodium, renal function) are expected and will correct with standard DKA treatment",
+                        "clinicalTakeaway": "In pediatric DKA, prioritize acidosis correction and hemodynamic stability over rapid glucose normalization"
+                    }
+                },
+                {
+                    "id": "s3",
+                    "type": "multiple-choice",
+                    "cjmmStep": "Prioritize Hypotheses",
+                    "cjmmPhase": "Prioritize Hypotheses",
+                    "prompt": "Based on Marcus's current presentation with pH 7.12, blood glucose 486 mg/dL, BP 88/52, and altered mental status, which nursing priority should be addressed FIRST?",
+                    "options": [
+                        {
+                            "id": "o1",
+                            "text": "Fluid resuscitation to correct hypovolemic shock",
+                            "isCorrect": true,
+                            "rationale": "Fluid resuscitation is the highest priority because Marcus is showing signs of hypovolemic shock (BP 88/52, weak pulses, capillary refill 4 seconds, altered mental status). Without adequate circulating volume, insulin cannot reach tissues to work effectively, and organ perfusion will continue to deteriorate. The DKA protocol specifically calls for initial fluid bolus before insulin. Per AAP guidelines, 10-20 mL/kg of 0.9% NS should be given over the first hour for shock."
+                        },
+                        {
+                            "id": "o2",
+                            "text": "Immediate insulin administration to lower blood glucose",
+                            "isCorrect": false,
+                            "rationale": "While insulin is essential for DKA treatment, giving insulin before fluid resuscitation is contraindicated. Insulin drives glucose and potassium into cells, which can cause dangerous hypokalemia and worsen hypotension. Additionally, insulin cannot work effectively without adequate tissue perfusion. The protocol specifically states to hold insulin until after the initial fluid bolus. Starting insulin too early also increases cerebral edema risk."
+                        },
+                        {
+                            "id": "o3",
+                            "text": "Sodium bicarbonate administration to correct acidosis",
+                            "isCorrect": false,
+                            "rationale": "Bicarbonate administration is not routinely recommended in pediatric DKA and can be harmful. It can cause paradoxical CNS acidosis, hypokalemia, and may increase cerebral edema risk. Bicarbonate is only considered when pH is <6.9 with hemodynamic instability unresponsive to fluids. With pH 7.12, standard treatment (fluids and insulin) will correct the acidosis. The body's own bicarbonate regeneration will occur as ketosis resolves."
+                        },
+                        {
+                            "id": "o4",
+                            "text": "Potassium supplementation for total body potassium depletion",
+                            "isCorrect": false,
+                            "rationale": "Although total body potassium is depleted in DKA, with serum potassium at 5.8 mEq/L and ECG showing peaked T waves, giving additional potassium now would be dangerous. Potassium will shift back into cells once insulin is started and acidosis corrects. Supplementation should wait until potassium drops below 5.5 mEq/L and urine output is established. Adding potassium to maintenance fluids (not initial bolus) is appropriate when levels fall."
+                        }
+                    ],
+                    "rationale": {
+                        "coreConcept": "Prioritizing interventions in pediatric DKA using ABCs and tissue perfusion",
+                        "answerAnalysis": "Circulation (C) takes precedence - the child is in shock and requires volume replacement before other interventions can be effective",
+                        "clinicalStrategy": "In DKA: Fluids first → Wait for urine output → Start insulin → Add potassium when K+ drops → Add dextrose when glucose drops"
+                    }
+                },
+                {
+                    "id": "s4",
+                    "type": "bow-tie",
+                    "cjmmStep": "Generate Solutions",
+                    "cjmmPhase": "Generate Solutions",
+                    "prompt": "Complete the Bow-Tie diagram: Select the primary complication to prevent (center), the two most important nursing actions (left), and the two key monitoring parameters (right) for this pediatric DKA patient.",
+                    "conditions": [
+                        {
+                            "id": "cond1",
+                            "text": "Cerebral edema",
+                            "isCorrect": true,
+                            "rationale": "Cerebral edema is the most feared and potentially fatal complication of pediatric DKA treatment, occurring in 0.5-1% of cases. Risk factors include young age, new-onset diabetes, severe acidosis, and high BUN. It typically occurs 4-12 hours after treatment initiation. All nursing actions and monitoring should focus on preventing this devastating complication that has 20-25% mortality when it occurs."
+                        },
+                        {
+                            "id": "cond2",
+                            "text": "Hypoglycemia",
+                            "isCorrect": false,
+                            "rationale": "While hypoglycemia can occur during insulin therapy, it is easily preventable with hourly glucose monitoring and adding dextrose to IV fluids when glucose reaches 250-300 mg/dL. The current glucose is 486 mg/dL, making this a later concern. Hypoglycemia is manageable; cerebral edema is potentially fatal. The focus should be on preventing the more dangerous complication."
+                        },
+                        {
+                            "id": "cond3",
+                            "text": "Diabetic neuropathy",
+                            "isCorrect": false,
+                            "rationale": "Diabetic neuropathy is a chronic complication that develops over years of poorly controlled diabetes, not an acute complication of DKA. This child has new-onset diabetes and would not yet have microvascular complications. The immediate priority is managing the acute DKA episode and preventing acute complications like cerebral edema."
+                        }
+                    ],
+                    "actions": [
+                        {
+                            "id": "act1",
+                            "text": "Administer IV fluids at controlled rate (avoid boluses >10-20 mL/kg; rehydrate over 24-48 hours)",
+                            "isCorrect": true,
+                            "rationale": "Avoiding rapid fluid resuscitation is critical for preventing cerebral edema in pediatric DKA. While the initial shock bolus is necessary, subsequent rehydration should be calculated evenly over 24-48 hours. Rapid fluid administration causes osmotic shifts that can precipitate cerebral edema. The total fluid goal includes deficit replacement plus maintenance, given gradually to prevent complications."
+                        },
+                        {
+                            "id": "act2",
+                            "text": "Maintain glucose decline at 50-100 mg/dL per hour (not faster)",
+                            "isCorrect": true,
+                            "rationale": "Controlling the rate of glucose decline prevents the osmotic gradient changes that contribute to cerebral edema. If glucose falls too quickly, add dextrose to IV fluids rather than decreasing insulin (insulin is needed to correct ketosis). The brain adapts to hyperglycemia by producing intracellular osmoles; rapid serum glucose drops create an osmotic gradient that draws water into brain cells."
+                        },
+                        {
+                            "id": "act3",
+                            "text": "Administer bicarbonate to quickly normalize pH",
+                            "isCorrect": false,
+                            "rationale": "Bicarbonate administration is associated with increased cerebral edema risk in pediatric DKA. It causes paradoxical CSF acidosis because CO2 crosses the blood-brain barrier faster than bicarbonate. This creates a pH gradient that worsens intracellular brain acidosis. Unless pH is <6.9 with cardiovascular instability, bicarbonate should be avoided. Acidosis will correct with fluids and insulin."
+                        },
+                        {
+                            "id": "act4",
+                            "text": "Give multiple rapid fluid boluses to quickly correct dehydration",
+                            "isCorrect": false,
+                            "rationale": "Aggressive fluid resuscitation beyond the initial shock management increases cerebral edema risk. After addressing shock with 10-20 mL/kg, the remaining deficit should be replaced slowly over 24-48 hours. Each additional bolus increases the risk of osmotic fluid shifts. Children have compensated for their dehydration over days; there is no need to correct it in hours."
+                        },
+                        {
+                            "id": "act5",
+                            "text": "Decrease insulin infusion when glucose drops to prevent hypoglycemia",
+                            "isCorrect": false,
+                            "rationale": "Decreasing insulin before acidosis correction is a common error. Insulin is needed to stop ketone production, not just to lower glucose. When glucose reaches 250-300 mg/dL, add dextrose to IV fluids instead of reducing insulin. Premature insulin reduction leads to persistent ketosis and prolonged acidosis. Continue insulin until anion gap closes (usually when bicarbonate >15 mEq/L)."
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "id": "param1",
+                            "text": "Neurological status checks every hour (GCS, headache, pupil changes)",
+                            "isCorrect": true,
+                            "rationale": "Hourly neuro checks are essential for early detection of cerebral edema. Warning signs include: declining mental status, new headache, bradycardia, hypertension (Cushing's triad), pupillary changes, or incontinence. Any neurological deterioration should prompt immediate intervention with mannitol or hypertonic saline. Early detection significantly improves outcomes."
+                        },
+                        {
+                            "id": "param2",
+                            "text": "Serum sodium trend (should rise 1-2 mEq/L for each 100 mg/dL glucose drop)",
+                            "isCorrect": true,
+                            "rationale": "Rising serum sodium during treatment indicates appropriate free water excretion and decreasing cerebral edema risk. If sodium fails to rise or decreases during treatment, this suggests excess free water and increased cerebral edema risk. This trend analysis is more important than any single sodium value. A falling sodium during DKA treatment is an ominous sign requiring intervention."
+                        },
+                        {
+                            "id": "param3",
+                            "text": "Urine ketone clearance",
+                            "isCorrect": false,
+                            "rationale": "Urine ketones are not reliable for monitoring DKA resolution because they measure acetoacetate, which actually increases during treatment as beta-hydroxybutyrate converts to acetoacetate. Serum beta-hydroxybutyrate or anion gap closure are better markers. Urine ketones may remain positive even after metabolic recovery, leading to unnecessary prolongation of insulin infusion."
+                        },
+                        {
+                            "id": "param4",
+                            "text": "Skin turgor improvement",
+                            "isCorrect": false,
+                            "rationale": "While skin turgor is useful for initial dehydration assessment, it is too subjective and slow-changing to guide acute DKA management. Objective parameters like neurological status, sodium trends, and hemodynamic response are more useful for detecting complications. Skin turgor may take 24-48 hours to normalize even with appropriate treatment."
+                        },
+                        {
+                            "id": "param5",
+                            "text": "Hourly insulin dose adjustments based on glucose",
+                            "isCorrect": false,
+                            "rationale": "The insulin dose should remain relatively constant (0.05-0.1 units/kg/hr) until ketosis resolves. Adjusting insulin based on glucose alone is incorrect—if glucose is falling too fast, add dextrose to IV fluids rather than decreasing insulin. The goal is to keep insulin running to stop ketone production while managing glucose with IV dextrose. Frequent insulin adjustments complicate this balance."
+                        }
+                    ],
+                    "correct": {
+                        "condition": "cond1",
+                        "actions": [
+                            "act1",
+                            "act2"
+                        ],
+                        "parameters": [
+                            "param1",
+                            "param2"
+                        ]
+                    },
+                    "rationale": {
+                        "coreConcept": "Preventing cerebral edema in pediatric DKA through controlled rehydration and monitoring",
+                        "answerAnalysis": "Cerebral edema prevention requires slow, controlled fluid and glucose correction with vigilant neurological monitoring and sodium trend analysis",
+                        "clinicalStrategy": "Think 'slow and steady' - avoid rapid corrections of glucose, fluids, or pH; monitor closely for neurological changes"
+                    }
+                },
+                {
+                    "id": "s5",
+                    "type": "drop-cloze",
+                    "cjmmStep": "Take Action",
+                    "cjmmPhase": "Take Action",
+                    "prompt": "Complete the nursing action statement for this pediatric DKA patient.",
+                    "text": "After the initial fluid bolus, the nurse should position Marcus %{d1}% and ensure %{d2}% is immediately available at the bedside.",
+                    "dropdowns": [
+                        {
+                            "id": "d1",
+                            "options": [
+                                {
+                                    "id": "d1-o1",
+                                    "text": "with head of bed elevated 30 degrees",
+                                    "isCorrect": true,
+                                    "rationale": "Head of bed elevation to 30 degrees is recommended in pediatric DKA to reduce intracranial pressure and decrease cerebral edema risk. This position promotes venous drainage from the brain while maintaining adequate cerebral perfusion. It should be maintained throughout treatment, especially during the high-risk period of the first 24 hours."
+                                },
+                                {
+                                    "id": "d1-o2",
+                                    "text": "flat in supine position",
+                                    "isCorrect": false,
+                                    "rationale": "Flat positioning increases intracranial pressure and cerebral edema risk in pediatric DKA patients. While this position may be used briefly for procedures, it should not be maintained. The brain is vulnerable to swelling during DKA treatment due to osmotic shifts, making position-related ICP reduction important."
+                                },
+                                {
+                                    "id": "d1-o3",
+                                    "text": "in Trendelenburg position",
+                                    "isCorrect": false,
+                                    "rationale": "Trendelenburg (head-down) position is contraindicated in pediatric DKA because it significantly increases intracranial pressure. This position would worsen any developing cerebral edema. While sometimes used for shock, the cerebral edema risk in pediatric DKA makes this position dangerous even with hypotension."
+                                },
+                                {
+                                    "id": "d1-o4",
+                                    "text": "in high-Fowler's position at 90 degrees",
+                                    "isCorrect": false,
+                                    "rationale": "While head elevation is beneficial, 90 degrees (high-Fowler's) may compromise cerebral perfusion pressure in a child who is already hypotensive. The optimal position is 30 degrees, which balances ICP reduction with maintained cerebral blood flow. Excessive elevation could worsen cerebral ischemia in the setting of dehydration."
+                                }
+                            ]
+                        },
+                        {
+                            "id": "d2",
+                            "options": [
+                                {
+                                    "id": "d2-o1",
+                                    "text": "mannitol (0.5-1 g/kg) or 3% hypertonic saline",
+                                    "isCorrect": true,
+                                    "rationale": "Osmotic therapy (mannitol or hypertonic saline) must be immediately available for emergent treatment of cerebral edema, which can develop rapidly and cause death within minutes to hours. Having the medication drawn up and ready allows for immediate administration if warning signs develop. This is the first-line treatment for DKA-related cerebral edema."
+                                },
+                                {
+                                    "id": "d2-o2",
+                                    "text": "dextrose 50% for hypoglycemia",
+                                    "isCorrect": false,
+                                    "rationale": "While hypoglycemia is a potential complication of insulin therapy, the current glucose is 486 mg/dL, making this less urgent. D50 would be given if glucose drops below 70 mg/dL, but with hourly monitoring and dextrose-containing IV fluids added at glucose 250-300 mg/dL, severe hypoglycemia is preventable and manageable. Cerebral edema is the more life-threatening concern."
+                                },
+                                {
+                                    "id": "d2-o3",
+                                    "text": "sodium bicarbonate infusion",
+                                    "isCorrect": false,
+                                    "rationale": "Bicarbonate is not routinely used in pediatric DKA and may increase cerebral edema risk. It is only considered when pH is below 6.9 with hemodynamic instability. Having bicarbonate at bedside could lead to inappropriate use. The acidosis will correct with fluids and insulin; bicarbonate administration is rarely needed and potentially harmful."
+                                },
+                                {
+                                    "id": "d2-o4",
+                                    "text": "calcium gluconate for hyperkalemia",
+                                    "isCorrect": false,
+                                    "rationale": "While potassium is elevated at 5.8 mEq/L with ECG changes, the hyperkalemia will correct with insulin therapy as potassium shifts back into cells. Calcium gluconate stabilizes cardiac membranes but does not lower potassium. With DKA treatment addressing the hyperkalemia, having mannitol for cerebral edema is more critical for this patient."
+                                }
+                            ]
+                        }
+                    ],
+                    "rationale": {
+                        "coreConcept": "Positioning and emergency preparedness for cerebral edema in pediatric DKA",
+                        "answerAnalysis": "30-degree head elevation reduces ICP while maintaining cerebral perfusion; osmotic therapy availability enables rapid response to cerebral edema",
+                        "clinicalStrategy": "Anticipate the most life-threatening complication and prepare for it before it happens",
+                        "mnemonic": {
+                            "title": "HEAD-UP",
+                            "content": "H-Head elevation 30°, E-Emergent mannitol ready, A-Avoid rapid corrections, D-Deficit replacement slow, U-Urine output monitoring, P-Potassium watch",
+                            "explanation": "Memory aid for pediatric DKA safety measures"
+                        }
+                    }
+                },
+                {
+                    "id": "s6",
+                    "type": "multiple-response",
+                    "cjmmStep": "Evaluate Outcomes",
+                    "cjmmPhase": "Evaluate Outcomes",
+                    "prompt": "Two hours after initiating treatment for Marcus's DKA, which findings indicate that his condition is improving? Select all that apply.",
+                    "options": [
+                        {
+                            "id": "o1",
+                            "text": "Blood glucose decreased from 486 mg/dL to 312 mg/dL",
+                            "isCorrect": true,
+                            "rationale": "A glucose decline of 174 mg/dL over approximately 3 hours represents an appropriate rate of 50-60 mg/dL per hour. This controlled decrease allows gradual osmotic equilibration, reducing cerebral edema risk. The glucose is still elevated, but the trend downward with proper pacing indicates effective treatment. Faster drops would be concerning."
+                        },
+                        {
+                            "id": "o2",
+                            "text": "pH improved from 7.12 to 7.24",
+                            "isCorrect": true,
+                            "rationale": "Improvement in pH from 7.12 (severe acidosis) to 7.24 (moderate acidosis) demonstrates effective correction of ketoacidosis. This reflects decreased ketone production from insulin therapy and improved tissue perfusion from fluid resuscitation. Continued improvement toward pH >7.30 indicates resolution of the acidotic state. This is a key marker of DKA resolution."
+                        },
+                        {
+                            "id": "o3",
+                            "text": "Heart rate decreased from 142 bpm to 112 bpm",
+                            "isCorrect": true,
+                            "rationale": "Decreasing tachycardia indicates improved intravascular volume and decreased physiologic stress. The initial heart rate of 142 bpm reflected hypovolemia and compensatory response to acidosis. Improvement to 112 bpm (still slightly elevated but trending down) shows the cardiovascular system is stabilizing with fluid resuscitation. This correlates with improved perfusion."
+                        },
+                        {
+                            "id": "o4",
+                            "text": "Serum potassium decreased from 5.8 mEq/L to 4.8 mEq/L",
+                            "isCorrect": true,
+                            "rationale": "Decreasing potassium from 5.8 to 4.8 mEq/L is expected and appropriate as insulin drives potassium back into cells and acidosis corrects. This is within normal range now, indicating safer cardiac status. Peaked T waves should resolve. This change confirms insulin is working and signals the need to ensure potassium is being added to IV fluids to prevent hypokalemia."
+                        },
+                        {
+                            "id": "o5",
+                            "text": "Marcus has become increasingly sleepy and difficult to arouse",
+                            "isCorrect": false,
+                            "rationale": "Increasing lethargy during DKA treatment is a WARNING SIGN of cerebral edema, not improvement! Initial treatment sometimes causes transient improvement in mental status. A secondary decline in consciousness requires immediate intervention with mannitol/hypertonic saline, head CT, and likely transfer to PICU if not already there. This is the most feared complication of pediatric DKA."
+                        },
+                        {
+                            "id": "o6",
+                            "text": "Serum sodium has decreased from 131 mEq/L to 128 mEq/L during treatment",
+                            "isCorrect": false,
+                            "rationale": "A FALLING sodium during DKA treatment is an ominous sign, not improvement. Sodium should RISE as glucose decreases (approximately 1-2 mEq/L for every 100 mg/dL glucose drop). Falling sodium indicates excess free water relative to sodium and increases cerebral edema risk. This finding requires immediate evaluation and possible modification of IV fluid composition to prevent cerebral edema."
+                        }
+                    ],
+                    "rationale": {
+                        "coreConcept": "Evaluating treatment response in pediatric DKA and recognizing deterioration",
+                        "answerAnalysis": "Improvement is shown by controlled glucose decline, rising pH, resolving tachycardia, and normalizing potassium. Deteriorating mental status and falling sodium are warning signs of cerebral edema.",
+                        "clinicalStrategy": "Look for trends in all parameters; be especially vigilant for cerebral edema warning signs during the first 24 hours of treatment",
+                        "cheatSheet": {
+                            "title": "Pediatric DKA: Signs of Improvement vs. Warning Signs",
+                            "points": [
+                                "✓ Glucose falling 50-100 mg/dL/hr",
+                                "✓ pH rising toward normal",
+                                "✓ Sodium rising with treatment",
+                                "✓ Mental status stable or improving",
+                                "⚠ Sodium falling during treatment = cerebral edema risk",
+                                "⚠ Declining mental status = possible cerebral edema"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "rationale": {
+        "coreConcept": "Pediatric Diabetic Ketoacidosis Management and Cerebral Edema Prevention",
+        "caseSummary": "This case presents a 7-year-old with new-onset Type 1 Diabetes presenting to the Pediatric ER in severe DKA with hypovolemic shock. The clinical challenge focuses on the unique considerations of pediatric DKA management, particularly the prevention of cerebral edema through controlled fluid resuscitation and glucose correction. Students must recognize the signs of severe DKA, prioritize interventions appropriately, and understand that the most dangerous phase is often during treatment, not presentation.",
+        "goldenRule": "In pediatric DKA, 'slow and steady wins the race'—rapid correction of glucose, fluids, or pH increases cerebral edema risk. The brain has adapted to the hyperosmolar state; give it time to re-adapt.",
+        "pitfalls": [
+            "Starting insulin before initial fluid resuscitation—insulin cannot work without tissue perfusion and may cause dangerous hypokalemia",
+            "Aggressively correcting dehydration with repeated rapid boluses—increases cerebral edema risk; correct deficit over 24-48 hours",
+            "Reducing insulin when glucose drops instead of adding dextrose to IV fluids—ketosis requires insulin, not glucose reduction",
+            "Dismissing declining mental status as 'improvement from initial lethargy'—any neurological deterioration during treatment is cerebral edema until proven otherwise",
+            "Administering bicarbonate for acidosis—increases cerebral edema risk and is rarely indicated"
+        ],
+        "cheatSheet": {
+            "title": "Pediatric DKA Golden Rules",
+            "points": [
+                "Fluids first, insulin second (after 10-20 mL/kg bolus for shock)",
+                "Insulin rate stays constant until ketosis resolves; manage glucose with IV dextrose",
+                "Glucose should fall slowly: 50-100 mg/dL/hour",
+                "Sodium should RISE during treatment; falling sodium = danger",
+                "Hourly neuro checks for 24 hours—cerebral edema peaks at 4-12 hours",
+                "Have mannitol or 3% saline ready at bedside"
+            ]
+        },
+        "mnemonic": {
+            "title": "DKA-SAFE",
+            "content": "D-Deficit correction over 24-48 hours, K-Keep insulin running until ketosis resolves, A-Avoid bicarbonate and rapid corrections, S-Sodium should rise with treatment, A-Always watch neuro status, F-Fluids before insulin, E-Emergency mannitol ready",
+            "explanation": "Key safety principles for pediatric DKA management that prevent the most serious complications"
+        }
+    },
+    "metadata": {
+        "topic": "Pediatric Emergency",
+        "subtopic": "Diabetic Ketoacidosis",
+        "cjmmLevel": 5,
+        "targetAudience": "RN-NCLEX candidates",
+        "estimatedTime": "25-30 minutes",
+        "createdAt": "2026-01-30T19:00:00Z",
+        "version": "GoldenPromptV2"
+    }
+}

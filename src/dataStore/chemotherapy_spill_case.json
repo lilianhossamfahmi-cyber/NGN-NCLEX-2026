@@ -1,0 +1,690 @@
+{
+    "type": "case-study",
+    "id": "CHEMO-SPILL-CS-E5X7",
+    "content": {
+        "metadata": {
+            "title": "Expert Management of a Cytotoxic Agent Spill",
+            "clinicalFocus": "Chemotherapy Spill & Hazardous Drug Exposure",
+            "level": 5,
+            "targetScore": 95,
+            "generator": "Golden NGN v3.2 (Anti-Entropy Handled)"
+        },
+        "clinicalData": {
+            "patientInfo": {
+                "name": "Evelyn Ross, 62y F",
+                "age": 62,
+                "gender": "Female",
+                "allergies": "NKDA",
+                "weightKg": 68,
+                "history": [
+                    "Stage III Ovarian Cancer",
+                    "Hypertension",
+                    "GERD"
+                ],
+                "homeMeds": [
+                    {
+                        "name": "Lisinopril",
+                        "dose": "10mg",
+                        "route": "PO",
+                        "frequency": "daily"
+                    },
+                    {
+                        "name": "Omeprazole",
+                        "dose": "20mg",
+                        "route": "PO",
+                        "frequency": "daily"
+                    }
+                ]
+            },
+            "setting": "Inpatient Oncology Unit",
+            "historyPhysical": {
+                "chiefComplaint": "Admission for Cycle 3 Cisplatin/Paclitaxel chemotherapy.",
+                "hpi": "Evelyn is a 62-year-old female admitted for standard chemotherapy. She has completed two previous cycles without significant adverse reaction. Today she is receiving Cisplatin 75 mg/m² IV infusion over 4 hours.",
+                "physicalExam": {
+                    "general": "Alert and oriented x3. Appears comfortable.",
+                    "skin": "Warm, dry. Right internal jugular (RIV) portal access is intact, needle secured with transparent dressing."
+                }
+            },
+            "history": [
+                {
+                    "time": "0800",
+                    "author": "RN Chen",
+                    "note": "Chemotherapy initiated. Verification performed with second oncology-certified nurse. Two-bag infusion setup with Cisplatin and accompanying hydration fluids. Patient instructed to notify staff of any pain, itching, or shortness of breath."
+                },
+                {
+                    "time": "0915",
+                    "author": "RN Chen",
+                    "note": "Called to room by patient. Found patient sitting up in bed; IV tubing accidentally disconnected from the port hub during patient repositioning. Approximately 50 mL of Cisplatin solution observed on the bed linens and the patient's gown. Small amount of fluid also noted on the floor next to the bed."
+                }
+            ],
+            "vitals": [
+                {
+                    "time": "0800",
+                    "tempF": "98.4",
+                    "hr": 76,
+                    "rr": 16,
+                    "bp": "128/74",
+                    "o2": "98",
+                    "o2_device": "Room Air",
+                    "pain": 0
+                },
+                {
+                    "time": "0915",
+                    "tempF": "98.5",
+                    "hr": 82,
+                    "rr": 18,
+                    "bp": "130/76",
+                    "o2": "97",
+                    "o2_device": "Room Air",
+                    "pain": 0
+                }
+            ],
+            "labs": [
+                {
+                    "test": "WBC",
+                    "value": "6.2",
+                    "unit": "K/uL",
+                    "flag": "Normal"
+                },
+                {
+                    "test": "Platelets",
+                    "value": "185",
+                    "unit": "K/uL",
+                    "flag": "Normal"
+                },
+                {
+                    "test": "Creatinine",
+                    "value": "0.9",
+                    "unit": "mg/dL",
+                    "flag": "Normal"
+                }
+            ],
+            "orders": [
+                {
+                    "order": "Cisplatin 125 mg in 500 mL NS",
+                    "status": "Active",
+                    "orderedBy": "Dr. Miller",
+                    "time": "0730"
+                },
+                {
+                    "order": "Pre-chemo hydration: NS with 20 mEq KCl @ 150 mL/hr",
+                    "status": "Active",
+                    "orderedBy": "Dr. Miller",
+                    "time": "0730"
+                },
+                {
+                    "order": "Emergency Chemotherapy Spill Kit to bedside",
+                    "status": "Pending",
+                    "orderedBy": "RN Protocol",
+                    "time": "0916"
+                }
+            ],
+            "radiology": []
+        },
+        "rationale": {
+            "coreConcept": "Immediate response and containment of a hazardous drug (cytotoxic) spill to ensure patient and healthcare worker safety.",
+            "caseSummary": "A patient receiving Cisplatin chemotherapy experiences an accidental IV disconnection, leading to a significant spill on the patient and environment. The nurse must prioritize immediate cessation of flow, containment using a specialized spill kit, patient decontamination, and proper disposal of hazardous waste per OSHA and NIOSH standards."
+        },
+        "structure": {
+            "type": "case-study",
+            "screens": [
+                {
+                    "id": "s1",
+                    "type": "highlight",
+                    "cjmmStep": "Recognize Cues",
+                    "prompt": "Highlight the findings that require the nurse's immediate priority action.",
+                    "text": "The nurse enters the room at 0915 and observes the patient <span id='h1'>sitting up in bed</span>. There is <span id='h2'>approximately 50 mL of Cisplatin solution</span> on the <span id='h3'>bed linens and the patient's gown</span>. The IV tubing is <span id='h4'>disconnected from the port hub</span>. The <span id='h5'>infusion pump is still running</span>. Small droplets of <span id='h6'>fluid are on the floor</span>. The patient states, <span id='h7'>'I was just trying to reach for my water.'</span>",
+                    "correct": [
+                        "h2",
+                        "h4",
+                        "h5",
+                        "h6"
+                    ],
+                    "decoys": [
+                        "h1",
+                        "h3",
+                        "h7"
+                    ],
+                    "rationales": {
+                        "h2": "[Hook] Spill volume of 50 mL. [Breakdown] Any quantity of a hazardous drug (HD) constitutes a 'major' spill if it exceeds 5 mL or requires a spill kit. [Trap] Do not minimize the risk based on the volume; all chemo spills are high-priority.",
+                        "h4": "[Hook] Tubing disconnection. [Breakdown] This is the source of the leak and creates an open system, allowing cytotoxic vapors and liquid to escape. [Trap] Focusing on the floor before the root cause.",
+                        "h5": "[Hook] Pump still running. [Breakdown] This is the most critical cue because the pump continues to propel a hazardous substance into the environment. [Trap] Neglecting the pump while looking for the spill kit.",
+                        "h6": "[Hook] Fluid on the floor. [Breakdown] Indicates environmental contamination and a slip hazard, requiring marking the area to prevent others from entering. [Trap] Cleaning up with standard paper towels.",
+                        "h1": "[Hook] Patient position. [Breakdown] Sitting up is a benign finding unless the patient is unsteady or in distress. [Trap] Wasting time repositioning the patient before stopping the spill.",
+                        "h3": "[Hook] Contaminated gown/linens. [Breakdown] While important, the priority is stopping the active flow from the pump and tubing first. [Trap] Decontaminating the patient's skin before stopping the pump.",
+                        "h7": "[Hook] Patient statement. [Breakdown] Provides subjective context for the event but does not alter the emergency protocol. [Trap] Engaging in a long conversation about how it happened instead of acting."
+                    },
+                    "rationale": {
+                        "coreConcept": "Rapid recognition of source and extent of hazardous drug contamination.",
+                        "caseSummary": "Recognition of an active cytotoxic spill.",
+                        "answerAnalysis": "The pump running (h5) and disconnection (h4) are the active sources. The volume (h2) and environmental spread (h6) define the emergency scope.",
+                        "trap": "Students often focus on the patient's skin first, but stopping the pump is technically the first step to prevent further spread.",
+                        "goldenRule": "Stop the source, then contain the spill.",
+                        "steps": [
+                            {
+                                "tag": "Recognize",
+                                "description": "Identify that a hazardous drug (Cisplatin) has escaped the closed system."
+                            },
+                            {
+                                "tag": "Analyze",
+                                "description": "Determine that the pump is still active and the area is not contained."
+                            },
+                            {
+                                "tag": "Act",
+                                "description": "Cease the infusion immediately."
+                            }
+                        ],
+                        "mnemonic": {
+                            "title": "S-S-C",
+                            "content": "Stop (source), Signal (for help), Contain (spill)",
+                            "explanation": "Summarizes the priority response for environmental hazards."
+                        },
+                        "cheatSheet": {
+                            "title": "HD Spill Definitions",
+                            "points": [
+                                "Small: < 5 mL or 50 mg",
+                                "Large/Major: > 5 mL or includes environmental spread",
+                                "Spill Kit is mandatory for ALL hazardous drug spills."
+                            ]
+                        },
+                        "referenceInfo": {
+                            "anatomy": "Non-specific; relates to skin as an absorption barrier.",
+                            "physiology": "Cisplatin is an alkylating agent; absorption can cause systemic toxicity and localized tissue damage.",
+                            "pharm": "Cisplatin is a cytotoxic chemotherapy agent requiring specialized handling (USP <800>)."
+                        },
+                        "difficulty": {
+                            "score": 95,
+                            "level": 5,
+                            "label": "Expert",
+                            "clinicalStrategy": "Priority assessment of environmental safety vs. patient assessment.",
+                            "recommendedActions": [
+                                "Stop pump",
+                                "Mark area"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "id": "s2",
+                    "type": "matrix",
+                    "cjmmStep": "Analyze Cues",
+                    "prompt": "For each nursing action, indicate if it represents an 'Immediate Containment' step, a 'Patient Safety' step, or an 'Environmental Decontamination' step.",
+                    "columns": [
+                        {
+                            "id": "c1",
+                            "text": "Immediate Containment"
+                        },
+                        {
+                            "id": "c2",
+                            "text": "Patient Safety"
+                        },
+                        {
+                            "id": "c3",
+                            "text": "Environmental Decontamination"
+                        }
+                    ],
+                    "rows": [
+                        {
+                            "id": "r1",
+                            "text": "Turn off the infusion pump and clamp the IV tubing.",
+                            "correctColumnId": "c1",
+                            "rationale": "Stopping the flow at the source is the first containment priority."
+                        },
+                        {
+                            "id": "r2",
+                            "text": "Remove the contaminated gown and wash the patient's skin with soap and water.",
+                            "correctColumnId": "c2",
+                            "rationale": "Directly addresses the patient's risk of absorption and chemical injury."
+                        },
+                        {
+                            "id": "r3",
+                            "text": "Place absorbent pads from the spill kit over the fluid on the floor.",
+                            "correctColumnId": "c3",
+                            "rationale": "A part of cleaning the environment once the patient is safe."
+                        },
+                        {
+                            "id": "r4",
+                            "text": "Notify the nurse manager and the pharmacy of the medication loss.",
+                            "correctColumnId": "c1",
+                            "rationale": "Part of the containment/resource management protocol."
+                        },
+                        {
+                            "id": "r5",
+                            "text": "Place warning signs at the entrance of the room to alert others of the hazard.",
+                            "correctColumnId": "c1",
+                            "rationale": "Prevents secondary exposure to staff or visitors, thus containing the danger to a specific area."
+                        }
+                    ],
+                    "rationale": {
+                        "coreConcept": "Categorization of multi-faceted emergency responses.",
+                        "caseSummary": "Classification of chemo spill interventions.",
+                        "answerAnalysis": "Stopping the pump is containment (c1). Cleaning the patient is safety (c2). Pads on the floor is environmental (c3).",
+                        "trap": "Students confuse 'containment' with 'cleaning'. Containment is about stopping the spread of the hazard.",
+                        "goldenRule": "Contain the threat, protect the person, restore the environment.",
+                        "steps": [
+                            {
+                                "tag": "Analyze",
+                                "description": "Group interventions by their primary safety objective."
+                            }
+                        ],
+                        "mnemonic": {
+                            "title": "C-S-E",
+                            "content": "Contain, Save, Environment",
+                            "explanation": "Prioritization hierarchy."
+                        },
+                        "cheatSheet": {
+                            "title": "Action Hierarchy",
+                            "points": [
+                                "Source Control",
+                                "Human Decontamination",
+                                "Environmental Clean-up"
+                            ]
+                        },
+                        "referenceInfo": {
+                            "anatomy": "N/A",
+                            "physiology": "Hazardous drugs can be absorbed through skin, inhalation, or ingestion.",
+                            "pharm": "USP <800> provides standards for hazardous drug handling."
+                        },
+                        "difficulty": {
+                            "score": 95,
+                            "level": 5,
+                            "label": "Expert",
+                            "clinicalStrategy": "Differentiate between immediate source control and follow-up cleaning.",
+                            "recommendedActions": [
+                                "Group by priority"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "id": "s3",
+                    "type": "ordered-response",
+                    "cjmmStep": "Prioritize Hypotheses",
+                    "prompt": "Arrange the following nursing actions in the correct sequence for managing this chemotherapy spill.",
+                    "orderedOptions": [
+                        {
+                            "id": "o1",
+                            "text": "Stop the infusion pump and clamp the tubing.",
+                            "rationale": "The source must be stopped before any other action can be effective."
+                        },
+                        {
+                            "id": "o2",
+                            "text": "Don specialized hazardous drug (HD) personal protective equipment (PPE).",
+                            "rationale": "The nurse must protect themselves before entering the contaminated area to contain the spill."
+                        },
+                        {
+                            "id": "o3",
+                            "text": "Apply absorbent pads from the spill kit to the liquid on the floor.",
+                            "rationale": "Initial containment of environmental spread."
+                        },
+                        {
+                            "id": "o4",
+                            "text": "Remove the patient's contaminated gown and wash their skin with mild soap and water.",
+                            "rationale": "Addressing patient decontamination once the environment is stabilized."
+                        },
+                        {
+                            "id": "o5",
+                            "text": "Dispose of all contaminated materials in a yellow chemotherapy waste bin.",
+                            "rationale": "Final step is proper disposal of hazardous materials."
+                        }
+                    ],
+                    "rationale": {
+                        "coreConcept": "Strategic sequencing of hazardous material responses.",
+                        "caseSummary": "Step-by-step spill management.",
+                        "answerAnalysis": "Stop pump -> PPE -> Contain -> Patient -> Disposal. PPE is required even to touch the patient or spill kit components.",
+                        "trap": "Often students want to wash the patient BEFORE putting on their own chemo-rated gloves/gown.",
+                        "goldenRule": "Protect yourself, then stop the source, then save the patient.",
+                        "steps": [
+                            {
+                                "tag": "Analyze",
+                                "description": "Sequence actions to maximize safety and minimize spread."
+                            }
+                        ],
+                        "mnemonic": {
+                            "title": "P-S-C-P",
+                            "content": "Protect, Stop, Contain, Patient",
+                            "explanation": "Logic of sequencial response."
+                        },
+                        "cheatSheet": {
+                            "title": "PPE for Chemo",
+                            "points": [
+                                "Double gloves",
+                                "Goggles",
+                                "Respiratory protection (N95/P100)",
+                                "Chemo-resistant gown"
+                            ]
+                        },
+                        "referenceInfo": {
+                            "anatomy": "N/A",
+                            "physiology": "Rapid absorption of taxanes and platinum agents through dermis.",
+                            "pharm": "Cisplatin waste is handled under Trace vs. Bulk chemotherapy protocols."
+                        },
+                        "difficulty": {
+                            "score": 95,
+                            "level": 5,
+                            "label": "Expert",
+                            "clinicalStrategy": "Apply the 'Safety First' (Self-Safety) principle.",
+                            "recommendedActions": [
+                                "Order by safety first"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "id": "s4",
+                    "type": "bow-tie",
+                    "cjmmStep": "Generate Solutions",
+                    "prompt": "Complete the diagram by identifying the priority condition, two immediate nursing actions, and two parameters to monitor.",
+                    "actions": [
+                        {
+                            "id": "a1",
+                            "text": "Don double-nitrile chemo gloves and a chemo-rated gown.",
+                            "isCorrect": true,
+                            "rationale": "Mandatory protection per USP <800> before touching hazardous drug (HD) spills."
+                        },
+                        {
+                            "id": "a2",
+                            "text": "Use the spill kit absorbent powder for a large-volume spill on the floor.",
+                            "isCorrect": true,
+                            "rationale": "Powder helps solidify large liquid spills for safe disposal."
+                        },
+                        {
+                            "id": "a3",
+                            "text": "Notify the physician to order an immediate blood level for Cisplatin.",
+                            "rationale": "Blood levels are not standard for acute surface exposure; decontamination is the focus."
+                        },
+                        {
+                            "id": "a4",
+                            "text": "Apply povidone-iodine to the patient's skin where the medication spilled.",
+                            "rationale": "Iodine is an antiseptic for infection, not for decontaminating hazardous chemicals."
+                        },
+                        {
+                            "id": "a5",
+                            "text": "Flush the patient's peripheral IV site with 10 mL of heparin.",
+                            "rationale": "Heparin is used for patency; the issue here is external external contamination and an open system."
+                        }
+                    ],
+                    "conditions": [
+                        {
+                            "id": "c1",
+                            "text": "Hazardous Drug (HD) Environmental and Patient Exposure",
+                            "isCorrect": true,
+                            "rationale": "The scenario involves uncontrolled release of a cytotoxic agent affecting both the environment and the patient."
+                        },
+                        {
+                            "id": "c2",
+                            "text": "Anaphylactic Reaction to Cisplatin",
+                            "rationale": "No signs of respiratory distress or hives; the issue is toxic exposure, not allergy."
+                        },
+                        {
+                            "id": "c3",
+                            "text": "Extravasation from Peripherally Inserted Central Catheter",
+                            "rationale": "The medication is on the gown and floor, not leaked into the subcutaneous tissue."
+                        },
+                        {
+                            "id": "c4",
+                            "text": "Standard IV Fluid Infiltration",
+                            "rationale": "Cisplatin is a chemotherapy agent, not standard IV fluid, and it leaked externally."
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "id": "p1",
+                            "text": "Patient's skin integrity and absence of redness at the spill site.",
+                            "isCorrect": true,
+                            "rationale": "Monitoring for chemical irritation is essential after decontamination."
+                        },
+                        {
+                            "id": "p2",
+                            "text": "Full containment of the spill within designated hazardous waste bins.",
+                            "isCorrect": true,
+                            "rationale": "Environmental safety is validated by the total removal of the hazard."
+                        },
+                        {
+                            "id": "p3",
+                            "text": "White blood cell count (WBC) recovery within 24 hours.",
+                            "rationale": "WBC effects from chemo happen over weeks (nadir), not hours after skin spill."
+                        },
+                        {
+                            "id": "p4",
+                            "text": "Daily weight to monitor for fluid overload.",
+                            "rationale": "Weight is relevant for long-term chemo management, not acute spill response."
+                        },
+                        {
+                            "id": "p5",
+                            "text": "Urine output monitoring for nephrotoxicity.",
+                            "rationale": "Essential during the infusion, but skin exposure doesn't significantly alter immediate urinary output."
+                        }
+                    ],
+                    "rationale": {
+                        "coreConcept": "Comprehensive management of hazardous drug (HD) accidents.",
+                        "caseSummary": "Generating solutions for a large chemo spill.",
+                        "answerAnalysis": "The condition is HD exposure (c1). Actions are PPE (a1) and using the spill kit (a2). Monitoring focus is skin and environmental safety (p1, p2).",
+                        "trap": "Looking only for patient assessments when the environmental spill is still 'active'.",
+                        "goldenRule": "PPE -> Action -> Monitor Effectiveness.",
+                        "steps": [
+                            {
+                                "tag": "Analyze",
+                                "description": "Identify the multi-system impact of a chemo spill."
+                            },
+                            {
+                                "tag": "Generate",
+                                "description": "Select tools (Spill Kit) and protections (PPE)."
+                            }
+                        ],
+                        "mnemonic": {
+                            "title": "K-I-T",
+                            "content": "Knowledge, Intervention, Trash",
+                            "explanation": "Logic of spill kit use."
+                        },
+                        "cheatSheet": {
+                            "title": "Spill Kit Checklist",
+                            "points": [
+                                "Absorbent pads",
+                                "Scoop/Brush",
+                                "Warn signs",
+                                "Biohazard bags"
+                            ]
+                        },
+                        "referenceInfo": {
+                            "anatomy": "Integumentary system (Skin)",
+                            "physiology": "Skin provides a barrier, but many chemo agents are lipid-soluble.",
+                            "pharm": "Alkylating agents can cause DNA damage even on skin contact."
+                        },
+                        "difficulty": {
+                            "score": 95,
+                            "level": 5,
+                            "label": "Expert",
+                            "clinicalStrategy": "Holistic view of safety (Patient + Staff + Unit).",
+                            "recommendedActions": [
+                                "Select PPE",
+                                "Select Solidifiers"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "id": "s5",
+                    "type": "drop-cloze",
+                    "cjmmStep": "Take Action",
+                    "prompt": "Complete the nursing documentation regarding the spill response.",
+                    "text": "The nurse successfully stopped the infusion pump and initiated the spill protocol. The contaminated area was marked with %{d1} to prevent staff exposure. All waste was disposed of in the %{d2} specifically for cytotoxic materials.",
+                    "dropdowns": [
+                        {
+                            "id": "d1",
+                            "options": [
+                                {
+                                    "id": "o1",
+                                    "text": "warning signs from the spill kit",
+                                    "isCorrect": true,
+                                    "rationale": "Standard protocol requires immediate marking of hazardous areas."
+                                },
+                                {
+                                    "id": "o2",
+                                    "text": "standard 'Caution: Wet Floor' signs",
+                                    "rationale": "Wet floor signs do not communicate the hazardous chemical risk of chemotherapy."
+                                },
+                                {
+                                    "id": "o3",
+                                    "text": "sterile drape sheets",
+                                    "rationale": "Sheets are not effective warnings and could become contaminated."
+                                }
+                            ]
+                        },
+                        {
+                            "id": "d2",
+                            "options": [
+                                {
+                                    "id": "o4",
+                                    "text": "yellow chemotherapy container",
+                                    "isCorrect": true,
+                                    "rationale": "Yellow bins are strictly for trace/bulk hazardous drug waste."
+                                },
+                                {
+                                    "id": "o5",
+                                    "text": "red biohazard bin",
+                                    "rationale": "Red bins are for infectious/blood waste, not chemotherapy hazards."
+                                },
+                                {
+                                    "id": "o6",
+                                    "text": "clear plastic trash bag",
+                                    "rationale": "Chemo waste must never go into domestic waste streams."
+                                }
+                            ]
+                        }
+                    ],
+                    "rationale": {
+                        "coreConcept": "Standardized hazardous drug safety and documentation.",
+                        "caseSummary": "Documenting the response and waste disposal.",
+                        "answerAnalysis": "Signs communicate the specific hazard (d1). Yellow bins are the correct color code for chemotherapy (d2).",
+                        "trap": "Confusion between biohazard (red) and chemotherapy (yellow) colors.",
+                        "goldenRule": "Yellow for Chemo, Red for Blood.",
+                        "steps": [
+                            {
+                                "tag": "Act",
+                                "description": "Mark the hazard."
+                            },
+                            {
+                                "tag": "Act",
+                                "description": "Dispose correctly."
+                            }
+                        ],
+                        "mnemonic": {
+                            "title": "Y-I-E-L-D",
+                            "content": "Yellow, Incident, Environmental, Legal, Disposal",
+                            "explanation": "Workflow for chemo documentation."
+                        },
+                        "cheatSheet": {
+                            "title": "Waste Colors",
+                            "points": [
+                                "Yellow: Chemo",
+                                "Red: Bio",
+                                "Blue: Pharma",
+                                "Black: Ignitable/Toxic"
+                            ]
+                        },
+                        "referenceInfo": {
+                            "anatomy": "N/A",
+                            "physiology": "Environmental persistence of cisplatin.",
+                            "pharm": "Hazardous drug disposal laws vary by state but follow federal NIOSH guidelines."
+                        },
+                        "difficulty": {
+                            "score": 95,
+                            "level": 5,
+                            "label": "Expert",
+                            "clinicalStrategy": "Verify administrative and safety compliance.",
+                            "recommendedActions": [
+                                "Select correct signage",
+                                "Select correct bin"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "id": "s6",
+                    "type": "multiple-response",
+                    "cjmmStep": "Evaluate Outcomes",
+                    "prompt": "Which findings indicate that the chemotherapy spill response was executed successfully and safely? Select all that apply.",
+                    "options": [
+                        {
+                            "id": "o1",
+                            "text": "The patient's skin is free of irritation or redness after washing.",
+                            "isCorrect": true,
+                            "rationale": "Indicates successful decontamination and protection of patient's tissue."
+                        },
+                        {
+                            "id": "o2",
+                            "text": "Double-gloves and specialized gowns were worn by all staff in the room.",
+                            "isCorrect": true,
+                            "rationale": "Validates adherence to PPE standards and self-protection."
+                        },
+                        {
+                            "id": "o3",
+                            "text": "The spill kit absorbent materials were disposed of in the yellow hazardous waste bin.",
+                            "isCorrect": true,
+                            "rationale": "Confirms proper closure of the hazardous waste loop."
+                        },
+                        {
+                            "id": "o4",
+                            "text": "An incident report was filed detailing the medication loss and spill management.",
+                            "isCorrect": true,
+                            "rationale": "Required for administrative tracking and quality improvement."
+                        },
+                        {
+                            "id": "o5",
+                            "text": "The pump continued to run after the spill was contained to clear the line.",
+                            "rationale": "Incorrect; the pump must be stopped and remain off to prevent further leakage."
+                        },
+                        {
+                            "id": "o6",
+                            "text": "Contaminated linens were placed in the standard laundry hamper.",
+                            "rationale": "Linens contaminated with HD must be handled as hazardous waste or placed in specialized laundry bags."
+                        }
+                    ],
+                    "rationale": {
+                        "coreConcept": "Evaluation of safety protocol compliance.",
+                        "caseSummary": "Outcome review for a chemo spill.",
+                        "answerAnalysis": "Success is patient skin health (o1), PPE use (o2), proper disposal (o3), and documentation (o4). Standard laundry (o6) is a failure.",
+                        "trap": "Believing that incidents shouldn't be reported (o4) or that the line should be 'cleared' (o5).",
+                        "goldenRule": "Safety is absence of harm + adherence to protocol.",
+                        "steps": [
+                            {
+                                "tag": "Evaluate",
+                                "description": "Compare response actions against institutional and NIOSH benchmarks."
+                            }
+                        ],
+                        "mnemonic": {
+                            "title": "S-A-F-E",
+                            "content": "Skin, Adherence, Filing (report), Environment",
+                            "explanation": "Success criteria for chemo accidents."
+                        },
+                        "cheatSheet": {
+                            "title": "Incident Reporting",
+                            "points": [
+                                "Non-punitive",
+                                "Medication loss count",
+                                "Patient outcome",
+                                "Staff exposure"
+                            ]
+                        },
+                        "referenceInfo": {
+                            "anatomy": "N/A",
+                            "physiology": "N/A",
+                            "pharm": "Evaluation of medication errors involving hazardous agents."
+                        },
+                        "difficulty": {
+                            "score": 95,
+                            "level": 5,
+                            "label": "Expert",
+                            "clinicalStrategy": "Check for adherence to OSHA/USP <800>.",
+                            "recommendedActions": [
+                                "Select documentation",
+                                "Select PPE outcomes"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

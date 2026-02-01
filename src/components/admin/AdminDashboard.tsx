@@ -1,4 +1,4 @@
-import { Play, Save, Settings, CheckCircle, Layers, Activity, Database } from 'lucide-react';
+import { Play, Save, Settings, CheckCircle, Layers, Activity, Database, Sparkles, FileCheck } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { getBankItems, saveBatchToBank } from '../../services/itemStorage';
 import { ItemBankGrid } from './ItemBankGrid';
 import { ItemEditor } from './ItemEditor';
+import { CaseStudyGeneratorV2 } from '../../services/CaseStudyGeneratorV2';
 
 interface AdminDashboardProps {
     onNavigate: (view: string) => void;
@@ -67,6 +68,76 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
         }
     };
 
+    const handleGenerateCaseStudyV2 = async () => {
+        const topic = prompt('Enter case study topic (e.g., "Septic Shock", "Acute PE", "DKA"):', 'Acute Asthma Exacerbation');
+        if (!topic) return;
+
+        try {
+            const generator = new CaseStudyGeneratorV2();
+            const promptText = await generator.preparePrompt(topic);
+
+            // Copy prompt to clipboard
+            await navigator.clipboard.writeText(promptText);
+
+            alert(
+                `✅ Golden Prompt V2 copied to clipboard!\n\n` +
+                `Topic: ${topic}\n\n` +
+                `Next steps:\n` +
+                `1. Paste into ChatGPT, Claude, or Gemini\n` +
+                `2. Get JSON response\n` +
+                `3. Save as JSON file in src/dataStore/\n` +
+                `4. Click 'Validate & Import' to add to Item Bank`
+            );
+        } catch (e: any) {
+            console.error('Generate failed:', e);
+            alert('Error preparing prompt: ' + e.message);
+        }
+    };
+
+    const handleValidateAndImport = async () => {
+        // Create file input
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+
+        input.onchange = async (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (!file) return;
+
+            try {
+                const text = await file.text();
+                const generator = new CaseStudyGeneratorV2();
+                const caseStudy = generator.parseResponse(text);
+                const validation = generator.validate(caseStudy);
+
+                if (!validation.valid) {
+                    const errorList = validation.errors.slice(0, 5).join('\n');
+                    const more = validation.errors.length > 5 ? `\n... and ${validation.errors.length - 5} more` : '';
+                    alert(`❌ Validation Failed (${validation.errors.length} errors):\n\n${errorList}${more}`);
+                    return;
+                }
+
+                // Valid - add to bank
+                await saveBatchToBank([caseStudy]);
+
+                const warningNote = validation.warnings.length > 0
+                    ? `\n\n⚠️ ${validation.warnings.length} warnings (see console)`
+                    : '';
+
+                alert(`✅ Case Study validated and imported successfully!${warningNote}`);
+                if (validation.warnings.length > 0) {
+                    console.log('Warnings:', validation.warnings);
+                }
+                refreshStats();
+            } catch (e: any) {
+                console.error('Import failed:', e);
+                alert('Error importing: ' + e.message);
+            }
+        };
+
+        input.click();
+    };
+
     return (
         <div className="flex h-full flex-col space-y-8 p-8">
             <div className="flex items-center justify-between space-y-2">
@@ -79,9 +150,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                         <Settings className="mr-2 h-4 w-4" />
                         Settings
                     </Button>
+                    <Button
+                        variant="secondary"
+                        onClick={handleGenerateCaseStudyV2}
+                        style={{ backgroundColor: '#10b981', color: 'white' }}
+                    >
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Generate V2
+                    </Button>
+                    <Button
+                        variant="secondary"
+                        onClick={handleValidateAndImport}
+                        style={{ backgroundColor: '#6366f1', color: 'white' }}
+                    >
+                        <FileCheck className="mr-2 h-4 w-4" />
+                        Validate & Import
+                    </Button>
                     <Button variant="secondary" onClick={handleSeedCaseStudy} style={{ backgroundColor: '#4f46e5', color: 'white' }}>
                         <Database className="mr-2 h-4 w-4" />
-                        Push New Case Study
+                        Push Case Study
                     </Button>
                     <Button onClick={() => onNavigate('batch')}>
                         <Play className="mr-2 h-4 w-4" />

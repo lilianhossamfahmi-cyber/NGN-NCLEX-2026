@@ -8,13 +8,27 @@ export const BowTieRenderer: React.FC<GenericRendererProps> = ({ config, answers
     const isMobile = useMediaQuery('(max-width: 768px)');
     const [isDragging, setIsDragging] = useState<string | null>(null);
 
+    // --- DATA EXTRACTION (Greedy Search Pattern) ---
+    const getPool = (source: any) => Array.isArray(source) ? source : (source?.pool || []);
+
+    const actionsPoolRaw = config.actions || config.structure?.actions || config.content?.structure?.actions || [];
+    const conditionsPoolRaw = config.conditions || config.structure?.conditions || config.content?.structure?.conditions || [];
+    const parametersPoolRaw = config.parameters || config.structure?.parameters || config.content?.structure?.parameters || [];
+
+    const actionPool = getPool(actionsPoolRaw);
+    const conditionPool = getPool(conditionsPoolRaw);
+    const paramPool = getPool(parametersPoolRaw);
+
     // FIX: Use LOCAL state for answers to avoid controlled component flow issues
     // Initialize from props if available, otherwise use default BowTie structure
     const [localAnswers, setLocalAnswers] = useState(() => {
-        const initial = propAnswers && typeof propAnswers === 'object' && (propAnswers.actions || propAnswers.condition || propAnswers.parameters)
-            ? propAnswers
-            : { actions: [null, null], condition: null, parameters: [null, null] };
-        console.log('[BowTieRenderer] Initializing local state:', JSON.stringify(initial));
+        const initial = propAnswers && typeof propAnswers === 'object' && (propAnswers.actions || propAnswers.center || propAnswers.condition || propAnswers.parameters)
+            ? {
+                actions: propAnswers.actions || [null, null],
+                center: propAnswers.center || propAnswers.condition || null,
+                parameters: propAnswers.parameters || [null, null]
+            }
+            : { actions: [null, null], center: null, parameters: [null, null] };
         return initial;
     });
 
@@ -26,37 +40,36 @@ export const BowTieRenderer: React.FC<GenericRendererProps> = ({ config, answers
 
     // Wrapper to update both local state and notify parent
     const setAnswers = useCallback((newAns: any) => {
-        console.log('[BowTieRenderer] setAnswers called:', JSON.stringify(newAns));
+        // Ensure we pass a clean object that includes both 'center' and 'condition' for compatibility
+        const syncedAns = {
+            ...newAns,
+            condition: newAns.center // Backwards compatibility for validator/manager
+        };
         setLocalAnswers(newAns);
-        answersRef.current = newAns; // Update ref immediately
+        answersRef.current = newAns;
         if (parentSetAnswers) {
-            parentSetAnswers(newAns);
+            parentSetAnswers(syncedAns);
         }
     }, [parentSetAnswers]);
 
     // Use local answers for rendering
     const answers = localAnswers;
 
-    // --- DATA NORMALIZATION (Fix for R-01: Support flat arrays vs legacy pool objects) ---
-    // FIX: Also check config.structure fallback for nested format
-    const getPool = (source: any) => Array.isArray(source) ? source : (source?.pool || []);
-    const actionPool = getPool(config.actions || config.structure?.actions);
-    const conditionPool = getPool(config.conditions || config.structure?.conditions);
-    const paramPool = getPool(config.parameters || config.structure?.parameters);
-
-    // DEBUG: Log current state
-    console.log('[BowTieRenderer] Current answers:', JSON.stringify(answers));
-
-
-    // --- HELPER WRAPPERS ---
+    // --- INTERACTION HANDLERS ---
     const handleSelectAction = (id: string, max: number) => {
         if (isSubmitted) return;
-        const current = answers?.actions || [];
-        // Toggle logic with limit
+        const current = [...(answers?.actions || [])];
+
         if (current.includes(id)) {
-            setAnswers({ ...answers, actions: current.filter((x: any) => x !== id) });
+            const index = current.indexOf(id);
+            current[index] = null;
+            setAnswers({ ...answers, actions: current });
         } else {
-            if (current.length < max) {
+            const emptySlot = current.indexOf(null);
+            if (emptySlot !== -1) {
+                current[emptySlot] = id;
+                setAnswers({ ...answers, actions: current });
+            } else if (current.length < max) {
                 setAnswers({ ...answers, actions: [...current, id] });
             }
         }
@@ -64,22 +77,29 @@ export const BowTieRenderer: React.FC<GenericRendererProps> = ({ config, answers
 
     const handleSelectCondition = (id: string) => {
         if (isSubmitted) return;
-        setAnswers({ ...answers, condition: id === answers?.condition ? null : id });
+        setAnswers({ ...answers, center: id === answers?.center ? null : id });
     };
 
     const handleSelectParameter = (id: string, max: number) => {
         if (isSubmitted) return;
-        const current = answers?.parameters || [];
+        const current = [...(answers?.parameters || [])];
+
         if (current.includes(id)) {
-            setAnswers({ ...answers, parameters: current.filter((x: any) => x !== id) });
+            const index = current.indexOf(id);
+            current[index] = null;
+            setAnswers({ ...answers, parameters: current });
         } else {
-            if (current.length < max) {
+            const emptySlot = current.indexOf(null);
+            if (emptySlot !== -1) {
+                current[emptySlot] = id;
+                setAnswers({ ...answers, parameters: current });
+            } else if (current.length < max) {
                 setAnswers({ ...answers, parameters: [...current, id] });
             }
         }
     };
 
-    // --- DRAG HANDLERS (Desktop) ---
+    // --- DRAG HANDLERS ---
     const handleDragStart = (e: React.DragEvent, item: any, category: string) => {
         if (isSubmitted) return;
         e.dataTransfer.setData("item", JSON.stringify({ ...item, category }));
@@ -87,63 +107,53 @@ export const BowTieRenderer: React.FC<GenericRendererProps> = ({ config, answers
         setIsDragging(category);
     };
 
-    const handleDrop = (e: React.DragEvent, slotType: 'actions' | 'condition' | 'parameters', index?: number) => {
+    const handleDrop = (e: React.DragEvent, slotType: 'actions' | 'center' | 'parameters', index?: number) => {
         if (isSubmitted) return;
         e.preventDefault();
         setIsDragging(null);
 
         try {
             const rawData = e.dataTransfer.getData("item");
-            console.log('[BowTie Drop] Raw data:', rawData);
-
-            if (!rawData) {
-                console.error('[BowTie Drop] No data in dataTransfer!');
-                return;
-            }
+            if (!rawData) return;
 
             const data = JSON.parse(rawData);
-            console.log('[BowTie Drop] Parsed data:', data);
-            console.log('[BowTie Drop] SlotType:', slotType, 'Index:', index);
-
-            // FIX: Use ref to get the LATEST answers (not stale closure value)
             const currentAnswers = answersRef.current;
+
             const newAns = {
-                actions: Array.isArray(currentAnswers?.actions) ? [...currentAnswers.actions] : [null, null],
-                condition: currentAnswers?.condition || null,
-                parameters: Array.isArray(currentAnswers?.parameters) ? [...currentAnswers.parameters] : [null, null]
+                actions: [...(currentAnswers?.actions || [null, null])],
+                center: currentAnswers?.center || null,
+                parameters: [...(currentAnswers?.parameters || [null, null])]
             };
 
-            if (slotType === 'condition') {
+            if (slotType === 'center') {
                 const found = conditionPool.find((c: any) => c.id === data.id);
-                console.log('[BowTie Drop] Looking for condition ID:', data.id, 'Found:', !!found);
-                if (found) newAns.condition = data.id;
+                if (found) newAns.center = data.id;
             } else if (index !== undefined) {
                 const pool = slotType === 'actions' ? actionPool : paramPool;
                 const found = pool?.find((c: any) => c.id === data.id);
-                console.log('[BowTie Drop] Looking for', slotType, 'ID:', data.id, 'Pool size:', pool?.length, 'Found:', !!found);
                 if (found) {
-                    // Ensure we have a proper array
-                    if (!Array.isArray(newAns[slotType])) {
-                        newAns[slotType] = [null, null];
-                    }
                     newAns[slotType][index] = data.id;
                 }
             }
 
-            console.log('[BowTie Drop] Setting answers:', JSON.stringify(newAns));
             setAnswers(newAns);
         } catch (err) {
             console.error("Drop failed", err);
         }
     };
 
-    const handleSlotClick = (slotType: 'actions' | 'condition' | 'parameters', index?: number) => {
+    const handleSlotClick = (slotType: 'actions' | 'center' | 'parameters', index?: number) => {
         if (isSubmitted) return;
-        const newAns = { ...answers };
-        if (slotType === 'condition') {
-            newAns.condition = null;
+        const newAns = {
+            actions: [...(answers?.actions || [null, null])],
+            center: answers?.center || null,
+            parameters: [...(answers?.parameters || [null, null])]
+        };
+
+        if (slotType === 'center') {
+            newAns.center = null;
         } else if (index !== undefined) {
-            if (newAns[slotType]) newAns[slotType][index] = null;
+            newAns[slotType][index] = null;
         }
         setAnswers(newAns);
     };
@@ -194,7 +204,7 @@ export const BowTieRenderer: React.FC<GenericRendererProps> = ({ config, answers
                     </div>
                     <div className="space-y-2">
                         {conditionPool.map((opt: any) => {
-                            const isSelected = answers?.condition === opt.id;
+                            const isSelected = answers?.center === opt.id;
                             return (
                                 <div key={opt.id}
                                     onClick={() => !isSubmitted && handleSelectCondition(opt.id)}
@@ -284,22 +294,22 @@ export const BowTieRenderer: React.FC<GenericRendererProps> = ({ config, answers
                 {/* DYNAMIC ARROW 1 */}
                 <DynamicArrow color="#60a5fa" />
 
-                {/* 2. CONDITION */}
+                {/* 2. CENTER CONDITION */}
                 <div className="w-72 flex-shrink-0 flex items-center justify-center z-10 relative">
                     <div className="w-full aspect-square rounded-full border-4 border-purple-400 bg-gradient-to-br from-purple-50 to-purple-100 flex flex-col items-center justify-center shadow-lg relative p-8">
                         <div className="absolute top-6 font-extrabold text-purple-900 uppercase tracking-widest text-xs">Condition</div>
                         <div
                             onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
-                            onDrop={e => handleDrop(e, 'condition')}
-                            onClick={() => handleSlotClick('condition')}
+                            onDrop={e => handleDrop(e, 'center')}
+                            onClick={() => handleSlotClick('center')}
                             className={`w-full h-24 bg-white/80 backdrop-blur border-2 border-dashed border-purple-400 rounded-xl flex items-center justify-center p-2 text-center transition-all cursor-pointer hover:border-solid hover:border-purple-600
-                                ${answers?.condition ? 'border-solid border-purple-600 bg-white shadow-sm' : ''}
+                                ${answers?.center ? 'border-solid border-purple-600 bg-white shadow-sm' : ''}
                             `}
                         >
-                            {answers?.condition ? (
+                            {answers?.center ? (
                                 <SlotContent
-                                    text={conditionPool.find((x: any) => x.id === answers.condition)?.text}
-                                    status={getSlotStatus(answers.condition, conditionPool)}
+                                    text={conditionPool.find((x: any) => x.id === answers.center)?.text}
+                                    status={getSlotStatus(answers.center, conditionPool)}
                                 />
                             ) : <span className="text-purple-400 font-bold text-sm">Drag Condition</span>}
                         </div>
@@ -338,7 +348,7 @@ export const BowTieRenderer: React.FC<GenericRendererProps> = ({ config, answers
             {/* POOLS */}
             <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-[1fr_280px_1fr]'} gap-8 mt-4`}>
                 <PoolColumn title="Action Choices" items={actionPool} currentAnswers={answers?.actions} category="actions" color="blue" onDragStart={handleDragStart} disabled={isSubmitted} />
-                <PoolColumn title="Condition Choices" items={conditionPool} currentAnswers={[answers?.condition]} category="conditions" color="purple" onDragStart={handleDragStart} disabled={isSubmitted} />
+                <PoolColumn title="Condition Choices" items={conditionPool} currentAnswers={[answers?.center]} category="conditions" color="purple" onDragStart={handleDragStart} disabled={isSubmitted} />
                 <PoolColumn title="Parameter Choices" items={paramPool} currentAnswers={answers?.parameters} category="parameters" color="emerald" onDragStart={handleDragStart} disabled={isSubmitted} />
             </div>
 

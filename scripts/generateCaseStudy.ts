@@ -1,58 +1,72 @@
-import dotenv from 'dotenv';
-dotenv.config();
+/**
+ * Generate Case Study Script
+ * 
+ * Prepares the Golden Prompt V2 for a given topic and outputs it for AI processing.
+ * 
+ * Usage:
+ *   npx ts-node scripts/generateCaseStudy.ts "Septic Shock"
+ *   npx ts-node scripts/generateCaseStudy.ts "Acute PE"
+ *   npx ts-node scripts/generateCaseStudy.ts "DKA"
+ */
 
-import { generateQuestions } from '../src/services/questionGenerationService';
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-async function main() {
-    console.log('--- 🚀 GENERATING NEW NCLEX-NGN CASE STUDY 🚀 ---');
+const PROMPT_PATH = path.join(__dirname, '../src/prompts/case-study-golden-v2.md');
+const OUTPUT_DIR = path.join(__dirname, '../src/dataStore');
 
-    // Custom settings for a Level 5 Pulmonary Embolism case
-    const settings: any = {
-        mode: 'ai',
-        selectedReferenceIds: [],
-        targetTypes: ['case-study-6-screen'],
-        quantityPerType: 1,
-        clinicalFocus: ['Respiratory Distress', 'Pulmonary Embolism'],
-        difficultyLevel: 5,
-        temperature: 0.2,
-        manualContext: 'A 68-year-old female post-hip replacement (POD 3) develops sudden onset dyspnea and pleuritic chest pain.',
-        aiPrompt: '',
-        advanced: {
-            includeAnswerKeys: true,
-            includeRationales: true
-        }
-    };
+function main() {
+    const topic = process.argv[2] || 'Acute Asthma Exacerbation';
 
-    try {
-        const response = await generateQuestions(settings, [], (status) => console.log(`[STATUS] ${status}`));
+    console.log('\n╔════════════════════════════════════════════════════════════════╗');
+    console.log('║         NGN CASE STUDY GENERATOR - GOLDEN PROMPT V2           ║');
+    console.log('╚════════════════════════════════════════════════════════════════╝\n');
 
-        if (response.success && response.data && response.data.length > 0) {
-            const item = response.data[0];
-            const fileName = `generated_pe_case_${Date.now()}.json`;
-            const filePath = path.join(__dirname, '../src/dataStore', fileName);
+    console.log(`📋 Topic: ${topic}\n`);
+    console.log('─'.repeat(60));
 
-            fs.writeFileSync(filePath, JSON.stringify(item, null, 4));
-
-            console.log('\n✅ Case Study Generated Successfully!');
-            console.log(`Location: ${filePath}`);
-            console.log(`Title: ${item.metadata?.title || 'Untitled'}`);
-        } else {
-            console.error('❌ Generation Failed:', response.error);
-            // On JSON error we want to see the end of the text
-            if (response.error?.includes('JSON')) {
-                console.log('Response summary or end here would be helpful');
-            }
-            console.log('Full Response Metadata:', { success: response.success, error: response.error });
-        }
-    } catch (error) {
-        console.error('❌ CRASHED during generation:', error);
+    // Load prompt
+    if (!fs.existsSync(PROMPT_PATH)) {
+        console.error(`❌ Prompt file not found: ${PROMPT_PATH}`);
+        process.exit(1);
     }
+
+    const template = fs.readFileSync(PROMPT_PATH, 'utf-8');
+    const prompt = template.replace(/\{TOPIC\}/g, topic);
+
+    // Save prompt to temp file for easy copying
+    const promptOutputPath = path.join(OUTPUT_DIR, `_prompt_${topic.replace(/\s+/g, '_').toLowerCase()}.md`);
+    fs.writeFileSync(promptOutputPath, prompt, 'utf-8');
+
+    console.log(`\n✅ Prompt prepared (${prompt.length} characters)`);
+    console.log(`📁 Saved to: ${promptOutputPath}\n`);
+
+    console.log('─'.repeat(60));
+    console.log('\n🚀 NEXT STEPS:\n');
+    console.log('   1. Open the prompt file above OR copy from console below');
+    console.log('   2. Paste into ChatGPT, Claude, or Gemini');
+    console.log('   3. Get the JSON response');
+    console.log('   4. Save the response as a .json file in src/dataStore/');
+    console.log('   5. Run validation:');
+    console.log(`      npx ts-node scripts/validate_case_study.ts src/dataStore/[your-file].json\n`);
+
+    console.log('─'.repeat(60));
+    console.log('\n📝 PROMPT PREVIEW (first 500 chars):\n');
+    console.log(prompt.substring(0, 500) + '...\n');
+
+    console.log('─'.repeat(60));
+    console.log('\n💡 QUICK VALIDATION COMMANDS:\n');
+    console.log('   # Validate a single case:');
+    console.log('   npx ts-node scripts/validate_case_study.ts src/dataStore/my_case.json\n');
+    console.log('   # Validate all cases in dataStore:');
+    console.log('   for f in src/dataStore/*.json; do npx ts-node scripts/validate_case_study.ts "$f"; done\n');
+
+    console.log('═'.repeat(60));
+    console.log('\n✨ Generation complete! Good luck with your case study.\n');
 }
 
 main();

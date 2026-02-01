@@ -10,14 +10,14 @@ import {
 } from './standard';
 import { BowTieItemSchema } from './bowtie';
 
-// Union of all possible screen types
+// Union of all possible screen types - PASSTHROUGH ENABLED for Data Fidelity
 const CaseStudyScreenItemSchema = z.union([
-    HighlightItemSchema,
-    MatrixItemSchema,
-    OrderedResponseSchema,
-    DropClozeItemSchema,
-    BowTieItemSchema,
-    OptionBasedItemSchema // Covers multiple-response (Screen 6)
+    HighlightItemSchema.passthrough(),
+    MatrixItemSchema.passthrough(),
+    OrderedResponseSchema.passthrough(),
+    DropClozeItemSchema.passthrough(),
+    BowTieItemSchema.passthrough(),
+    OptionBasedItemSchema.passthrough() // Covers multiple-response (Screen 6)
 ]);
 
 export const CaseStudySchema = z.object({
@@ -33,7 +33,9 @@ export const CaseStudySchema = z.object({
     metadata: MetadataSchema.optional(),
 
     structure: z.object({
-        type: z.literal('case-study').optional(), // Redundant but often present
-        screens: z.array(CaseStudyScreenItemSchema).length(6) // Strictly 6 screens per NGN standard
-    })
-});
+        type: z.literal('case-study').optional(),
+        // FIX: Allow 1+ screens (Draft Mode)
+        // FIX: .passthrough() preserves rich AI fields
+        screens: z.array(CaseStudyScreenItemSchema).min(1)
+    }).passthrough()
+}).passthrough(); // Allow extra root keys (e.g. aiReasoning, generationStats)

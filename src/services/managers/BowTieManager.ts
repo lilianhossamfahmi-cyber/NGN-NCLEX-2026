@@ -157,7 +157,7 @@ export class BowTieManager extends AbstractItemManager {
 
         // 1. Grade Condition (Center)
         const correctCond = correctContent.content?.structure?.conditions.find((c: any) => c.isCorrect)?.id;
-        const userCond = userAnswer.conditions?.[0]; // ID string
+        const userCond = userAnswer.center || userAnswer.condition || userAnswer.conditions?.[0]; // ID string
         if (userCond === correctCond) {
             score += 1;
         } else {

@@ -89,6 +89,13 @@ export const HighlightRenderer: React.FC<GenericRendererProps> = ({ config, answ
         }
     `;
 
+    // GREEDY SEARCH FOR CONTENT (Fix for Data Entropy)
+    // We search across root, structure, and content.structure to find the data
+    const text = config.text || config.structure?.text || config.content?.structure?.text || "";
+    const rationales = config.rationales || config.structure?.rationales || config.content?.structure?.rationales || {};
+    const correctIds = config.correct || config.structure?.correct || config.content?.structure?.correct ||
+        config.correctIds || config.structure?.correctIds || config.content?.structure?.correctIds || [];
+
     // Normalize answers array
     const userSelections: string[] = useMemo(() => {
         if (!answers) return [];
@@ -98,15 +105,15 @@ export const HighlightRenderer: React.FC<GenericRendererProps> = ({ config, answ
     // Counter
     const selectionCount = userSelections.length;
     // Attempt to find max limit from config if specified, else generic
-    const maxSelections = config.maxSelections || config.correct?.length || config.correctIds?.length;
+    const maxSelections = config.maxSelections || correctIds.length;
 
     // Text Normalization & Item Extraction
     // ... (Same Logic as previous renderer for extraction)
-    const normalizeText = (text: string) => text.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "").replace(/\s+/g, " ").trim();
+    const normalizeText = (t: string) => t.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "").replace(/\s+/g, " ").trim();
 
     const highlightItems: HighlightItem[] = useMemo(() => {
         const items: HighlightItem[] = [];
-        const html = config.text || '';
+        const html = text;
         const correctSet = new Set<string>();
 
         const addToCorrect = (val: any) => {
@@ -115,23 +122,32 @@ export const HighlightRenderer: React.FC<GenericRendererProps> = ({ config, answ
             correctSet.add(normalizeText(String(val)));
         };
 
-        if (config.correct && Array.isArray(config.correct)) config.correct.forEach(addToCorrect);
-        // ... (Include other config variations if needed) 
-        if (config.correctIds && Array.isArray(config.correctIds)) config.correctIds.forEach(addToCorrect);
+        if (Array.isArray(correctIds)) {
+            correctIds.forEach(addToCorrect);
+        }
 
         // Parse HTML for spans
         const regex = /<span[^>]*id=["']([^"']+)["'][^>]*>(.*?)<\/span>/gi;
         let match;
         while ((match = regex.exec(html)) !== null) {
             const id = match[1];
-            const text = match[2];
-            const cleanText = text.trim();
+            const contentText = match[2];
+            const cleanText = contentText.trim();
             const normText = normalizeText(cleanText);
             const isCorrect = correctSet.has(id) || correctSet.has(cleanText) || correctSet.has(normText);
-            items.push({ id, text: cleanText, isCorrect });
+
+            // Assign rationale if it exists in the greedy rationales object
+            const itemRationale = rationales[id] || rationales[cleanText] || rationales[normText];
+
+            items.push({
+                id,
+                text: cleanText,
+                isCorrect,
+                rationale: typeof itemRationale === 'object' ? itemRationale.whyCorrect : itemRationale
+            });
         }
         return items;
-    }, [config]);
+    }, [text, correctIds, rationales]);
 
     // Handlers
     const toggleId = (id: string) => {
@@ -170,7 +186,7 @@ export const HighlightRenderer: React.FC<GenericRendererProps> = ({ config, answ
 
     // Render HTML with attributes
     const getProcessedHtml = () => {
-        let html = config.text || '';
+        let html = text;
         html = html.replace(/<span\s+([^>]*?)id=["']([^"']+)["']([^>]*?)>(.*?)<\/span>/gi,
             (_match: string, preAttrs: string, id: string, postAttrs: string, content: string) => {
                 const item = highlightItems.find(i => i.id === id);

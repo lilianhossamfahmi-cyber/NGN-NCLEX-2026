@@ -1,415 +1,444 @@
 {
-  "id": "cs-david-asthma-emergency-001",
-  "type": "case-study",
-  "metadata": {
-    "title": "Case Study: Acute Asthma Exacerbation (David).",
-    "clinicalFocus": "Respiratory / Status Asthmaticus.",
+    "id": "cs-david-asthma-emergency-001",
+    "type": "case-study",
+    "metadata": {
+        "title": "Case Study: Acute Asthma Exacerbation (David).",
+        "clinicalFocus": "Respiratory / Status Asthmaticus.",
+        "difficulty": 5,
+        "authorId": "Expert_AI",
+        "status": "Published",
+        "qualityScore": 100,
+        "difficultyLevel": 5,
+        "createdAt": "2026-01-30T13:04:49.052Z.",
+        "updatedAt": "2026-01-30T13:43:13.590Z.",
+        "hasStudentPreview": true,
+        "sourceOrigin": "Ai",
+        "batchInfo": {
+            "batchId": "unified",
+            "batchSize": 1,
+            "temperature": 0,
+            "generationDate": "2026-01-30T13:04:49.052Z."
+        }
+    },
+    "content": {
+        "clinicalData": {
+            "vitals": [
+                {
+                    "time": "0800",
+                    "tempF": "98.6",
+                    "hr": 108,
+                    "rr": 32,
+                    "bp": "140/90",
+                    "o2": "91",
+                    "o2_device": "RA",
+                    "pain": 0
+                },
+                {
+                    "time": "0830",
+                    "tempF": "98.6",
+                    "hr": 125,
+                    "rr": 38,
+                    "bp": "148/92",
+                    "o2": "88",
+                    "o2_device": "RA",
+                    "pain": 0
+                }
+            ],
+            "labs": [
+                {
+                    "test": "PH",
+                    "value": "7.42",
+                    "unit": "",
+                    "ref": "7.35-7.45",
+                    "flag": ""
+                },
+                {
+                    "test": "PaCO2",
+                    "value": "35",
+                    "unit": "",
+                    "ref": "35-45",
+                    "flag": ""
+                }
+            ],
+            "patientInfo": {
+                "name": "Client, A.",
+                "age": "Unknown",
+                "gender": "O",
+                "codeStatus": "FULL CODE.",
+                "admissionDate": "1/30/2026 07:30.",
+                "room": "MedSurg-12.",
+                "physician": "Dr. S. Specialist.",
+                "nurse": "RN Staff.",
+                "allergies": "NKDA",
+                "isolation": "Standard Precautions.",
+                "history": [],
+                "homeMeds": []
+            },
+            "orders": [],
+            "history": [],
+            "historyPhysical": "Chief complaint and history documented.",
+            "radiology": [],
+            "setting": "MedSurg Unit."
+        },
+        "structure": {
+            "screens": [
+                {
+                    "id": "s1",
+                    "type": "highlight",
+                    "cjmmStep": "Recognize Cues.",
+                    "prompt": "Highlight the findings that indicate impending respiratory failure.",
+                    "text": "David presents with <span id='h1'>tripod positioning</span> and <span id='h2'>audible wheezing</span>. Vital signs show <span id='h3'>RR 38</span> and <span id='h4'>HR 125</span>. Lung sounds are now <span id='h5'>diminished throughout</span>. He is <span id='h6'>speaking in one-word sentences</span>.",
+                    "correct": [
+                        "H3",
+                        "H5",
+                        "H6"
+                    ],
+                    "rationales": {
+                        "h3": {
+                            "isCorrect": true,
+                            "whyCorrect": "Severe tachypnea indicates high work of breathing.",
+                            "whyIncorrect": ""
+                        },
+                        "h5": {
+                            "isCorrect": true,
+                            "whyCorrect": "Diminished sounds (Silent Chest) indicate minimal air movement.",
+                            "whyIncorrect": ""
+                        },
+                        "h6": {
+                            "isCorrect": true,
+                            "whyCorrect": "One-word sentences indicate extreme dyspnea.",
+                            "whyIncorrect": ""
+                        }
+                    },
+                    "cjmmPhase": "Recognize Cues."
+                },
+                {
+                    "id": "s2",
+                    "type": "matrix",
+                    "cjmmStep": "Analyze Cues.",
+                    "prompt": "Categorize the following clinical findings as either Expected Therapy Outcome or Worsening Status.",
+                    "columns": [
+                        {
+                            "id": "c1",
+                            "text": "Expected Therapy Outcome."
+                        },
+                        {
+                            "id": "c2",
+                            "text": "Worsening Status."
+                        }
+                    ],
+                    "rows": [
+                        {
+                            "id": "r1",
+                            "text": "Heart rate increasing from 108 to 115 bpm.",
+                            "correctColumnId": "c1",
+                            "rationale": "Beta-2 agonists like Albuterol are known to cause tachycardia as a systemic side effect.",
+                            "correctColumnIds": [
+                                "c1"
+                            ]
+                        },
+                        {
+                            "id": "r2",
+                            "text": "Decreased wheezing with diminished breath sounds.",
+                            "correctColumnId": "c2",
+                            "rationale": "This indicates 'silent chest,' suggesting air movement is so restricted that wheezing stops.",
+                            "correctColumnIds": [
+                                "c2"
+                            ]
+                        },
+                        {
+                            "id": "r3",
+                            "text": "PH shifting from 7.42 to 7.32.",
+                            "correctColumnId": "c2",
+                            "rationale": "A shift from alkalosis to acidosis indicates the patient is tiring and retaining CO2.",
+                            "correctColumnIds": [
+                                "c2"
+                            ]
+                        },
+                        {
+                            "id": "r4",
+                            "text": "Fine tremors in both hands.",
+                            "correctColumnId": "c1",
+                            "rationale": "Skeletal muscle tremor is a frequent, expected side effect of high-dose bronchodilators.",
+                            "correctColumnIds": [
+                                "c1"
+                            ]
+                        },
+                        {
+                            "id": "r5",
+                            "text": "Development of a 'normal' PaCO2 of 40 mmHg.",
+                            "correctColumnId": "c2",
+                            "rationale": "In a severe attack, the PaCO2 should be low. A 'normal' value means the patient is failing to compensate.",
+                            "correctColumnIds": [
+                                "c2"
+                            ]
+                        }
+                    ],
+                    "cjmmPhase": "Analyze Cues."
+                },
+                {
+                    "id": "s3",
+                    "type": "multiple-choice",
+                    "cjmmStep": "Prioritize Hypotheses.",
+                    "prompt": "Which interpretation of the recent ABG results is most accurate?",
+                    "options": [
+                        {
+                            "id": "o1",
+                            "text": "Anxiety response.",
+                            "isCorrect": false,
+                            "rationale": "Anxiety is a psychosocial response; physical gas exchange must be secured first."
+                        },
+                        {
+                            "id": "o2",
+                            "text": "Acute bronchoconstriction.",
+                            "isCorrect": false,
+                            "rationale": "Bronchoconstriction is the cause, but the priority is the resulting failure to exchange gases."
+                        },
+                        {
+                            "id": "o3",
+                            "text": "Impending respiratory failure.",
+                            "isCorrect": true,
+                            "rationale": "The ABG results confirm David is now retaining CO2, indicating he can no longer effectively ventilate."
+                        },
+                        {
+                            "id": "o4",
+                            "text": "Expected side effects.",
+                            "isCorrect": false,
+                            "rationale": "Side effects are expected and secondary to the respiratory emergency."
+                        }
+                    ],
+                    "optionReviews": [
+                        {
+                            "optionId": "o1",
+                            "isCorrect": false,
+                            "whyCorrect": "",
+                            "whyIncorrect": "Anxiety is a psychosocial response; physical gas exchange must be secured first."
+                        },
+                        {
+                            "optionId": "o2",
+                            "isCorrect": false,
+                            "whyCorrect": "",
+                            "whyIncorrect": "Bronchoconstriction is the cause, but the priority is the resulting failure to exchange gases."
+                        },
+                        {
+                            "optionId": "o3",
+                            "isCorrect": true,
+                            "whyCorrect": "The ABG results confirm David is now retaining CO2, indicating he can no longer effectively ventilate.",
+                            "whyIncorrect": ""
+                        },
+                        {
+                            "optionId": "o4",
+                            "isCorrect": false,
+                            "whyCorrect": "",
+                            "whyIncorrect": "Side effects are expected and secondary to the respiratory emergency."
+                        }
+                    ],
+                    "cjmmPhase": "Prioritize Hypotheses."
+                },
+                {
+                    "id": "s4",
+                    "type": "bow-tie",
+                    "cjmmStep": "Generate Solutions.",
+                    "prompt": "Complete the Bow-Tie for David's priority needs.",
+                    "actions": [
+                        {
+                            "id": "a1",
+                            "text": "Administer Magnesium Sulfate IV.",
+                            "isCorrect": true,
+                            "rationale": "Magnesium sulfate is a smooth muscle relaxant that helps bronchodilation in severe, refractory asthma."
+                        },
+                        {
+                            "id": "a2",
+                            "text": "Prepare for endotracheal intubation.",
+                            "isCorrect": true,
+                            "rationale": "With impending respiratory failure, intubation equipment must be immediately available."
+                        }
+                    ],
+                    "conditions": [
+                        {
+                            "id": "c1",
+                            "text": "Status Asthmaticus.",
+                            "isCorrect": true,
+                            "rationale": "David meets criteria for status asthmaticus: severe bronchospasm unresponsive to initial therapy with rising CO2."
+                        }
+                    ],
+                    "parameters": [
+                        {
+                            "id": "p1",
+                            "text": "End-tidal CO2 (EtCO2).",
+                            "isCorrect": true,
+                            "rationale": "EtCO2 provides real-time monitoring of ventilation status and CO2 retention."
+                        },
+                        {
+                            "id": "p2",
+                            "text": "Peak expiratory flow.",
+                            "isCorrect": true,
+                            "rationale": "Peak flow measures airway obstruction severity and response to bronchodilator therapy."
+                        }
+                    ],
+                    "connections": {
+                        "c1": {
+                            "actions": [
+                                "A1",
+                                "A2"
+                            ],
+                            "parameters": [
+                                "P1",
+                                "P2"
+                            ]
+                        }
+                    },
+                    "cjmmPhase": "Generate Solutions."
+                },
+                {
+                    "id": "s5",
+                    "type": "drop-cloze",
+                    "cjmmStep": "Take Action.",
+                    "prompt": "Complete the following sentence regarding the appropriate nursing actions for David.",
+                    "text": "The nurse should place David in a %{d1}% position and ensure that %{d2}% is available at the bedside.",
+                    "dropdowns": [
+                        {
+                            "id": "d1",
+                            "options": [
+                                {
+                                    "id": "d1-o0",
+                                    "text": "High-Fowler's.",
+                                    "isCorrect": true,
+                                    "rationale": "High-Fowler's position maximizes chest expansion and diaphragmatic excursion for a patient in respiratory distress."
+                                },
+                                {
+                                    "id": "d1-o1",
+                                    "text": "Supine",
+                                    "isCorrect": false,
+                                    "rationale": "Supine position restricts lung expansion and increases work of breathing in respiratory distress."
+                                },
+                                {
+                                    "id": "d1-o2",
+                                    "text": "Prone",
+                                    "isCorrect": false,
+                                    "rationale": "Prone positioning is used for ARDS patients on mechanical ventilation, not conscious patients with asthma."
+                                },
+                                {
+                                    "id": "d1-o3",
+                                    "text": "Trendelenburg.",
+                                    "isCorrect": false,
+                                    "rationale": "Trendelenburg (head down) would severely impair breathing by pushing abdominal contents against the diaphragm."
+                                }
+                            ],
+                            "correctAnswer": "High-Fowler's."
+                        },
+                        {
+                            "id": "d2",
+                            "options": [
+                                {
+                                    "id": "d2-o0",
+                                    "text": "Suction equipment.",
+                                    "isCorrect": true,
+                                    "rationale": "Suction is vital for clearing secretions if the patient tires and can't cough effectively."
+                                },
+                                {
+                                    "id": "d2-o1",
+                                    "text": "A chest tube insertion kit.",
+                                    "isCorrect": false,
+                                    "rationale": "Chest tubes are for pneumothorax, not standard asthma management."
+                                },
+                                {
+                                    "id": "d2-o2",
+                                    "text": "Oral hygiene supplies.",
+                                    "isCorrect": false,
+                                    "rationale": "Oral hygiene is important but not an emergency priority in respiratory failure."
+                                },
+                                {
+                                    "id": "d2-o3",
+                                    "text": "IV pump.",
+                                    "isCorrect": false,
+                                    "rationale": "IV access should already be established; an additional pump is not the bedside priority."
+                                }
+                            ],
+                            "correctAnswer": "Suction equipment."
+                        }
+                    ],
+                    "rationale": {
+                        "coreConcept": "Immediate Safety Interventions.",
+                        "clozeReview": "High-Fowler's position (d1) allows for maximum chest expansion. Suction equipment (d2) is vital for clearing potential secretions if the patient tires and can't cough effectively.",
+                        "clinicalStrategy": "Focus on mechanical support of ventilation and emergency preparedness.",
+                        "mnemonic": {
+                            "title": "Airway Safety.",
+                            "content": "P-S",
+                            "explanation": "P: Position (Upright); S: Suction (Available)."
+                        },
+                        "difficulty": 3
+                    },
+                    "cjmmPhase": "Take Action."
+                },
+                {
+                    "id": "s6",
+                    "type": "multiple-response",
+                    "cjmmStep": "Evaluate Outcomes.",
+                    "prompt": "Which findings indicate an improvement in David's condition? Select all that apply.",
+                    "options": [
+                        {
+                            "id": "o1",
+                            "text": "Audible wheezing returning in previously silent areas.",
+                            "isCorrect": true,
+                            "rationale": "Return of wheezing indicates air is now moving through previously obstructed airways—a paradoxically positive sign."
+                        },
+                        {
+                            "id": "o2",
+                            "text": "Heart rate decreasing to 90 bpm.",
+                            "isCorrect": true,
+                            "rationale": "Decreased heart rate indicates reduced work of breathing and improved oxygenation."
+                        },
+                        {
+                            "id": "o3",
+                            "text": "PaCO2 decreased to 38 mmHg.",
+                            "isCorrect": true,
+                            "rationale": "Normalizing PaCO2 indicates the patient is ventilating effectively again."
+                        },
+                        {
+                            "id": "o4",
+                            "text": "Presence of fine hand tremors.",
+                            "isCorrect": false,
+                            "rationale": "Hand tremors are an expected side effect of beta-agonists, not an indicator of clinical improvement."
+                        }
+                    ],
+                    "cjmmPhase": "Evaluate Outcomes."
+                }
+            ],
+            "type": "case-study",
+            "prompt": "Review the case study and answer the question.",
+            "difficulty": 5
+        },
+        "rationale": {
+            "coreConcept": "Clinical Judgment.",
+            "caseSummary": "Clinical scenario analysis required.",
+            "answerAnalysis": "See option review for detailed analysis.",
+            "goldenRule": "Prioritize patient safety.",
+            "steps": [],
+            "difficulty": {
+                "level": 5,
+                "score": 100,
+                "label": "Evaluation.",
+                "clinicalStrategy": "Level 5 clinical reasoning required.",
+                "recommendedActions": [
+                    "Practice advanced scenarios."
+                ]
+            },
+            "clinicalStrategy": "Level 5 clinical reasoning required."
+        },
+        "patient": {
+            "age": "Unknown",
+            "gender": "Unknown",
+            "diagnosis": "Pending"
+        }
+    },
+    "pedagogy": {
+        "difficultyLevel": 5,
+        "clinicalFocus": "Respiratory / Status Asthmaticus."
+    },
     "difficulty": 5,
-    "authorId": "Expert_AI",
-    "status": "Published",
-    "qualityScore": 100,
     "difficultyLevel": 5,
-    "createdAt": "2026-01-30T13:04:49.052Z.",
-    "updatedAt": "2026-01-30T13:43:13.590Z.",
-    "hasStudentPreview": true,
-    "sourceOrigin": "Ai",
-    "batchInfo": {
-      "batchId": "unified",
-      "batchSize": 1,
-      "temperature": 0,
-      "generationDate": "2026-01-30T13:04:49.052Z."
-    }
-  },
-  "content": {
-    "clinicalData": {
-      "vitals": [
-        {
-          "time": "0800",
-          "tempF": "98.6",
-          "hr": 108,
-          "rr": 32,
-          "bp": "140/90",
-          "o2": "91",
-          "o2_device": "RA",
-          "pain": 0
-        },
-        {
-          "time": "0830",
-          "tempF": "98.6",
-          "hr": 125,
-          "rr": 38,
-          "bp": "148/92",
-          "o2": "88",
-          "o2_device": "RA",
-          "pain": 0
-        }
-      ],
-      "labs": [
-        {
-          "test": "PH",
-          "value": "7.42",
-          "unit": "",
-          "ref": "7.35-7.45",
-          "flag": ""
-        },
-        {
-          "test": "PaCO2",
-          "value": "35",
-          "unit": "",
-          "ref": "35-45",
-          "flag": ""
-        }
-      ],
-      "patientInfo": {
-        "name": "Client, A.",
-        "age": "Unknown",
-        "gender": "O",
-        "codeStatus": "FULL CODE.",
-        "admissionDate": "1/30/2026 07:30.",
-        "room": "MedSurg-12.",
-        "physician": "Dr. S. Specialist.",
-        "nurse": "RN Staff.",
-        "allergies": "NKDA",
-        "isolation": "Standard Precautions.",
-        "history": [],
-        "homeMeds": []
-      },
-      "orders": [],
-      "history": [],
-      "historyPhysical": "Chief complaint and history documented.",
-      "radiology": [],
-      "setting": "MedSurg Unit."
-    },
-    "structure": {
-      "screens": [
-        {
-          "id": "s1",
-          "type": "highlight",
-          "cjmmStep": "Recognize Cues.",
-          "prompt": "Highlight the findings that indicate impending respiratory failure.",
-          "text": "David presents with <span id='h1'>tripod positioning</span> and <span id='h2'>audible wheezing</span>. Vital signs show <span id='h3'>RR 38</span> and <span id='h4'>HR 125</span>. Lung sounds are now <span id='h5'>diminished throughout</span>. He is <span id='h6'>speaking in one-word sentences</span>.",
-          "correct": [
-            "H3",
-            "H5",
-            "H6"
-          ],
-          "rationales": {
-            "h3": {
-              "isCorrect": true,
-              "whyCorrect": "Severe tachypnea indicates high work of breathing.",
-              "whyIncorrect": ""
-            },
-            "h5": {
-              "isCorrect": true,
-              "whyCorrect": "Diminished sounds (Silent Chest) indicate minimal air movement.",
-              "whyIncorrect": ""
-            },
-            "h6": {
-              "isCorrect": true,
-              "whyCorrect": "One-word sentences indicate extreme dyspnea.",
-              "whyIncorrect": ""
-            }
-          },
-          "cjmmPhase": "Recognize Cues."
-        },
-        {
-          "id": "s2",
-          "type": "matrix",
-          "cjmmStep": "Analyze Cues.",
-          "prompt": "Categorize the following clinical findings as either Expected Therapy Outcome or Worsening Status.",
-          "columns": [
-            {
-              "id": "c1",
-              "text": "Expected Therapy Outcome."
-            },
-            {
-              "id": "c2",
-              "text": "Worsening Status."
-            }
-          ],
-          "rows": [
-            {
-              "id": "r1",
-              "text": "Heart rate increasing from 108 to 115 bpm.",
-              "correctColumnId": "c1",
-              "rationale": "Beta-2 agonists like Albuterol are known to cause tachycardia as a systemic side effect.",
-              "correctColumnIds": [
-                "c1"
-              ]
-            },
-            {
-              "id": "r2",
-              "text": "Decreased wheezing with diminished breath sounds.",
-              "correctColumnId": "c2",
-              "rationale": "This indicates 'silent chest,' suggesting air movement is so restricted that wheezing stops.",
-              "correctColumnIds": [
-                "c2"
-              ]
-            },
-            {
-              "id": "r3",
-              "text": "PH shifting from 7.42 to 7.32.",
-              "correctColumnId": "c2",
-              "rationale": "A shift from alkalosis to acidosis indicates the patient is tiring and retaining CO2.",
-              "correctColumnIds": [
-                "c2"
-              ]
-            },
-            {
-              "id": "r4",
-              "text": "Fine tremors in both hands.",
-              "correctColumnId": "c1",
-              "rationale": "Skeletal muscle tremor is a frequent, expected side effect of high-dose bronchodilators.",
-              "correctColumnIds": [
-                "c1"
-              ]
-            },
-            {
-              "id": "r5",
-              "text": "Development of a 'normal' PaCO2 of 40 mmHg.",
-              "correctColumnId": "c2",
-              "rationale": "In a severe attack, the PaCO2 should be low. A 'normal' value means the patient is failing to compensate.",
-              "correctColumnIds": [
-                "c2"
-              ]
-            }
-          ],
-          "cjmmPhase": "Analyze Cues."
-        },
-        {
-          "id": "s3",
-          "type": "multiple-choice",
-          "cjmmStep": "Prioritize Hypotheses.",
-          "prompt": "Which interpretation of the recent ABG results is most accurate?",
-          "options": [
-            {
-              "id": "o1",
-              "text": "Anxiety response.",
-              "isCorrect": true
-            },
-            {
-              "id": "o2",
-              "text": "Acute bronchoconstriction."
-            },
-            {
-              "id": "o3",
-              "text": "Impending respiratory failure."
-            },
-            {
-              "id": "o4",
-              "text": "Expected side effects."
-            }
-          ],
-          "optionReviews": [
-            {
-              "optionId": "o1",
-              "isCorrect": false,
-              "whyCorrect": "",
-              "whyIncorrect": "Anxiety is a psychosocial response; physical gas exchange must be secured first."
-            },
-            {
-              "optionId": "o2",
-              "isCorrect": false,
-              "whyCorrect": "",
-              "whyIncorrect": "Bronchoconstriction is the cause, but the priority is the resulting failure to exchange gases."
-            },
-            {
-              "optionId": "o3",
-              "isCorrect": true,
-              "whyCorrect": "The ABG results confirm David is now retaining CO2, indicating he can no longer effectively ventilate.",
-              "whyIncorrect": ""
-            },
-            {
-              "optionId": "o4",
-              "isCorrect": false,
-              "whyCorrect": "",
-              "whyIncorrect": "Side effects are expected and secondary to the respiratory emergency."
-            }
-          ],
-          "cjmmPhase": "Prioritize Hypotheses."
-        },
-        {
-          "id": "s4",
-          "type": "bow-tie",
-          "cjmmStep": "Generate Solutions.",
-          "prompt": "Complete the Bow-Tie for David's priority needs.",
-          "actions": [
-            {
-              "id": "a1",
-              "content": "Administer Magnesium Sulfate IV."
-            },
-            {
-              "id": "a2",
-              "content": "Prepare for endotracheal intubation."
-            }
-          ],
-          "conditions": [
-            {
-              "id": "c1",
-              "content": "Status Asthmaticus."
-            }
-          ],
-          "parameters": [
-            {
-              "id": "p1",
-              "content": "End-tidal CO2 (EtCO2)."
-            },
-            {
-              "id": "p2",
-              "content": "Peak expiratory flow."
-            }
-          ],
-          "connections": {
-            "c1": {
-              "actions": [
-                "A1",
-                "A2"
-              ],
-              "parameters": [
-                "P1",
-                "P2"
-              ]
-            }
-          },
-          "cjmmPhase": "Generate Solutions."
-        },
-        {
-          "id": "s5",
-          "type": "drop-cloze",
-          "cjmmStep": "Take Action.",
-          "prompt": "Complete the following sentence regarding the appropriate nursing actions for David.",
-          "text": "The nurse should place David in a %{d1}% position and ensure that %{d2}% is available at the bedside.",
-          "dropdowns": [
-            {
-              "id": "d1",
-              "options": [
-                {
-                  "id": "d1-o0",
-                  "text": "High-Fowler's.",
-                  "isCorrect": true
-                },
-                {
-                  "id": "d1-o1",
-                  "text": "Supine",
-                  "isCorrect": false
-                },
-                {
-                  "id": "d1-o2",
-                  "text": "Prone",
-                  "isCorrect": false
-                },
-                {
-                  "id": "d1-o3",
-                  "text": "Trendelenburg.",
-                  "isCorrect": false
-                }
-              ],
-              "correctAnswer": "High-Fowler's."
-            },
-            {
-              "id": "d2",
-              "options": [
-                {
-                  "id": "d2-o0",
-                  "text": "Suction equipment.",
-                  "isCorrect": true
-                },
-                {
-                  "id": "d2-o1",
-                  "text": "A chest tube insertion kit.",
-                  "isCorrect": false
-                },
-                {
-                  "id": "d2-o2",
-                  "text": "Oral hygiene supplies.",
-                  "isCorrect": false
-                },
-                {
-                  "id": "d2-o3",
-                  "text": "IV pump.",
-                  "isCorrect": false
-                }
-              ],
-              "correctAnswer": "Suction equipment."
-            }
-          ],
-          "rationale": {
-            "coreConcept": "Immediate Safety Interventions.",
-            "clozeReview": "High-Fowler's position (d1) allows for maximum chest expansion. Suction equipment (d2) is vital for clearing potential secretions if the patient tires and can't cough effectively.",
-            "clinicalStrategy": "Focus on mechanical support of ventilation and emergency preparedness.",
-            "mnemonic": {
-              "title": "Airway Safety.",
-              "content": "P-S",
-              "explanation": "P: Position (Upright); S: Suction (Available)."
-            },
-            "difficulty": 3
-          },
-          "cjmmPhase": "Take Action."
-        },
-        {
-          "id": "s6",
-          "type": "multiple-response",
-          "cjmmStep": "Evaluate Outcomes.",
-          "prompt": "Which findings indicate an improvement in David's condition? Select all that apply.",
-          "options": [
-            {
-              "id": "o1",
-              "text": "Audible wheezing returning in previously silent areas.",
-              "isCorrect": true
-            },
-            {
-              "id": "o2",
-              "text": "Heart rate decreasing to 90 bpm.",
-              "isCorrect": true
-            },
-            {
-              "id": "o3",
-              "text": "PaCO2 decreased to 38 mmHg.",
-              "isCorrect": true
-            },
-            {
-              "id": "o4",
-              "text": "Presence of fine hand tremors.",
-              "isCorrect": false
-            }
-          ],
-          "cjmmPhase": "Evaluate Outcomes."
-        }
-      ],
-      "type": "case-study",
-      "prompt": "Review the case study and answer the question.",
-      "difficulty": 5
-    },
-    "rationale": {
-      "coreConcept": "Clinical Judgment.",
-      "caseSummary": "Clinical scenario analysis required.",
-      "answerAnalysis": "See option review for detailed analysis.",
-      "goldenRule": "Prioritize patient safety.",
-      "steps": [],
-      "difficulty": {
-        "level": 5,
-        "score": 100,
-        "label": "Evaluation.",
-        "clinicalStrategy": "Level 5 clinical reasoning required.",
-        "recommendedActions": [
-          "Practice advanced scenarios."
-        ]
-      },
-      "clinicalStrategy": "Level 5 clinical reasoning required."
-    },
-    "patient": {
-      "age": "Unknown",
-      "gender": "Unknown",
-      "diagnosis": "Pending"
-    }
-  },
-  "pedagogy": {
-    "difficultyLevel": 5,
-    "clinicalFocus": "Respiratory / Status Asthmaticus."
-  },
-  "difficulty": 5,
-  "difficultyLevel": 5,
-  "typeId": "case-study",
-  "_unifiedPipelineProcessed": true,
-  "_sanitized": true
+    "typeId": "case-study",
+    "_unifiedPipelineProcessed": true,
+    "_sanitized": true
 }

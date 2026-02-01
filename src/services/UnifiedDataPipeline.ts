@@ -836,8 +836,37 @@ export class UnifiedDataPipeline {
     private static normalizeMatrix(item: any, source: any): void {
         const s = item.content.structure;
 
-        s.rows = source.rows || [];
-        s.columns = source.columns || [];
+        // Normalize Columns
+        const columns = source.columns || [];
+        s.columns = Array.isArray(columns)
+            ? columns.map((col: any, idx: number) => ({
+                id: col.id || `c_${idx}`,
+                text: typeof col === 'string' ? col : (col.text || col.label || 'Option')
+            }))
+            : [];
+
+        // Normalize Rows - STRICT PRESERVATION
+        const rows = source.rows || [];
+        s.rows = Array.isArray(rows)
+            ? rows.map((row: any, idx: number) => {
+                // If the AI gave a simple string, we must wrap it but we lose scoring data
+                if (typeof row === 'string') {
+                    return {
+                        id: `r_${idx}`,
+                        text: row,
+                        correctColumnId: null // Data loss warning
+                    };
+                }
+
+                // If it's an object, we MUST preserve keys
+                return {
+                    id: row.id || `r_${idx}`,
+                    text: row.text || row.label || 'Row Question',
+                    // CRITICAL: Preserve the scoring key
+                    correctColumnId: row.correctColumnId || row.answerId || row.correctId || null
+                };
+            })
+            : [];
     }
 
     /**
@@ -891,6 +920,28 @@ export class UnifiedDataPipeline {
 
         const def = DIFFICULTY_DEFINITIONS[difficulty] || DIFFICULTY_DEFINITIONS[3];
 
+        // --- GREEDY FIELD HUNTER ---
+        // Find fields even if AI nested them or used wrong casing
+
+        // 1. Mnemonic
+        const mnemonic =
+            rat.mnemonic ||
+            rat.Mnemonic ||
+            rat.mnemonics ||
+            item.rationale?.mnemonic ||
+            item.content?.rationale?.mnemonic ||
+            null;
+
+        // 2. Cheat Sheet
+        const cheatSheet =
+            rat.cheatSheet ||
+            rat.cheatsheet ||
+            rat.CheatSheet ||
+            rat.clinicalPearls || // Specific alias often used by medical AI
+            item.rationale?.cheatSheet ||
+            item.content?.rationale?.cheatSheet ||
+            null;
+
         // CRITICAL: Build referenceInfo from user's pathophysiology/general keys if native referenceInfo is missing
         let referenceInfo = rat.referenceInfo;
         if (!referenceInfo) {
@@ -925,8 +976,8 @@ export class UnifiedDataPipeline {
             },
             optionReviews: rat.optionReviews,
             // CRITICAL: Check item.rationale directly since 'rat' might prefer c.rationale which lacks mnemonic
-            mnemonic: rat.mnemonic || item.rationale?.mnemonic,
-            cheatSheet: rat.cheatSheet || item.rationale?.cheatSheet,
+            mnemonic: mnemonic,
+            cheatSheet: cheatSheet,
             referenceInfo: referenceInfo,
             // PRESERVE user's custom rationale fields
             pathophysiology: rat.pathophysiology || item.rationale?.pathophysiology,

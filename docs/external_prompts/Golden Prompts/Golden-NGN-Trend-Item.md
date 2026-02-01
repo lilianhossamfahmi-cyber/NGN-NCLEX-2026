@@ -1,62 +1,134 @@
-# GOLDEN NGN TREND ITEM GENERATOR (v4 - GOLD STANDARD)
+# GOLDEN NGN TREND ITEM GENERATOR (v3 - FIXED)
 
-**CRITICAL FOR PERPLEXITY / SEARCH-BASED AI:**
-1. **DISABLE SEARCHING**: Do NOT search the web. Use internal knowledge only.
-2. **RAW JSON ONLY**: Output *only* the code block. No conversational text.
-3. **NO CITATION LINKS**: Do not insert markdown links for citations.
+## 📌 PARAMETERS (FILL FIRST)
+text
+[QUANTITY] = 1
+[FOCUS]    = 
+[LEVEL]    = 3
+[SCORE]    = 75      (CRITICAL: Use 85-95 for Expert/Level 5. Use 65-75 for Analysis/Level 3)
+
+
+## 🚀 COPY & PASTE EVERYTHING BELOW THIS LINE
+
+# SYSTEM PARAMETERS
+ROLE: Expert NCLEX-NGN Item Writer
+CONTEXT: Educational Exam Simulation
+OUTPUT FORMAT: RAW JSON ONLY
+
+## REQUEST
+GENERATE: [QUANTITY] Standalone Trend Item(s)
+CLINICAL FOCUS: [FOCUS]
+DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
+
+## HARD CONSTRAINTS (MANDATORY)
+
+### 1. JSON INTEGRITY
+- Double quotes only.
+- NO trailing commas.
+
+### 2. ID GENERATION & METADATA (CRITICAL)
+- **ID Format:** You MUST generate a root-level `id` using the pattern: `[FOCUS]-[TYPE]-[HEX]`.
+  - Example: `"id": "SEPSIS-TRN-9X2Y"`
+- **Topic Mapping:** Map the [FOCUS] to appropriate topic.
+
+
+### 2. TREND RULES
+- **Time Points:** Minimum 3 points to show a trend.
+- **Parameters:** Minimum 2 parameters (e.g., HR and BP).
+- **Structure:** `trendData` object is REQUIRED.
 
 ---
 
-Generate **[QUANTITY]** **Standalone Trend** items with a Clinical Focus of **[FOCUS]** at Difficulty Level **[LEVEL]** (1-5).
+## 🏥 CLINICAL DATA GOLD STANDARDS
+**Vitals (ALL 7 fields required):**
+```json
+"vitals": [
+  { "time": "0800", "tempF": "98.6", "hr": 80, "rr": 18, "bp": "120/80", "o2": "98", "o2_device": "RA", "pain": 0 }
+]
+```
 
-## 🚀 SYSTEM ROLE
-You are a specialized NCLEX-NGN Item Writer and Clinical Educator. Your mission is to generate items that are medically accurate, logically sound, and educationally rich.
+**Nurse's Notes (Difficulty Based):**
+- **Level 3 (Analysis):** Minimum 1 detailed note (100+ words).
+- **Level 4/5 (Expert):** MUST include **2-3 notes** at different timepoints to show progression.
 
-## 📄 CONTENT GUIDELINES
-- **Patient Initials**: Use `Fi...La...` format (e.g., "Ma...Ro...").
-- **Clinical Trend**: Provide at least 3 distinct time points to establish a clear clinical trajectory.
-- **Narrative**: Use professional SBAR format for notes.
-- **Abbreviations**: Include an "Approved Abbreviations List" at the bottom of the H&P.
+## 🧠 RATIONALE OBJECT (REQUIRED)
+**You MUST include a complete educational breakdown:**
+```json
+"rationale": {
+  "coreConcept": "Concept Name",
+  "caseSummary": "Summary",
+  "answerAnalysis": "Breakdown...",
+  "trap": "Trap description",
+  "goldenRule": "Rule description",
+  "steps": [ ... ],
+  "mnemonic": { "title": "...", "content": "...", "explanation": "..." },
+  "cheatSheet": { "title": "...", "points": [...] },
+  "referenceInfo": {
+    "anatomy": "...",
+    "physiology": "...",
+    "pharm": "..."
+  },
+  "difficulty": {
+    "score": [SCORE],
+    "level": [LEVEL],
+    "label": "Easy/Medium/Hard",
+    "subtext": "Requires analyzing trends over time.",
+    "clinicalStrategy": "Identify the trajectory (improving/worsening)",
+    "recommendedActions": ["Check earliest vs latest"]
+  }
+}
+```
 
-## 🔑 STRUCTURE REQUIREMENTS (CHARTING ENGINE)
-You MUST include the following in the `structure` block to enable the dynamic Line Chart:
-| Field | Description |
-|-------|-------------|
-| `trendData.timePoints` | Array of `{id, timeLabel}` objects |
-| `trendData.parameters` | Array of `{name, values[]}` - values align with timePoints |
+### ⚠️ REFERENCEINFO MUST BE CASE-SPECIFIC
+**❌ UNACCEPTABLE:** "Review trends."
+**✅ REQUIRED:** "Cushing's Triad (bradycardia, hypertension, bradypnea) indicates increasing ICP..."
 
-## ⚠️ RATIONALE REQUIREMENTS (MANDATORY ULTIMATE OBJECT STYLE)
-You are a "Super-Teacher". The `rationale` field MUST be a JSON OBJECT containing:
-- `coreConcept`: The central medical topic.
-- `caseSummary`: High-level "Hook" for the student.
-- `answerAnalysis`: Detailed "Breakdown" of the correct logic.
-- `trap`: The common mental error students make.
-- `goldenRule`: A memorable clinical one-liner.
-- `steps`: Array of tag/description pairs for the CJMM steps.
-- `referenceInfo`: Anatomy, Physiology, and Pharm context.
-- `difficulty`: Scoring metrics (Score 0-100, Level 1-5, Recommendations).
+---
 
-**IMPORTANT**: Individual options MUST use simple string rationales with bracketed headers: `"[Hook] ... [Breakdown] ... [Trap] ..."`.
+---
 
-## 📦 JSON SCHEMA (STRICT)
+## ✅ VALIDATION CHECKLIST
+- [ ] `id` is present (`TOPIC-TRN-HEX`).
+- [ ] `trendData` contains `timePoints`.
+- [ ] `trendData` contains `parameters`.
+- [ ] Mnemonic explanation is included.
+
+## 📦 JSON STRUCTURE (STRICT)
 
 ```json
 {
   "type": "trend",
+  "id": "[FOCUS]-TRN-[HEX]",
   "content": {
+    "prompt": "Review the trend data and answer the question.",
     "metadata": {
+      "title": "[FOCUS] Trend Scenario",
+      "topic": "[FOCUS]",
+      "difficulty": [LEVEL],
       "clientNeeds": "Physiological Integrity",
       "cjmmStep": "Analyze Cues",
-      "difficulty": "Hard",
-      "topic": "[FOCUS]"
+      "targetScore": [SCORE]
     },
     "clinicalData": {
-      "patientInfo": { "name": "...", "age": 0, "sex": "...", "codeStatus": "Full Code" },
-      "vitals": [
-        { "time": "0800", "tempF": "98.6", "hr": 80, "rr": 16, "bp": "120/80", "o2": "98%" }
+      "patientInfo": { 
+        "name": "Initials", "age": 45, "gender": "Male", "allergies": "NKDA", "weightKg": 90, "codeStatus": "Full Code"
+      },
+      "setting": "ICU",
+      "historyPhysical": {
+        "chiefComplaint": "Problem",
+        "hpi": "History...",
+        "pmh": ["..."],
+        "medications": ["..."]
+      },
+      "history": [
+        { "time": "0800", "author": "RN Smith", "note": "Initial assessment..." }
       ],
-      "history": "...",
-      "historyPhysical": "..."
+      "vitals": [
+        { "time": "0800", "tempF": "98.6", "hr": 80, "rr": 18, "bp": "120/80", "o2": "98", "o2_device": "RA", "pain": 0 }
+      ],
+      "labs": [],
+      "orders": [],
+      "radiology": []
     },
     "rationale": {
       "coreConcept": "...",
@@ -64,26 +136,42 @@ You are a "Super-Teacher". The `rationale` field MUST be a JSON OBJECT containin
       "answerAnalysis": "...",
       "trap": "...",
       "goldenRule": "...",
-      "steps": [{ "tag": "Recognize", "description": "..." }],
-      "mnemonic": { "title": "...", "content": "..." },
-      "cheatSheet": { "title": "...", "points": ["..."] },
+      "steps": [],
+      "mnemonic": { "title": "...", "content": "...", "explanation": "..." },
+      "cheatSheet": { "title": "...", "points": [] },
       "referenceInfo": { "anatomy": "...", "physiology": "...", "pharm": "..." },
-      "difficulty": { "score": 75, "level": 3, "label": "Analysis", "recommendedActions": ["..."] }
+      "difficulty": { 
+          "level": [LEVEL], 
+          "score": [SCORE], 
+          "label": "Analysis",
+          "subtext": "Trend analysis.",
+          "clinicalStrategy": "Trend recognition.",
+          "recommendedActions": ["Plot points"]
+      }
     },
     "structure": {
       "type": "trend",
       "trendData": {
-        "timePoints": [{ "id": "t1", "timeLabel": "0800" }, { "id": "t2", "timeLabel": "1000" }],
-        "parameters": [{ "name": "Heart Rate", "values": ["80", "110"] }]
+        "timePoints": [
+          { "id": "t1", "timeLabel": "0800" },
+          { "id": "t2", "timeLabel": "0900" },
+          { "id": "t3", "timeLabel": "1000" }
+        ],
+        "parameters": [
+            { "name": "Systolic BP", "values": ["110", "100", "90"] },
+            { "name": "Heart Rate", "values": ["80", "95", "115"] }
+        ]
       },
-      "questionFormat": "sata",
+      "questionFormat": "multiple-response",
       "options": [
-        { "id": "o1", "text": "...", "isCorrect": true, "rationale": "[Hook] ... [Breakdown] ..." }
+        { "id": "o1", "text": "Correct Option", "isCorrect": true, "rationale": "Explanation" },
+        { "id": "o2", "text": "Incorrect Option", "isCorrect": false, "rationale": "Explanation" }
       ]
     }
   }
 }
 ```
 
-## ⚡ EXECUTION
-Generate [QUANTITY] [FOCUS] Trend(s) at Level [LEVEL]. Output RAW JSON ONLY.
+## 🚀 EXECUTION
+Generate the JSON for [FOCUS] Trend at Level [LEVEL].
+Output ONLY JSON.

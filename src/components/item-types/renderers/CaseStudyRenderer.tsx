@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GenericRendererProps } from './types';
 import { InteractionDispatcher } from '../InteractionDispatcher';
 import {
@@ -12,6 +12,7 @@ import {
     CheckCircle2,
     AlertCircle
 } from 'lucide-react';
+import { normalizeConfig } from '../ItemRenderer';
 
 export const CaseStudyRenderer: React.FC<GenericRendererProps> = ({
     config,
@@ -21,8 +22,35 @@ export const CaseStudyRenderer: React.FC<GenericRendererProps> = ({
     mode = 'student'
 }) => {
     const [currentScreenIndex, setCurrentScreenIndex] = useState(0);
-    const screens = config.screens || [];
-    const currentScreen = screens[currentScreenIndex] || { type: 'unknown', prompt: 'No screen content available.' };
+
+    // --- FIX: GREEDY SEARCH (Finds screens wherever they hide) ---
+    // 1. Root (Ideal)
+    // 2. Structure (Golden Standard)
+    // 3. Content.Structure (Pipeline Artifact)
+    const screens = config.screens ||
+        config.structure?.screens ||
+        config.content?.structure?.screens ||
+        [];
+
+    // Safety fallback
+    const rawScreen = screens[currentScreenIndex] || { type: 'unknown', prompt: 'System Error: No screen content found.' };
+    const currentScreen = normalizeConfig(rawScreen);
+
+    // DEBUG: Alert if ghost screens are detected
+    useEffect(() => {
+        if (!screens || screens.length === 0) {
+            console.error('[CaseStudyRenderer] CRITICAL: No screens found!', {
+                rootKeys: Object.keys(config),
+                hasStructure: !!config.structure,
+                hasContent: !!config.content
+            });
+        }
+    }, [config, screens]);
+
+    // DEBUG: Log the config and current screen to diagnose matrix issue
+    console.log('[CaseStudyRenderer] config keys:', Object.keys(config || {}));
+    console.log('[CaseStudyRenderer] screens count:', screens.length);
+    console.log('[CaseStudyRenderer] currentScreen:', currentScreen?.type, 'has rows:', !!currentScreen?.rows, 'has columns:', !!currentScreen?.columns);
 
     // EHR Data - Fallback to global if screen doesn't have specific updates
     const clinicalData = config.clinicalData || {};
