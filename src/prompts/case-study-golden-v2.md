@@ -45,6 +45,16 @@ NEVER use these phrases in any rationale:
 ### Rule 8: No Empty or Null Fields
 Every required field must have meaningful content. No `null`, `""`, `"TBD"`, or placeholders.
 
+### Rule 9: NO GENERIC PLACEHOLDERS
+**STRICT BAN** on labels like "Option 1", "Condition A", "Action 1", "Dropdown 1", "Finding X", "Patient Name", etc.
+All text must be clinically specific and contextual. **DO NOT** literally copy placeholders from the templates below (e.g., do not use "concerning assessment 1"). If this rule is broken, the item will be rejected by the ingestion engine.
+
+### Rule 10: Choice Density Requirements
+- **Highlight (S1)**: Minimum 7 spans. At least 2 MUST be clinically incorrect (isCorrect: false).
+- **Multiple-Response (SATA)**: Minimum 6 options.
+- **Bow-Tie**: Exactly 3 conditions, 5 actions, 5 parameters in pools.
+- **Drop-Cloze**: Minimum 4 options per dropdown.
+
 ---
 
 ## CASE STUDY GENERATION INSTRUCTIONS
@@ -163,8 +173,8 @@ The case MUST revolve around:
   "cjmmStep": "Recognize Cues",
   "cjmmPhase": "Recognize Cues",
   "prompt": "Highlight the findings that indicate [clinical concern] and require immediate attention.",
-  "text": "Patient narrative with <span id='h1'>concerning finding 1</span> embedded. Additional context shows <span id='h2'>finding 2</span> and <span id='h3'>finding 3</span>. The nurse notes <span id='h4'>finding 4</span>. Other assessment reveals <span id='h5'>finding 5</span> and <span id='h6'>finding 6</span>.",
-  "correct": ["h1", "h2", "h3", "h4"],
+  "text": "The patient, L.S., presents with <span id='h1'>hypotension</span> and <span id='h2'>tachycardia</span>. The nurse observes <span id='h3'>increased work of breathing</span> while noting <span id='h4'>crackles in bilateral bases</span>. Laboratory results indicate <span id='h5'>elevated serum lactate</span>. Vital signs show <span id='h6'>oxygen saturation 89%</span> and <span id='h7'>fever 102.4F</span>. Assessment of the cardiovascular system reveals <span id='h8'>delayed capillary refill</span>.",
+  "correct": ["h1", "h2", "h3", "h4", "h5", "h6"],
   "rationales": {
     "h1": {
       "isCorrect": true,
@@ -187,6 +197,14 @@ The case MUST revolve around:
       "whyIncorrect": "Expected finding in this context because... Not a priority concern."
     },
     "h6": {
+      "isCorrect": true,
+      "whyCorrect": "Clinical significance with patient-specific reasoning (minimum 15 words)."
+    },
+    "h7": {
+      "isCorrect": false,
+      "whyIncorrect": "Expected finding in this context because... Not a priority concern."
+    },
+    "h8": {
       "isCorrect": false,
       "whyIncorrect": "This is a distractor - while notable, it does not indicate the primary problem."
     }
@@ -210,38 +228,31 @@ The case MUST revolve around:
   "rows": [
     {
       "id": "r1",
-      "text": "Clinical finding 1",
+      "text": "Temperature 102.8 F (39.3 C)",
       "correctColumnId": "c1",
       "correctColumnIds": ["c1"],
-      "rationale": "Explanation of why this finding belongs in column 1, with clinical reasoning and patient-specific context (minimum 15 words)."
+      "rationale": "Fever indicates systemic inflammatory response. In the context of this patient's symptoms, it suggests an active infectious process requiring intervention."
     },
     {
       "id": "r2",
-      "text": "Clinical finding 2",
+      "text": "Heart Rate 128 bpm",
       "correctColumnId": "c2",
       "correctColumnIds": ["c2"],
-      "rationale": "Explanation with pathophysiology and significance (minimum 15 words)."
+      "rationale": "Tachycardia is a compensatory mechanism for decreased stroke volume or pain. It signifies physiological stress."
     },
     {
       "id": "r3",
-      "text": "Clinical finding 3",
+      "text": "Blood Pressure 88/54 mmHg",
       "correctColumnId": "c1",
       "correctColumnIds": ["c1"],
-      "rationale": "Clinical reasoning (minimum 15 words)."
+      "rationale": "Hypotension indicates impaired perfusion and potential shock. This is a critical finding requiring immediate fluid resuscitation."
     },
     {
       "id": "r4",
-      "text": "Clinical finding 4",
-      "correctColumnId": "c2",
-      "correctColumnIds": ["c2"],
-      "rationale": "Clinical reasoning (minimum 15 words)."
-    },
-    {
-      "id": "r5",
-      "text": "Clinical finding 5",
+      "text": "WBC count 22,000/mm3",
       "correctColumnId": "c1",
       "correctColumnIds": ["c1"],
-      "rationale": "Clinical reasoning (minimum 15 words)."
+      "rationale": "Leukocytosis supports the diagnosis of infection/inflammation and correlates with the clinical picture."
     }
   ],
   "rationale": {
@@ -264,27 +275,21 @@ The case MUST revolve around:
   "options": [
     {
       "id": "o1",
-      "text": "Priority diagnosis or concern (CORRECT)",
+      "text": "Impaired Gas Exchange",
       "isCorrect": true,
-      "rationale": "This is the priority because it directly threatens [ABCs/perfusion/safety]. The patient's [specific data points] indicate immediate risk of [consequence]. Using ABCs framework, this supersedes other concerns because [reasoning]."
+      "rationale": "This is the priority because it directly threatens cellular oxygenation. The patient's low SpO2 and increased work of breathing indicate immediate respiratory risk. Airway and breathing always take precedence in the ABCs framework."
     },
     {
       "id": "o2",
-      "text": "Plausible but secondary concern",
+      "text": "Risk for Ineffective Thermoregulation",
       "isCorrect": false,
-      "rationale": "While this is a valid concern, it is secondary to option 1. The patient's [data] shows this is less urgent because [reasoning]. Address after stabilizing the priority issue."
+      "rationale": "While the patient has a fever, this is secondary to the immediate respiratory threat. Fever management is important for comfort and metabolic demand but follows airway stabilization."
     },
     {
       "id": "o3",
-      "text": "Related but lower priority concern",
+      "text": "Acute Pain",
       "isCorrect": false,
-      "rationale": "This concern exists but does not represent the immediate threat. The [specific values] indicate this can be addressed after the priority problem because [clinical logic]."
-    },
-    {
-      "id": "o4",
-      "text": "Common misconception or distractor",
-      "isCorrect": false,
-      "rationale": "This is a common trap. While it may seem important, the data actually indicates [contradiction]. Focus on [correct priority] instead because [ABCs reasoning]."
+      "rationale": "Pain is a significant concern but does not represent an immediate threat to life compared to impaired gas exchange. Address pain after ensuring physiological stability."
     }
   ],
   "rationale": {
@@ -307,85 +312,49 @@ The case MUST revolve around:
   "conditions": [
     {
       "id": "cond1",
-      "text": "Primary condition/complication (CORRECT)",
+      "text": "Septic Shock",
       "isCorrect": true,
-      "rationale": "This is the central problem because the patient's presentation with [specific findings] meets the diagnostic criteria. All nursing actions and monitoring stem from this diagnosis."
+      "rationale": "The patient meets Sepsis-3 criteria: suspected infection, hypotension requiring vasopressors, and elevated lactate levels."
     },
     {
       "id": "cond2",
-      "text": "Related but incorrect condition",
+      "text": "Cardiogenic Shock",
       "isCorrect": false,
-      "rationale": "While this condition shares some features, the patient's [specific data] rules this out. Key differentiating factor: [explanation of why not this]."
+      "rationale": "While the patient is hypotensive, the absence of jugular venous distention and the presence of infectious markers make cardiogenic shock less likely."
     },
     {
       "id": "cond3",
-      "text": "Distractor condition",
+      "text": "Hypovolemic Shock",
       "isCorrect": false,
-      "rationale": "This condition would present with [different findings]. The patient's current data does not support this because [specific reasoning]."
+      "rationale": "The patient has a fever and elevated WBC, which point strongly toward an inflammatory/infectious cause rather than simple volume loss."
     }
   ],
   "actions": [
     {
       "id": "act1",
-      "text": "Priority nursing action 1 (CORRECT)",
+      "text": "Administer 30 mL/kg isotonic fluid bolus",
       "isCorrect": true,
-      "rationale": "This is a time-sensitive nursing action that directly addresses the primary threat. It is within nursing scope and must be done immediately because [clinical urgency]."
+      "rationale": "Fluid resuscitation is the first-line treatment for sepsis-induced hypotension to restore circulating volume."
     },
     {
       "id": "act2",
-      "text": "Priority nursing action 2 (CORRECT)",
+      "text": "Initiate broad-spectrum IV antibiotics",
       "isCorrect": true,
-      "rationale": "This nursing action supports the first and addresses [secondary concern]. It is essential for [preventing complication] and must be done concurrently."
-    },
-    {
-      "id": "act3",
-      "text": "Important but not priority action",
-      "isCorrect": false,
-      "rationale": "While this action is appropriate, it is not the highest priority. Do this after the two priority actions because [sequencing logic]."
-    },
-    {
-      "id": "act4",
-      "text": "Contraindicated or wrong action",
-      "isCorrect": false,
-      "rationale": "This action would be harmful or inappropriate in this situation because [specific contraindication or reasoning]."
-    },
-    {
-      "id": "act5",
-      "text": "Distractor action",
-      "isCorrect": false,
-      "rationale": "This action is not indicated for this patient's current condition. It would be appropriate for [different scenario] but not here."
+      "rationale": "Early antibiotic administration is critical in sepsis to control the source of infection and improve survival."
     }
   ],
   "parameters": [
     {
       "id": "param1",
-      "text": "Priority monitoring parameter 1 (CORRECT)",
+      "text": "Mean Arterial Pressure (MAP)",
       "isCorrect": true,
-      "rationale": "This objective measure directly assesses the effectiveness of treatment for the primary problem. Target value: [specific goal]. Reassess every [frequency]."
+      "rationale": "MAP is the most reliable indicator of organ perfusion. Goal is >65 mmHg."
     },
     {
       "id": "param2",
-      "text": "Priority monitoring parameter 2 (CORRECT)",
+      "text": "Urine Output",
       "isCorrect": true,
-      "rationale": "This parameter indicates whether the patient is improving or deteriorating. Trends are more important than single values. Watch for [specific concern]."
-    },
-    {
-      "id": "param3",
-      "text": "Secondary monitoring parameter",
-      "isCorrect": false,
-      "rationale": "While useful, this parameter is less directly tied to the primary problem. Monitor after establishing the priority parameters."
-    },
-    {
-      "id": "param4",
-      "text": "Less relevant parameter",
-      "isCorrect": false,
-      "rationale": "This parameter does not directly assess response to treatment for this condition. It would be priority for [different condition]."
-    },
-    {
-      "id": "param5",
-      "text": "Distractor parameter",
-      "isCorrect": false,
-      "rationale": "This is not a priority for monitoring this patient's acute problem. It may be relevant for long-term care but not immediate assessment."
+      "rationale": "Urine output reflects renal perfusion and is a sensitive indicator of shock resolution."
     }
   ],
   "correct": {
@@ -410,7 +379,7 @@ The case MUST revolve around:
   "cjmmStep": "Take Action",
   "cjmmPhase": "Take Action",
   "prompt": "Complete the following nursing action statement for the patient.",
-  "text": "The nurse should position the patient in %{d1}% and ensure that %{d2}% is immediately available at the bedside.",
+  "text": "The nurse should position the patient in %{d1} and ensure that %{d2} is immediately available at the bedside.",
   "dropdowns": [
     {
       "id": "d1",
@@ -419,25 +388,7 @@ The case MUST revolve around:
           "id": "d1-o1",
           "text": "High-Fowler's position",
           "isCorrect": true,
-          "rationale": "This position maximizes chest expansion and reduces work of breathing. For patients with respiratory distress, upright positioning improves ventilation-perfusion matching and decreases venous return, reducing pulmonary congestion."
-        },
-        {
-          "id": "d1-o2",
-          "text": "supine position",
-          "isCorrect": false,
-          "rationale": "Supine positioning restricts diaphragmatic excursion and increases work of breathing. This would worsen the patient's respiratory distress and is contraindicated."
-        },
-        {
-          "id": "d1-o3",
-          "text": "Trendelenburg position",
-          "isCorrect": false,
-          "rationale": "Head-down positioning pushes abdominal contents against the diaphragm, severely impairing breathing. This is contraindicated in respiratory distress."
-        },
-        {
-          "id": "d1-o4",
-          "text": "prone position",
-          "isCorrect": false,
-          "rationale": "Prone positioning is used for intubated ARDS patients, not conscious patients with acute respiratory distress. Requires airway management capability."
+          "rationale": "High-Fowler's maximizes lung expansion and optimizes gas exchange in respiratory distress."
         }
       ]
     },
@@ -446,27 +397,9 @@ The case MUST revolve around:
       "options": [
         {
           "id": "d2-o1",
-          "text": "emergency airway equipment",
+          "text": "Emergency airway equipment",
           "isCorrect": true,
-          "rationale": "Given the patient's risk for respiratory failure, emergency airway equipment (bag-valve mask, suction, intubation tray) must be immediately accessible for rapid intervention if needed."
-        },
-        {
-          "id": "d2-o2",
-          "text": "chest tube insertion kit",
-          "isCorrect": false,
-          "rationale": "Chest tubes are indicated for pneumothorax or hemothorax, not the primary respiratory issue in this case. Not the priority equipment."
-        },
-        {
-          "id": "d2-o3",
-          "text": "blood transfusion supplies",
-          "isCorrect": false,
-          "rationale": "Blood products are not indicated for this patient's current presentation. The airway and breathing are the priority concerns."
-        },
-        {
-          "id": "d2-o4",
-          "text": "central line insertion kit",
-          "isCorrect": false,
-          "rationale": "While IV access is important, central line insertion is not the immediate priority. Peripheral access is sufficient for initial interventions."
+          "rationale": "Given the risk of respiratory failure, airway supplies must be at the bedside."
         }
       ]
     }
@@ -496,39 +429,27 @@ The case MUST revolve around:
   "options": [
     {
       "id": "o1",
-      "text": "Improvement indicator 1 (e.g., SpO2 improved from 88% to 95%)",
+      "text": "SpO2 increased to 95% on 2L NC",
       "isCorrect": true,
-      "rationale": "This quantifiable improvement demonstrates effective oxygen therapy. The increase from hypoxemic to acceptable range indicates the intervention is working."
+      "rationale": "Improvement in oxygen saturation demonstrates effective therapy and improved gas exchange."
     },
     {
       "id": "o2",
-      "text": "Improvement indicator 2 (e.g., Heart rate decreased from 134 to 98 bpm)",
+      "text": "Heart rate decreased to 88 bpm",
       "isCorrect": true,
-      "rationale": "Decreased tachycardia suggests reduced physiologic stress and improved cardiac efficiency. This trend indicates the body's compensatory mechanisms are normalizing."
+      "rationale": "Reduction in tachycardia suggests decreased circulatory stress and improved cardiac output."
     },
     {
       "id": "o3",
-      "text": "Improvement indicator 3 (e.g., Respiratory rate decreased from 32 to 20 breaths/min)",
+      "text": "Urine output 40 mL/hr",
       "isCorrect": true,
-      "rationale": "Reduced respiratory rate indicates decreased work of breathing. The patient is ventilating more effectively with less effort."
+      "rationale": "Adequate urine output indicates improved renal perfusion and response to fluid therapy."
     },
     {
       "id": "o4",
-      "text": "Improvement indicator 4 (e.g., Patient reports pain decreased from 8/10 to 3/10)",
+      "text": "Lactate level decreased to 1.8 mmol/L",
       "isCorrect": true,
-      "rationale": "Pain reduction indicates effective analgesia and reduced physiologic stress. Comfort improvement often correlates with overall clinical improvement."
-    },
-    {
-      "id": "o5",
-      "text": "Worrisome finding 1 (e.g., Blood pressure remains at 88/54 mmHg)",
-      "isCorrect": false,
-      "rationale": "Persistent hypotension indicates ongoing hemodynamic instability. This is NOT a sign of improvement and may require escalation of care."
-    },
-    {
-      "id": "o6",
-      "text": "Worrisome finding 2 (e.g., Patient remains lethargic and confused)",
-      "isCorrect": false,
-      "rationale": "Persistent altered mental status suggests ongoing cerebral hypoperfusion. This finding indicates the patient is NOT improving and requires further intervention."
+      "rationale": "Decreasing lactate levels indicate improved tissue oxygenation and resolution of anaerobic metabolism."
     }
   ],
   "rationale": {

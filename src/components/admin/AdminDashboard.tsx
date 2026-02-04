@@ -1,4 +1,4 @@
-import { Play, Save, Settings, CheckCircle, Layers, Activity, Database, Sparkles, FileCheck } from 'lucide-react';
+import { Play, Save, Settings, CheckCircle, Layers, Activity, Database, Sparkles, FileCheck, Wand2, ArrowLeft } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -8,6 +8,8 @@ import { getBankItems, saveBatchToBank } from '../../services/itemStorage';
 import { ItemBankGrid } from './ItemBankGrid';
 import { ItemEditor } from './ItemEditor';
 import { CaseStudyGeneratorV2 } from '../../services/CaseStudyGeneratorV2';
+import { CaseStudyWizard } from '../wizards/CaseStudyWizard';
+import { LayeredCaseStudyWizard } from '../wizards/LayeredCaseStudyWizard';
 
 interface AdminDashboardProps {
     onNavigate: (view: string) => void;
@@ -21,7 +23,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
         itemsThisWeek: 0
     });
     // internal view for the admin panel (grid or edit)
-    const [adminView, setAdminView] = useState<'grid' | 'edit'>('grid');
+    const [adminView, setAdminView] = useState<'grid' | 'edit' | 'wizard' | 'layered'>('grid');
     const [editItemId, setEditItemId] = useState<string | null>(null);
 
     const handleEdit = (id: string) => {
@@ -32,6 +34,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
     const handleBackToGrid = () => {
         setAdminView('grid');
         setEditItemId(null);
+    };
+
+    const handleWizardSuccess = async (item: any) => {
+        try {
+            await saveBatchToBank([item]);
+            alert(`✅ Successfully Injected "${item.metadata?.title || 'Case Study'}" into the bank!`);
+            setAdminView('grid');
+            refreshStats();
+        } catch (e: any) {
+            console.error("Injection failed:", e);
+            alert("Error saving wizard output: " + e.message);
+        }
     };
 
     const refreshStats = async () => {
@@ -118,7 +132,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                 }
 
                 // Valid - add to bank
-                await saveBatchToBank([caseStudy]);
+                await saveBatchToBank([caseStudy as any]);
 
                 const warningNote = validation.warnings.length > 0
                     ? `\n\n⚠️ ${validation.warnings.length} warnings (see console)`
@@ -149,6 +163,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                     <Button variant="outline" onClick={() => onNavigate('settings')}>
                         <Settings className="mr-2 h-4 w-4" />
                         Settings
+                    </Button>
+                    <Button
+                        variant="secondary"
+                        onClick={() => setAdminView('layered')}
+                        style={{ background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', color: 'white' }}
+                    >
+                        <Layers className="mr-2 h-4 w-4" />
+                        3-Layer
+                    </Button>
+                    <Button
+                        variant="secondary"
+                        onClick={() => setAdminView('wizard')}
+                        style={{ backgroundColor: '#8b5cf6', color: 'white' }}
+                    >
+                        <Wand2 className="mr-2 h-4 w-4" />
+                        Wizard
                     </Button>
                     <Button
                         variant="secondary"
@@ -230,6 +260,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                     )}
                     {adminView === 'edit' && editItemId && (
                         <ItemEditor itemId={editItemId} onBack={handleBackToGrid} />
+                    )}
+                    {adminView === 'wizard' && (
+                        <div className="flex flex-col items-center">
+                            <div className="w-full flex justify-start mb-6">
+                                <Button variant="ghost" onClick={handleBackToGrid} className="text-slate-500">
+                                    <ArrowLeft className="mr-2 h-4 w-4" />
+                                    Back to Item Bank
+                                </Button>
+                            </div>
+                            <CaseStudyWizard onCaseGenerated={handleWizardSuccess} />
+                        </div>
+                    )}
+                    {adminView === 'layered' && (
+                        <div className="flex flex-col items-center">
+                            <div className="w-full flex justify-start mb-6">
+                                <Button variant="ghost" onClick={handleBackToGrid} className="text-slate-500">
+                                    <ArrowLeft className="mr-2 h-4 w-4" />
+                                    Back to Item Bank
+                                </Button>
+                            </div>
+                            <LayeredCaseStudyWizard
+                                onComplete={handleWizardSuccess}
+                                onCancel={handleBackToGrid}
+                            />
+                        </div>
                     )}
                 </CardContent>
             </Card>

@@ -74,7 +74,31 @@ const getBoolEnv = (key: string, defaultValue: boolean): boolean => {
 
 // Validate Key immediately on load if AI is enabled
 const IS_AI_ENABLED = getBoolEnv('VITE_FEATURE_AI', true);
-const RAW_API_KEY = getEnvVar('VITE_GEMINI_API_KEY', IS_AI_ENABLED);
+
+// Support for Multiple Keys (Rotator)
+const KEYS_STRING = getEnvVar('VITE_GEMINI_API_KEYS') || getEnvVar('VITE_GEMINI_API_KEY');
+const API_KEYS = KEYS_STRING ? KEYS_STRING.split(',').map(k => k.trim()).filter(Boolean) : [];
+
+class KeyRotator {
+    private currentIndex = 0;
+    private keys: string[];
+
+    constructor(keys: string[]) {
+        this.keys = keys;
+    }
+
+    getNextKey(): string {
+        if (this.keys.length === 0) return '';
+        const key = this.keys[this.currentIndex];
+        this.currentIndex = (this.currentIndex + 1) % this.keys.length;
+        console.log(`[API Rotator] Rotating to key: ${key.substring(0, 8)}...`);
+        return key;
+    }
+
+    get count(): number { return this.keys.length; }
+}
+
+const rotator = new KeyRotator(API_KEYS);
 
 export const AppConfig: EnvConfig = {
     // API Configuration
@@ -93,10 +117,11 @@ export const AppConfig: EnvConfig = {
         checkMs: 10000,      // 10s
     },
 
-    version: '2.1.0-security-patch',
+    version: '2.2.0-key-rotator',
 
     security: {
-        maxRequestsPerMinute: 10 // Restricted rate limit
+        // Increase limit based on number of keys (assume 10 RPM per key)
+        maxRequestsPerMinute: Math.max(10, API_KEYS.length * 10)
     }
 };
 
@@ -122,7 +147,7 @@ class RequestRateLimiter {
         if (this.timestamps.length >= this.maxRequests) {
             const oldest = this.timestamps[0];
             const waitTime = this.windowMs - (now - oldest);
-            console.warn(`[Security] Rate limit exceeded. Waiting ${Math.ceil(waitTime / 1000)}s...`);
+            console.warn(`[Security] Global Rate limit exceeded. Waiting ${Math.ceil(waitTime / 1000)}s...`);
 
             // Wait for the slot to free up
             await new Promise(resolve => setTimeout(resolve, waitTime));
@@ -140,26 +165,23 @@ export const limiter = new RequestRateLimiter(AppConfig.security.maxRequestsPerM
 // 4. CENTRALIZED SERVICE INITIALIZATION
 // ------------------------------------------------------------------
 
-let genAIInstance: GoogleGenerativeAI | null = null;
-
 export const getGenAI = (): GoogleGenerativeAI | null => {
     if (!AppConfig.features.aiGeneration) return null;
 
-    if (!genAIInstance) {
-        if (!RAW_API_KEY) {
-            console.error("Attempted to initialize AI without API Key");
-            return null;
-        }
-        genAIInstance = new GoogleGenerativeAI(RAW_API_KEY);
+    const key = rotator.getNextKey();
+    if (!key) {
+        console.error("Attempted to initialize AI without API Key");
+        return null;
     }
-    return genAIInstance;
+    // Return a new instance for the specific key in the rotation
+    return new GoogleGenerativeAI(key);
 };
 
 // Helper for REST calls (e.g., HotSpotRenderer) to avoid raw key access in components
 // Returns key only if authorized request is about to be made
 export const getAuthorizedApiKey = async (): Promise<string> => {
     await limiter.checkLimit();
-    return RAW_API_KEY;
+    return rotator.getNextKey();
 };
 
 // ------------------------------------------------------------------

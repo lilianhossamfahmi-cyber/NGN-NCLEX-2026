@@ -383,45 +383,48 @@ export class UnifiedDataPipeline {
         const structType = item.structure?.type || item.content?.structure?.type;
         if (structType) return structType.toLowerCase();
 
-        // Priority 3: Heuristics
-        const c = item.content || item;
-        const s = item.structure || item.content?.structure || {};
+        // Priority 3: Heuristics - GREEDY HUNTER
+        const c = item.content || {};
+        const s = item.structure || item.content?.structure || item; // Fallback to root for heuristics
 
         // BowTie detection
         if (s.actions || s.conditions || s.parameters ||
-            c.actions || c.conditions || c.parameters) {
+            item.actions || item.conditions || item.parameters) {
             return 'bow-tie';
         }
 
         // Calculation detection
-        if (s.correctValue !== undefined || c.correctValue !== undefined ||
-            s.units || c.units || s.inputLabel || c.inputLabel) {
+        if (s.correctValue !== undefined || item.correctValue !== undefined ||
+            s.units || item.units || s.inputLabel || item.inputLabel) {
             return 'calculation';
         }
 
         // Case Study detection
-        if (s.screens?.length > 0) {
+        if (s.screens?.length > 0 || item.screens?.length > 0) {
             return 'case-study';
         }
 
         // Matrix detection
-        if (s.rows?.length > 0 && s.columns?.length > 0) {
+        if ((s.rows?.length > 0 && s.columns?.length > 0) ||
+            (item.rows?.length > 0 && item.columns?.length > 0)) {
             return 'matrix';
         }
 
         // Cloze detection
-        if (s.sentences?.length > 0 || s.dropdowns?.length > 0) {
+        if (s.sentences?.length > 0 || s.dropdowns?.length > 0 ||
+            item.sentences?.length > 0 || item.dropdowns?.length > 0) {
             return 'drop-cloze';
         }
 
         // Highlight detection
-        if (s.text?.includes('<span') || s.rationales) {
+        if ((s.text && (s.text.includes('<span') || s.text.includes('id='))) || s.rationales || item.rationales) {
             return 'highlight';
         }
 
         // MCQ/SATA detection
-        if (s.options?.length > 0) {
-            const correctCount = s.options.filter((o: any) => o.isCorrect).length;
+        const opts = s.options || item.options;
+        if (opts?.length > 0) {
+            const correctCount = opts.filter((o: any) => o.isCorrect).length;
             return correctCount > 1 ? 'multiple-response' : 'single-response';
         }
 
@@ -836,8 +839,8 @@ export class UnifiedDataPipeline {
     private static normalizeMatrix(item: any, source: any): void {
         const s = item.content.structure;
 
-        // Normalize Columns
-        const columns = source.columns || [];
+        // Normalize Columns - GREEDY LOOKUP
+        const columns = source.columns || item.columns || [];
         s.columns = Array.isArray(columns)
             ? columns.map((col: any, idx: number) => ({
                 id: col.id || `c_${idx}`,
@@ -845,8 +848,8 @@ export class UnifiedDataPipeline {
             }))
             : [];
 
-        // Normalize Rows - STRICT PRESERVATION
-        const rows = source.rows || [];
+        // Normalize Rows - GREEDY LOOKUP & STRICT PRESERVATION
+        const rows = source.rows || item.rows || [];
         s.rows = Array.isArray(rows)
             ? rows.map((row: any, idx: number) => {
                 // If the AI gave a simple string, we must wrap it but we lose scoring data
@@ -863,7 +866,7 @@ export class UnifiedDataPipeline {
                     id: row.id || `r_${idx}`,
                     text: row.text || row.label || 'Row Question',
                     // CRITICAL: Preserve the scoring key
-                    correctColumnId: row.correctColumnId || row.answerId || row.correctId || null
+                    correctColumnId: row.correctColumnId || row.answerId || row.correctId || row.correctAnswer || null
                 };
             })
             : [];
@@ -875,7 +878,7 @@ export class UnifiedDataPipeline {
     private static normalizeGeneric(item: any, source: any): void {
         const s = item.content.structure;
 
-        const rawOptions = source.options || item.options;
+        const rawOptions = source.options || item.options || item.content?.options;
 
         if (rawOptions) {
             s.options = rawOptions.map((opt: any, idx: number) => ({
@@ -886,11 +889,11 @@ export class UnifiedDataPipeline {
             }));
         }
 
-        if (source.sentences) s.sentences = source.sentences;
-        if (source.dropdowns) s.dropdowns = source.dropdowns;
-        if (source.text) s.text = source.text;
-        if (source.rationales) s.rationales = source.rationales;
-        if (source.correct) s.correct = source.correct;
+        if (source.sentences || item.sentences) s.sentences = source.sentences || item.sentences;
+        if (source.dropdowns || item.dropdowns) s.dropdowns = source.dropdowns || item.dropdowns;
+        if (source.text || item.text) s.text = source.text || item.text;
+        if (source.rationales || item.rationales) s.rationales = source.rationales || item.rationales;
+        if (source.correct || item.correct) s.correct = source.correct || item.correct;
     }
 
     /**

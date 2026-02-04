@@ -138,12 +138,13 @@ export const DropClozeRenderer: React.FC<GenericRendererProps> = ({ config, answ
                 {/* Format 1: sentences array (Drag Mode) */}
                 {config.sentences?.map((sent: any, i: number) => {
                     let text = sent.text || (typeof sent === 'string' ? sent : '');
-                    const parts = text.split(/(%\{?[a-zA-Z0-9_.-]+\}?%)/);
+                    // Robust regex: matches %{id}%, %{id}, or %id%
+                    const parts = text.split(/(%\{?[a-zA-Z0-9_.-]+\}?%?)/);
 
                     return (
                         <div key={i} style={{ marginBottom: '1rem' }}>
                             {parts.map((part: string, idx: number) => {
-                                const match = part.match(/^%\{?([a-zA-Z0-9_.-]+)\}?%$/);
+                                const match = part.match(/^%\{?([a-zA-Z0-9_.-]+)\}?%?$/);
                                 if (match) {
                                     const blankId = match[1];
                                     const dropdown = sent.dropdowns?.find((d: any) => d.id === blankId);
@@ -181,8 +182,8 @@ export const DropClozeRenderer: React.FC<GenericRendererProps> = ({ config, answ
                 {/* Format 2: Select Mode */}
                 {isFormatSelect && (
                     <div style={{ marginBottom: '1rem' }}>
-                        {clozeText.split(/(%\{[a-zA-Z0-9_]+\})/).map((part: string, idx: number) => {
-                            const match = part.match(/^%\{([a-zA-Z0-9_]+)\}$/);
+                        {clozeText.split(/(%\{?[a-zA-Z0-9_.-]+\}?%?)/).map((part: string, idx: number) => {
+                            const match = part.match(/^%\{?([a-zA-Z0-9_.-]+)\}?%?$/);
                             if (match) {
                                 const blankId = match[1];
                                 const dropdown = dropdowns.find((d: any) => d.id === blankId) || dropdowns[idx]; // Robust fallback

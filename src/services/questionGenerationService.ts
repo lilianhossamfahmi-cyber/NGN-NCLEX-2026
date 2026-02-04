@@ -9,8 +9,7 @@ import { ItemIngestionService } from './ingestion/ItemIngestionService';
  * Supports: Live Gemini Integration, Mix-All logic, and Mock Fallback with Rich Content.
  */
 
-const genAI = getGenAI();
-const USE_MOCK = !genAI || !AppConfig.features.aiGeneration;
+// genAI and USE_MOCK are now initialized inside generateQuestions to support key rotation.
 
 
 interface GenerationResponse {
@@ -33,9 +32,13 @@ export const generateQuestions = async (
     const resolvedTypes = resolveTargetTypes(settings.targetTypes);
     const totalCount = resolvedTypes.length * settings.quantityPerType;
 
+    // 0. Initialize AI Service (Enables Key Rotation)
+    const genAI = getGenAI();
+    const useMock = !genAI || !AppConfig.features.aiGeneration;
+
     if (signal?.aborted) return { success: false, error: "Generation Cancelled" };
 
-    if (USE_MOCK) {
+    if (useMock) {
         console.warn('Configuration forces Mock Mode (missing API Key or Feature Flag)');
         return generateMockItems(settings, resolvedTypes, onProgress, signal);
     }
@@ -71,8 +74,9 @@ export const generateQuestions = async (
                 const model = genAI.getGenerativeModel({
                     model: modelName,
                     generationConfig: {
-                        maxOutputTokens: 8192,
-                        temperature: settings.temperature
+                        maxOutputTokens: 65536, // DOUBLED: To avoid any truncation in complex cases
+                        temperature: 0.2,
+                        responseMimeType: "application/json"
                     }
                 });
                 await limiter.checkLimit(); // Enforce Rate Limit
@@ -796,9 +800,22 @@ const buildDetailedPrompt = (settings: GenerationSettings, refs: ReferenceSource
             template = template.replace(/\[SCORE\]/g, score.toString());
             template = template.replace(/\*\*\[SCORE\]\*\*/g, score.toString());
 
-            // FORCE RICH CONTENT FOR EXPERT/PRO LEVEL
+            const wordCounts = {
+                1: { narrative: 60, notes: 30, rationale: 15, focus: "Direct Fact" },
+                2: { narrative: 100, notes: 50, rationale: 20, focus: "Application" },
+                3: { narrative: 200, notes: 100, rationale: 30, focus: "Nursing Process" },
+                4: { narrative: 300, notes: 150, rationale: 40, focus: "Pathophysiology" },
+                5: { narrative: 400, notes: 200, rationale: 60, focus: "Deep Pathophysiology & Synthesis" }
+            }[settings.difficultyLevel] || { narrative: 200, notes: 100, rationale: 30, focus: "Nursing Process" };
+
+            template += `\n\nREQUIRED CLINICAL DEPTH (Difficulty Level ${settings.difficultyLevel}):
+- Clinical Narrative (EHR): Minimum ${wordCounts.narrative} words. Must be a rich, professional patient story.
+- Nursing Notes: Minimum ${wordCounts.notes} words. Use professional medical terminology, no abbreviations.
+- Rationales: Minimum ${wordCounts.rationale} words per option. Focus on ${wordCounts.focus}.`;
+
+            // 2. FORCE RICH CONTENT FOR EXPERT/PRO LEVEL
             if (settings.difficultyLevel >= 4) {
-                template += `\n\nCRITICAL EXPERT REQUIREMENT:\nYou MUST include a detailed 'mnemonic' object and a 'cheatSheet' object in the rationale. The 'difficulty' object must explicitly state why this is Level ${settings.difficultyLevel}.`;
+                template += `\n\nCRITICAL EXPERT REQUIREMENT:\nYou MUST include a detailed 'mnemonic' object and a 'cheatSheet' object in the rationale root. The 'difficulty' object must explicitly state why this is Level ${settings.difficultyLevel} based on the ${wordCounts.focus} complexity.`;
             }
 
             // Inject Matrix Constraints to prevent string flattening
@@ -826,31 +843,69 @@ const buildDetailedPrompt = (settings: GenerationSettings, refs: ReferenceSource
     - Ensure logical consistency in clinical values.
     - RATIONALE: Provide a detailed "Super-Teacher" rationale for every option.
     - STRICT JSON OUTPUT: Return only the final array.
+    - ANTI-LAZINESS: DO NOT use placeholders like "Condition A", "Condition T", "Option 1", or "Action 1". Use full, descriptive clinical terms for every option/row/item.
+    - TRUNCATION GUARD: If you are running out of space/tokens, end the response IMMEDIATELY with a closing bracket ] or } to maintain JSON validity. Structural integrity is HIGHER PRIORITY than clinical depth.
     `;
 };
 
 const extractJsonFromMarkdown = (text: string): string => {
-    // 1. Try finding markdown block
-    const match = text.match(/```json([\s\S]*?)```/);
-    let clean = match ? match[1].trim() : text.trim();
+    let clean = text.trim();
 
-    // 2. If no markdown, try finding the outer array brackets
-    if (!match) {
-        const start = clean.indexOf('[');
-        const end = clean.lastIndexOf(']');
-        if (start !== -1 && end !== -1 && end > start) {
-            clean = clean.substring(start, end + 1);
-        } else if (start !== -1) {
-            // 3. Handle TRUNCATION: If we have a start but no end, catch it.
-            // We can't perfectly repair it, but we can try to close it if it looks like an array.
-            // Usually, users want to know it failed, but we can try a best-effort substring
-            clean = clean.substring(start);
+    if (clean.includes('```json')) {
+        const match = clean.match(/```json([\s\S]*?)```/);
+        if (match) clean = match[1].trim();
+    } else if (clean.includes('```')) {
+        const match = clean.match(/```([\s\S]*?)```/);
+        if (match) clean = match[1].trim();
+    }
+
+    // 3. BRUTE FORCE RECOVERY (TRUNCATION)
+    if (!clean.endsWith(']') && !clean.endsWith('}')) {
+        console.warn("[extractJsonFromMarkdown] Truncation detected. Running emergency repair...");
+
+        // A: Fix unclosed strings
+        let quoteCount = 0;
+        for (let i = 0; i < clean.length; i++) {
+            if (clean[i] === '"' && (i === 0 || clean[i - 1] !== '\\')) {
+                quoteCount++;
+            }
+        }
+        if (quoteCount % 2 !== 0) {
+            clean += '"';
+        }
+
+        // B: Remove trailing illegal chars
+        clean = clean.replace(/,\s*$/, '');
+        if (clean.endsWith(':')) clean += ' null';
+
+        // C: Stack-based Bracket Balancing
+        const stack: string[] = [];
+        let inString = false;
+        for (let i = 0; i < clean.length; i++) {
+            if (clean[i] === '"' && (i === 0 || clean[i - 1] !== '\\')) {
+                inString = !inString;
+                continue;
+            }
+            if (inString) continue;
+
+            const char = clean[i];
+            if (char === '{' || char === '[') {
+                stack.push(char);
+            } else if (char === '}') {
+                if (stack.length > 0 && stack[stack.length - 1] === '{') stack.pop();
+            } else if (char === ']') {
+                if (stack.length > 0 && stack[stack.length - 1] === '[') stack.pop();
+            }
+        }
+
+        while (stack.length > 0) {
+            const last = stack.pop();
+            if (last === '{') clean += '}';
+            if (last === '[') clean += ']';
         }
     }
 
-    // 4. Sanitize trailing commas (common AI error)
     clean = clean.replace(/,(\s*[\]}])/g, '$1');
-
     return clean;
 };
 
