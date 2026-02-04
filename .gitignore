@@ -11,3 +11,5 @@ _backups/
 debug_dump.json
 dump_all_items.json
 *.mjs
+.vercel
+.env*.local

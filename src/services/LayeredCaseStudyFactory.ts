@@ -95,6 +95,7 @@ interface Order {
     freq: string;
     status: string;
     indication: string;
+    category: string;
 }
 
 interface RadiologyReport {
@@ -145,6 +146,7 @@ interface ValidationResult {
 // ============================================================================
 
 const LAYER_1_PROMPT = `You are an expert NCLEX-NGN item writer. Generate a COMPLETE case study skeleton in JSON format.
+The case MUST focus on a clear deterioration or high-risk trajectory requiring prioritization and escalation (not routine care).
 
 ## TOPIC: {{TOPIC}}
 ## DIFFICULTY: {{DIFFICULTY}}/5
@@ -152,12 +154,17 @@ const LAYER_1_PROMPT = `You are an expert NCLEX-NGN item writer. Generate a COMP
 ## SETTING: {{SETTING}}
 
 ## CRITICAL REQUIREMENTS:
-1. ALL fields must be filled with clinically accurate content - NO PLACEHOLDERS like "TBD", "N/A", or "[INSERT]"
-2. Patient must have a realistic name, specific age, and relevant medical history
-3. Vitals must progress logically across 3 time points showing deterioration or response
-4. Labs must include at least 4 relevant tests with values, units, and reference ranges
-5. Nurses notes must use proper documentation format with timestamps
-6. All 6 screens must have complete content with rationales
+1. **History & Physical (H&P)**: Provide a detailed "historyPhysical" field with focused subjective/objective findings. Include RED FLAGS and relevant non-red-flag findings.
+2. **Time Progression**: You MUST create exactly 3 labeled timepoints in the vitals and notes:
+   - T0: Presentation/Admission baseline.
+   - T1: 30–60 min later, deterioration emerges/persists (High Stakes).
+   - T2: Post-interventions; requires evaluation of response.
+3. **Vital Signs**: Every timepoint needs T, HR, RR, BP, SpO2, and Pain Score. 
+   - CRITICAL: If BP is hypotensive (SBP < 90), you MUST include MAP (Mean Arterial Pressure).
+   - Specify O2 device + flow (e.g., "NC @ 2L", "NRM @ 15L") in the o2Device field.
+4. **Nursing Realism**: Notes must be timestamped (T0, T1) and written like real clinical charting (concise, objective, includes notifications).
+5. **Orders**: Categorize orders into: Medications, Diagnostics, Monitoring, Escalation/Transfer.
+6. **AI Safety**: NO PLACEHOLDERS like "TBD" or "[INSERT]". Every field must contain realistic data.
 
 ## REQUIRED JSON STRUCTURE:
 {
@@ -166,142 +173,80 @@ const LAYER_1_PROMPT = `You are an expert NCLEX-NGN item writer. Generate a COMP
     "name": "Realistic patient name",
     "age": "Specific age (e.g., 68 years)",
     "sex": "Male or Female",
-    "allergies": "Specific allergies or NKDA",
-    "chiefComplaint": "Detailed presenting complaint",
-    "comorbidities": ["At least 2 relevant conditions"],
-    "codeStatus": "Full Code or specific status"
+    "allergies": "Specific allergies",
+    "chiefComplaint": "Presenting symptoms",
+    "comorbidities": ["Condition 1", "Condition 2"],
+    "codeStatus": "Full Code"
   },
   "clinicalData": {
-    "setting": "Specific unit (e.g., Medical ICU, ED Trauma Bay)",
+    "setting": "{{SETTING}}",
     "vitals": [
-      { "time": "0800", "tempF": "101.2", "hr": "118", "rr": "24", "bp": "88/54", "o2": "91", "o2Device": "2L NC", "pain": "6/10" },
-      { "time": "1000", "tempF": "102.4", "hr": "128", "rr": "28", "bp": "82/48", "o2": "88", "o2Device": "4L NC", "pain": "8/10" },
-      { "time": "1200", "tempF": "100.8", "hr": "98", "rr": "20", "bp": "98/64", "o2": "95", "o2Device": "2L NC", "pain": "4/10" }
+      { "time": "T0 (0800)", "tempF": "98.6", "hr": "88", "rr": "18", "bp": "120/80", "o2": "98", "o2Device": "Room Air", "pain": "2/10" },
+      { "time": "T1 (0845)", "tempF": "99.2", "hr": "112", "rr": "26", "bp": "88/54 (MAP 65)", "o2": "92", "o2Device": "NC @ 4L", "pain": "7/10" },
+      { "time": "T2 (1000)", "tempF": "98.9", "hr": "94", "rr": "20", "bp": "110/70", "o2": "96", "o2Device": "NC @ 2L", "pain": "4/10" }
     ],
     "labs": [
-      { "test": "WBC", "value": "18.2", "units": "K/µL", "ref": "4.5-11.0", "flag": "H", "category": "Hematology" }
+      { "test": "Test Name", "value": "Val", "units": "Unit", "ref": "Range", "flag": "H/L", "category": "Type" }
     ],
     "nursesNotes": [
-      { "time": "0800", "category": "Admission", "note": "Detailed admission assessment...", "initial": "J.D., RN" }
+      { "time": "T0 (0805)", "category": "Admission", "note": "Professional note...", "initial": "RN" },
+      { "time": "T1 (0850)", "category": "Critical", "note": "Escalation note...", "initial": "RN" }
     ],
     "orders": [
-      { "order": "Specific medication or intervention", "dose": "Exact dose", "route": "IV/PO/etc", "freq": "Frequency", "status": "Active", "indication": "Reason" }
+      { "category": "Medications", "order": "Drug Name", "dose": "Dose", "route": "IV", "freq": "Once", "status": "Active", "indication": "Sepsis" }
     ],
-    "historyPhysical": "Complete H&P with Chief Complaint, HPI, PMH, PSH, Meds, Allergies, Social Hx, Physical Exam",
+    "historyPhysical": "Detailed H\u0026P with subjective/objective findings and RED FLAGS.",
     "radiology": [
-      { "study": "Specific study", "findings": "Detailed findings", "impression": "Clinical impression", "date": "Date/time" }
+      { "study": "X-Ray", "findings": "Findings", "impression": "Impression", "date": "T0" }
     ]
   },
   "screens": [
-    {
-      "id": "s1",
-      "type": "highlight",
-      "cjmmStep": "Recognize Cues",
-      "prompt": "Specific instruction for highlighting",
-      "content": {
-        "text": "Narrative with at least 7-9 <span id='hX'>highlightable</span> segments",
-        "correct": ["h1", "h3", "h5"],
-        "rationales": {
-          "h1": { "isCorrect": true, "whyCorrect": "[Hook] Clinical significance. [Breakdown] Pathophysiology. [Trap] Common mistake." },
-          "h2": { "isCorrect": false, "whyIncorrect": "Why this is a distractor" }
-        }
-      },
-      "rationale": { "coreConcept": "...", "answerAnalysis": "...", "clinicalTakeaway": "..." }
-    },
-    {
-      "id": "s2",
-      "type": "matrix",
-      "cjmmStep": "Analyze Cues",
-      "prompt": "For each finding, indicate the category",
-      "content": {
-        "columns": [{ "id": "c1", "text": "Category A" }, { "id": "c2", "text": "Category B" }],
-        "rows": [{ "id": "r1", "text": "Finding 1", "correctColumnId": "c1", "rationale": "Why this finding belongs here" }]
-      },
-      "rationale": { "coreConcept": "...", "answerAnalysis": "...", "clinicalTakeaway": "..." }
-    },
-    {
-      "id": "s3",
-      "type": "ordered-response",
-      "cjmmStep": "Prioritize Hypotheses",
-      "prompt": "Arrange steps in priority order",
-      "content": {
-        "orderedOptions": [{ "id": "step1", "text": "First priority action", "rationale": "Why this comes first" }]
-      },
-      "rationale": { "coreConcept": "...", "answerAnalysis": "...", "clinicalTakeaway": "..." }
-    },
-    {
-      "id": "s4",
-      "type": "bow-tie",
-      "cjmmStep": "Generate Solutions",
-      "prompt": "Complete the clinical decision diagram",
-      "content": {
-        "actions": [{ "id": "a1", "text": "Action", "isCorrect": true, "rationale": "Why" }],
-        "conditions": [{ "id": "cond1", "text": "Condition", "isCorrect": true, "rationale": "Why" }],
-        "parameters": [{ "id": "p1", "text": "Parameter", "isCorrect": true, "rationale": "Why" }]
-      },
-      "rationale": { "coreConcept": "...", "answerAnalysis": "...", "clinicalTakeaway": "..." }
-    },
-    {
-      "id": "s5",
-      "type": "drop-cloze",
-      "cjmmStep": "Take Action",
-      "prompt": "Complete the nursing action statement",
-      "content": {
-        "sentences": [{ "text": "The nurse should %{d1} to achieve %{d2}.", "dropdowns": [] }],
-        "dropdowns": [
-          { "id": "d1", "options": [{ "id": "o1", "text": "Option", "isCorrect": true, "rationale": "Why" }] }
-        ]
-      },
-      "rationale": { "coreConcept": "...", "answerAnalysis": "...", "clinicalTakeaway": "..." }
-    },
-    {
-      "id": "s6",
-      "type": "multiple-response",
-      "cjmmStep": "Evaluate Outcomes",
-      "prompt": "Which findings indicate improvement? Select all that apply.",
-      "content": {
-        "options": [{ "id": "o1", "text": "Outcome finding", "isCorrect": true, "rationale": "Why this indicates improvement" }]
-      },
-      "rationale": { "coreConcept": "...", "answerAnalysis": "...", "clinicalTakeaway": "..." }
-    }
+     // Exactly 6 screens following CJMM phases...
   ],
   "rationale": {
-    "coreConcept": "Main clinical concept tested",
-    "caseSummary": "2-3 sentence case summary for faculty",
-    "goldenRule": "One memorable principle",
-    "pitfalls": ["Common error 1", "Common error 2", "Common error 3"],
-    "mnemonic": { "title": "ACRONYM", "content": "A = ..., B = ...", "explanation": "What it helps remember" },
-    "cheatSheet": { "title": "Quick Reference", "points": ["Pearl 1", "Pearl 2", "Pearl 3"] },
-    "referenceInfo": {
-      "anatomy": "Relevant anatomical structures and relationships",
-      "physiology": "Relevant pathophysiology and mechanisms",
-      "pharmacology": "Medications involved, MOA, and nursing considerations"
-    }
+     // Detailed rationale...
   }
 }
 
-OUTPUT PURE JSON ONLY. Start with { and end with }.`;
+OUTPUT PURE JSON ONLY.`;
+
 
 // ============================================================================
 // LAYER 2: THE SPECIALIST (CONTENT ENRICHMENT)
 // ============================================================================
 
-const LAYER_2_PROMPT = `You are a clinical content specialist. Review this case study JSON and ENRICH any weak or incomplete sections.
+const LAYER_2_PROMPT = `You are a clinical content specialist. Enrich this NGN case study.
+Focus on:
+1. Professionalizing nursing documentation to sound like authentic EMR charting.
+2. Ensuring lab trends (T0 -> T1) are logically consistent with the patient's deterioration.
+3. Adding depth to the Rationale [Hook] \u2192 [Breakdown] \u2192 [Trap] format.
+4. Ensuring every distractor is plausible.
 
 ## ORIGINAL CASE:
 {{CASE_JSON}}
 
-## ENRICHMENT REQUIREMENTS:
-1. Every rationale must be at least 20 words using [Hook] → [Breakdown] → [Trap] format
-2. Highlight screens must have at least 7 spans with at least 2 distractors (isCorrect: false)
-3. Matrix must have at least 4 rows with detailed rationales
-4. Drop-Cloze must have at least 4 options per dropdown
-5. All nurse notes must include subjective AND objective data
-6. Labs must have proper units and flag abnormal values
-7. Pharmacology section must include mechanism of action and nursing considerations
+## OUTPUT:
+Return the COMPLETE enriched JSON.`;
+
+// ============================================================================
+// LAYER 3: THE CLINICAL EDITOR (FINAL REVIEW)
+// ============================================================================
+
+const LAYER_3_PROMPT = `You are a Senior Nursing Educator/Validator. Your task is to perform a FINAL review and repair of this NGN Case Study.
+Ensure it meets these strict NCLEX standards:
+
+## REPAIR CHECKLIST:
+1. **Deterioration Logic**: Does the patient clearly worsen between T0 and T1? Does T2 reflect the response to orders?
+2. **Vital Signs Details**: Ensure MAP is included if SBP < 90. Ensure O2 devices are specific.
+3. **Assessment Findings**: Add specific findings (Lung sounds: Crackles, Mentation: Confused, Perfusion: Cap refill > 4s) into the nursing notes or H\u0026P if missing.
+4. **Order Categories**: Ensure every order has a logical Category (Medications, Diagnostics, Monitoring, Escalation).
+5. **Lab Coherence**: If the patient has Sepsis, ensure Lactate is present. If ACS, Troponin. Ensure logical trends.
+
+## INPUT JSON:
+{{CASE_JSON}}
 
 ## OUTPUT:
-Return the COMPLETE enriched JSON (not just the changed parts). Start with { and end with }.`;
+Return the PERFECTED completion of this JSON. NO PLACEHOLDERS. Start with { and end with }.`;
 
 // ============================================================================
 // LAYER 3: THE VALIDATOR (QUALITY GATE)
@@ -492,21 +437,39 @@ export class LayeredCaseStudyFactory {
 
 
     /**
-     * Layer 3: Validate and fix
+     * Layer 3: Final Clinical Review and Perfection
      */
-    private static async runLayer3(caseData: CaseStudySkeleton): Promise<CaseStudySkeleton> {
+    private static async runLayer3(caseData: CaseStudySkeleton, maxRetries: number = 2): Promise<CaseStudySkeleton> {
+        console.log('[Layer3] Starting Final Clinical Review pass...');
+        const prompt = LAYER_3_PROMPT.replace('{{CASE_JSON}}', JSON.stringify(caseData, null, 2));
+
+        let lastError: Error | null = null;
+
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                console.log(`[Layer3] AI pass ${attempt}/${maxRetries}`);
+                // Use a standard model for review
+                const response = await this.callAI(prompt, 'gemini-2.0-flash');
+                const validated = JSON.parse(this.cleanJson(response));
+
+                console.log('[Layer3] Clinical review complete.');
+
+                return validated;
+            } catch (error: any) {
+                console.error(`[Layer3] AI pass ${attempt} failed:`, error.message);
+                lastError = error;
+
+                if (attempt < maxRetries) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+        }
+
+        // If AI review fails, run the programmatic fallback
+        console.warn(`[Layer3] AI review failed, running programmatic fallback. Error: ${lastError?.message}`);
         const validation = this.validate(caseData);
-
-        console.log('[Layer3] Validation result:', {
-            isValid: validation.isValid,
-            errors: validation.errors.length,
-            warnings: validation.warnings.length
-        });
-
         if (!validation.isValid) {
-            // Attempt auto-fix for common issues
-            const fixed = this.autoFix(caseData, validation);
-            return fixed;
+            return this.autoFix(caseData, validation);
         }
 
         return caseData;
@@ -678,7 +641,10 @@ export class LayeredCaseStudyFactory {
                         flag: l.flag,
                         category: l.category
                     })),
-                    orders: caseData.clinicalData.orders,
+                    orders: caseData.clinicalData.orders.map(o => ({
+                        ...o,
+                        order: o.category ? `[${o.category}] ${o.order}` : o.order
+                    })),
                     history: caseData.clinicalData.nursesNotes.map(n => ({
                         time: n.time,
                         note: n.note,
@@ -694,14 +660,20 @@ export class LayeredCaseStudyFactory {
                         type: screen.type,
                         cjmmStep: screen.cjmmStep,
                         prompt: screen.prompt,
-                        ...screen.content,
+                        content: {
+                            structure: {
+                                ...screen.content,
+                                type: screen.type,
+                                id: screen.id
+                            }
+                        },
                         rationale: screen.rationale
                     }))
                 },
                 rationale: {
                     coreConcept: caseData.rationale.coreConcept,
                     caseSummary: caseData.rationale.caseSummary,
-                    answerAnalysis: caseData.rationale.caseSummary,
+                    answerAnalysis: `## Step-by-Step Clinical Logic\n\n${caseData.screens.map((s, i) => `### Screen ${i + 1}: ${s.cjmmStep}\n**Rationale:** ${s.rationale?.answerAnalysis || 'Reviewing patient data and prioritizing needs.'}\n**Takeaway:** ${s.rationale?.clinicalTakeaway || ''}`).join('\n\n')}`,
                     goldenRule: caseData.rationale.goldenRule,
                     trap: caseData.rationale.pitfalls?.[0],
                     steps: [],
