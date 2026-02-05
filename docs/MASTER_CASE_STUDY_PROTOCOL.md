@@ -77,7 +77,34 @@ NGN items use specialized scoring models. The AI Factory MUST output the correct
 | **Orders** | `clinicalData.orders` | Array<{drug, dose}> |
 | **Radiology** | `clinicalData.radiology` | Array<{study, findings}> |
 
-## 6. Critical Preservation Rules
-1. **Screen Cohesion**: A Case Study MUST NOT be split into standalone items; it is a single longitudinal session.
-2. **Clinical Lock**: `clinicalData` initialized in Screen 1 MUST remain immutable for Screens 2-6.
-3. **Adaptive Weighting**: Success in Screens 1-3 (Recognition/Analysis) determines sub-item complexity in Screens 4-6.
+## 7. End-to-End Lifecycle (Prompt to Admin Panel)
+This section maps the complete journey of a Case Study item. Every file listed is a critical dependency.
+
+### A. Generation Phase (The Factory)
+- **Prompt Source**: `src/prompts/case-study-perfect-v3.md` (Contains the 4-pass clinical logic instructions).
+- **Templates**: `src/services/CaseStudyTemplates.ts` (Hardcoded difficulty & structural rules).
+- **Service**: `src/services/LayeredCaseStudyFactory.ts` (Orchestrates the 4 AI calls).
+- **Creation UI**: `src/components/wizards/LayeredCaseStudyWizard.tsx` (The wizard interface used by admins).
+
+### B. Validation & Storage Phase (The Ingestion)
+- **Ingestion**: `src/services/ingestion/ItemIngestionService.ts` (Validates JSON schema and clinical completeness).
+- **Normalization**: `src/services/UnifiedDataPipeline.ts` (Prepares data for DB storage and frontend rendering).
+- **Persistence**: `src/services/itemDbService.ts` (Saves to the item bank).
+- **Schema**: `src/types/master-schema.ts` (The TypeScript interface definition).
+
+### C. Management Phase (The Admin Panel)
+- **Dashboard**: `src/components/admin/AdminDashboard.tsx` (Overview of system health and items).
+- **Item Bank**: `src/components/admin/ItemBankGrid.tsx` (Main interface for searching and publishing case studies).
+- **Stability Fixes**: `src/components/admin/MagicFixModal.tsx` & `src/services/ultraFixerService.ts` (AI-powered repair tools for broken items).
+- **Management Logic**: `src/services/managers/ItemManager.ts` (Handles bulk publishing and status updates).
+
+### D. Rendering Phase (The Delivery)
+- **Main Renderer**: `src/components/item-types/ItemRenderer.tsx`.
+- **Case Layout**: `src/components/item-types/renderers/CaseStudyRenderer.tsx`.
+- **Clinical Feedback**: `src/components/UltimateRationale.tsx` (Maps the rationale data to the multi-tab remediation view).
+
+## 8. Development Invariant Rules
+1. **Never Re-Generate Blueprint**: Once Pass 1 is complete, all subsequent screens MUST use the same `clinicalData`.
+2. **Schema-First Hoisting**: If the Renderer cannot find screens, check `UnifiedDataPipeline` logic first.
+3. **Tab Label Collision**: UI Labels in `CaseStudyRenderer` and `UltimateRationale` MUST be synced manually if protocol changes.
+4. **Header Visibility**: If a field exists in `clinicalData.patientInfo`, it MUST be rendered in the `CaseStudyRenderer` header.
