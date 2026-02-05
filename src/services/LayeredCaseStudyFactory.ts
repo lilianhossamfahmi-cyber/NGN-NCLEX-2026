@@ -215,18 +215,25 @@ OUTPUT PURE JSON ONLY.`;
 // LAYER 2: THE SPECIALIST (CONTENT ENRICHMENT)
 // ============================================================================
 
-const LAYER_2_PROMPT = `You are a clinical content specialist. Enrich this NGN case study.
-Focus on:
-1. Professionalizing nursing documentation to sound like authentic EMR charting.
-2. Ensuring lab trends (T0 -> T1) are logically consistent with the patient's deterioration.
-3. Adding depth to the Rationale [Hook] \u2192 [Breakdown] \u2192 [Trap] format.
-4. Ensuring every distractor is plausible.
+const LAYER_2_PROMPT = `You are a clinical content specialist. Enrich this NGN case study with high-fidelity clinical detail.
+
+## ENRICHMENT RESPONSIBILITIES:
+1. **Nurses Notes (SBAR)**: Professionalize all nursing documentation into SBAR format (Situation, Background, Assessment, Recommendation). Provide at least TWO distinct, timestamped entries (e.g., at T0 and T1).
+2. **History & Physical (H&P)**: Enrich the H&P with focused subjective and objective findings. Crucially, include specific RED FLAGS (cues) and a few non-red-flag findings to challenge the student's prioritization.
+3. **Vital Signs & Trends**: Ensure logical progression across at least 3 timepoints (T0, T1, T2). Deterioration must be clinically plausible.
+4. **Laboratory & Radiology**: Include a coherent, case-specific set of diagnostics (e.g., CBC, CMP, Lactate, ABG/VBG, Troponin, BNP, D-dimer, CXR, ECG, Cultures). Ensure values trend logically across timepoints.
+5. **Medical Orders**: Organize provider orders into strict categories:
+   - **Medications**: Include specific dose, route, and frequency.
+   - **Diagnostics**: Labs, imaging, and bedside tests.
+   - **Monitoring**: I&O, telemetry, secondary assessments.
+   - **Escalation/Transfer**: Rapid response, ICU consults, or specialized consults.
+6. **Pharmacology & Rationales**: Deepen the pharmacology reference info and use the [Hook] → [Breakdown] → [Trap] format for all screen rationales.
 
 ## ORIGINAL CASE:
 {{CASE_JSON}}
 
 ## OUTPUT:
-Return the COMPLETE enriched JSON.`;
+Return the COMPLETE enriched JSON. Start with { and end with }.`;
 
 // ============================================================================
 // LAYER 3: THE CLINICAL EDITOR (FINAL REVIEW)
@@ -236,11 +243,13 @@ const LAYER_3_PROMPT = `You are a Senior Nursing Educator/Validator. Your task i
 Ensure it meets these strict NCLEX standards:
 
 ## REPAIR CHECKLIST:
-1. **Deterioration Logic**: Does the patient clearly worsen between T0 and T1? Does T2 reflect the response to orders?
-2. **Vital Signs Details**: Ensure MAP is included if SBP < 90. Ensure O2 devices are specific.
-3. **Assessment Findings**: Add specific findings (Lung sounds: Crackles, Mentation: Confused, Perfusion: Cap refill > 4s) into the nursing notes or H\u0026P if missing.
-4. **Order Categories**: Ensure every order has a logical Category (Medications, Diagnostics, Monitoring, Escalation).
-5. **Lab Coherence**: If the patient has Sepsis, ensure Lactate is present. If ACS, Troponin. Ensure logical trends.
+1. **Deterioration Logic**: Does the patient clearly worsen between T0 and T1? Does T2 reflect the response to orders? Are there exactly 3 labeled timepoints (T0, T1, T2)?
+2. **Vital Signs Details**: Ensure MAP is included if SBP < 90. Ensure O2 devices are specific (device + flow).
+3. **Nursing Documentation**: Are there at least 2 entries? Are they in **SBAR format**? Do they include lung sounds, mentation, and perfusion?
+4. **H&P Integrity**: Does the H&P include focused subjective/objective findings? Are there clear **RED FLAGS** mixed with non-urgent findings?
+5. **Order Categories**: Ensure every order has a logical Category (Medications, Diagnostics, Monitoring, Escalation). Medications must have dose/route/freq.
+6. **Lab & Radiology Coherence**: Diagnostics must be case-specific (e.g., Lactate for Sepsis, Troponin for ACS). Ensure values trend logically across timepoints.
+7. **Rationales**: Ensure [Hook] → [Breakdown] → [Trap] format is used correctly for all questions.
 
 ## INPUT JSON:
 {{CASE_JSON}}
