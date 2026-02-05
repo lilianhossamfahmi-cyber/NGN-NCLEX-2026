@@ -81,27 +81,27 @@ NGN items use specialized scoring models. The AI Factory MUST output the correct
 This section maps the complete journey of a Case Study item. Every file listed is a critical dependency.
 
 ### A. Generation Phase (The Factory)
-- **Prompt Source**: `src/prompts/case-study-perfect-v3.md` (Contains the 4-pass clinical logic instructions).
-- **Templates**: `src/services/CaseStudyTemplates.ts` (Hardcoded difficulty & structural rules).
-- **Service**: `src/services/LayeredCaseStudyFactory.ts` (Orchestrates the 4 AI calls).
-- **Creation UI**: `src/components/wizards/LayeredCaseStudyWizard.tsx` (The wizard interface used by admins).
+- **Prompt Source**: [case-study-perfect-v3.md](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/prompts/case-study-perfect-v3.md) (Contains the 4-pass clinical logic instructions).
+- **Templates**: [CaseStudyTemplates.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/services/CaseStudyTemplates.ts) (Hardcoded difficulty & structural rules).
+- **Service**: [LayeredCaseStudyFactory.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/services/LayeredCaseStudyFactory.ts) (Orchestrates the 4 AI calls).
+- **Creation UI**: [LayeredCaseStudyWizard.tsx](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/components/wizards/LayeredCaseStudyWizard.tsx) (The wizard interface used by admins).
 
 ### B. Validation & Storage Phase (The Ingestion)
-- **Ingestion**: `src/services/ingestion/ItemIngestionService.ts` (Validates JSON schema and clinical completeness).
-- **Normalization**: `src/services/UnifiedDataPipeline.ts` (Prepares data for DB storage and frontend rendering).
-- **Persistence**: `src/services/itemDbService.ts` (Saves to the item bank).
-- **Schema**: `src/types/master-schema.ts` (The TypeScript interface definition).
+- **Ingestion**: [ItemIngestionService.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/services/ingestion/ItemIngestionService.ts) (Validates JSON schema and clinical completeness).
+- **Normalization**: [UnifiedDataPipeline.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/services/UnifiedDataPipeline.ts) (Prepares data for DB storage and frontend rendering).
+- **Persistence**: [itemDbService.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/services/itemDbService.ts) (Saves to the item bank).
+- **Schema**: [master-schema.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/types/master-schema.ts) (The TypeScript interface definition).
 
 ### C. Management Phase (The Admin Panel)
-- **Dashboard**: `src/components/admin/AdminDashboard.tsx` (Overview of system health and items).
-- **Item Bank**: `src/components/admin/ItemBankGrid.tsx` (Main interface for searching and publishing case studies).
-- **Stability Fixes**: `src/components/admin/MagicFixModal.tsx` & `src/services/ultraFixerService.ts` (AI-powered repair tools for broken items).
-- **Management Logic**: `src/services/managers/ItemManager.ts` (Handles bulk publishing and status updates).
+- **Dashboard**: [AdminDashboard.tsx](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/components/admin/AdminDashboard.tsx) (Overview of system health and items).
+- **Item Bank**: [ItemBankGrid.tsx](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/components/admin/ItemBankGrid.tsx) (Main interface for searching and publishing case studies).
+- **Stability Fixes**: [MagicFixModal.tsx](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/components/admin/MagicFixModal.tsx) & [ultraFixerService.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/services/ultraFixerService.ts) (AI-powered repair tools for broken items).
+- **Management Logic**: [ItemManager.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/services/managers/ItemManager.ts) (Handles bulk publishing and status updates).
 
 ### D. Rendering Phase (The Delivery)
-- **Main Renderer**: `src/components/item-types/ItemRenderer.tsx`.
-- **Case Layout**: `src/components/item-types/renderers/CaseStudyRenderer.tsx`.
-- **Clinical Feedback**: `src/components/UltimateRationale.tsx` (Maps the rationale data to the multi-tab remediation view).
+- **Main Renderer**: [ItemRenderer.tsx](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/components/item-types/ItemRenderer.tsx).
+- **Case Layout**: [CaseStudyRenderer.tsx](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/components/item-types/renderers/CaseStudyRenderer.tsx).
+- **Clinical Feedback**: [UltimateRationale.tsx](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/components/UltimateRationale.tsx) (Maps the rationale data to the multi-tab remediation view).
 
 ## 8. Development Invariant Rules
 1. **Never Re-Generate Blueprint**: Once Pass 1 is complete, all subsequent screens MUST use the same `clinicalData`.
