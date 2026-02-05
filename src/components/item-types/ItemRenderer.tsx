@@ -60,7 +60,7 @@ export const normalizeConfig = (raw: any): QuestionConfig => {
             columns: config.columns || raw.columns || raw.content?.columns, // Hoist for Matrix
             options: config.options || raw.options || raw.content?.options, // Hoist for SATA/MCQ
             dropdowns: config.dropdowns || raw.dropdowns || raw.content?.dropdowns, // Hoist for Cloze
-            screens: config.screens || raw.screens || raw.content?.structure?.screens, // Hoist for Case Studies
+            screens: config.screens || raw.screens || raw.content?.screens || raw.content?.structure?.screens, // Hoist for Case Studies
         } as QuestionConfig;
     }
 

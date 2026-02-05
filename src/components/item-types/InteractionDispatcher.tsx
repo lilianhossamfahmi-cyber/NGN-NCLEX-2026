@@ -33,7 +33,7 @@ export const InteractionDispatcher = (props: any) => {
     if (type.includes('hot-spot') || type.includes('hot_spot') || type.includes('hotspot')) return <HotSpotRenderer {...props} />;
     if (type.includes('calculation') || type.includes('numeric') || type === 'math') return <CalculationRenderer {...props} />;
 
-    if (type.includes('single-response') || type.includes('single_response') || type.includes('single-choice') || type.includes('single_choice')) return <SingleChoiceRenderer {...props} />;
+    if (type.includes('single-response') || type.includes('single_response') || type.includes('single-choice') || type.includes('single_choice') || type === 'multiple-choice') return <SingleChoiceRenderer {...props} />;
 
     return (
         <div className="p-4 border-2 border-red-500 rounded text-red-600 bg-red-50 mb-4">

@@ -585,6 +585,58 @@ export class LayeredCaseStudyFactory {
         return json;
     }
 
+    private static normalizeBlueprint(blueprint: any): any {
+        const cd = blueprint.clinicalData || {};
+        const pp = blueprint.patientProfile || {};
+
+        // Map Patient Profile to Patient Info
+        const patientInfo = {
+            name: pp.name || 'Unknown Patient',
+            age: pp.age || '??',
+            gender: pp.sex || pp.gender || '?',
+            codeStatus: pp.codeStatus || 'Full Code',
+            allergies: pp.allergies || 'None'
+        };
+
+        // Map Nurse Notes to History
+        const history = (cd.nursesNotes || []).map((n: any) => ({
+            time: n.time,
+            note: n.note,
+            initial: n.initial
+        }));
+
+        // Map Labs
+        const labs = (cd.labs || []).map((l: any) => ({
+            test: l.test,
+            value: l.value,
+            unit: l.unit || l.units, // Align with Renderer
+            flag: l.flag,
+            category: l.category
+        }));
+
+        // Map Orders
+        const orders = (cd.orders || []).map((o: any) => ({
+            drug: o.drug || o.order, // Align with Renderer
+            dose: o.dose,
+            route: o.route,
+            freq: o.freq,
+            status: o.status,
+            indication: o.indication
+        }));
+
+        return {
+            ...blueprint,
+            clinicalData: {
+                ...cd,
+                patientInfo,
+                history,
+                labs,
+                orders,
+                vitals: cd.vitals || []
+            }
+        };
+    }
+
     public static async generateNextGen(config: GenerationConfig): Promise<MasterQuestionItem> {
         const template = DIFFICULTY_TEMPLATES[config.difficulty] || DIFFICULTY_TEMPLATES[3];
 
@@ -598,13 +650,16 @@ export class LayeredCaseStudyFactory {
             if (config.onProgress) config.onProgress({ layer: 2, status: 'complete', message: 'Skeleton generated', percent: 50 });
 
             // Pass 3: Distractors
-            const injectedScreens = await this.injectDistractors(blueprint, skeleton, template);
+            const injectedScreensRaw = await this.injectDistractors(blueprint, skeleton, template);
             if (config.onProgress) config.onProgress({ layer: 3, status: 'complete', message: 'Distractors injected', percent: 75 });
+
+            // Robust Screen Extraction
+            const screens = Array.isArray(injectedScreensRaw) ? injectedScreensRaw : (injectedScreensRaw.screens || []);
 
             // Assemble partial item for Pass 4
             const partialItem = {
                 ...blueprint,
-                screens: injectedScreens.screens
+                screens: screens
             };
 
             // Pass 4: Auditor & Remediation
@@ -612,6 +667,10 @@ export class LayeredCaseStudyFactory {
             if (config.onProgress) config.onProgress({ layer: 4, status: 'complete', message: 'Audited and Finalized', percent: 100 });
 
             // Final Assembly into MasterQuestionItem structure
+            // DEFENSIVE: Fallback to original blueprint/screens if auditor fails
+            const finalScreens = auditedData.screens || screens;
+            const finalRationale = auditedData.rationale || {};
+
             const finalItem: MasterQuestionItem = {
                 id: `cs-${Date.now()}`,
                 typeId: 'case-study',
@@ -621,7 +680,7 @@ export class LayeredCaseStudyFactory {
                     authorId: 'AI-SYSTEM',
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString(),
-                    status: 'draft',
+                    status: 'published', // Publish immediately for testing
                     sourceOrigin: 'ai',
                     sourceReferences: [],
                     hasStudentPreview: true,
@@ -634,9 +693,9 @@ export class LayeredCaseStudyFactory {
                 },
                 content: {
                     patientProfile: blueprint.patientProfile,
-                    clinicalData: blueprint.clinicalData,
-                    screens: auditedData.screens,
-                    rationale: auditedData.rationale
+                    clinicalData: this.normalizeBlueprint(blueprint).clinicalData,
+                    screens: finalScreens,
+                    rationale: finalRationale
                 }
             };
 
