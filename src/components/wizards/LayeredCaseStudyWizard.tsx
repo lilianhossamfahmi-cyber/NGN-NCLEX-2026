@@ -105,7 +105,7 @@ export const LayeredCaseStudyWizard: React.FC<LayeredCaseStudyWizardProps> = ({ 
         };
 
         try {
-            const result = await LayeredCaseStudyFactory.generate(config);
+            const result = await LayeredCaseStudyFactory.generateNextGen(config);
             setState(s => ({ ...s, step: 'complete', result }));
         } catch (error: any) {
             setState(s => ({
@@ -134,10 +134,8 @@ export const LayeredCaseStudyWizard: React.FC<LayeredCaseStudyWizardProps> = ({ 
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                     </div>
-                    <div>
-                        <h2 className="text-xl font-bold text-white">3-Layer Case Study Generator</h2>
-                        <p className="text-slate-400 text-sm">High-fidelity 6-question NCLEX-NGN case studies</p>
-                    </div>
+                    <h2 className="text-xl font-bold text-white">Schema-Driven Case Study Generator</h2>
+                    <p className="text-slate-400 text-sm">High-fidelity 6-question NCLEX-NGN (4-Pass Wizard)</p>
                 </div>
 
                 {state.error && (
@@ -277,15 +275,19 @@ export const LayeredCaseStudyWizard: React.FC<LayeredCaseStudyWizardProps> = ({ 
                     <div className="space-y-2 text-xs text-slate-400">
                         <div className="flex items-center gap-2">
                             <span className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center">1</span>
-                            <span><strong>Architect:</strong> Builds the structural skeleton with all placeholders</span>
+                            <span><strong>Blueprint:</strong> Establishes clinical truth and EHR data</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <span className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center">2</span>
-                            <span><strong>Specialist:</strong> Fills all content with high-fidelity clinical data</span>
+                            <span><strong>Skeleton:</strong> Maps the 6-screen CJMM logic flow</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">3</span>
-                            <span><strong>Validator:</strong> Verifies consistency, accuracy, and completeness</span>
+                            <span className="w-6 h-6 rounded-full bg-violet-500/20 text-violet-400 flex items-center justify-center">3</span>
+                            <span><strong>Injection:</strong> Populates content and distractors</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">4</span>
+                            <span><strong>Auditor:</strong> Finalizes logic and remediation</span>
                         </div>
                     </div>
                 </div>
@@ -310,13 +312,14 @@ export const LayeredCaseStudyWizard: React.FC<LayeredCaseStudyWizardProps> = ({ 
 
                 {/* Layer Progress */}
                 <div className="space-y-4 mb-6">
-                    {[1, 2, 3].map((layer) => {
+                    {[1, 2, 3, 4].map((layer) => {
                         const isActive = progress?.layer === layer;
                         const isComplete = (progress?.layer || 0) > layer;
                         const layerInfo = {
-                            1: { name: 'Architect', icon: '🏗️', color: 'blue' },
-                            2: { name: 'Specialist', icon: '🔬', color: 'amber' },
-                            3: { name: 'Validator', icon: '✅', color: 'emerald' }
+                            1: { name: 'Blueprint', icon: '🏗️', color: 'blue' },
+                            2: { name: 'Skeleton', icon: '📐', color: 'amber' },
+                            3: { name: 'Injection', icon: '💉', color: 'violet' },
+                            4: { name: 'Auditor', icon: '⚖️', color: 'emerald' }
                         }[layer]!;
 
                         return (

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Wand2, Loader2, Sparkles, AlertTriangle } from 'lucide-react';
-import { generateQuestions } from '../../services/questionGenerationService';
-import { ItemIngestionService } from '../../services/ingestion/ItemIngestionService';
-import { GenerationSettings } from '../../types/master-schema';
+import { LayeredCaseStudyFactory, GenerationConfig, LayerProgress } from '../../services/LayeredCaseStudyFactory';
 
 import { CLINICAL_TOPICS, ClinicalCategory, SubTopic } from '../../data/clinicalTopics';
 
@@ -43,107 +41,75 @@ export const CaseStudyWizard: React.FC<CaseStudyWizardProps> = ({ onCaseGenerate
 
         setIsGenerating(true);
         setError(null);
-        setStatus('Initializing Magic Engine...');
+        setStatus('Initializing 5-Layer Engine...');
 
-        let attempt = 1;
-        const maxAttempts = 3;
-        let success = false;
+        try {
+            // Use the memoized/component-level selectedTopic
+            const activeFocus = selectedSubTopic === 'custom' ? customFocus : selectedSubTopic;
 
-        // Use the memoized/component-level selectedTopic
-        const activeFocus = selectedSubTopic === 'custom' ? customFocus : selectedSubTopic;
-        const randomnessSeed = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
-
-        const topicContext = selectedTopic
-            ? `CATEGORY: ${selectedTopic.category}.
-               TOPIC: ${selectedTopic.label}.
-               PRIMARY FOCUS: ${activeFocus || 'Comprehensive Review'}.
-               CLINICAL ANCHORS: ${selectedTopic.clinicalAnchors.join(', ')}.
-               REQUIRED LABS: ${selectedTopic.requiredLabs?.join(', ')}.
-               SUGGESTED VITALS: ${selectedTopic.suggestedVitals?.join(', ')}.
-               PRIORITY: ${selectedTopic.isHighYield ? 'HIGH-YIELD (Strict Fidelity)' : 'Standard'}.
-               UNIQUE SEED: ${randomnessSeed} (Use this to vary patient biography, age, gender, and setting).
-               SUB-TOPICS AVAILABLE (For Variety): ${selectedTopic.subTopics.map(st => st.label).join(', ')}.`
-            : '';
-
-        while (attempt <= maxAttempts && !success) {
-            try {
-                if (attempt > 1) {
-                    setStatus(`Refining Output (Attempt ${attempt})...`);
-                } else {
-                    setStatus('Consulting Clinical AI...');
+            // Build config for LayeredCaseStudyFactory
+            const config: GenerationConfig = {
+                topic: topic,
+                subTopic: activeFocus || undefined,
+                difficulty: difficulty as 1 | 2 | 3 | 4 | 5,
+                patientAge: 'adult',
+                setting: String(selectedCategory).includes('Pharm') ? 'Outpatient Clinic' : 'Hospital - Medical/Surgical',
+                onProgress: (progress: LayerProgress) => {
+                    const emoji = ['🏗️', '🔬', '✍️', '🧪', '✨'][progress.layer - 1];
+                    setStatus(`${emoji} Layer ${progress.layer}: ${progress.message}`);
                 }
+            };
 
-                const settings: GenerationSettings = {
-                    mode: 'hybrid' as const,
-                    selectedReferenceIds: [],
-                    targetTypes: ['case-study'],
-                    quantityPerType: 1,
-                    clinicalFocus: [topic],
-                    difficultyLevel: difficulty,
-                    temperature: 0.7,
-                    manualContext: `Generate a TOTALLY UNIQUE, high-fidelity NGN Case Study focused on: ${topic}.
-                    ${topicContext}
+            console.log('[Wizard] Starting LayeredCaseStudyFactory generation with config:', config);
 
-                    CRITICAL INSTRUCTION:
-                    1. ABSOLUTELY NO DUPLICATION: Do not reuse patient names, ages, or specific histories from common templates. Use the UNIQUE SEED to randomize deeply.
-                    2. STRUCTURAL INTEGRITY: Ensure the JSON is valid and NOT truncated. If reaching token limits, simplify rationale text to ensure the JSON object closes properly.
-                    3. Ensure Exactly 6 distinct screens following NCLEX standards.`,
-                    aiPrompt: '',
-                    advanced: {
-                        includeAnswerKeys: true,
-                        includeRationales: true,
-                        detectDuplicates: true,
-                        flagCopyright: true,
-                        paraphraseStrictness: 'standard' as const
-                    }
-                };
+            // Generate using LayeredCaseStudyFactory - already returns MasterQuestionItem format
+            const result = await LayeredCaseStudyFactory.generate(config);
 
-                const response = await generateQuestions(settings, [], (msg) => setStatus(msg));
+            setStatus('Validating output...');
 
-                if (response.success && response.data && response.data.length > 0) {
-                    const rawItem = response.data[0];
+            // Debug log the result structure
+            console.log('[Wizard] LayeredCaseStudyFactory result:', {
+                hasContent: !!result.content,
+                hasStructure: !!result.content?.structure,
+                screenCount: result.content?.structure?.screens?.length || 0,
+                patientName: result.content?.clinicalData?.patientInfo?.name
+            });
 
-                    setStatus('Running Anti-Entropy Sanitization...');
-                    // ItemIngestionService.ingest handles full normalization and systemic fixes
-                    const cleanItem = await ItemIngestionService.ingest(rawItem);
+            // LayeredCaseStudyFactory already produces clean MasterQuestionItem format
+            // Skip ItemIngestionService which may corrupt the structure
+            const cleanItem = result;
 
-                    // Validation Checklist
-                    const screens = cleanItem.content?.structure?.screens ||
-                        cleanItem.structure?.screens ||
-                        cleanItem.screens || [];
+            // Validation Checklist - screens validation
+            const screens = cleanItem.content?.structure?.screens ||
+                (cleanItem as any).structure?.screens ||
+                (cleanItem as any).screens || [];
 
-                    if (screens.length === 0) {
-                        throw new Error('Structural Failure: No screens detected in AI output.');
-                    }
+            console.log('[Wizard] Screens found:', screens.length, screens.map((s: any) => s.type));
 
-                    // Anti-Lazy Placeholder Scan
-                    const rawString = JSON.stringify(rawItem);
-                    const lazyMatch = rawString.match(/\b(Option|Condition|Action|Dropdown|Fallback)\s+[A-Z\d]\b/i);
-                    if (lazyMatch) {
-                        throw new Error(`Placeholder Detected: AI generated "${lazyMatch[0]}". Retrying for clinical depth...`);
-                    }
-
-                    success = true;
-                    setStatus('Injection Ready!');
-
-                    // Small delay for UI feedback
-                    setTimeout(() => {
-                        onCaseGenerated(cleanItem);
-                        setIsGenerating(false);
-                    }, 800);
-
-                } else {
-                    throw new Error(response.error || 'Empty response from AI service.');
-                }
-            } catch (err: any) {
-                console.error(`[Wizard] Attempt ${attempt} failed:`, err.message);
-                if (attempt === maxAttempts) {
-                    setError(`Direct Injection Failed after ${maxAttempts} attempts. Error: ${err.message}`);
-                    setIsGenerating(false);
-                    break;
-                }
-                attempt++;
+            if (screens.length === 0) {
+                console.error('[Wizard] No screens found. Full result:', JSON.stringify(result, null, 2).substring(0, 2000));
+                throw new Error('Structural Failure: No screens detected in AI output.');
             }
+
+            // Anti-Lazy Placeholder Scan
+            const rawString = JSON.stringify(result);
+            const lazyMatch = rawString.match(/\b(Option|Condition|Action|Dropdown|Fallback)\s+[A-Z\d]\b/i);
+            if (lazyMatch) {
+                throw new Error(`Placeholder Detected: AI generated "${lazyMatch[0]}". Retrying...`);
+            }
+
+            setStatus('✅ Injection Ready!');
+
+            // Small delay for UI feedback
+            setTimeout(() => {
+                onCaseGenerated(cleanItem);
+                setIsGenerating(false);
+            }, 800);
+
+        } catch (err: any) {
+            console.error(`[Wizard] Generation failed:`, err.message);
+            setError(`Generation Failed: ${err.message}`);
+            setIsGenerating(false);
         }
     };
 
