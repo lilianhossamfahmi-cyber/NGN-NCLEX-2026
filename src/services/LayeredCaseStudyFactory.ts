@@ -372,6 +372,14 @@ const VALIDATION_RULES = {
     }
 };
 
+const SYSTEM_INSTRUCTION = `You are a Senior NCLEX-NGN Item Creator. 
+## STRICT CLINICAL QUALITY RULES:
+1. NEVER use ellipses (...) or placeholders like "TBD", "N/A", or "instructions".
+2. EVERY field must contain specific, high-fidelity clinical data.
+3. FORBIDDEN: Writing instructions to the user instead of content (e.g., "Describe the findings here").
+4. ACCURACY: Vital signs and labs must be physiologically possible and correlate with the diagnosis.
+5. JSON: Output ONLY the JSON object. Do not include chat filler or markdown outside the block.`;
+
 // ============================================================================
 // PROMPTS (NEXT GEN)
 // ============================================================================
@@ -381,31 +389,36 @@ Topic: {{TOPIC}}
 Difficulty: {{DIFFICULTY}} / 5
 Setting: {{SETTING}}
 
+## CLINICAL TIMELINE REQUIREMENT:
+The 3 vital sign sets MUST show a standard medical progression:
+- T0: Baseline / Admission.
+- T1: Deterioration / Crisis (Worsening vitals).
+- T2: Stabilizing or Critical Response to intervention.
+
 ## TEMPLATE REQUIREMENTS:
-- History & Physical (H&P): {{HP_WORDS}} words. Must include Subjective and Objective findings.
+- History & Physical (H&P): {{HP_WORDS}} words. Must include Subjective and Objective findings. FORBIDDEN: Writing instructions or summaries. Write specific medical details.
 - Vital Signs: EXACTLY {{VITALS_COUNT}} sets.
 - Labs: EXACTLY {{LABS_COUNT}} results. Include realistic flags ('H'/'L') and categories.
-- Nurses Notes: EXACTLY {{NOTES_COUNT}} SBAR formatted notes.
-- Orders: EXACTLY {{ORDERS_COUNT}} active orders.
-- Radiology: EXACTLY {{RADIOLOGY_COUNT}} reports.
+- Nurses Notes: EXACTLY {{NOTES_COUNT}} SBAR formatted notes. Use professional nursing terminology.
+- Orders: EXACTLY {{ORDERS_COUNT}} active orders. Specify Dose, Route, Frequency.
+- Radiology: EXACTLY {{RADIOLOGY_COUNT}} reports with Impression and Findings.
 
 ## ABSOLUTE CONSTRAINTS:
-1. Ensure the patient story is cohesive and correlates with the labs/vitals.
-2. For Expert level (4-5), include 2-3 "cognitive noise" findings (normal labs that distract).
-3. Output PURE JSON following this structure:
+1. Ensure the patient story is cohesive. Labs MUST support the H&P.
+2. Output PURE JSON following this structure:
 {
   "patientProfile": { "name": "", "age": "", "sex": "", "allergies": "", "chiefComplaint": "", "comorbidities": [], "codeStatus": "" },
   "clinicalData": {
     "setting": "{{SETTING}}",
     "vitals": [ { "time": "T0", "tempF": "", "hr": "", "rr": "", "bp": "", "o2": "", "o2Device": "RA", "pain": "" } ],
     "labs": [ { "test": "", "value": "", "units": "", "ref": "", "flag": "", "category": "" } ],
-    "nursesNotes": [ { "time": "T0", "category": "Admission", "note": "SBAR formatted", "initial": "RN" } ],
+    "nursesNotes": [ { "time": "T0", "category": "Admission", "note": "Professional SBAR", "initial": "RN" } ],
     "orders": [ { "order": "", "dose": "", "route": "", "freq": "", "status": "active", "indication": "", "category": "Medical" } ],
-    "historyPhysical": "",
+    "historyPhysical": "Detailed clinical narrative...",
     "radiology": [ { "study": "", "findings": "", "impression": "", "date": "" } ]
   }
 }
-DO NOT include screens or rationales yet. Start with { and end with }.`;
+DO NOT include screens yet. Start with { and end with }.`;
 
 const SKELETON_PROMPT = `You are a nursing education strategist. Based on the clinical blueprint below, define the 6-screen CJMM flow.
 
@@ -459,21 +472,27 @@ const AUDITOR_PROMPT = `You are a Senior Nurse Auditor. Your goal is to finalize
 {{ITEM}}
 
 ## ASSIGNMENT:
-1. Generate the 'rationale' object with these tabs:
-   - coreConcept: The primary clinical problem (1 sentence).
+1. Generate the 'rationale' object with THESE PRECISE KEYS (Mandatory):
+   - coreConcept: Primary problem (1 sentence).
    - caseSummary: High-level overview (3-4 sentences).
-   - goldenRule: The "must-know" takeaway (1 sentence).
-   - pitfalls: Common student traps (2-3 items).
-   - mnemonic: Tool to remember this topic.
+   - goldenRule: The clinical "Must-Know" (1 sentence).
+   - pitfalls: Common traps (2-3 items).
+   - trap: The single most dangerous clinical mistake a student could make here.
+   - mnemonic: Tool to remember this topic (title, content, explanation).
+   - cheatSheet: Clinical pearls (title, points[]).
+   - referenceInfo: Medical background (anatomy, physiology, pharm).
 2. Generate option-level feedback for ALL screens using the "Verdict" design.
 3. Validate that screen rationales do not contradict the H&P.
 
 ## OUTPUT:
-Return the full MasterQuestionItem with the 'rationale' and 'screens' (updated with rationales) populated.`;
+Return the full MasterQuestionItem. Start with { and end with }.`;
 
 export class LayeredCaseStudyFactory {
     private static async invokeAI(prompt: string): Promise<string> {
-        const model = getGenAI()?.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const model = getGenAI()?.getGenerativeModel({
+            model: "gemini-2.0-flash",
+            systemInstruction: SYSTEM_INSTRUCTION
+        });
         if (!model) throw new Error("GenAI model not initialized");
         await limiter.checkLimit();
         const result = await model.generateContent(prompt);
@@ -537,7 +556,33 @@ export class LayeredCaseStudyFactory {
         const start = text.indexOf('{');
         const end = text.lastIndexOf('}');
         if (start === -1 || end === -1) return '{}';
-        return text.substring(start, end + 1);
+
+        let json = text.substring(start, end + 1);
+
+        // Robust Repair: If it looks truncated (unbalanced braces), try to close them
+        let braceStack = 0;
+        let bracketStack = 0;
+        let inString = false;
+
+        for (let i = 0; i < json.length; i++) {
+            const char = json[i];
+            if (char === '"' && json[i - 1] !== '\\') inString = !inString;
+            if (!inString) {
+                if (char === '{') braceStack++;
+                if (char === '}') braceStack--;
+                if (char === '[') bracketStack++;
+                if (char === ']') bracketStack--;
+            }
+        }
+
+        // Auto-close missing parts if truncated
+        if (braceStack > 0 || bracketStack > 0) {
+            console.warn(`[JSON Repair] Truncation detected. Braces:${braceStack}, Brackets:${bracketStack}`);
+            while (bracketStack > 0) { json += ']'; bracketStack--; }
+            while (braceStack > 0) { json += '}'; braceStack--; }
+        }
+
+        return json;
     }
 
     public static async generateNextGen(config: GenerationConfig): Promise<MasterQuestionItem> {
