@@ -24,51 +24,60 @@ graph TD
     M -->|Remediation Mapping| N[Multi-Tab Rationale View]
 ```
 
-## 2. Shared System Files & Requirements
+## 2. Pedagogical Logic (The NCLEX CJMM)
+The Case Study follows the 6-step Clinical Judgment Measurement Model (CJMM). Every generation MUST follow this sequencing:
+
+| Screen # | CJMM Phase | Cognitive Task |
+| :--- | :--- | :--- |
+| **1** | **Recognize Cues** | Identify relevant vs. irrelevant data from the H&P/Notes. |
+| **2** | **Analyze Cues** | Connect cues to potential pathologies. |
+| **3** | **Prioritize Hypotheses** | Determine the most likely/urgent condition. |
+| **4** | **Generate Solutions** | Identify expected outcomes and interventions. |
+| **5** | **Take Action** | Select the best nursing interventions/treatments. |
+| **6** | **Evaluate Outcomes** | Assess the patient's response to the interventions. |
+
+## 3. Scoring Models & Data Requirements
+NGN items use specialized scoring models. The AI Factory MUST output the correct schema for each:
+
+| Scoring Type | NGN Item Mapping | JSON Schema Requirement |
+| :--- | :--- | :--- |
+| **0/1 Scoring** | Multiple Choice / Highlights | Single target per item. |
+| **+/- Scoring** | Multiple Response (SATA) | Support for partial credit and penalties. |
+| **Rationale Scoring** | Dyads / Triads | Linked logic (e.g., "If X because of Y"). |
+| **Matrix Scoring** | Matrix Grid | Individual row/column scoring keys. |
+
+## 4. System File Directory (Plumbing)
 
 ### A. Core Services (Generation & Logic)
 | File | Role | Clinical Requirement |
 | :--- | :--- | :--- |
-| **[LayeredCaseStudyFactory.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/services/LayeredCaseStudyFactory.ts)** | Orchestrator | MUST enforce the 4-pass pipeline: Blueprint -> Skeleton -> Injection -> Auditor. |
-| **[CaseStudyTemplates.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/services/CaseStudyTemplates.ts)** | Structural Source | Defines the exact number of screens and distractor ratios per difficulty level. |
-| **[RationalePipeline.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/services/RationalePipeline.ts)** | Remediation Logic | Parsed fields MUST map to the 5-tab UI structure (Overview, Option Review, Logic, Strategy, Knowledge). |
+| **[LayeredCaseStudyFactory.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/services/LayeredCaseStudyFactory.ts)** | Orchestrator | Executes the 4-Pass Clinical Pipeline. |
+| **[CaseStudyTemplates.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/services/CaseStudyTemplates.ts)** | Structural Source | Defines screen counts and distractor ratios. |
 
-### B. Ingestion & Schemas (The Blueprint)
+### B. Ingestion & Schemas (Integration)
 | File | Role | Structural Requirement |
 | :--- | :--- | :--- |
-| **[master-schema.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/types/master-schema.ts)** | Interface Def | Case Study items MUST adhere to the `screens[]` array and `clinicalData` nested object. |
-| **[UnifiedDataPipeline.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/services/UnifiedDataPipeline.ts)** | Data Ingestion | MUST hoist `screens` from `content.screens` or `content.structure.screens` to ensure renderer visibility. |
-| **[ItemIngestionService.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/services/ingestion/ItemIngestionService.ts)** | Security/Import | Rejects any JSON missing the `patientInfo` or `history` headers in the Blueprint. |
+| **[UnifiedDataPipeline.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/services/UnifiedDataPipeline.ts)** | Normalizer | Hoists `screens` and `clinicalData` for the renderer. |
+| **[ItemIngestionService.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/services/ingestion/ItemIngestionService.ts)** | Validator | Ensures "Nurses Notes" and "Labs" are presence. |
 
-### C. Rendering Systems (The Interaction)
-| File | Role | UI Requirement |
+### C. Rendering System (Display & Analytics)
+| File | Role | UI/Data Requirement |
 | :--- | :--- | :--- |
-| **[ItemRenderer.tsx](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/components/item-types/ItemRenderer.tsx)** | Root Dispatcher | MUST detect `type: 'case-study'` and prevent single-screen fallbacks if `screens` array is present. |
-| **[CaseStudyRenderer.tsx](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/components/item-types/renderers/CaseStudyRenderer.tsx)** | EHR & Layout | Controls the split-view. Labels MUST match EHR headers (Nurses Notes, Radiology, etc.). |
-| **[InteractionDispatcher.tsx](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/components/item-types/InteractionDispatcher.tsx)** | Sub-Renderer Link | MUST successfully map individual screen `types` to their respective sub-renderers (BowTie, Matrix, etc.). |
-| **[UltimateRationale.tsx](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/components/UltimateRationale.tsx)** | Rationale Modal | Standardized tab names: Option Review, Clinical Logic, Strategy, Knowledge. |
+| **[CaseStudyRenderer.tsx](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/components/item-types/renderers/CaseStudyRenderer.tsx)** | Layout | Standard EHR UI Labels: Nurses Notes, Laboratory Results, etc. |
+| **[UltimateRationale.tsx](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/components/UltimateRationale.tsx)** | Rationale | Standard Tab Labels: Option Review, Clinical Logic, Strategy, Knowledge. |
+| **[analyticsService.ts](file:///c:/Users/USER/OneDrive/Desktop/MASTER%20NGN%20GENERATOR-20251218T130148Z-3-001/MASTER%20NGN%20GENERATOR/src/services/analyticsService.ts)** | Tracking | Tracks performance by CJMM Step (1-6) across the case. |
 
-## 3. Data Key Mapping (UI Label -> JSON Key)
-
-### EHR Panel (Left)
-| UI Label | JSON Key | Structure |
+## 5. EHR Data Key Mapping (UI -> JSON)
+| UI Label | JSON Key Path | Rule |
 | :--- | :--- | :--- |
-| **History & Physical** | `content.clinicalData.historyPhysical` | String (Markdown) |
-| **Nurses Notes** | `content.clinicalData.history` | Array<{time, note}> |
-| **Vital Signs** | `content.clinicalData.vitals` | Array<{time, bp, hr...}> |
-| **Laboratory Results**| `content.clinicalData.labs` | Array<{test, value, unit}> |
-| **Orders** | `content.clinicalData.orders` | Array<{drug, dose, route}> |
-| **Radiology** | `content.clinicalData.radiology` | Array<{study, findings}> |
+| **History & Physical** | `clinicalData.historyPhysical` | Markdown |
+| **Nurses Notes** | `clinicalData.history` | Array<{time, note}> |
+| **Vital Signs** | `clinicalData.vitals` | Array<{time, bp...}> |
+| **Laboratory Results**| `clinicalData.labs` | Array<{test, value}> |
+| **Orders** | `clinicalData.orders` | Array<{drug, dose}> |
+| **Radiology** | `clinicalData.radiology` | Array<{study, findings}> |
 
-### Patient Header (Top Left)
-| UI Field | JSON Key | Requirement |
-| :--- | :--- | :--- |
-| **Code Status** | `patientInfo.codeStatus` | Full Code, DNR, etc. |
-| **Isolation** | `patientInfo.isolation` | Standard, Contact, etc. |
-| **Allergies** | `patientInfo.allergies` | NKDA or detailed list. |
-| **Loc / Provider** | `patientInfo.location` / `provider` | Floor name / Dr. Name. |
-
-## 4. Invariant Rules for Developers
-1. **Never Re-Generate Blueprint**: Once Pass 1 is complete, all subsequent screens MUST use the same `clinicalData`.
-2. **Schema-First Hoisting**: If the Renderer cannot find screens, check `UnifiedDataPipeline` logic first.
-3. **Tab Label Collision**: UI Labels in `CaseStudyRenderer` and `UltimateRationale` MUST be synced manually if protocol changes.
+## 6. Critical Preservation Rules
+1. **Screen Cohesion**: A Case Study MUST NOT be split into standalone items; it is a single longitudinal session.
+2. **Clinical Lock**: `clinicalData` initialized in Screen 1 MUST remain immutable for Screens 2-6.
+3. **Adaptive Weighting**: Success in Screens 1-3 (Recognition/Analysis) determines sub-item complexity in Screens 4-6.
