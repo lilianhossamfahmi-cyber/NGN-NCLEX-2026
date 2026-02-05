@@ -406,8 +406,10 @@ The 3 vital sign sets MUST show a standard medical progression:
 ## ABSOLUTE CONSTRAINTS:
 1. Ensure the patient story is cohesive. Labs MUST support the H&P.
 2. Output PURE JSON following this structure:
-{
-  "patientProfile": { "name": "", "age": "", "sex": "", "allergies": "", "chiefComplaint": "", "comorbidities": [], "codeStatus": "" },
+  "patientProfile": { 
+    "name": "", "age": "", "sex": "", "allergies": "", "chiefComplaint": "", "comorbidities": [], "codeStatus": "",
+    "admissionDate": "MM/DD/YYYY HH:mm", "location": "", "provider": "", "nurse": "", "isolation": ""
+  },
   "clinicalData": {
     "setting": "{{SETTING}}",
     "vitals": [ { "time": "T0", "tempF": "", "hr": "", "rr": "", "bp": "", "o2": "", "o2Device": "RA", "pain": "" } ],
@@ -595,7 +597,12 @@ export class LayeredCaseStudyFactory {
             age: pp.age || '??',
             gender: pp.sex || pp.gender || '?',
             codeStatus: pp.codeStatus || 'Full Code',
-            allergies: pp.allergies || 'None'
+            allergies: pp.allergies || 'None',
+            admissionDate: pp.admissionDate || new Date().toLocaleString(),
+            location: pp.location || 'MedSurg-12',
+            provider: pp.provider || 'Dr. S. Specialist',
+            nurse: pp.nurse || 'RN Staff',
+            isolation: pp.isolation || 'Standard Precautions'
         };
 
         // Map Nurse Notes to History

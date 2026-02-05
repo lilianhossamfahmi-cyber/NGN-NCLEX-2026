@@ -861,7 +861,7 @@ export const UltimateRationale = ({
 
 
     const tabs = [
-        { id: "0", label: "Item Overview & Actions", icon: FileText },
+        { id: "0", label: "Case Overview", icon: FileText },
         { id: "1", label: "Option Review", icon: ListChecks },
         { id: "2", label: "Clinical Logic", icon: Brain },
         { id: "3", label: "Strategy", icon: Target },

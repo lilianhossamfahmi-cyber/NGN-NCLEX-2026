@@ -10,7 +10,9 @@ import {
     Beaker,
     Pill,
     CheckCircle2,
-    AlertCircle
+    AlertCircle,
+    ScrollText,
+    Search
 } from 'lucide-react';
 import { normalizeConfig } from '../ItemRenderer';
 
@@ -80,23 +82,66 @@ export const CaseStudyRenderer: React.FC<GenericRendererProps> = ({
             <div className="flex flex-col h-full bg-[#f8fafc] border-r border-[#e2e8f0] overflow-hidden">
                 {/* EHR Header */}
                 <div className="p-4 bg-white border-b border-[#e2e8f0] shadow-sm">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-2">
                         <Clipboard className="w-4 h-4 text-blue-600" />
                         <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Patient Record</span>
                     </div>
-                    <h3 className="text-sm font-bold text-slate-900">{p.name}</h3>
-                    <div className="text-[11px] text-slate-500 font-medium">
-                        Age: {p.age} | Sex: {p.gender} | {p.codeStatus}
+                    <div className="flex flex-col gap-2">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h3 className="text-sm font-bold text-slate-900">{p.name || 'Unknown Patient'}</h3>
+                                <div className="text-[10px] text-slate-500 font-medium">
+                                    Age: {p.age} | Sex: {p.gender} | <span className="text-blue-600 font-bold">{p.codeStatus}</span>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-[10px] text-slate-400 font-black uppercase tracking-tighter">Admission</div>
+                                <div className="text-[10px] font-bold text-slate-700">{p.admissionDate || 'N/A'}</div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 py-2 border-t border-slate-50 mt-1">
+                            <div className="flex flex-col">
+                                <span className="text-[9px] font-black uppercase text-slate-400">Location</span>
+                                <span className="text-[10px] font-bold text-slate-700">{p.location || 'MedSurg'}</span>
+                            </div>
+                            <div className="flex flex-col text-right">
+                                <span className="text-[9px] font-black uppercase text-slate-400">Allergies</span>
+                                <span className="text-[10px] font-bold text-red-600 truncate">{p.allergies || 'NONE'}</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[9px] font-black uppercase text-slate-400">Attending Prov.</span>
+                                <span className="text-[10px] font-bold text-slate-700 truncate">{p.provider || 'MD-STAFF'}</span>
+                            </div>
+                            <div className="flex flex-col text-right">
+                                <span className="text-[9px] font-black uppercase text-slate-400">Isolation</span>
+                                <span className="text-[10px] font-bold text-amber-600">{p.isolation || 'Standard'}</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[9px] font-black uppercase text-slate-400">Primary Nurse</span>
+                                <span className="text-[10px] font-bold text-slate-700">{p.nurse || 'RN-STAFF'}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 {/* EHR Content (Scrollable) */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                    {/* Notes */}
+                    {/* History & Physical */}
+                    {clinicalData.historyPhysical && (
+                        <div className="bg-white p-3 rounded-lg border border-[#e2e8f0] shadow-sm">
+                            <h4 className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 mb-2">
+                                <ScrollText className="w-3 h-3" /> History & Physical
+                            </h4>
+                            <div className="text-xs leading-relaxed text-slate-600 space-y-2" dangerouslySetInnerHTML={{ __html: clinicalData.historyPhysical }} />
+                        </div>
+                    )}
+
+                    {/* Nurses Notes */}
                     {clinicalData.history?.length > 0 && (
                         <div className="bg-white p-3 rounded-lg border border-[#e2e8f0] shadow-sm">
                             <h4 className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 mb-2">
-                                <FileText className="w-3 h-3" /> Progress Notes
+                                <FileText className="w-3 h-3" /> Nurses Notes
                             </h4>
                             <div className="space-y-2">
                                 {Array.isArray(clinicalData.history) ? (
@@ -150,7 +195,7 @@ export const CaseStudyRenderer: React.FC<GenericRendererProps> = ({
                     {clinicalData.labs?.length > 0 && (
                         <div className="bg-white p-3 rounded-lg border border-[#e2e8f0] shadow-sm">
                             <h4 className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 mb-2">
-                                <Beaker className="w-3 h-3" /> Laboratory
+                                <Beaker className="w-3 h-3" /> Laboratory Results
                             </h4>
                             <div className="space-y-2">
                                 {clinicalData.labs.map((l: any, i: number) => (
@@ -167,13 +212,33 @@ export const CaseStudyRenderer: React.FC<GenericRendererProps> = ({
                     {clinicalData.orders?.length > 0 && (
                         <div className="bg-white p-3 rounded-lg border border-[#e2e8f0] shadow-sm">
                             <h4 className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 mb-2">
-                                <Pill className="w-3 h-3" /> Medical Orders
+                                <Pill className="w-3 h-3" /> Orders
                             </h4>
                             <div className="space-y-2">
                                 {clinicalData.orders.map((o: any, i: number) => (
                                     <div key={i} className="text-xs border-b border-slate-50 pb-1 last:border-0">
                                         <div className="font-bold text-slate-800">{o.drug}</div>
                                         <div className="text-[10px] text-slate-500">{o.dose} {o.route} {o.freq}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Radiology */}
+                    {clinicalData.radiology?.length > 0 && (
+                        <div className="bg-white p-3 rounded-lg border border-[#e2e8f0] shadow-sm">
+                            <h4 className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 mb-2">
+                                <Search className="w-3 h-3" /> Radiology
+                            </h4>
+                            <div className="space-y-3">
+                                {clinicalData.radiology.map((r: any, i: number) => (
+                                    <div key={i} className="text-xs space-y-1">
+                                        <div className="font-bold text-slate-800">{r.study || 'Radiology Study'}</div>
+                                        <div className="font-mono text-[9px] bg-slate-50 p-1.5 rounded border border-slate-100/50">
+                                            {r.findings || 'No findings reported.'}
+                                        </div>
+                                        {r.impression && <div className="text-[10px] text-indigo-600 font-bold">Impression: {r.impression}</div>}
                                     </div>
                                 ))}
                             </div>
