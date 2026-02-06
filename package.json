@@ -7,11 +7,15 @@
         "bulk:gen": "node -r dotenv/config --loader ts-node/esm --experimental-specifier-resolution=node scripts/bulkGenerator.ts",
         "bulk:repair": "npx tsx --env-file=.env scripts/bulkRepair.ts",
         "dev": "vite",
-        "build": "node node_modules/vite/bin/vite.js build",
+        "build": "npx tsx scripts/generateSchema.ts && tsc && vite build",
         "preview": "vite preview",
         "type-check": "tsc --noEmit",
         "lint": "eslint src --ext .ts,.tsx",
         "test": "jest",
+        "test:replay": "jest --testPathPatterns replay-payloads",
+        "schema:gen": "npx tsx scripts/generateSchema.ts",
+        "schema:diff": "npx tsx scripts/schemaDiff.ts",
+        "backfill": "npx tsx scripts/backfillItems.ts",
         "test:integration": "jest --testPathPattern=integration",
         "test:smoke": "jest --testPathPattern=smoke",
         "deploy:staging": "vercel deploy --prod=false",
@@ -45,7 +49,10 @@
         "tailwind-merge": "^3.4.0",
         "tsx": "^4.21.0",
         "uuid": "^13.0.0",
-        "zod": "^4.3.5"
+        "zod": "^4.3.5",
+        "ajv": "^8.17.1",
+        "ajv-formats": "^3.0.1",
+        "zod-to-json-schema": "^3.23.0"
     },
     "devDependencies": {
         "@tailwindcss/postcss": "^4.1.18",

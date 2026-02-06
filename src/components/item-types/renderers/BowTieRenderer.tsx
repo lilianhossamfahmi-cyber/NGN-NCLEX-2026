@@ -127,18 +127,26 @@ export const BowTieRenderer: React.FC<GenericRendererProps> = ({ config, answers
 
             if (slotType === 'center') {
                 const found = conditionPool.find((c: any) => c.id === data.id);
-                if (found) newAns.center = data.id;
+                // GUARD: Validate pool item exists before assignment
+                if (!found) {
+                    console.error('[BowTieRenderer] Condition ID not found in pool:', data.id, 'Available:', conditionPool.map((c: any) => c.id));
+                    return; // Graceful exit instead of crash
+                }
+                newAns.center = data.id;
             } else if (index !== undefined) {
                 const pool = slotType === 'actions' ? actionPool : paramPool;
                 const found = pool?.find((c: any) => c.id === data.id);
-                if (found) {
-                    newAns[slotType][index] = data.id;
+                // GUARD: Validate pool item exists before assignment
+                if (!found) {
+                    console.error(`[BowTieRenderer] ${slotType} ID not found in pool:`, data.id, 'Available:', pool?.map((c: any) => c.id));
+                    return; // Graceful exit instead of crash
                 }
+                newAns[slotType][index] = data.id;
             }
 
             setAnswers(newAns);
         } catch (err) {
-            console.error("Drop failed", err);
+            console.error("[BowTieRenderer] Drop failed:", err);
         }
     };
 

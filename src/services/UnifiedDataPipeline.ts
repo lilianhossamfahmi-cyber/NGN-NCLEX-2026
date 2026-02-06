@@ -18,7 +18,9 @@
 
 import { MasterQuestionItem, InputMode } from '../types/master-schema';
 import { ItemManagerFactory } from './managers/ItemManagerFactory';
-import { applySystemicFixes, validateCaseStudy, sanitizeCaseStudyDeep } from '../utils/question-validators';
+import { applySystemicFixes, sanitizeCaseStudyDeep } from '../utils/question-validators';
+import { sanitizeItem } from '../middleware/sanitizeIds';
+import { validatorService } from './CompiledValidatorService';
 
 // ============================================================================
 // CANONICAL INTERFACES
@@ -254,8 +256,12 @@ export class UnifiedDataPipeline {
             return UnifiedDataPipeline.createEmptyItem();
         }
 
-        // Create a working copy
-        const item: any = JSON.parse(JSON.stringify(raw));
+        // STEP 0: Sanitize malformed IDs and double-encoded JSON BEFORE any processing
+        // This is the first line of defense against crasher payloads
+        const sanitized = sanitizeItem(raw);
+
+        // Create a working copy from the sanitized input
+        const item: any = JSON.parse(JSON.stringify(sanitized));
 
         // Step 1: Ensure basic structure exists
         UnifiedDataPipeline.ensureBasicStructure(item);
@@ -342,10 +348,12 @@ export class UnifiedDataPipeline {
         const finalCleaned = sanitizeCaseStudyDeep(item);
         Object.assign(item, finalCleaned);
 
-        // Step 12: FINAL GATEKEEPER VALIDATION
-        const errors = validateCaseStudy(item);
-        if (errors.length > 0) {
-            console.warn(`[UnifiedDataPipeline] Item ${item.id} failed structural validation:`, errors);
+        // Step 12: FINAL GATEKEEPER VALIDATION (Ajv Schema Based)
+        const validationResult = validatorService.validate(item);
+        const errors = validationResult.valid ? [] : (validationResult.errors || []);
+
+        if (!validationResult.valid) {
+            console.warn(`[UnifiedDataPipeline] Item ${item.id} failed structural validation v${validatorService.getVersion()}:`, errors);
             item._validationErrors = errors;
         }
 

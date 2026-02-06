@@ -1,6 +1,13 @@
-# MASTER CASE STUDY PROTOCOL (Single Source of Truth)
+# MASTER CASE STUDY PROTOCOL (v1.0.0)
+> SINGLE SOURCE OF TRUTH FOR DATA MAPPING & STRUCTURE
 
-This document defines the strict schema, labeling, and architectural requirements for the NGN Case Study system. All Generation passes, Data Pipelines, and UI Renderers MUST adhere to these exact keys and associations.
+## ⚠️ SCHEMA ENFORCEMENT & COMPLIANCE
+As of v1.0.0, ALL items are subjected to the Unified Data Pipeline (UDP) which enforces:
+1. **ID Sanitization**: Stripping trailing commas and whitespace.
+2. **JSON Revival**: Automatic parsing of double-encoded JSON strings in metadata.
+3. **Ajv Validation**: Final gatekeeper validation against `MasterQuestionItem.schema.json`.
+
+ALL renderers MUST assume sanitized data. Do not manually clean data in the rendering layer; add guard clauses instead. This document defines the strict schema, labeling, and architectural requirements for the NGN Case Study system. All Generation passes, Data Pipelines, and UI Renderers MUST adhere to these exact keys and associations.
 
 ## 1. System Architecture Map
 The Case Study lifecycle is governed by the following interconnected systems:

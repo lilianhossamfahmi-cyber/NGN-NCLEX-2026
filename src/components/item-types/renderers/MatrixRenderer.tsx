@@ -116,6 +116,25 @@ export const MatrixRenderer: React.FC<GenericRendererProps> = ({ config, answers
     };
 
     // Unified View with Mobile Scroll Wrapper
+    // GUARD: Early return if rows/columns are missing to prevent crash
+    if (!config.rows?.length || !config.columns?.length) {
+        return (
+            <div className="matrix-renderer font-inter p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center gap-2 text-red-700 font-semibold">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span>Matrix Configuration Error</span>
+                </div>
+                <p className="text-sm text-red-600 mt-2">
+                    Missing required data: {!config.rows?.length && 'rows'}{!config.rows?.length && !config.columns?.length && ' and '}{!config.columns?.length && 'columns'}.
+                    <br />
+                    <span className="text-xs text-red-500">Item ID: {config.id || 'unknown'}</span>
+                </p>
+            </div>
+        );
+    }
+
     return (
         <div className="matrix-renderer font-inter" style={{ margin: '1rem 0' }}>
             <style>{`
