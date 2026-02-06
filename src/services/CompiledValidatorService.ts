@@ -2,7 +2,7 @@ import Ajv, { ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import fs from 'fs';
 import path from 'path';
-import { MasterQuestionItem } from '../types/master-schema';
+// import { MasterQuestionItem } from '../types/master-schema'; 
 
 /**
  * CompiledValidatorService.ts
@@ -34,10 +34,7 @@ class CompiledValidatorService {
 
     private init() {
         try {
-            const schemaPath = path.resolve(
-                process.cwd(),
-                `src/schemas/v1/MasterQuestionItem.schema.json`
-            );
+            // Note: During generation we used v1.0.0 but the script path was src/schemas/v1.0.0
 
             // Note: During generation we used v1.0.0 but the script path was src/schemas/v1.0.0
             // Let's check the actual path generated
