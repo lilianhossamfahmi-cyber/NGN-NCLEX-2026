@@ -6,9 +6,9 @@
     "scripts": {
         "bulk:gen": "node -r dotenv/config --loader ts-node/esm --experimental-specifier-resolution=node scripts/bulkGenerator.ts",
         "bulk:repair": "npx tsx --env-file=.env scripts/bulkRepair.ts",
-        "dev": "vite",
-        "build": "npx tsx scripts/generateSchema.ts && vite build",
-        "preview": "vite preview",
+        "dev": "node node_modules/vite/bin/vite.js",
+        "build": "npx tsx scripts/generateSchema.ts && node node_modules/vite/bin/vite.js build",
+        "preview": "node node_modules/vite/bin/vite.js preview",
         "type-check": "node node_modules/typescript/bin/tsc --noEmit",
         "lint": "eslint src --ext .ts,.tsx",
         "test": "jest",
