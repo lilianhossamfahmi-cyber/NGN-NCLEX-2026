@@ -404,7 +404,7 @@ const DropSlot = ({ id, label, status, placeholder, isActive, color, onClick, on
             onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
             onDrop={onDrop}
             className={`
-                min-h-[64px] rounded-xl border-2 ${isActive ? 'border-dashed animate-pulse ring-2 ring-offset-2' : (id ? 'border-solid' : 'border-dashed')} ${borderColor} ${bgColor}
+                h-16 w-full rounded-xl border-2 ${isActive ? 'border-dashed animate-pulse ring-2 ring-offset-2' : (id ? 'border-solid' : 'border-dashed')} ${borderColor} ${bgColor}
                 flex items-center justify-center text-center p-3 cursor-pointer transition-all hover:shadow-md
             `}
         >

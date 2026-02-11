@@ -17,6 +17,8 @@ import { Wand2, X, Loader2 } from 'lucide-react';
 import { updateItem } from '../services/itemApiService';
 import { syncItemToSupabase } from '../services/itemSyncService';
 import { magicFixItem } from '../services/geminiService';
+import { NursesNotesPanel } from './clinical/NursesNotesPanel';
+import { VitalsPanel } from './clinical/VitalsPanel';
 
 interface StudentPreviewModalProps {
     item: MasterQuestionItem;
@@ -253,19 +255,12 @@ const CaseTabSystem = ({ activeTab, onTabChange }: any) => {
 
 import { normalizeConfig } from './item-types/ItemRenderer';
 import { PerfectFillService } from '../utils/perfectFillSystem';
-import { DataSanitizer, StructuredNote } from '../utils/DataSanitizer';
+import { DataSanitizer } from '../utils/DataSanitizer';
 import {
-    calculateMAP,
-    calculateMEWS,
-    parseBP,
-    getVitalStatus,
     getLabStatus,
     calculateDelta,
     applyTallManLettering,
     isHighAlertMedication,
-    isCriticalNote,
-    isInterventionNote,
-    hasDocumentedResponse,
     hasCriticalRadiologyFinding
 } from '../utils/ClinicalHelpers';
 
@@ -407,313 +402,10 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
 
     if (!item) return null;
 
-    // 2. HELPER: Render the "Timeline Feed" (Nurses Notes) - GOLD STANDARD
-    const renderNursesNotes = (data: any) => {
-        let notes: StructuredNote[] = (item.content?.clinicalData as any)?._structuredHistory;
-        if (!notes) {
-            const rawData = data || item.content?.clinicalData?.history || (item.content?.clinicalData as any)?.nursesNotes;
-            notes = DataSanitizer.sanitizeNursesNotes(rawData);
-        }
+    // 2. HELPER: Render the "Timeline Feed" (Nurses Notes) - Extracted to NursesNotesPanel
+    // 3. HELPER: Vitals - Extracted to VitalsPanel
 
-        // Empty State
-        if (!notes || notes.length === 0) {
-            return (
-                <div className="flex flex-col items-center justify-center py-12 px-4">
-                    <div className="text-5xl mb-4 opacity-50">📋</div>
-                    <h3 className="text-lg font-semibold text-slate-600 mb-2">No Nursing Documentation</h3>
-                    <p className="text-sm text-slate-400 text-center max-w-sm">
-                        Nursing notes have not been documented for this encounter yet.
-                    </p>
-                </div>
-            );
-        }
 
-        // Detect shift changes (0700-1900 = Day, 1900-0700 = Night)
-        let lastShift = '';
-
-        return (
-            <div className="flex flex-col relative pl-2 pr-2">
-                {/* Vertical Timeline Line - moved closer to content */}
-                <div className="absolute left-[72px] top-6 bottom-6 w-0.5 bg-gradient-to-b from-blue-200 via-slate-200 to-blue-200"></div>
-
-                {notes.map((row, idx) => {
-                    // Determine shift
-                    const hourMatch = row.time.match(/(\d{1,2}):/);
-                    const hour = hourMatch ? parseInt(hourMatch[1]) : 12;
-                    const currentShift = (hour >= 7 && hour < 19) ? 'Day Shift' : 'Night Shift';
-                    const showShiftChange = currentShift !== lastShift && idx > 0;
-                    lastShift = currentShift;
-
-                    // Check for critical note
-                    const critical = isCriticalNote(row.note);
-
-                    // Check if intervention needs response (JCI requirement)
-                    const needsResponse = isInterventionNote(row.note) && !hasDocumentedResponse(row.note);
-
-                    // Smart parsing for Assessment/Action/Response
-                    const parts = {
-                        assessment: row.note.match(/(?:Assessment|S:|Situation:)([^]*?)(?=(?:Action|A:|Response|R:|$))/i)?.[1] || "",
-                        action: row.note.match(/(?:Action|A:|Intervention:)([^]*?)(?=(?:Response|R:|$))/i)?.[1] || "",
-                        response: row.note.match(/(?:Response|R:|Outcome:)([^]*?$)/i)?.[1] || "",
-                        general: ""
-                    };
-                    if (!parts.assessment && !parts.action && !parts.response) parts.general = row.note;
-
-                    return (
-                        <React.Fragment key={idx}>
-                            {/* Shift Change Separator */}
-                            {showShiftChange && (
-                                <div className="flex items-center gap-3 my-3 ml-16">
-                                    <div className="flex-1 h-px bg-slate-300"></div>
-                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-white px-2 py-0.5 rounded-full border border-slate-200 shadow-sm">
-                                        {currentShift}
-                                    </span>
-                                    <div className="flex-1 h-px bg-slate-300"></div>
-                                </div>
-                            )}
-
-                            {/* Tighter Timeline Row */}
-                            <div className="flex gap-4 mb-5 relative">
-                                {/* Time Zone - more compact */}
-                                <div className="flex flex-col items-end w-14 flex-shrink-0 pt-1 relative z-10">
-                                    <span className="text-sm font-bold text-slate-700 leading-none">{row.time}</span>
-                                    <span className="text-[9px] text-slate-400 mt-0.5">Today</span>
-                                    {/* Timeline Dot */}
-                                    <div className={`absolute -right-[21px] top-1 w-2.5 h-2.5 rounded-full border-2 border-white shadow ${critical ? 'bg-red-500' : 'bg-blue-500'}`}></div>
-                                </div>
-
-                                {/* Content Zone - improved styling */}
-                                <div className={`flex-1 rounded-lg shadow-sm border hover:shadow-md transition-shadow ${critical
-                                    ? 'bg-red-50 border-red-200 border-l-4 border-l-red-500'
-                                    : 'bg-white border-slate-200 border-l-4 border-l-blue-400'
-                                    }`}>
-                                    {/* Header Row */}
-                                    <div className="flex justify-between items-center px-4 py-2 border-b border-slate-100/80">
-                                        <div className="flex items-center gap-2">
-                                            {critical && <span className="animate-pulse">🚨</span>}
-                                            <span className={`font-semibold text-xs uppercase tracking-wider ${critical ? 'text-red-800' : 'text-slate-600'}`}>
-                                                {idx === 0 ? 'Admission' : critical ? 'Critical' : 'Progress'}
-                                            </span>
-                                        </div>
-                                        <span className="text-[10px] text-slate-400 font-mono bg-slate-50 px-1.5 py-0.5 rounded">{row.initial}</span>
-                                    </div>
-
-                                    {/* Note Content */}
-                                    <div className="px-4 py-3 space-y-2 text-sm text-slate-700 leading-relaxed">
-                                        {parts.general && <div dangerouslySetInnerHTML={{ __html: parts.general.replace(/\n/g, '<br/>') }} />}
-
-                                        {parts.assessment && (
-                                            <div className="bg-slate-50/80 p-2 rounded text-xs border-l-2 border-slate-300">
-                                                <span className="font-bold text-slate-500 uppercase tracking-wider text-[10px]">SITUATION</span>
-                                                <div className="mt-1 text-slate-600" dangerouslySetInnerHTML={{ __html: parts.assessment.trim() }} />
-                                            </div>
-                                        )}
-                                        {parts.action && (
-                                            <div className="bg-blue-50/50 p-2 rounded text-xs border-l-2 border-blue-300">
-                                                <span className="font-bold text-blue-600 uppercase tracking-wider text-[10px]">ACTION</span>
-                                                <div className="mt-1 text-slate-600" dangerouslySetInnerHTML={{ __html: parts.action.trim() }} />
-                                            </div>
-                                        )}
-                                        {parts.response && (
-                                            <div className="bg-green-50/50 p-2 rounded text-xs border-l-2 border-green-300">
-                                                <span className="font-bold text-green-600 uppercase tracking-wider text-[10px]">RESPONSE</span>
-                                                <div className="mt-1 text-slate-600" dangerouslySetInnerHTML={{ __html: parts.response.trim() }} />
-                                            </div>
-                                        )}
-
-                                        {/* JCI Response Pending Alert */}
-                                        {needsResponse && (
-                                            <div className="bg-yellow-50 border border-yellow-200 rounded px-2 py-1.5 flex items-center gap-2 text-xs">
-                                                <span className="text-yellow-600">⚠</span>
-                                                <span className="text-yellow-700 font-medium">Response pending</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </React.Fragment>
-                    );
-                })}
-            </div>
-        );
-    };
-
-    // 3. HELPER: Vitals - GOLD STANDARD with MEWS & MAP (Horizontal Grid Layout)
-    const renderVitals = (data: any) => {
-        const vitals = (item.content?.clinicalData as any)?._structuredVitals || DataSanitizer.sanitizeVitals(data);
-
-        // Empty state
-        if (!vitals || vitals.length === 0) {
-            return (
-                <div className="flex flex-col items-center justify-center py-12 px-4">
-                    <div className="text-5xl mb-4 opacity-50">💓</div>
-                    <h3 className="text-lg font-semibold text-slate-600 mb-2">No Vital Signs Recorded</h3>
-                    <p className="text-sm text-slate-400 text-center max-w-sm">
-                        Vital signs have not been documented for this encounter.
-                    </p>
-                </div>
-            );
-        }
-
-        // Calculate MEWS for latest vitals
-        const latest = vitals[vitals.length - 1];
-        const bpParsed = parseBP(latest?.bp);
-        const mews = calculateMEWS({
-            hr: latest?.hr,
-            sbp: bpParsed?.sbp,
-            rr: latest?.rr,
-            tempF: parseFloat(latest?.tempF)
-        });
-        const map = bpParsed ? calculateMAP(bpParsed.sbp, bpParsed.dbp) : null;
-
-        const mewsColors: Record<string, string> = {
-            low: 'bg-green-100 text-green-800 border-green-300',
-            medium: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-            high: 'bg-orange-100 text-orange-800 border-orange-300',
-            critical: 'bg-red-100 text-red-800 border-red-300 animate-pulse'
-        };
-
-        const statusColors: Record<string, string> = {
-            normal: 'text-slate-800',
-            abnormal: 'text-orange-600 bg-orange-50 px-1 rounded',
-            critical: 'text-red-600 bg-red-100 px-1 rounded animate-pulse font-black'
-        };
-
-        // Pain color helper
-        const getPainColor = (pain: number) => {
-            if (pain >= 7) return 'text-red-600 bg-red-100';
-            if (pain >= 4) return 'text-yellow-600 bg-yellow-100';
-            return 'text-green-600 bg-green-100';
-        };
-
-        return (
-            <div className="space-y-4">
-                {/* MEWS Score Banner */}
-                <div className={`flex items-center justify-between p-3 rounded-lg border ${mewsColors[mews.level]}`}>
-                    <div className="flex items-center gap-3">
-                        <span className="font-bold text-lg">MEWS: {mews.score}</span>
-                        <span className="text-sm font-medium uppercase">{mews.level} Risk</span>
-                    </div>
-                    {map && (
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold uppercase">MAP:</span>
-                            <span className={`font-bold ${map < 65 ? 'text-red-700' : 'text-slate-800'}`}>{map} mmHg</span>
-                            {map < 65 && <span className="text-red-500 text-xs">⚠ Low</span>}
-                        </div>
-                    )}
-                </div>
-
-                {/* Vitals Grid - Horizontal Rows per Time */}
-                <div className="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
-                    {/* Header Row */}
-                    <div className="grid grid-cols-7 bg-slate-50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                        <div className="px-3 py-2 text-center">Time</div>
-                        <div className="px-3 py-2 text-center">Temp</div>
-                        <div className="px-3 py-2 text-center">HR</div>
-                        <div className="px-3 py-2 text-center">BP</div>
-                        <div className="px-3 py-2 text-center">RR</div>
-                        <div className="px-3 py-2 text-center">SpO2</div>
-                        <div className="px-3 py-2 text-center">Pain</div>
-                    </div>
-
-                    {/* Data Rows */}
-                    {vitals.map((v: any, i: number) => {
-                        const bp = parseBP(v.bp);
-                        const tempStatus = getVitalStatus('tempF', parseFloat(v.tempF) || 98.6);
-                        const hrStatus = getVitalStatus('hr', v.hr || 80);
-                        const rrStatus = getVitalStatus('rr', v.rr || 16);
-                        const o2Status = getVitalStatus('spo2', parseFloat(v.o2 || v.spo2 || 98));
-                        const bpStatus = bp && bp.sbp < 90 ? 'critical' : 'normal';
-
-                        // Trend arrows (compare to previous)
-                        const prev = i > 0 ? vitals[i - 1] : null;
-                        const hrTrend = prev ? calculateDelta(v.hr, prev.hr) : null;
-                        const tempTrend = prev ? calculateDelta(parseFloat(v.tempF), parseFloat(prev.tempF)) : null;
-
-                        // Pain value with fallback
-                        const painValue = v.pain !== undefined ? v.pain : (v.painScore !== undefined ? v.painScore : (v.painLevel !== undefined ? v.painLevel : null));
-
-                        return (
-                            <div key={i} className={`grid grid-cols-7 border-b border-slate-100 last:border-0 hover:bg-slate-50/50 ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}`}>
-                                {/* Time */}
-                                <div className="px-3 py-3 text-center">
-                                    <span className="text-sm font-bold text-slate-700">{v.time || '00:00'}</span>
-                                </div>
-
-                                {/* Temp */}
-                                <div className="px-3 py-3 text-center">
-                                    <span className={`text-sm font-bold ${statusColors[tempStatus]}`}>
-                                        {v.tempF || '98.6'}°F
-                                        {tempTrend && tempTrend.direction !== 'stable' && (
-                                            <span className={`ml-1 text-xs ${tempTrend.direction === 'up' ? 'text-red-500' : 'text-blue-500'}`}>
-                                                {tempTrend.direction === 'up' ? '↑' : '↓'}
-                                            </span>
-                                        )}
-                                    </span>
-                                </div>
-
-                                {/* HR */}
-                                <div className="px-3 py-3 text-center">
-                                    <span className={`text-sm font-bold ${statusColors[hrStatus]}`}>
-                                        {v.hr || '--'}
-                                        {hrTrend && hrTrend.direction !== 'stable' && (
-                                            <span className={`ml-1 text-xs ${hrTrend.direction === 'up' ? 'text-red-500' : 'text-blue-500'}`}>
-                                                {hrTrend.direction === 'up' ? '↑' : '↓'}
-                                            </span>
-                                        )}
-                                    </span>
-                                </div>
-
-                                {/* BP */}
-                                <div className="px-3 py-3 text-center">
-                                    <span className={`text-sm font-bold ${statusColors[bpStatus]}`}>
-                                        {v.bp || '--/--'}
-                                    </span>
-                                </div>
-
-                                {/* RR */}
-                                <div className="px-3 py-3 text-center">
-                                    <span className={`text-sm font-bold ${statusColors[rrStatus]}`}>
-                                        {v.rr || '--'}
-                                    </span>
-                                </div>
-
-                                {/* SpO2 */}
-                                <div className="px-3 py-3 text-center">
-                                    <div className="flex flex-col items-center">
-                                        <span className={`text-sm font-bold ${statusColors[o2Status]}`}>
-                                            {v.o2 || v.spo2 || '98'}%
-                                        </span>
-                                        <span className="text-[9px] text-slate-400">
-                                            {v.o2_device === 'RA' ? 'RA' : v.o2_device || 'RA'}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Pain */}
-                                <div className="px-3 py-3 text-center">
-                                    {painValue !== null ? (
-                                        <span className={`text-sm font-bold px-2 py-0.5 rounded ${getPainColor(painValue)}`}>
-                                            {painValue}/10
-                                        </span>
-                                    ) : (
-                                        <span className="text-sm text-slate-300">--</span>
-                                    )}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-
-                {/* Legend */}
-                <div className="flex justify-center gap-6 text-[10px] text-slate-400">
-                    <span className="flex items-center gap-1"><span className="w-2 h-2 bg-green-500 rounded-full"></span> Normal</span>
-                    <span className="flex items-center gap-1"><span className="w-2 h-2 bg-orange-500 rounded-full"></span> Abnormal</span>
-                    <span className="flex items-center gap-1"><span className="w-2 h-2 bg-red-500 rounded-full"></span> Critical</span>
-                </div>
-            </div>
-        );
-    };
 
     // 4. HELPER: Labs Inbox - GOLD STANDARD with Critical Communication
     const renderLabs = (data: any) => {
@@ -1127,10 +819,10 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
     // FIX: Check ALL possible locations and take the LONGEST array (Robustness against AI hallucinations)
     const possibleScreens = [
         item.content?.structure?.screens,
-        item.content?.screens,
+        (item.content as any)?.screens,
         (item as any).structure?.screens,
         (item as any).screens,
-        item.content?.questions,
+        (item.content as any)?.questions,
         (item as any).questions
     ].filter(arr => Array.isArray(arr));
 
@@ -1234,7 +926,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                 },
                 metadata: {
                     ...((raw as any).metadata || {}),
-                    ...(item.content?.metadata || {})
+                    ...((item.content as any)?.metadata || {})
                 },
                 _fullItemRef: cachedFullItem // ✅ Added full item reference
             });
@@ -1526,7 +1218,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                             <h3 className="text-xl font-bold text-slate-800">Nurses Notes</h3>
                                             <span className="text-xs bg-white border px-2 py-1 rounded text-slate-500">Live Feed</span>
                                         </div>
-                                        {renderNursesNotes(item.content.clinicalData?.history || (item.content as any)?.chiefComplaint)}
+                                        <NursesNotesPanel data={item.content.clinicalData?.history || (item.content as any)?.chiefComplaint} item={item} />
                                     </div>
                                 )}
                                 {activeTab === 'history' && (
@@ -1538,7 +1230,7 @@ export const StudentPreviewModal: React.FC<StudentPreviewModalProps> = ({ item: 
                                 {activeTab === 'vitals' && (
                                     <div className="p-6 bg-slate-50">
                                         <h3 className="text-xl font-bold text-slate-800 border-b border-slate-200 pb-2 mb-6">Vital Signs Trend</h3>
-                                        {renderVitals(item.content.clinicalData?.vitals || (item.content as any)?.vitals || (item.content as any)?.vitalSigns)}
+                                        <VitalsPanel data={item.content.clinicalData?.vitals || (item.content as any)?.vitals || (item.content as any)?.vitalSigns} item={item} />
                                         <div className="mt-4 text-center">
                                             <span className="text-xs text-slate-400 uppercase tracking-widest font-bold">← Scroll to see earlier vitals →</span>
                                         </div>

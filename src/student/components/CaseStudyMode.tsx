@@ -20,7 +20,7 @@ export const CaseStudyMode: React.FC<{
 
     const [intro, setIntro] = useState(true);
     const [mode, setMode] = useState<'BANK' | 'AI'>('BANK');
-    const [state, setState] = useState<CaseState>(CaseStudyEngine.initializeCase("Cardiac"));
+    const [state, setState] = useState<CaseState>(CaseStudyEngine.initializeCase());
     const [currentQuestion, setCurrentQuestion] = useState<any>(MOCK_CASE_QUESTIONS[0]); // Fallback
     const [questions, setQuestions] = useState<any[]>([]);
     const [selectedAnswer, setSelectedAnswer] = useState<any>(null);

@@ -21,7 +21,7 @@ try {
     }
 
     // Generate JSON Schema
-    const jsonSchema = zodToJsonSchema(MasterQuestionItemSchema, {
+    const jsonSchema = zodToJsonSchema(MasterQuestionItemSchema as any, {
         name: 'MasterQuestionItem',
         target: 'jsonSchema7'
     });

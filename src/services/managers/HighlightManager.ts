@@ -84,10 +84,10 @@ export class HighlightManager extends AbstractItemManager {
      * - Missed Correct: 0
      * - Min Score: 0 (No negative totals)
      */
-    grade(userAnswer: any, correctContent: any): GradingResult {
+    grade(userAnswer: any, item: any): GradingResult {
         // userAnswer: string[] (List of selected IDs)
         const userIds = Array.isArray(userAnswer) ? userAnswer : [];
-        const correctIds = correctContent.content?.structure?.correctIds || [];
+        const correctIds = item.content?.structure?.correctIds || [];
 
         let score = 0;
         const maxScore = correctIds.length; // Max points is number of correct items found

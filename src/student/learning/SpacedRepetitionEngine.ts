@@ -43,7 +43,7 @@ export class SpacedRepetitionEngine {
      * @param confidence 1 (Blank) to 5 (Easy)
      */
     static processReview(currentState: SRSItemState, confidence: 1 | 2 | 3 | 4 | 5): SRSItemState {
-        let { nextReviewDate, intervalDays, easinessFactor, repetitionCount, retentionStrength, history } = currentState;
+        let { intervalDays, easinessFactor, repetitionCount, retentionStrength, history } = currentState;
         const now = Date.now();
         const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 

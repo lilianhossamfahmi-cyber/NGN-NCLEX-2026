@@ -23,18 +23,22 @@ export class DropClozeManager extends AbstractItemManager {
     }
 
     validate(item: MasterQuestionItem): ValidationResult {
-        return { isValid: true, issues: [] };
+        const issues: any[] = [];
+        if (!item.content?.structure?.dragItems) {
+            issues.push({ severity: 'warning', field: 'dragItems', message: 'No drag items defined.' });
+        }
+        return { isValid: true, issues };
     }
 
     formatForDisplay(item: MasterQuestionItem): any {
         return item;
     }
 
-    grade(userAnswer: any, correctContent: any): GradingResult {
+    grade(userAnswer: any, item: any): GradingResult {
         // userAnswer: { "targetId": "dragItemId" }
         let score = 0;
         let maxScore = 0;
-        const s = correctContent.content?.structure || {};
+        const s = item.content?.structure || {};
         const targets = s.targets || {}; // Map of targetId -> correctDragId
 
         Object.keys(targets).forEach(tid => {

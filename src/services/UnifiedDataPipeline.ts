@@ -261,7 +261,7 @@ export class UnifiedDataPipeline {
         const sanitized = sanitizeItem(raw);
 
         // Create a working copy from the sanitized input
-        const item: any = JSON.parse(JSON.stringify(sanitized));
+        let item: any = JSON.parse(JSON.stringify(sanitized));
 
         // Step 1: Ensure basic structure exists
         UnifiedDataPipeline.ensureBasicStructure(item);

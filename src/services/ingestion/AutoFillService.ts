@@ -12,6 +12,8 @@ import {
     OptionBasedItemSchema,
     CaseStudySchema
 } from '../../schemas';
+import { classifyMutation, type SanitizeResult } from '../../utils/mutationClassifier';
+import { logRepairEvent } from '../repairAuditService';
 
 // Map of item types to their respective schemas for validation
 const schemaMap: Record<string, z.ZodSchema<any>> = {
@@ -62,6 +64,18 @@ export class AutoFillService {
             // 4. Merge Fragment and Return
             console.log(`[AutoFill] Successfully generated fragment for ${type}`);
             const merged = this.deepMerge(item, fragment);
+
+            // Audit Log
+            const { mutationClass, changedPaths } = classifyMutation(item, merged);
+            if (changedPaths.length > 0) {
+                const sanitizeResult: SanitizeResult = {
+                    action: 'UPDATE_IN_PLACE',
+                    newItem: merged,
+                    mutationClass,
+                    changedPaths
+                };
+                await logRepairEvent(item, sanitizeResult, 'autoFill');
+            }
 
             // Final check: Validate that the merge didn't break JSON (heuristic)
             return merged;

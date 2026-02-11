@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StudyPlannerEngine, STUDY_TECHNIQUES, AUTO_SMART_TECHNIQUE_ID } from '../learning/StudyPlannerEngine';
 import { StudyPlan, StudySession } from '../../types/phase-6-5-schema';
 import { Button } from '../../components/ui/button';
-import { Calendar, Brain, AlertTriangle, ArrowRight, Zap, Target, HelpCircle, ChevronRight, Sparkles, ChevronDown, Play, CheckCircle2, BookOpen, Clock } from 'lucide-react';
+import { Brain, AlertTriangle, ArrowRight, Zap, Target, Sparkles, ChevronDown, Play, CheckCircle2, BookOpen } from 'lucide-react';
 
 // --- RICH CONTENT LIBRARY ---
 const TECHNIQUE_VARIATIONS: Record<string, { how: string[]; why: string[]; special: string[] }> = {

@@ -149,14 +149,14 @@ export class BowTieManager extends AbstractItemManager {
      * - Actions: 0/1 for each correct one selected? Or all-or-nothing pair? 
      *   Usually it's 1 point per correct selection.
      */
-    grade(userAnswer: any, correctContent: any): GradingResult {
+    grade(userAnswer: any, item: any): GradingResult {
         // userAnswer structure expected: { actions: [id, id], condition: [id], parameters: [id, id] }
         let score = 0;
         const maxScore = 5; // 2 + 1 + 2
         const feedbackLines: string[] = [];
 
         // 1. Grade Condition (Center)
-        const correctCond = correctContent.content?.structure?.conditions.find((c: any) => c.isCorrect)?.id;
+        const correctCond = item.content?.structure?.conditions.find((c: any) => c.isCorrect)?.id;
         const userCond = userAnswer.center || userAnswer.condition || userAnswer.conditions?.[0]; // ID string
         if (userCond === correctCond) {
             score += 1;
@@ -165,7 +165,7 @@ export class BowTieManager extends AbstractItemManager {
         }
 
         // 2. Grade Actions (Left)
-        const correctActionIds = correctContent.content?.structure?.actions.filter((x: any) => x.isCorrect).map((x: any) => x.id);
+        const correctActionIds = item.content?.structure?.actions.filter((x: any) => x.isCorrect).map((x: any) => x.id);
         const userActionIds = userAnswer.actions || [];
         userActionIds.forEach((id: string) => {
             if (correctActionIds.includes(id)) score += 1;

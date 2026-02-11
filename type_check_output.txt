@@ -1,0 +1,119 @@
+
+> master-ngn-generator@0.0.0 type-check
+> node node_modules/typescript/bin/tsc --noEmit
+
+scripts/bulkGenerator.ts(134,18): error TS6133: 's' is declared but its value is never read.
+scripts/bulkGenerator.ts(164,30): error TS6133: 'i' is declared but its value is never read.
+scripts/exportAllItems.ts(2,21): error TS2307: Cannot find module 'sqlite3' or its corresponding type declarations.
+scripts/exportAllItems.ts(3,22): error TS2307: Cannot find module 'sqlite' or its corresponding type declarations.
+scripts/exportAllItems.ts(19,28): error TS7006: Parameter 'row' implicitly has an 'any' type.
+scripts/generateSchema.ts(24,40): error TS2345: Argument of type 'ZodUnion<readonly [ZodObject<{ id: ZodDefault<ZodOptional<ZodString>>; type: ZodLiteral<"case-study">; prompt: ZodOptional<ZodString>; content: ZodObject<...>; rationale: ZodOptional<...>; metadata: ZodOptional<...>; structure: ZodObject<...>; }, $loose>, ... 7 more ..., ZodObject<...>]>' is not assignable to parameter of type 'ZodType<any, ZodTypeDef, any>'.
+  Type 'ZodUnion<readonly [ZodObject<{ id: ZodDefault<ZodOptional<ZodString>>; type: ZodLiteral<"case-study">; prompt: ZodOptional<ZodString>; content: ZodObject<...>; rationale: ZodOptional<...>; metadata: ZodOptional<...>; structure: ZodObject<...>; }, $loose>, ... 7 more ..., ZodObject<...>]>' is missing the following properties from type 'ZodType<any, ZodTypeDef, any>': _type, _parse, _getType, _getOrReturnCtx, and 7 more.
+scripts/import_specific_case.ts(29,40): error TS2339: Property 'id' does not exist on type 'boolean'.
+scripts/import_specific_case.ts(30,42): error TS2339: Property 'type' does not exist on type 'boolean'.
+scripts/migrate-architecture.ts(61,16): error TS6133: 'migrateDatabaseItems' is declared but its value is never read.
+scripts/pushBatch1.ts(341,46): error TS2345: Argument of type '({ id: string; typeId: string; metadata: { title: string; authorId: string; createdAt: string; status: string; sourceOrigin: string; qualityScore: number; hasStudentPreview: boolean; }; pedagogy: { ...; }; content: { ...; }; } | ... 8 more ... | { ...; })[]' is not assignable to parameter of type 'MasterQuestionItem[]'.
+  Type '{ id: string; typeId: string; metadata: { title: string; authorId: string; createdAt: string; status: string; sourceOrigin: string; qualityScore: number; hasStudentPreview: boolean; }; pedagogy: { ...; }; content: { ...; }; } | ... 8 more ... | { ...; }' is not assignable to type 'MasterQuestionItem'.
+    Type '{ id: string; typeId: string; metadata: { title: string; authorId: string; createdAt: string; status: string; sourceOrigin: string; qualityScore: number; hasStudentPreview: boolean; }; pedagogy: { ...; }; content: { ...; }; }' is not assignable to type 'MasterQuestionItem'.
+      Types of property 'metadata' are incompatible.
+        Type '{ title: string; authorId: string; createdAt: string; status: string; sourceOrigin: string; qualityScore: number; hasStudentPreview: boolean; }' is missing the following properties from type '{ title: string; authorId: string; createdAt: string; updatedAt: string; status: "draft" | "in-review" | "approved" | "published" | "archived"; sourceOrigin: InputMode; sourceReferences: string[]; ... 12 more ...; rationaleIntegrity?: number | undefined; }': updatedAt, sourceReferences
+scripts/pushBatch2.ts(206,46): error TS2345: Argument of type '({ id: string; typeId: string; metadata: { title: string; status: string; qualityScore: number; }; content: { clinicalData: { vitals: { time: string; bp: string; }[]; labs: { test: string; value: string; flag: string; ref: string; }[]; history?: undefined; radiology?: undefined; }; structure: { ...; }; rationale: { ...' is not assignable to parameter of type 'MasterQuestionItem[]'.
+  Type '{ id: string; typeId: string; metadata: { title: string; status: string; qualityScore: number; }; content: { clinicalData: { vitals: { time: string; bp: string; }[]; labs: { test: string; value: string; flag: string; ref: string; }[]; history?: undefined; radiology?: undefined; }; structure: { ...; }; rationale: { ....' is not assignable to type 'MasterQuestionItem'.
+    Property 'pedagogy' is missing in type '{ id: string; typeId: string; metadata: { title: string; status: string; qualityScore: number; }; content: { clinicalData: { vitals: { time: string; bp: string; }[]; labs: { test: string; value: string; flag: string; ref: string; }[]; history?: undefined; radiology?: undefined; }; structure: { ...; }; rationale: { ....' but required in type 'MasterQuestionItem'.
+scripts/pushBatch3.ts(191,46): error TS2345: Argument of type '({ id: string; typeId: string; metadata: { title: string; status: string; qualityScore: number; }; content: { clinicalData: { vitals: { time: string; bp: string; hr: number; }[]; history?: undefined; radiology?: undefined; labs?: undefined; }; structure: { ...; }; rationale: { ...; }; }; } | ... 5 more ... | { ...; ...' is not assignable to parameter of type 'MasterQuestionItem[]'.
+  Type '{ id: string; typeId: string; metadata: { title: string; status: string; qualityScore: number; }; content: { clinicalData: { vitals: { time: string; bp: string; hr: number; }[]; history?: undefined; radiology?: undefined; labs?: undefined; }; structure: { ...; }; rationale: { ...; }; }; } | ... 5 more ... | { ...; }' is not assignable to type 'MasterQuestionItem'.
+    Property 'pedagogy' is missing in type '{ id: string; typeId: string; metadata: { title: string; status: string; qualityScore: number; }; content: { clinicalData: { vitals: { time: string; bp: string; hr: number; }[]; history?: undefined; radiology?: undefined; labs?: undefined; }; structure: { ...; }; rationale: { ...; }; }; }' but required in type 'MasterQuestionItem'.
+scripts/pushBatch4.ts(173,46): error TS2345: Argument of type '({ id: string; typeId: string; metadata: { title: string; status: string; qualityScore: number; }; content: { clinicalData: { history: { note: string; }[]; radiology?: undefined; vitals?: undefined; labs?: undefined; }; structure: { ...; }; rationale: { ...; }; }; } | { ...; } | { ...; } | { ...; } | { ...; })[]' is not assignable to parameter of type 'MasterQuestionItem[]'.
+  Type '{ id: string; typeId: string; metadata: { title: string; status: string; qualityScore: number; }; content: { clinicalData: { history: { note: string; }[]; radiology?: undefined; vitals?: undefined; labs?: undefined; }; structure: { ...; }; rationale: { ...; }; }; } | { ...; } | { ...; } | { ...; } | { ...; }' is not assignable to type 'MasterQuestionItem'.
+    Property 'pedagogy' is missing in type '{ id: string; typeId: string; metadata: { title: string; status: string; qualityScore: number; }; content: { clinicalData: { history: { note: string; }[]; radiology?: undefined; vitals?: undefined; labs?: undefined; }; structure: { ...; }; rationale: { ...; }; }; }' but required in type 'MasterQuestionItem'.
+scripts/pushBatch5.ts(171,46): error TS2345: Argument of type '({ id: string; typeId: string; metadata: { title: string; status: string; qualityScore: number; }; content: { clinicalData: { history: { note: string; }[]; vitals?: undefined; radiology?: undefined; labs?: undefined; }; structure: { ...; }; rationale: { ...; }; }; } | ... 5 more ... | { ...; })[]' is not assignable to parameter of type 'MasterQuestionItem[]'.
+  Type '{ id: string; typeId: string; metadata: { title: string; status: string; qualityScore: number; }; content: { clinicalData: { history: { note: string; }[]; vitals?: undefined; radiology?: undefined; labs?: undefined; }; structure: { ...; }; rationale: { ...; }; }; } | ... 5 more ... | { ...; }' is not assignable to type 'MasterQuestionItem'.
+    Property 'pedagogy' is missing in type '{ id: string; typeId: string; metadata: { title: string; status: string; qualityScore: number; }; content: { clinicalData: { history: { note: string; }[]; vitals?: undefined; radiology?: undefined; labs?: undefined; }; structure: { ...; }; rationale: { ...; }; }; }' but required in type 'MasterQuestionItem'.
+scripts/validate_case_study.ts(11,11): error TS6196: 'ValidationResult' is declared but never used.
+scripts/verify_canonical_v2.ts(2,10): error TS6133: 'MatrixRowSchema' is declared but its value is never read.
+src/__tests__/integration/RationaleFlow.integration.test.tsx(6,1): error TS6133: 'React' is declared but its value is never read.
+src/__tests__/integration/RationaleFlow.integration.test.tsx(8,37): error TS2307: Cannot find module '@/components/StudentPreviewModal' or its corresponding type declarations.
+src/__tests__/integration/RationaleFlow.integration.test.tsx(9,1): error TS6192: All imports in import declaration are unused.
+src/__tests__/integration/RationaleFlow.integration.test.tsx(9,55): error TS2307: Cannot find module '@/types/master-schema' or its corresponding type declarations.
+src/__tests__/integration/RationaleFlow.integration.test.tsx(39,55): error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
+src/__tests__/integration/RationaleFlow.integration.test.tsx(71,61): error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
+src/__tests__/integration/RationaleFlow.integration.test.tsx(107,57): error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
+src/__tests__/integration/RationaleFlow.integration.test.tsx(142,67): error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
+src/__tests__/integration/RationaleFlow.integration.test.tsx(175,78): error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
+src/__tests__/mocks/RationaleTestData.ts(5,71): error TS2307: Cannot find module '@/types' or its corresponding type declarations.
+src/components/admin/AIBookFixerModal.tsx(4,5): error TS6133: 'Save' is declared but its value is never read.
+src/components/admin/AIBookFixerModal.tsx(5,15): error TS6133: 'ShieldCheck' is declared but its value is never read.
+src/components/admin/AIBookFixerModal.tsx(5,36): error TS6133: 'Plus' is declared but its value is never read.
+src/components/admin/AIBookFixerModal.tsx(5,49): error TS6133: 'ImageIcon' is declared but its value is never read.
+src/components/admin/AIBookFixerModal.tsx(6,14): error TS6133: 'TableIcon' is declared but its value is never read.
+src/components/admin/AIBookFixerModal.tsx(6,32): error TS6133: 'BoxIcon' is declared but its value is never read.
+src/components/admin/AIBookFixerModal.tsx(7,44): error TS6133: 'ImagePlus' is declared but its value is never read.
+src/components/admin/AIBookFixerModal.tsx(84,12): error TS6133: 'isSaving' is declared but its value is never read.
+src/components/admin/AIBookFixerModal.tsx(172,28): error TS6133: 'e' is declared but its value is never read.
+src/components/admin/ItemEditor.tsx(17,32): error TS2339: Property 'find' does not exist on type 'PaginatedResult'.
+src/components/admin/ItemEditor.tsx(17,37): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/components/ExpertDashboard.tsx(1324,11): error TS6133: 'PassProbabilityWidget' is declared but its value is never read.
+src/components/ExpertDashboard.tsx(1440,11): error TS6133: 'ClientNeedsWidget' is declared but its value is never read.
+src/components/feedback/OrderedFeedback.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/item-types/renderers/ErrorRenderer.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/mobile/MobileNavBar.tsx(8,41): error TS6133: 'User' is declared but its value is never read.
+src/components/RationaleSheet.tsx(104,46): error TS2339: Property 'reviewUnits' does not exist on type 'CanonicalRationale | CanonicalRationale'.
+  Property 'reviewUnits' does not exist on type 'CanonicalRationale'.
+src/logic/CASE STUDY REPAIR LOGIC.ts(17,26): error TS6133: 'screen' is declared but its value is never read.
+src/schemas/validation.ts(61,11): error TS2554: Expected 2-3 arguments, but got 1.
+src/services/CaseStudyGeneratorV2.ts(194,71): error TS6133: 'warnings' is declared but its value is never read.
+src/services/CaseStudyGeneratorV2.ts(427,29): error TS6133: 'topic' is declared but its value is never read.
+src/services/managers/CaseStudyManager.ts(5,1): error TS6133: 'ItemManagerFactory' is declared but its value is never read.
+src/services/managers/ClozeDropDownManager.ts(47,14): error TS6133: 'item' is declared but its value is never read.
+src/services/managers/DropClozeManager.ts(25,14): error TS6133: 'item' is declared but its value is never read.
+src/services/managers/OrderedResponseManager.ts(53,15): error TS6133: 's' is declared but its value is never read.
+src/services/modePolicyService.ts(11,22): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
+src/services/sessionAuditDbService.ts(20,11): error TS6196: 'SessionAuditLog' is declared but never used.
+src/services/sessionAuditDbService.ts(34,5): error TS6133: 'sessionId' is declared but its value is never read.
+src/services/sessionAuditDbService.ts(35,5): error TS6133: 'action' is declared but its value is never read.
+src/services/sessionAuditDbService.ts(36,5): error TS6133: 'driftMetrics' is declared but its value is never read.
+src/services/sessionAuditDbService.ts(37,5): error TS6133: 'fallbackEvents' is declared but its value is never read.
+src/services/sessionAuditDbService.ts(38,5): error TS6133: 'details' is declared but its value is never read.
+src/services/sessionAuditDbService.ts(44,40): error TS6133: 'sessionId' is declared but its value is never read.
+src/services/sessionAuditDbService.ts(44,59): error TS6133: 'action' is declared but its value is never read.
+src/services/sessionAuditDbService.ts(44,75): error TS6133: 'details' is declared but its value is never read.
+src/services/sessionAuditDbService.ts(48,38): error TS6133: 'sessionId' is declared but its value is never read.
+src/services/SessionGeneratorService.ts(87,9): error TS2353: Object literal may only specify known properties, and 'totalRequested' does not exist in type 'DriftMetrics'.
+src/services/SessionGeneratorService.ts(108,11): error TS2554: Expected 2-5 arguments, but got 1.
+src/services/SessionGeneratorService.ts(112,16): error TS2339: Property 'foundExact' does not exist on type 'FallbackEvent'.
+src/services/SessionGeneratorService.ts(112,32): error TS2339: Property 'needed' does not exist on type 'FallbackEvent'.
+src/services/SessionGeneratorService.ts(113,42): error TS2339: Property 'requestedLevel' does not exist on type 'FallbackEvent'.
+src/services/SessionGeneratorService.ts(113,71): error TS2339: Property 'needed' does not exist on type 'FallbackEvent'.
+src/services/SessionGeneratorService.ts(113,91): error TS2339: Property 'foundExact' does not exist on type 'FallbackEvent'.
+src/services/SessionGeneratorService.ts(113,141): error TS2339: Property 'sources' does not exist on type 'FallbackEvent'.
+src/services/SessionGeneratorService.ts(113,156): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/services/SessionGeneratorService.ts(113,176): error TS2339: Property 'requestedLevel' does not exist on type 'FallbackEvent'.
+src/services/SessionGeneratorService.ts(122,58): error TS2339: Property 'foundExact' does not exist on type 'FallbackEvent'.
+src/services/SessionGeneratorService.ts(122,73): error TS2339: Property 'needed' does not exist on type 'FallbackEvent'.
+src/services/SessionGeneratorService.ts(201,17): error TS2353: Object literal may only specify known properties, and 'requestedLevel' does not exist in type 'FallbackEvent'.
+src/student/components/StudyPlannerMode.tsx(5,10): error TS6133: 'Calendar' is declared but its value is never read.
+src/student/components/StudyPlannerMode.tsx(5,67): error TS6133: 'HelpCircle' is declared but its value is never read.
+src/student/components/StudyPlannerMode.tsx(5,79): error TS6133: 'ChevronRight' is declared but its value is never read.
+src/student/components/StudyPlannerMode.tsx(5,146): error TS6133: 'Clock' is declared but its value is never read.
+src/student/learning/CaseStudyEngine.ts(60,27): error TS6133: 'topic' is declared but its value is never read.
+src/student/learning/CatEngine.ts(9,33): error TS6133: 'CatItemResult' is declared but its value is never read.
+src/student/learning/SpacedRepetitionEngine.ts(46,15): error TS6133: 'nextReviewDate' is declared but its value is never read.
+src/student/learning/WeaknessDetectionEngine.ts(7,36): error TS2307: Cannot find module '../../hooks/useStudentMetrics' or its corresponding type declarations.
+src/student/learning/WeaknessDetectionEngine.ts(61,17): error TS18046: 'score' is of type 'unknown'.
+src/student/learning/WeaknessDetectionEngine.ts(66,21): error TS2322: Type 'unknown' is not assignable to type 'number'.
+src/student/learning/WeaknessDetectionEngine.ts(83,17): error TS18046: 'score' is of type 'unknown'.
+src/student/learning/WeaknessDetectionEngine.ts(88,21): error TS2322: Type 'unknown' is not assignable to type 'number'.
+src/student/learning/WellnessEngine.ts(1,28): error TS6133: 'WellnessSession' is declared but its value is never read.
+src/student/learning/WellnessEngine.ts(2,1): error TS6133: 'uuidv4' is declared but its value is never read.
+src/student/services/AnalyticsEngine.ts(8,19): error TS6133: 'StudentStats' is declared but its value is never read.
+src/student/services/AnalyticsEngine.ts(8,33): error TS6133: 'BiometricData' is declared but its value is never read.
+src/student/services/QuestionService.ts(126,25): error TS2322: Type '"high"' is not assignable to type '"loose" | "standard" | "strict"'.
+src/student/services/QuestionService.ts(157,31): error TS2339: Property 'find' does not exist on type 'PaginatedResult'.
+src/student/services/QuestionService.ts(157,36): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/tests/session_fallback.test.ts(74,68): error TS2339: Property 'sources' does not exist on type 'FallbackEvent'.
+src/tests/session_fallback.test.ts(74,81): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/tests/session_fallback.test.ts(125,71): error TS2339: Property 'filled' does not exist on type 'FallbackEvent'.
+src/tests/testLayeredFactory.ts(21,27): error TS2339: Property '4' does not exist on type '{ 1: string; 2: string; 3: string; }'.
+src/tests/testLayeredFactory.ts(21,27): error TS2339: Property '5' does not exist on type '{ 1: string; 2: string; 3: string; }'.
+src/utils/DataSanitizer.ts(312,31): error TS2345: Argument of type '{ test: string; value: string; ref: string; flag: string; category: string; }' is not assignable to parameter of type 'StructuredLab'.
+  Property 'unit' is missing in type '{ test: string; value: string; ref: string; flag: string; category: string; }' but required in type 'StructuredLab'.

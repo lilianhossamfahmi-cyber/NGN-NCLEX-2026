@@ -50,7 +50,6 @@ export class OrderedResponseManager extends AbstractItemManager {
     }
 
     formatForDisplay(item: MasterQuestionItem): any {
-        const s = item.content?.structure || {};
         // Scramble options for display? Usually UI handles shuffling.
         return item;
     }
@@ -60,10 +59,10 @@ export class OrderedResponseManager extends AbstractItemManager {
      * User must get the ENTIRE sequence right to get the point.
      * (Some variations exist, but standard is strict).
      */
-    grade(userAnswer: any, correctContent: any): GradingResult {
-        // userAnswer: string[] (The ordered IDs)
+    grade(userAnswer: any, item: any): GradingResult {
+        const s = item.content?.structure || {};
         const userOrder = Array.isArray(userAnswer) ? userAnswer : [];
-        const correctOrder = correctContent.content?.structure?.correctOrder || []; // Array of IDs in correct order
+        const correctOrder = s.correctOrder || [];
 
         // Deep equality check
         let isCorrect = true;

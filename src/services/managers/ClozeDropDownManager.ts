@@ -46,8 +46,10 @@ export class ClozeDropDownManager extends AbstractItemManager {
 
     validate(item: MasterQuestionItem): ValidationResult {
         const issues: any[] = [];
-        // Basic check: text must exist
-        return { isValid: true, issues };
+        if (!item.content?.text && !item.content?.structure?.text) {
+            issues.push({ severity: 'critical', field: 'text', message: 'Cloze text is required.' });
+        }
+        return { isValid: issues.length === 0, issues };
     }
 
     formatForDisplay(item: MasterQuestionItem): any {
@@ -57,9 +59,9 @@ export class ClozeDropDownManager extends AbstractItemManager {
     /**
      * Grade: 0/1 per dropdown slot.
      */
-    grade(userAnswer: any, correctContent: any): GradingResult {
+    grade(userAnswer: any, item: any): GradingResult {
         // userAnswer: { "placeholderId": "optionId" }
-        const s = correctContent.content?.structure || {};
+        const s = item.content?.structure || {};
         let score = 0;
         let maxScore = 0;
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { OrderedReview } from '../../types/RationaleTypes';
 import { Check, X, ArrowDown, ListOrdered } from 'lucide-react';
 

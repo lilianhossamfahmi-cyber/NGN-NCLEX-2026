@@ -302,17 +302,6 @@ ${instruction}
         }
     };
 
-    // Helper – shallow diff check
-    const hasMeaningfulChanges = (original: any, updated: any): boolean => {
-        // Use type assertions to avoid TS errors on dynamic properties
-        const origAny = original as any;
-        const updAny = updated as any;
-
-        if (origAny.prompt !== updAny.prompt) return true;
-        if (JSON.stringify(origAny.structure?.options) !== JSON.stringify(updAny.structure?.options)) return true;
-        if (JSON.stringify(origAny.structure?.highlight) !== JSON.stringify(updAny.structure?.highlight)) return true;
-        return false;
-    };
 
     const handlePushHighlight = async () => {
         if (!newItem) return;
@@ -503,7 +492,7 @@ ${instruction}
                                 <textarea
                                     value={plan}
                                     onChange={(e) => setPlan(e.target.value)}
-                                    className="w-full h-full min-h-[300px] p-4 font-mono text-sm border rounded-lg shadow-inner bg-white focus:ring-2 focus:ring-purple-500 outline-none"
+                                    className="w-full h-full min-h-[40vh] p-4 font-mono text-sm border rounded-lg shadow-inner bg-white focus:ring-2 focus:ring-purple-500 outline-none"
                                 />
                             </div>
                         </div>
@@ -548,7 +537,7 @@ ${instruction}
                             <div className="bg-white p-4 rounded-lg border shadow-sm">
                                 <label className="block text-sm font-bold text-gray-700 mb-2">Custom Instructions (Optional)</label>
                                 <textarea
-                                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-gray-700 min-h-[80px]"
+                                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none text-gray-700 min-h-[5rem]"
                                     placeholder={planningMode ? "e.g., 'Update the patient to be in septic shock and fix the rationale'" : "e.g., 'Ensure the patient history mentions diabetes'..."}
                                     value={instruction}
                                     onChange={(e) => setInstruction(e.target.value)}

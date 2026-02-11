@@ -6,7 +6,7 @@
  */
 
 import { MasterQuestionItem } from '../../types/master-schema';
-import { CatSession, CatConfig, CatItemResult } from '../types/learning-schema';
+import { CatSession, CatConfig } from '../types/learning-schema';
 
 // ----------------------------------------------------------------------------
 // IRT CONSTANTS

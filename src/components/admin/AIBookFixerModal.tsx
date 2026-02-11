@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { MasterQuestionItem } from '../../types/master-schema';
 import {
-    Save, Wand2, RefreshCcw, X, Sparkles, Layout, BrainCircuit,
-    Settings, ShieldCheck, Trash2, Plus, Check, ImageIcon,
-    Table as TableIcon, Box as BoxIcon, Activity, FlaskConical, Stethoscope,
-    ClipboardList, FileSearch, ArrowRight, ImagePlus, Undo2, Redo2,
+    Wand2, RefreshCcw, X, Sparkles, Layout, BrainCircuit,
+    Settings, Trash2, Check, Activity, FlaskConical, Stethoscope,
+    ClipboardList, FileSearch, ArrowRight, Undo2, Redo2,
     Upload, Aperture, MousePointerClick
 } from 'lucide-react';
 import { updateItem } from '../../services/itemApiService';
@@ -81,7 +80,6 @@ export const AIBookFixerModal: React.FC<AIBookFixerModalProps> = ({ item: initia
 
     const [activeSection, setActiveSection] = useState<'clinical' | 'question' | 'rationale' | 'metadata'>('clinical');
     const [subSection, setSubSection] = useState<string>('notes');
-    const [isSaving, setIsSaving] = useState(false);
     const [aiProcessing, setAiProcessing] = useState(false);
 
     // Media & Edit States
@@ -100,18 +98,15 @@ export const AIBookFixerModal: React.FC<AIBookFixerModalProps> = ({ item: initia
 
     // --- SAVE ---
     const handleSave = async () => {
-        setIsSaving(true);
         try {
             await updateItem(liveItem);
             await syncItemToSupabase(liveItem);
             alert('✅ All changes saved permanently!');
             onSuccess();
             onClose();
-        } catch (e) {
-            console.error(e);
+        } catch (error) {
+            console.error(error);
             alert('Save failed.');
-        } finally {
-            setIsSaving(false);
         }
     };
 
@@ -169,7 +164,7 @@ export const AIBookFixerModal: React.FC<AIBookFixerModalProps> = ({ item: initia
         });
     };
 
-    const handleMouseUp = (e: React.MouseEvent) => {
+    const handleMouseUp = (_e: React.MouseEvent) => {
         if (!isDragging) return;
         setIsDragging(false);
         setDragStart(null);
@@ -316,7 +311,7 @@ export const AIBookFixerModal: React.FC<AIBookFixerModalProps> = ({ item: initia
                         ))}
                     </div>
                 </div>
-                <div className="bg-white rounded-xl p-8 shadow-sm border border-slate-200 min-h-[400px] relative">
+                <div className="bg-white rounded-xl p-8 shadow-sm border border-slate-200 min-h-[60vh] relative">
                     <div className="flex justify-between items-center mb-6">
                         <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter flex items-center gap-2">{ehrTabs.find(t => t.id === subSection)?.icon}{ehrTabs.find(t => t.id === subSection)?.label}</h3>
                         <button onClick={() => { setEditingField(`content.clinicalData.${subSection === 'notes' ? 'history' : subSection}`); setShowAiModal(true); }} className="text-[10px] bg-purple-600 text-white px-4 py-2 rounded-xl font-black hover:bg-purple-700 shadow-lg shadow-purple-600/20">AI TRANSFORMATION</button>
@@ -384,7 +379,7 @@ export const AIBookFixerModal: React.FC<AIBookFixerModalProps> = ({ item: initia
                         ))}
                     </div>
                 </div>
-                <div className="bg-white rounded-xl p-8 border border-slate-200 min-h-[400px] shadow-sm">
+                <div className="bg-white rounded-xl p-8 border border-slate-200 min-h-[60vh] shadow-sm">
                     <div className="flex justify-between items-center mb-6">
                         <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter">{sections.find(s => s.id === subSection)?.label || 'Reasoning'}</h3>
                         <button className="text-[10px] bg-teal-600 text-white px-4 py-2 rounded-xl font-black shadow-lg shadow-teal-600/20">AI SYNC</button>
@@ -418,7 +413,7 @@ export const AIBookFixerModal: React.FC<AIBookFixerModalProps> = ({ item: initia
                         </div>
                         <div>
                             <label className="text-[10px] font-black text-slate-500 uppercase mb-6 block tracking-widest">Clinical Topic Area</label>
-                            <div className="bg-slate-900 p-2 rounded-[2rem] border border-slate-800 flex items-center shadow-inner h-[120px]">
+                            <div className="bg-slate-900 p-2 rounded-[2rem] border border-slate-800 flex items-center shadow-inner h-32">
                                 <select
                                     value={liveItem.pedagogy?.clinicalFocus || 'General Mix'}
                                     onChange={(e) => updateField('pedagogy.clinicalFocus', e.target.value)}
@@ -513,7 +508,7 @@ export const AIBookFixerModal: React.FC<AIBookFixerModalProps> = ({ item: initia
             {/* ADD MEDIA MODAL */}
             {showMediaModal && (
                 <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-[200]">
-                    <div className="bg-white rounded-3xl p-8 w-[500px] shadow-2xl animate-in zoom-in-95">
+                    <div className="bg-white rounded-3xl p-8 w-full max-w-lg shadow-2xl animate-in zoom-in-95">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-xl font-black text-slate-900 uppercase">Insert Rich Media</h3>
                             <button onClick={() => { setShowMediaModal(false); setIsSelectionMode(false); }} className="p-2 hover:bg-slate-100 rounded-full"><X size={20} /></button>
@@ -547,7 +542,7 @@ export const AIBookFixerModal: React.FC<AIBookFixerModalProps> = ({ item: initia
                 <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-xl flex items-center justify-center z-[200] p-10">
                     <div className="bg-white rounded-[3rem] shadow-2xl p-16 w-full max-w-2xl border-8 border-slate-50 relative animate-in zoom-in-95">
                         <div className="flex items-center gap-6 mb-12"><div className="bg-purple-600 text-white w-20 h-20 rounded-3xl flex items-center justify-center"><Sparkles size={40} /></div><div><h3 className="text-4xl font-black text-slate-900 tracking-tighter">AI Neuro-Refinery</h3></div></div>
-                        <textarea className="w-full bg-slate-50 border-4 border-slate-100 rounded-[2.5rem] p-10 min-h-[200px] text-2xl font-black mb-10 outline-none focus:border-purple-600" placeholder="INSTRUCT THE AI..." value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} autoFocus />
+                        <textarea className="w-full bg-slate-50 border-4 border-slate-100 rounded-[2.5rem] p-10 min-h-[20rem] text-2xl font-black mb-10 outline-none focus:border-purple-600" placeholder="INSTRUCT THE AI..." value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} autoFocus />
                         <div className="flex justify-between"><button onClick={() => setShowAiModal(false)} className="px-10 py-5 font-black uppercase text-xs">Abort</button><button onClick={handleAiRewrite} disabled={aiProcessing} className="bg-slate-900 text-white px-12 py-6 rounded-[2rem] font-black uppercase text-xs flex gap-4">{aiProcessing ? <RefreshCcw className="animate-spin" /> : 'EXECUTE'}</button></div>
                     </div>
                 </div>

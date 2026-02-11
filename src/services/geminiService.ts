@@ -2,6 +2,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getAuthorizedApiKey } from '../config/apiConfig';
 import { MasterQuestionItem } from '../types/master-schema';
+import { trackEvent } from './analyticsService';
 
 // Enhanced Golden Schema definitions for AI guidance
 const GOLDEN_SCHEMAS: any = {
@@ -196,8 +197,29 @@ ${schemaContext}
 RETURN ONLY THE JSON OBJECT.
 `;
 
-    const result = await model.generateContent(systemPrompt);
+    const startTime = Date.now();
+    let result;
+
+    try {
+        result = await model.generateContent(systemPrompt);
+    } catch (err: any) {
+        trackEvent('AI_LATENCY_EXCEEDED', {
+            model: 'gemini-2.0-flash',
+            timeout_ms: Date.now() - startTime,
+            error: err.message
+        });
+        throw err;
+    }
+
     const text = result.response.text();
+
+    trackEvent('AI_GENERATION_COMPLETE', {
+        model: 'gemini-2.0-flash',
+        duration_ms: Date.now() - startTime,
+        success: true,
+        item_type: item.typeId || 'unknown',
+        prompt_name: 'magicFixItem'
+    });
 
     // Clean JSON
     let cleanText = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();

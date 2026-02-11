@@ -88,23 +88,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
 
         try {
             const generator = new CaseStudyGeneratorV2();
-            const promptText = await generator.preparePrompt(topic);
 
-            // Copy prompt to clipboard
-            await navigator.clipboard.writeText(promptText);
+            // Show optimistic progress
+            console.log(`[AdminDashboard] Generating Case Study for: ${topic}...`);
+
+            const caseStudy = await generator.generate(topic);
+
+            // Save to bank directly
+            await saveBatchToBank([caseStudy]);
 
             alert(
-                `✅ Golden Prompt V2 copied to clipboard!\n\n` +
+                `✅ Case Study V2 Generated Successfully!\n\n` +
                 `Topic: ${topic}\n\n` +
-                `Next steps:\n` +
-                `1. Paste into ChatGPT, Claude, or Gemini\n` +
-                `2. Get JSON response\n` +
-                `3. Save as JSON file in src/dataStore/\n` +
-                `4. Click 'Validate & Import' to add to Item Bank`
+                `Status: Saved to Item Bank (Draft)\n` +
+                `Screens: 6\n` +
+                `ID: ${caseStudy.id}`
             );
+
+            refreshStats(); // Update UI
         } catch (e: any) {
             console.error('Generate failed:', e);
-            alert('Error preparing prompt: ' + e.message);
+            alert('Error generating case study: ' + (e.message || 'Unknown error during generation.'));
         }
     };
 

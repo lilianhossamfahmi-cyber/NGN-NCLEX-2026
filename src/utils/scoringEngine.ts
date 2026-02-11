@@ -1,4 +1,5 @@
 import { QuestionType } from '../components/item-types/renderers/types';
+import { trackEvent } from '../services/analyticsService';
 
 export interface ScoreRuleResult {
     score: number;
@@ -144,6 +145,15 @@ export const CognitiveAnalyticsEngine = {
             result = { ...result, explanation: "Scoring engine error occurred." };
         }
 
+        // TRIPLE-SAFETY GUARD (Production Hardening)
+        if (!Number.isFinite(result.score)) {
+            console.warn('[SCORING_GUARD] Non-finite score detected', { rule: result.rule, item_type: normalizedType });
+            trackEvent('SCORING_GUARD_TRIGGERED', { rule: result.rule, item_type: normalizedType || 'unknown', reason: 'Non-finite score' });
+            result.score = 0;
+        }
+        result.score = Math.max(0, Math.min(1, result.score)); // Clamp 0-1
+        result.score = parseFloat(result.score.toFixed(4)); // Round to 4 decimal places
+
         // Cache Result
         scoreCache.set(cacheKey, result);
         return result;
@@ -195,7 +205,10 @@ export const CognitiveAnalyticsEngine = {
                 } else if (type.includes('multiple') || type === 'sata') {
                     payload = correctQ.options?.filter((o: any) => o.isCorrect).map((o: any) => o.id) || [];
                 } else if (type.includes('ordered')) {
-                    payload = correctQ.orderedOptions?.map((o: any) => o.id) || correctQ.options?.map((o: any) => o.id);
+                    const sequence = correctQ.orderedOptions?.map((o: any) => o.id) || correctQ.options?.map((o: any) => o.id);
+                    // Support per-item scoring mode (default strict per Gold Standards)
+                    const mode = correctQ.structure?.scoringMode || correctQ.scoringMode || 'strict';
+                    payload = { sequence, mode };
                 } else if (type.includes('calculation') || type.includes('numeric')) {
                     payload = { value: correctQ.correctValue || correctQ.answer, range: correctQ.acceptableRange };
                 }
@@ -205,7 +218,13 @@ export const CognitiveAnalyticsEngine = {
             }
         }
 
-        return totalScore / correctAnswers.length;
+        if (correctAnswers.length === 0) {
+            console.warn('[SCORING_GUARD] Zero-length divisor in Case Study Aggregate');
+            trackEvent('SCORING_GUARD_TRIGGERED', { rule: 'Case Study Aggregate', item_type: 'case-study', reason: 'Zero-length divisor' });
+            return 0;
+        }
+        const score = totalScore / correctAnswers.length;
+        return parseFloat(Math.max(0, Math.min(1, score)).toFixed(4));
     },
 
     analyzeError: (
@@ -250,13 +269,21 @@ export const CognitiveAnalyticsEngine = {
             totalMax += maxScore;
 
             // Apply difficulty weighting (harder items matter more)
-            const difficultyLevel = h.metadata?.difficultyLevel || h.metadata?.difficulty || 3;
-            const weight = typeof difficultyLevel === 'number' ? difficultyLevel :
-                (difficultyLevel === 'Expert' ? 5 : difficultyLevel === 'Hard' ? 4 : difficultyLevel === 'Medium' ? 3 : 2);
+            const difficulty = h.metadata?.difficulty || 'Medium';
+            const weight = difficulty === 'Hard' ? 5 : (difficulty === 'Medium' ? 3 : 1);
 
             weightedScore += score * weight;
             weightedMax += maxScore * weight;
         });
+
+        if (totalMax === 0) {
+            console.warn('[SCORING_GUARD] Zero-length totalMax in Pass Probability');
+            trackEvent('SCORING_GUARD_TRIGGERED', { rule: 'Pass Probability (totalMax)', item_type: 'analytics', reason: 'Zero-length divisor' });
+        }
+        if (weightedMax === 0) {
+            console.warn('[SCORING_GUARD] Zero-length weightedMax in Pass Probability');
+            trackEvent('SCORING_GUARD_TRIGGERED', { rule: 'Pass Probability (weightedMax)', item_type: 'analytics', reason: 'Zero-length divisor' });
+        }
 
         const avgAccuracy = totalMax > 0 ? (totalScore / totalMax) * 100 : 65;
         const weightedAccuracy = weightedMax > 0 ? (weightedScore / weightedMax) * 100 : avgAccuracy;
@@ -296,6 +323,10 @@ export const CognitiveAnalyticsEngine = {
         });
 
         return Object.entries(map).map(([category, data]) => {
+            if (data.max === 0) {
+                console.warn(`[SCORING_GUARD] Zero-length divisor for Client Need: ${category}`);
+                trackEvent('SCORING_GUARD_TRIGGERED', { rule: 'Client Needs Stat', item_type: 'analytics', reason: 'Zero-length divisor' });
+            }
             const pct = data.max > 0 ? Math.round((data.score / data.max) * 100) : 0;
             let status: ClientNeedStat['status'] = 'Critical';
             if (pct >= 80) status = 'Safe';
@@ -330,6 +361,10 @@ export const CognitiveAnalyticsEngine = {
         });
 
         const metrics = steps.map(step => {
+            if (map[step].max === 0) {
+                console.warn(`[SCORING_GUARD] Zero-length divisor for CJMM Step: ${step}`);
+                trackEvent('SCORING_GUARD_TRIGGERED', { rule: 'CJMM Grid Step', item_type: 'analytics', reason: 'Zero-length divisor' });
+            }
             const data = map[step];
             // FIX: Show baseline of 50 for steps with no data to create visible radar shape
             // This is a "pending" state - actual data will override when available
@@ -363,7 +398,11 @@ export const CognitiveAnalyticsEngine = {
             }
         });
 
-        if (count === 0) return { userAvg: 0, peerAvg: 60, diff: 0, status: 'Optimal Pace', isSlower: false };
+        if (count === 0) {
+            console.warn('[SCORING_GUARD] Zero count in Pace Metrics');
+            trackEvent('SCORING_GUARD_TRIGGERED', { rule: 'Pace Metrics (count)', item_type: 'analytics', reason: 'Zero-length divisor' });
+            return { userAvg: 0, peerAvg: 60, diff: 0, status: 'Optimal Pace', isSlower: false };
+        }
 
         const userAvg = Math.round(totalUserKey / count);
         const peerAvg = Math.round(totalPeerKey / count);
@@ -391,18 +430,25 @@ function arraysEqual(a: any[], b: any[]): boolean {
     return true;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function setsEqual(a: Set<any>, b: Set<any>): boolean {
-    if (a.size !== b.size) return false;
-    for (const item of a) {
-        if (!b.has(item)) return false;
-    }
-    return true;
-}
 
 /**
  * SCORING RULES
  */
+
+function countConcordantPairs(user: any[], correct: any[]): number {
+    let concordant = 0;
+    for (let i = 0; i < correct.length; i++) {
+        for (let j = i + 1; j < correct.length; j++) {
+            const userIdxI = user.indexOf(correct[i]);
+            const userIdxJ = user.indexOf(correct[j]);
+            // If both items exist in user answer and are in correct relative order
+            if (userIdxI !== -1 && userIdxJ !== -1 && userIdxI < userIdxJ) {
+                concordant++;
+            }
+        }
+    }
+    return concordant;
+}
 
 function scoreBowTie(userAnswer: any, correctAnswer: any): ScoreRuleResult {
     // Safety: If no user answer yet (preview mode), return 0
@@ -449,8 +495,6 @@ function scoreMatrix(userAnswer: any, correctAnswer: any): ScoreRuleResult {
     // userAnswer comes from Renderer as { rowId: colId } (Radio) or { rowId: { colId: true } } (Checkbox)
 
     const rowIds = Object.keys(correctAnswer || {});
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const maxScore = rowIds.length;
     let totalScore = 0;
     let correctCount = 0;
 
@@ -499,6 +543,10 @@ function scoreMatrix(userAnswer: any, correctAnswer: any): ScoreRuleResult {
         maxPossiblePoints += count;
     });
 
+    if (maxPossiblePoints === 0) {
+        console.warn('[SCORING_GUARD] Zero maxPossiblePoints in Matrix Scoring');
+        trackEvent('SCORING_GUARD_TRIGGERED', { rule: 'Matrix Scoring', item_type: 'matrix', reason: 'Zero-length divisor' });
+    }
     const normalizedScore = maxPossiblePoints > 0 ? (totalScore / maxPossiblePoints) : 0;
 
     return {
@@ -526,13 +574,28 @@ function scoreMultipleResponse(userAnswer: any, correctAnswer: any): ScoreRuleRe
  * @param correctAnswer Array of correct IDs
  */
 function scorePlusMinusRule(userAnswer: any, correctAnswer: any, typeLabel: string): ScoreRuleResult {
+    // Normalize Correct Answer
+    const correctArr: string[] = Array.isArray(correctAnswer) ? correctAnswer : [];
+
+    if (!correctArr || correctArr.length === 0) {
+        console.warn(`[SCORING_GUARD] No correct answers defined for ${typeLabel}`);
+        trackEvent('SCORING_GUARD_TRIGGERED', { rule: typeLabel, item_type: typeLabel, reason: 'Zero-length divisor' });
+        return {
+            score: 0,
+            maxScore: 0,
+            isCorrect: false,
+            rule: '+/-',
+            explanation: 'No correct answers defined for this item.',
+            breakdown: {} // User requested breakdown: [], but type says Record<string, boolean>. I'll use {} to avoid type error or check type.
+        };
+    }
+
     // Normalize User Answer
     let userArr: string[] = [];
     if (Array.isArray(userAnswer)) userArr = userAnswer;
     else if (typeof userAnswer === 'object' && userAnswer) userArr = Object.keys(userAnswer).filter(k => userAnswer[k]);
 
     // Normalize Correct Answer
-    const correctArr: string[] = Array.isArray(correctAnswer) ? correctAnswer : [];
     const correctSet = new Set(correctArr);
 
     let rawScore = 0;
@@ -595,8 +658,6 @@ function scoreCalculation(userAnswer: any, correctAnswer: any): ScoreRuleResult 
     let min: number, max: number;
 
     if (typeof correctAnswer === 'object' && correctAnswer !== null && correctAnswer.range) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const target = parseFloat(correctAnswer.value);
         min = parseFloat(correctAnswer.range[0]);
         max = parseFloat(correctAnswer.range[1]);
     } else {
@@ -620,28 +681,54 @@ function scoreCalculation(userAnswer: any, correctAnswer: any): ScoreRuleResult 
 }
 
 function scoreOrderedResponse(userAnswer: any, correctAnswer: any): ScoreRuleResult {
+    let mode: 'strict' | 'partial' = 'strict';
+    let correctArr: any[] = [];
+
+    // Support legacy array input or new object input
+    if (Array.isArray(correctAnswer)) {
+        correctArr = correctAnswer;
+    } else if (correctAnswer && Array.isArray(correctAnswer.sequence)) {
+        correctArr = correctAnswer.sequence;
+        mode = correctAnswer.mode || 'strict';
+    }
+
     const userArr = Array.isArray(userAnswer) ? userAnswer : [];
-    const correctArr = Array.isArray(correctAnswer) ? correctAnswer : [];
 
     if (userArr.length !== correctArr.length) {
         return { score: 0, maxScore: 1, isCorrect: false, rule: 'Ordered Response', explanation: "Incorrect number of items." };
     }
 
-    let isExact = true;
-    for (let i = 0; i < correctArr.length; i++) {
-        if (userArr[i] !== correctArr[i]) {
-            isExact = false;
-            break;
+    // SCORING_GOLD_STANDARDS.md explicitly mandates 0/1 All-or-Nothing for official items.
+    // Partial credit is only available if explicitly enabled via 'scoringMode': 'partial'.
+    if (mode === 'strict') {
+        let isExact = true;
+        for (let i = 0; i < correctArr.length; i++) {
+            if (userArr[i] !== correctArr[i]) {
+                isExact = false;
+                break;
+            }
         }
-    }
+        return {
+            score: isExact ? 1 : 0,
+            maxScore: 1,
+            isCorrect: isExact,
+            rule: 'Ordered Response (Strict)',
+            explanation: isExact ? "Sequence matches exactly." : "Incorrect sequence order."
+        };
+    } else {
+        // Partial Credit (Kendall Tau-like pair concordance)
+        const concordantPairs = countConcordantPairs(userArr, correctArr);
+        const totalPairs = (correctArr.length * (correctArr.length - 1)) / 2;
+        const score = totalPairs > 0 ? (concordantPairs / totalPairs) : 0;
 
-    return {
-        score: isExact ? 1 : 0,
-        maxScore: 1,
-        isCorrect: isExact,
-        rule: 'Ordered Response (Strict)',
-        explanation: isExact ? "Sequence matches exactly." : "Incorrect sequence order."
-    };
+        return {
+            score: parseFloat(score.toFixed(2)),
+            maxScore: 1,
+            isCorrect: score === 1,
+            rule: `Ordered Response (Partial - Pairs ${concordantPairs}/${totalPairs})`,
+            explanation: `Matched ${concordantPairs} relative pairs correctly.`
+        };
+    }
 }
 
 function scoreGeneric01(userAnswer: any, correctAnswer: any): ScoreRuleResult {

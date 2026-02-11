@@ -14,7 +14,7 @@ export const ItemEditor: React.FC<ItemEditorProps> = ({ itemId, onBack }) => {
     useEffect(() => {
         (async () => {
             const bank = await getBankItems();
-            const found = bank.find(i => String(i.id) === itemId);
+            const found = bank.items.find(i => String(i.id) === itemId);
             if (found) {
                 setJson(JSON.stringify(found, null, 2));
             }

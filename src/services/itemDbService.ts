@@ -106,10 +106,66 @@ export async function saveItemToBank(item: MasterQuestionItem, userId: string = 
     return (await saveBatchToBank([item], userId)) > 0;
 }
 
-export async function saveBatchToBank(items: MasterQuestionItem[], userId: string = 'system'): Promise<number> {
-    if (items.length === 0) return 0;
+import { SanitizeResult } from '../utils/mutationClassifier';
 
-    const upsertData = items.map(item => {
+export async function saveBatchToBank(
+    results: (MasterQuestionItem | SanitizeResult)[],
+    userId: string = 'system'
+): Promise<number> {
+    if (results.length === 0) return 0;
+
+    const itemsToUpsert: MasterQuestionItem[] = [];
+    const idsToRetire: string[] = [];
+
+    for (const res of results) {
+        // Handle SanitizeResult wrapper from ultraFixerService
+        if ('action' in res) {
+            if (res.action === 'FORK_NEW_ITEM') {
+                itemsToUpsert.push(res.newItem);
+                if (res.retireOriginalId) {
+                    idsToRetire.push(res.retireOriginalId);
+                }
+            } else {
+                itemsToUpsert.push(res.newItem);
+            }
+        } else {
+            // Raw item
+            itemsToUpsert.push(res);
+        }
+    }
+
+    // 1. Handle Retirements (Archiving original items that were forked)
+    if (idsToRetire.length > 0) {
+        console.log(`[DB_SERVICE] Archiving ${idsToRetire.length} original items due to forking.`);
+        const now = new Date().toISOString();
+        const { error: retireError } = await supabase
+            .from('item_bank')
+            .update({
+                status: 'archived',
+            } as any)
+            .in('id', idsToRetire);
+
+        if (retireError) {
+            console.error('[DB_SERVICE] Error retiring original items:', retireError);
+        }
+
+        // Simple update if RPC is not available
+        for (const id of idsToRetire) {
+            const { data: original } = await supabase.from('item_bank').select('item_json').eq('id', id).single();
+            if (original) {
+                const json = typeof original.item_json === 'string' ? JSON.parse(original.item_json) : original.item_json;
+                json.metadata.retiredAt = now;
+                json.metadata.status = 'archived';
+                await supabase.from('item_bank').update({
+                    status: 'archived',
+                    item_json: JSON.stringify(json)
+                }).eq('id', id);
+            }
+        }
+    }
+
+    // 2. Prepare Upsert Data
+    const upsertData = itemsToUpsert.map(item => {
         const enriched = enrichItemWithQuality(item);
         const now = new Date().toISOString();
         const { id, typeId, metadata, pedagogy } = enriched;
@@ -119,18 +175,21 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
 
         const difficultyLevel = pedagogy?.difficultyLevel ?? 1;
         const cjmmStep = (pedagogy as any)?.cjmmPhase ?? (metadata as any)?.cjmmStep ?? null;
-        const clientNeeds = (metadata as any)?.clientNeeds ? JSON.stringify((metadata as any).clientNeeds) : null;
+        const clientNeeds = (metadata as any)?.clientNeeds ?
+            (typeof (metadata as any).clientNeeds === 'string' ? (metadata as any).clientNeeds : JSON.stringify((metadata as any).clientNeeds))
+            : null;
         const tags = serializeArray(pedagogy?.clinicalFocusTopics ?? (metadata as any)?.tags);
         const itemJson = JSON.stringify(enriched);
 
+        // Task C: Full Column Mirror
         return {
             id,
-            type_id: typeId,
+            type_id: typeId || item.type,
             clinical_focus: clinicalFocus,
             difficulty_level: difficultyLevel,
             cjmm_step: cjmmStep,
             client_needs: clientNeeds,
-            created_at: now,
+            created_at: item.metadata?.createdAt || now,
             updated_at: now,
             created_by: userId,
             updated_by: userId,
@@ -138,7 +197,12 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
             quality_score: metadata?.qualityScore ?? 0,
             tags,
             allowed_modes: serializeArray((enriched as any).allowed_modes || []),
-            item_json: itemJson
+            item_json: itemJson,
+
+            // New Versioning & Protection Columns
+            content_version: metadata?.contentVersion ?? 1,
+            supersedes_id: metadata?.supersedesId ?? null,
+            retired_at: metadata?.retiredAt ?? null
         };
     });
 

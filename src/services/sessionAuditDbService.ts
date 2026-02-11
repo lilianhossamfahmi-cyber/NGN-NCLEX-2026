@@ -4,24 +4,19 @@
 
 // Types expected by SessionGeneratorService
 export interface DriftMetrics {
-    totalDrift: number;
-    maxSingleDrift: number;
-    driftWarnings: string[];
+    totalRequested: number;
+    totalSelected: number;
+    avgDifficultyDelta: number;
+    maxDifficultyDelta: number;
+    driftWarning: boolean;
 }
 
 export interface FallbackEvent {
-    type: string;
-    targetLevel: number;
-    actualLevel: number;
-    reason: string;
-}
-
-// Audit Log Entry
-interface SessionAuditLog {
-    sessionId: string;
-    timestamp: string;
-    action: string;
-    details?: any;
+    requestedLevel: number;
+    needed: number;
+    foundExact: number;
+    filled: number;
+    sources: any[];
 }
 
 export async function initAuditDb() {
@@ -31,20 +26,20 @@ export async function initAuditDb() {
 
 // Main audit function used by SessionGeneratorService
 export async function logSessionAudit(
-    sessionId: string,
-    action: string,
-    driftMetrics?: DriftMetrics,
-    fallbackEvents?: FallbackEvent[],
-    details?: any
+    _sessionId: string,
+    _action: string,
+    _driftMetrics?: DriftMetrics,
+    _fallbackEvents?: FallbackEvent[],
+    _details?: any
 ) {
-    // console.log(`[AUDIT] ${sessionId}: ${action}`, { driftMetrics, fallbackEvents, details });
+    // console.log(`[AUDIT] ${_sessionId}: ${_action}`, { _driftMetrics, _fallbackEvents, _details });
     return; // No-op for now
 }
 
-export async function logSessionAction(sessionId: string, action: string, details?: any) {
+export async function logSessionAction(_sessionId: string, _action: string, _details?: any) {
     return; // No-op
 }
 
-export async function getSessionLogs(sessionId: string) {
+export async function getSessionLogs(_sessionId: string) {
     return []; // Return empty
 }

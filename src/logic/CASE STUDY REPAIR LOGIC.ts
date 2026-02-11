@@ -2,19 +2,19 @@
 import { GradingResult } from '../services/managers/ItemManager';
 
 export class CaseStudyLogic {
-    grade(userAnswer: any, correctContent: any): GradingResult {
+    grade(userAnswer: any, item: any): GradingResult {
         let totalScore = 0;
         let totalMax = 0;
         let feedbackParts: string[] = [];
 
         // --- GREEDY SEARCH (Matches Renderer Logic) ---
-        const screens = correctContent.screens ||
-            correctContent.structure?.screens ||
-            correctContent.content?.structure?.screens ||
+        const screens = item.screens ||
+            item.structure?.screens ||
+            item.content?.structure?.screens ||
             [];
 
         // Iterate through each screen to score
-        screens.forEach((screen: any, index: number) => {
+        screens.forEach((_screen: any, index: number) => {
             const screenAns = userAnswer ? userAnswer[index] : null;
 
             // BASE LOGIC: 1 Point per Screen if answered

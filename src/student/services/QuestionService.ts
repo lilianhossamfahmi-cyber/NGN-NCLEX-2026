@@ -123,7 +123,7 @@ export const fetchNextQuestion = async (
                         includeRationales: true,
                         detectDuplicates: false,
                         flagCopyright: false,
-                        paraphraseStrictness: 'high'
+                        paraphraseStrictness: 'strict'
                     }
                 }, []);
 
@@ -153,8 +153,8 @@ export const fetchItemById = async (id: string): Promise<MasterQuestionItem | nu
     try {
         // Ideally, we should have a getQuestionById(id) API.
         // For now, we reuse the bank fetcher.
-        const allItems = await getBankItems();
-        const item = allItems.find(i => String(i.id) === String(id));
+        const allItems: any = await getBankItems();
+        const item = allItems.items.find((i: any) => String(i.id) === String(id));
 
         if (item) {
             // Respect unpublished items for PREVIEW purposes (Admin might want to preview drafts)

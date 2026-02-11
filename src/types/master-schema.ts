@@ -167,6 +167,7 @@ export interface MasterQuestionItem {
     createdAt: string;
     updatedAt: string;
     status: 'draft' | 'in-review' | 'approved' | 'published' | 'archived';
+    demographics?: { name: string; age: number; gender: string };
 
     // v2.0 Fields
     sourceOrigin: InputMode;
@@ -175,6 +176,20 @@ export interface MasterQuestionItem {
     qualityScore?: number; // 0-100
     hasStudentPreview: boolean;
     allowed_modes?: string[]; // e.g., ["tutor", "exam", "survival"]
+
+    // v2.1 Protection System
+    contentVersion?: number;
+    supersedesId?: string;
+    retiredAt?: string;
+    repairNotes?: string[];
+    // Greedy lookup fields used for filtering
+    topic?: string;
+    clientNeeds?: string;
+    cjmmStep?: string;
+
+    // Task A & D: Validation Metrics
+    vitalWarnings?: boolean;
+    rationaleIntegrity?: number;
   };
 
   // Standard NGN Attributes extended
@@ -184,6 +199,11 @@ export interface MasterQuestionItem {
     clinicalFocus: string; // Primary focus
     clinicalFocusTopics?: string[]; // Secondary tags
   };
+
+  // Root Level Hoisting for Supabase Flattening (Legacy Support)
+  clinical_focus?: string;
+  client_needs?: string;
+  cjmm_step?: string;
 
   // AI Safety Layer
   aiSafetyChecks?: AISafetyCheck;

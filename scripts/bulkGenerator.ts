@@ -69,52 +69,108 @@ function buildSettings(topic: string, difficulty: number): GenerationSettings {
     };
 }
 
-async function runBulkGeneration(config: BulkConfig = defaultConfig) {
-    const allGenerated: any[] = [];
-    let topicIdx = 0;
-    let diffIdx = 0;
+const CONCURRENCY_LIMIT = 3;
 
-    for (let batch = 0; batch < config.totalBatches; batch++) {
-        const settingsBatch: GenerationSettings[] = [];
-        for (let i = 0; i < config.batchSize; i++) {
-            const topic = config.topics[topicIdx % config.topics.length];
-            const difficulty = config.difficultyDistribution[diffIdx % config.difficultyDistribution.length];
-            settingsBatch.push(buildSettings(topic, difficulty));
-            topicIdx++;
-            diffIdx++;
-        }
+async function runWithConcurrency<T>(
+    tasks: (() => Promise<T>)[],
+    limit: number,
+    onProgress?: (completed: number, total: number) => void
+): Promise<PromiseSettledResult<T>[]> {
+    const results: PromiseSettledResult<T>[] = [];
+    let idx = 0;
+    let completed = 0;
 
-        // Validate once – all settings share the same shape
-        const validation = validateGenerationSettings(settingsBatch[0]);
-        if (!validation.valid) {
-            console.error('Invalid generation settings:', validation.errors);
-            return;
-        }
-
-        // Call the generation service for the whole batch (the service already supports quantityPerType)
-        // Call the generation service for the whole batch (the service already supports quantityPerType)
-        try {
-            console.log(`Starting Batch ${batch + 1}/${config.totalBatches}...`);
-            const response = await generateQuestions(settingsBatch[0], [], (s) => console.log(`[Batch ${batch + 1}] ${s}`), undefined);
-
-            if (response.success && response.data) {
-                console.log(`Batch ${batch + 1} Success. Enriching ${response.data.length} items...`);
-                // Enrich each item with AQA before persisting
-                const enriched = response.data.map(item => enrichItemWithQuality(item));
-                console.log(`Saving to bank...`);
-                const saved = await saveBatchToBank(enriched);
-                console.log(`Batch ${batch + 1}/${config.totalBatches}: generated ${response.data.length}, saved ${saved}`);
-                allGenerated.push(...enriched);
-            } else {
-                console.warn(`Batch ${batch + 1} failed logic:`, response.error);
+    async function worker() {
+        while (idx < tasks.length) {
+            const currentIdx = idx++;
+            try {
+                const value = await tasks[currentIdx]();
+                results[currentIdx] = { status: 'fulfilled', value };
+            } catch (reason) {
+                results[currentIdx] = { status: 'rejected', reason };
             }
-        } catch (err: any) {
-            console.error(`Batch ${batch + 1} CRASHED:`, err);
+            completed++;
+            onProgress?.(completed, tasks.length);
         }
     }
 
-    console.log('Bulk generation complete. Total items saved:', allGenerated.length);
-    return allGenerated;
+    await Promise.all(Array.from({ length: Math.min(limit, tasks.length) }, () => worker()));
+    return results;
+}
+
+async function runBulkGeneration(config: BulkConfig = defaultConfig) {
+    console.log(`Starting Bulk Generation: ${config.totalBatches} batches, Concurrency: ${CONCURRENCY_LIMIT}`);
+
+    const tasks = Array.from({ length: config.totalBatches }, (_, batch) => {
+        return async () => {
+            // Logic derived from original sequential loop
+            const settingsBatch: GenerationSettings[] = [];
+
+            // Calculate rotational indices based on batch number
+            // Note: In parallel, 'topicIdx' / 'diffIdx' global counters would be race-prone.
+            // We calculate them deterministically based on batch index.
+            let localTopicIdx = batch * config.batchSize;
+            let localDiffIdx = batch * config.batchSize;
+
+            for (let i = 0; i < config.batchSize; i++) {
+                const topic = config.topics[localTopicIdx % config.topics.length];
+                const difficulty = config.difficultyDistribution[localDiffIdx % config.difficultyDistribution.length];
+                settingsBatch.push(buildSettings(topic, difficulty));
+                localTopicIdx++;
+                localDiffIdx++;
+            }
+
+            // Validate once – all settings share the same shape
+            const validation = validateGenerationSettings(settingsBatch[0]);
+            if (!validation.valid) {
+                throw new Error(`Invalid generation settings: ${validation.errors.join(', ')}`);
+            }
+
+            console.log(`[Batch ${batch + 1}] Generating...`);
+            // Call the generation service for the whole batch
+            const response = await generateQuestions(
+                settingsBatch[0],
+                [],
+                (s) => { }, // Silence internal progress logs to avoid terminal spam
+                undefined
+            );
+
+            if (response.success && response.data) {
+                // Enrich each item with AQA before persisting
+                const enriched = response.data.map(item => enrichItemWithQuality(item));
+                const saved = await saveBatchToBank(enriched);
+                return { generated: response.data.length, saved };
+            } else {
+                throw new Error(response.error || "Unknown generation error");
+            }
+        };
+    });
+
+    const results = await runWithConcurrency(tasks, CONCURRENCY_LIMIT, (done, total) => {
+        console.log(`[BULK] Progress: ${done}/${total} (${Math.round(done / total * 100)}%)`);
+    });
+
+    // Report failures
+    const failures = results.filter(r => r.status === 'rejected');
+    const successes = results.filter(r => r.status === 'fulfilled');
+
+    let totalItems = 0;
+    successes.forEach((r: any) => {
+        totalItems += r.value.saved;
+    });
+
+    if (failures.length > 0) {
+        console.error(`[BULK] ${failures.length}/${results.length} batches failed.`);
+        failures.forEach((f, i) => console.error(`  Batch failure:`, (f as any).reason?.message));
+    }
+
+    console.log('═══ BULK GENERATION COMPLETE ═══');
+    console.log(`  Total Batches: ${tasks.length}`);
+    console.log(`  Items Saved: ${totalItems}`);
+    console.log(`  Success: ${successes.length} batches`);
+    console.log(`  Failed: ${failures.length} batches`);
+
+    return successes.map((s: any) => s.value);
 }
 
 // Execute when run directly via ts-node

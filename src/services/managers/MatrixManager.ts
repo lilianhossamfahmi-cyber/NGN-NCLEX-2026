@@ -102,49 +102,55 @@ export class MatrixManager extends AbstractItemManager {
      * NCSBN Rule: "Matrix Multiple Response" use +/- scoring (Each correct click +1, incorrect -1).
      * "Matrix Single Response" (Radio) uses 0/1 per row.
      */
-    grade(userAnswer: any, correctContent: any): GradingResult {
+    grade(userAnswer: any, item: any): GradingResult {
         // userAnswer: { rowId: [colId, ...], ... }
         const userMap = userAnswer || {};
-        const s = correctContent.content?.structure || {};
-        const isMultipleResponse = s.type === 'matrix-mr';
+        const s = item.content?.structure || {};
+        const isMultipleResponse = s.type === 'matrix-mr' || s.inputMode === 'checkbox';
 
         let score = 0;
-        let maxScore = 0; // Total possible
+        let maxScore = 0;
+
+        if (!s.rows || s.rows.length === 0) {
+            return { score: 0, maxScore: 0, feedback: 'Invalid matrix structure.', correctIds: [] };
+        }
 
         if (isMultipleResponse) {
             // +/- Scoring across entire grid
-            // Loop through all cells in correctKey
-            // NOTE: Correct key structure for Matrix varies. Assuming rows have 'correctColIds'
             s.rows.forEach((row: any) => {
-                const correctCols = row.correctColIds || [];
-                maxScore += correctCols.length; // Max is sum of correct ticks
+                const correctCols = row.correctColumnIds || row.correctColIds || [];
+                maxScore += correctCols.length;
 
-                const userSelection = userMap[row.id] || []; // Array of col IDs
+                const userSelection = userMap[row.id] || [];
+                const userArr = Array.isArray(userSelection) ? userSelection : [userSelection];
 
-                userSelection.forEach((cid: string) => {
+                userArr.forEach((cid: string) => {
                     if (correctCols.includes(cid)) score++;
                     else score--; // Penalty
                 });
             });
             score = Math.max(0, score);
         } else {
-            // Radio Mode (1 per row)
+            // Radio Mode (0/1 per row)
             s.rows.forEach((row: any) => {
-                const correctCol = row.correctColId; // Single string?
+                const correctCol = row.correctColumnIds?.[0] || row.correctColId;
                 if (correctCol) {
                     maxScore++;
-                    const userSelection = userMap[row.id]; // String or [String]
+                    const userSelection = userMap[row.id];
                     const userVal = Array.isArray(userSelection) ? userSelection[0] : userSelection;
                     if (userVal === correctCol) score++;
                 }
             });
         }
 
+        // Final Clamping and Rounding
+        const finalScore = maxScore > 0 ? (score / maxScore) : 0;
+
         return {
-            score,
-            maxScore,
-            feedback: `You scored ${score}/${maxScore}.`,
-            correctIds: [] // Matrix key is complex to flatten
+            score: Number(finalScore.toFixed(4)),
+            maxScore: 1,
+            feedback: `You scored ${Math.round(finalScore * 100)}%.`,
+            correctIds: []
         };
     }
 }

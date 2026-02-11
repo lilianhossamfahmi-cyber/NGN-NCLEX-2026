@@ -4,9 +4,10 @@
  */
 
 import React from 'react';
+import '@testing-library/jest-dom';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { StudentPreviewModal } from '@/components/StudentPreviewModal';
-import type { FullItemData, MasterQuestionItem } from '@/types/master-schema';
+import { StudentPreviewModal } from '../../components/StudentPreviewModal';
+import type { FullItemData, MasterQuestionItem } from '../../types/master-schema';
 
 describe('🔗 INTEGRATION: Complete Rationale Flow', () => {
 

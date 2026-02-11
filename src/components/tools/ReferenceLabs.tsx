@@ -156,7 +156,7 @@ export const ReferenceLabs: React.FC = () => {
     const filteredData = getFilteredData();
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', maxHeight: '500px', background: '#ffffff' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', maxHeight: '70vh', background: '#ffffff' }}>
             {/* Search Bar */}
             <div className="labs-search" style={{ position: 'sticky', top: 0, zIndex: 20, background: '#fff', padding: '12px' }}>
                 <div style={{ position: 'relative' }}>

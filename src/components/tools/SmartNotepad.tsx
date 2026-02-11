@@ -99,7 +99,7 @@ export const SmartNotepad: React.FC = () => {
     };
 
     return (
-        <div style={{ minHeight: '360px', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ minHeight: '50vh', display: 'flex', flexDirection: 'column' }}>
             {/* Note Tabs */}
             <div style={{
                 display: 'flex',

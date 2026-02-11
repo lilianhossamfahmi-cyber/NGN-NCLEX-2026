@@ -21,8 +21,10 @@ async function testLayeredGeneration() {
             const emoji = {
                 1: '🏗️',
                 2: '🔬',
-                3: '✅'
-            }[progress.layer];
+                3: '🧪',
+                4: '🩺',
+                5: '✅'
+            }[progress.layer as 1 | 2 | 3 | 4 | 5];
             console.log(`${emoji} Layer ${progress.layer}: [${progress.percent}%] ${progress.message}`);
         }
     };

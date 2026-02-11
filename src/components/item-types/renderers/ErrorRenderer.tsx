@@ -1,4 +1,3 @@
-import React from 'react';
 
 export const ErrorRenderer = ({ config }: { config: any }) => {
     return (

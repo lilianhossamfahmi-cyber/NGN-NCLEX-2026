@@ -104,9 +104,9 @@ export class TrendManager extends AbstractItemManager {
      * Grading: Standard Single Response or SATA depending on configuration.
      * Defaulting to Single Response (0/1).
      */
-    grade(userAnswer: any, correctContent: any): GradingResult {
+    grade(userAnswer: any, item: any): GradingResult {
         const userIds = Array.isArray(userAnswer) ? userAnswer : [userAnswer];
-        const correctIds = correctContent.content?.structure?.options
+        const correctIds = item.content?.structure?.options
             ?.filter((o: any) => o.isCorrect)
             .map((o: any) => o.id) || [];
 

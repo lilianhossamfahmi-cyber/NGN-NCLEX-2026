@@ -57,7 +57,7 @@ export class CaseStudyEngine {
      * Initialize a new Case Study Session
      * Mocks a 6-screen structure for immediate usage
      */
-    static initializeCase(topic: string): CaseState {
+    static initializeCase(): CaseState {
         // In a real app, this would fetch 6 linked items and their metadata
         // For now, we return the initial state container
         return {

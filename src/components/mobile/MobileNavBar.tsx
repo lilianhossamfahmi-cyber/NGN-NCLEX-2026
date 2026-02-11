@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { Home, ClipboardList, Activity, User, Settings } from 'lucide-react';
+import { Home, ClipboardList, Activity, Settings } from 'lucide-react';
 
 interface MobileNavBarProps {
     currentView: string;

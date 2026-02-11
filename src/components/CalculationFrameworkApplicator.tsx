@@ -1515,7 +1515,7 @@ export const CalculationFrameworkApplicator: React.FC<CalculationFrameworkProps>
                                 <ArrowRight className="w-5 h-5" />
                             </button>
                         </div>
-                        <div className="p-5 space-y-4 max-h-[400px] overflow-y-auto">
+                        <div className="overflow-y-auto max-h-[60vh] space-y-4 pr-2 custom-scrollbar">
                             {PHASES[detailModalOpen]?.details ? (
                                 <>
                                     <div className="space-y-1">

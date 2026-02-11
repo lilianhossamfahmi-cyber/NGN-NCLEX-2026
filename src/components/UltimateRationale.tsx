@@ -422,7 +422,7 @@ const LabsTool = ({ theme: _theme }: { theme: any }) => {
     ];
 
     return (
-        <div className="h-[400px] w-72 overflow-y-auto p-0 scrollbar-thin scrollbar-thumb-white/20 select-none">
+        <div className="h-96 w-72 overflow-y-auto p-0 scrollbar-thin scrollbar-thumb-white/20 select-none">
             {sections.map((section, idx) => (
                 <div key={idx} className="mb-0">
                     <div className="sticky top-0 bg-black/20 backdrop-blur-md px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white/90 border-b border-white/5">

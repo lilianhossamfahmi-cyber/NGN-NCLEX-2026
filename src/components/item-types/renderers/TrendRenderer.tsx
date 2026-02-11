@@ -90,7 +90,7 @@ export const TrendRenderer: React.FC<GenericRendererProps> = (props) => {
                     <img
                         src={config.trendImageUrl}
                         alt="Clinical Trend Data"
-                        className="w-full h-auto max-h-[400px] object-contain"
+                        className="w-full h-auto max-h-96 object-contain"
                     />
                 ) : (chartData ? (
                     <div style={{ height: 300, width: '100%', fontSize: '0.75rem' }}>

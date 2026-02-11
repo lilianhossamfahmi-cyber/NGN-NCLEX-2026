@@ -20,7 +20,8 @@
         "test:smoke": "jest --testPathPattern=smoke",
         "deploy:staging": "vercel deploy --prod=false",
         "deploy:production": "vercel deploy --prod",
-        "logs:production": "vercel logs production"
+        "logs:production": "vercel logs production",
+        "smoke": "npx tsx scripts/smokeTests.ts"
     },
     "dependencies": {
         "@google/generative-ai": "^0.24.1",

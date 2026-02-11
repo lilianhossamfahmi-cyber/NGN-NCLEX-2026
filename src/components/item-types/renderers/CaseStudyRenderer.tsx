@@ -250,7 +250,7 @@ export const CaseStudyRenderer: React.FC<GenericRendererProps> = ({
     };
 
     return (
-        <div className="flex flex-col h-[700px] border border-[#e2e8f0] rounded-2xl overflow-hidden bg-white shadow-xl">
+        <div className="flex flex-col h-auto min-h-[20rem] max-h-[85vh] sm:max-h-[60vh] md:max-h-[75vh] lg:max-h-[80vh] border border-[#e2e8f0] rounded-2xl overflow-hidden bg-white shadow-xl">
             {/* Header / Stepper */}
             <div className="flex-none h-14 bg-slate-900 flex items-center justify-between px-6 border-b border-slate-800">
                 <div className="flex items-center gap-4">
@@ -295,7 +295,7 @@ export const CaseStudyRenderer: React.FC<GenericRendererProps> = ({
             {/* Main Content Split */}
             <div className="flex-1 flex overflow-hidden">
                 {/* Left: EHR */}
-                <div className="w-[300px] flex-none">
+                <div className="w-full md:w-[20rem] flex-none">
                     {renderEHR()}
                 </div>
 
@@ -314,7 +314,7 @@ export const CaseStudyRenderer: React.FC<GenericRendererProps> = ({
                     </h2>
 
                     {/* Sub-Renderer Dispatcher */}
-                    <div className="min-h-[300px]">
+                    <div className="min-h-[20rem]">
                         <InteractionDispatcher
                             config={currentScreen}
                             answers={(answers || {})[currentScreenIndex]}

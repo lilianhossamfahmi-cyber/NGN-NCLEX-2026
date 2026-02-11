@@ -1,8 +1,6 @@
-
 import { AbstractItemManager } from './AbstractItemManager';
 import { MasterQuestionItem } from '../../types/master-schema';
 import { ValidationResult, GradingResult } from './ItemManager';
-import { ItemManagerFactory } from './ItemManagerFactory';
 
 export class CaseStudyManager extends AbstractItemManager {
     typeKeys = ['case-study', 'case-study-6-screen'];
@@ -77,15 +75,15 @@ export class CaseStudyManager extends AbstractItemManager {
         return item;
     }
 
-    grade(userAnswer: any, correctContent: any): GradingResult {
+    grade(userAnswer: any, item: any): GradingResult {
         let totalScore = 0;
         let totalMax = 0;
         let feedbackParts: string[] = [];
 
         // --- GREEDY SEARCH (Matches Renderer Logic) ---
-        const screens = correctContent.screens ||
-            correctContent.structure?.screens ||
-            correctContent.content?.structure?.screens ||
+        const screens = item.screens ||
+            item.structure?.screens ||
+            item.content?.structure?.screens ||
             [];
 
         // Iterate through each screen to score

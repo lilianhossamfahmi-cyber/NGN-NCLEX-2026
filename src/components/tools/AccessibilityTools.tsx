@@ -99,13 +99,40 @@ export const AccessibilityTools: React.FC = () => {
         });
         document.body.appendChild(overlay);
 
-        const handleMouseMove = (e: MouseEvent) => {
-            const { clientX, clientY } = e;
-            overlay.style.background = `radial-gradient(circle 120px at ${clientX}px ${clientY}px, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.8) 100%)`;
+        const getPointerPosition = (e: MouseEvent | TouchEvent): { x: number; y: number } => {
+            if ('touches' in e && e.touches.length > 0) {
+                const touch = e.touches[0];
+                return { x: touch.clientX, y: touch.clientY };
+            }
+            if ('changedTouches' in e && e.changedTouches.length > 0) {
+                const touch = e.changedTouches[0];
+                return { x: touch.clientX, y: touch.clientY };
+            }
+            return { x: (e as MouseEvent).clientX, y: (e as MouseEvent).clientY };
+        }
+
+        const handleMove = (e: MouseEvent | TouchEvent) => {
+            const { x, y } = getPointerPosition(e);
+
+            // Only update overlay if it exists
+            if (overlay) {
+                overlay.style.background = `radial-gradient(circle 120px at ${x}px ${y}px, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 20%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0.8) 100%)`;
+            }
 
             if (hoverZoomEnabled) {
                 const target = e.target as HTMLElement;
-                const panel = target.closest('.ehr-panel, .question-section, .expert-dashboard') as HTMLElement;
+                // For touch, target might not be accurate if we are moving over overlay? 
+                // Actually pointer-events: none on overlay should allow passing through.
+                // But touch events might need document.elementFromPoint if target is captured.
+                // However, for simplicity, let's use document.elementFromPoint if touch.
+
+                let actualTarget = target;
+                if ('touches' in e) {
+                    const el = document.elementFromPoint(x, y);
+                    if (el) actualTarget = el as HTMLElement;
+                }
+
+                const panel = actualTarget.closest('.ehr-panel, .question-section, .expert-dashboard') as HTMLElement;
 
                 if (activePanelRef.current !== panel) {
                     if (activePanelRef.current) {
@@ -164,11 +191,13 @@ export const AccessibilityTools: React.FC = () => {
         `;
         document.head.appendChild(style);
 
-        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('touchmove', handleMove, { passive: false });
         window.addEventListener('wheel', handleWheel, { passive: false }); // Non-passive to allow preventDefault
 
         return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mousemove', handleMove);
+            window.removeEventListener('touchmove', handleMove);
             window.removeEventListener('wheel', handleWheel);
             overlay.remove();
             const s = document.getElementById('magnifier-style');

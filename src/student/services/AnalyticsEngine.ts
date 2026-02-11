@@ -5,7 +5,7 @@
  * Pure functions only - easier to test.
  */
 
-import { Attempt, StudentStats, BiometricData } from '../../types/student-schema';
+import { Attempt } from '../../types/student-schema';
 
 export const AnalyticsEngine = {
 

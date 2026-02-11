@@ -132,6 +132,7 @@ export interface CanonicalRationale {
     // Calculation Specifics
     formulaMethod?: string;
     dimensionalAnalysis?: string;
+    reviewUnits?: any[];
 }
 
 // ============================================================================

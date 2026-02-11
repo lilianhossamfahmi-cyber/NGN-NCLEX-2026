@@ -1,5 +1,34 @@
 import { AnalyticsSummary, DomainPerformance, ItemTypeStat } from '../types/analytics-schema';
 import { supabase } from '../lib/supabase';
+import { v4 as uuidv4 } from 'uuid';
+
+let currentSessionId: string | null = null;
+
+const getSessionId = () => {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+        if (!window.sessionStorage.getItem('telemetry_session_id')) {
+            window.sessionStorage.setItem('telemetry_session_id', uuidv4());
+        }
+        return window.sessionStorage.getItem('telemetry_session_id');
+    }
+    if (!currentSessionId) {
+        currentSessionId = uuidv4();
+    }
+    return currentSessionId;
+};
+
+export async function trackEvent(name: string, payload: Record<string, any> = {}) {
+    try {
+        await supabase.from('telemetry_events').insert({
+            event_name: name,
+            payload,
+            session_id: getSessionId(),
+        });
+    } catch (e) {
+        // Telemetry must never crash the app
+        console.error('[TELEMETRY_ERROR]', e);
+    }
+}
 
 export const getRealAnalytics = async (): Promise<AnalyticsSummary> => {
     try {

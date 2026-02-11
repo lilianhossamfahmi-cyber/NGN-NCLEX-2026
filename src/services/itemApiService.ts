@@ -106,9 +106,78 @@ export async function getBankItems(options: ItemQueryOptions = {}): Promise<Pagi
     };
 }
 
-export async function saveItemToBank(item: MasterQuestionItem, userId: string = 'system'): Promise<boolean> {
-    const count = await saveBatchToBank([item], userId);
-    return count > 0;
+async function prepareItemForUpsert(rawItem: MasterQuestionItem, userId: string = 'system') {
+    const isHighFidelity = (rawItem.content?.clinicalData && rawItem.content?.structure) && (
+        rawItem.content?.rationale?.itemOverviewAndActions ||
+        rawItem.content?.rationale?.difficulty?.subtext ||
+        (rawItem.content?.rationale?.steps && Array.isArray(rawItem.content?.rationale?.steps))
+    );
+
+    let item = rawItem;
+    if (!isHighFidelity) {
+        item = await UnifiedDataPipeline.transform(rawItem);
+    }
+
+    const rawId = item.id || (item as any)._id || (item as any).item_id;
+    const backupId = `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    let finalId = rawId || backupId;
+
+    try { if (!rawId && typeof crypto !== 'undefined' && crypto.randomUUID) finalId = crypto.randomUUID(); } catch (e) { }
+
+    const enriched = enrichItemWithQuality(item);
+    const now = new Date().toISOString();
+    const { typeId, metadata, pedagogy } = enriched;
+
+    const difficultyLevel = pedagogy?.difficultyLevel ?? (item.pedagogy as any)?.difficultyLevel ?? 1;
+    const cjmmStep = (pedagogy as any)?.cjmmPhase ?? (metadata as any)?.cjmmStep ?? (item.pedagogy as any)?.cjmmStep ?? 'Analyze Cues';
+
+    let clinicalFocus = pedagogy?.clinicalFocus || (item as any)?.clinical_focus || 'General Nursing';
+    if (!clinicalFocus || clinicalFocus === 'General') {
+        clinicalFocus = inferTopic(item);
+    }
+
+    const clientNeedsVal = (metadata as any)?.clientNeeds || (item.metadata as any)?.clientNeeds || 'Physiological Integrity';
+    const clientNeeds = JSON.stringify(clientNeedsVal);
+    const tags = serializeArray(pedagogy?.clinicalFocusTopics || (metadata as any)?.tags) || '[]';
+
+    const itemJson = JSON.stringify({ ...enriched, id: finalId });
+
+    return {
+        upsertRow: {
+            id: finalId,
+            type_id: typeId || item.typeId || 'multiple-choice',
+            clinical_focus: clinicalFocus,
+            difficulty_level: difficultyLevel,
+            cjmm_step: cjmmStep,
+            client_needs: clientNeeds,
+            created_at: item.metadata?.createdAt || (item as any).created_at || now,
+            updated_at: now,
+            created_by: item.metadata?.authorId || userId || 'system',
+            updated_by: userId || 'system',
+            status: (metadata?.status || item.metadata?.status || 'draft').toLowerCase(),
+            quality_score: metadata?.qualityScore || 0,
+            tags: tags,
+            allowed_modes: serializeArray((enriched as any).allowed_modes || []) || '[]',
+            item_json: itemJson
+        },
+        finalId,
+        typeId: typeId || item.typeId || 'multiple-choice'
+    };
+}
+
+export async function saveItemToBank(item: MasterQuestionItem, userId: string = 'system'): Promise<{ id: string, type: string }> {
+    const { upsertRow, finalId, typeId } = await prepareItemForUpsert(item, userId);
+
+    const { error } = await supabase
+        .from('item_bank')
+        .upsert([upsertRow], { onConflict: 'id' });
+
+    if (error) {
+        console.error('Supabase saveItemToBank Error:', error);
+        throw new Error(`Failed to save item: ${error.message}`);
+    }
+
+    return { id: finalId, type: typeId };
 }
 
 export async function saveBatchToBank(items: MasterQuestionItem[], userId: string = 'system'): Promise<number> {
@@ -124,70 +193,8 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
 
     const upsertData = [];
     for (const rawItem of items) {
-        // 1. DUAL-LAYER ID PRESERVATION & REPAIR
-        // BYPASS: If item is definitely High-Fidelity (has clinicalData & structure), skip pipeline to prevent mangling.
-        // v3 check: itemOverviewAndActions
-        // v4 check: rationale.difficulty.subtext or rationale.steps
-        const isHighFidelity = (rawItem.content?.clinicalData && rawItem.content?.structure) && (
-            rawItem.content?.rationale?.itemOverviewAndActions ||
-            rawItem.content?.rationale?.difficulty?.subtext ||
-            (rawItem.content?.rationale?.steps && Array.isArray(rawItem.content?.rationale?.steps))
-        );
-
-        let item = rawItem;
-        if (!isHighFidelity) {
-            // Only transform legacy/unstructured items
-            item = await UnifiedDataPipeline.transform(rawItem);
-        } else {
-            console.log(`[saveBatchToBank] High-Fidelity Item detected (${rawItem.id || 'unknown'}). Bypassing Pipeline.`);
-            item = rawItem;
-        }
-
-        const rawId = item.id || (item as any)._id || (item as any).item_id;
-        const backupId = `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        let finalId = rawId || backupId;
-
-        // Try native crypto if available
-        try { if (!rawId && typeof crypto !== 'undefined' && crypto.randomUUID) finalId = crypto.randomUUID(); } catch (e) { }
-
-        const enriched = enrichItemWithQuality(item);
-        const now = new Date().toISOString();
-        const { typeId, metadata, pedagogy } = enriched;
-
-        // 2. PEDAGOGY & METADATA DEFAULTS
-        const difficultyLevel = pedagogy?.difficultyLevel ?? (item.pedagogy as any)?.difficultyLevel ?? 1;
-        const cjmmStep = (pedagogy as any)?.cjmmPhase ?? (metadata as any)?.cjmmStep ?? (item.pedagogy as any)?.cjmmStep ?? 'Analyze Cues';
-
-        let clinicalFocus = pedagogy?.clinicalFocus || (item as any)?.clinical_focus || 'General Nursing';
-        if (!clinicalFocus || clinicalFocus === 'General') {
-            clinicalFocus = inferTopic(item);
-        }
-
-        const clientNeedsVal = (metadata as any)?.clientNeeds || (item.metadata as any)?.clientNeeds || 'Physiological Integrity';
-        const clientNeeds = JSON.stringify(clientNeedsVal);
-        const tags = serializeArray(pedagogy?.clinicalFocusTopics || (metadata as any)?.tags) || '[]';
-
-        // 3. SECURE JSON PAYLOAD
-        const itemJson = JSON.stringify({ ...enriched, id: finalId });
-
-        upsertData.push({
-            id: finalId, // PRIMARY KEY - GUARANTEED NON-NULL
-            type_id: typeId || item.typeId || 'multiple-choice',
-            clinical_focus: clinicalFocus,
-            difficulty_level: difficultyLevel,
-            cjmm_step: cjmmStep,
-            client_needs: clientNeeds,
-            // FIX: Prioritize original creation date from metadata to prevent resetting on repair
-            created_at: item.metadata?.createdAt || (item as any).created_at || now,
-            updated_at: now,
-            created_by: item.metadata?.authorId || userId || 'system',
-            updated_by: userId || 'system',
-            status: (metadata?.status || item.metadata?.status || 'draft').toLowerCase(),
-            quality_score: metadata?.qualityScore || 0,
-            tags: tags,
-            allowed_modes: serializeArray((enriched as any).allowed_modes || []) || '[]',
-            item_json: itemJson
-        });
+        const { upsertRow } = await prepareItemForUpsert(rawItem, userId);
+        upsertData.push(upsertRow);
     }
 
     const { error } = await supabase
@@ -204,7 +211,8 @@ export async function saveBatchToBank(items: MasterQuestionItem[], userId: strin
 }
 
 export async function updateItem(item: MasterQuestionItem): Promise<boolean> {
-    return saveItemToBank(item, 'system');
+    await saveItemToBank(item, 'system');
+    return true;
 }
 
 /**
@@ -304,7 +312,7 @@ export async function repairAllItemsInBank(onProgress?: (count: number, total: n
 
     console.log(`📦 Fetched ${totalItems.length} items for repair.`);
     let successCount = 0;
-    const repairedItems: MasterQuestionItem[] = [];
+    const repairedItems: any[] = [];
 
     // 2. Process through Pipeline
     for (let i = 0; i < totalItems.length; i++) {
@@ -350,13 +358,13 @@ export async function repairSelectiveItems(
 ): Promise<number> {
     console.log(`🚀 Starting Selective Repair for ${items.length} items...`);
     let successCount = 0;
-    const repairedItems: MasterQuestionItem[] = [];
+    const repairedItems: any[] = [];
 
     for (let i = 0; i < items.length; i++) {
         try {
             // Use Deep Transform for selective repair WITH AUTOFILL forced
-            const repaired = await UnifiedDataPipeline.deepTransform(items[i], { ...options, autofill: true });
-            repairedItems.push(repaired);
+            const result = await UnifiedDataPipeline.deepTransform(items[i], { ...options, autofill: true });
+            repairedItems.push(result);
             successCount++;
 
             if (onProgress) onProgress(i + 1, items.length);

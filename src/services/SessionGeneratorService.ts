@@ -105,7 +105,7 @@ export async function generateFlexibleSession(req: SessionRequest): Promise<Sess
         createdAt: new Date().toISOString()
     };
 
-    await logSessionAudit(auditLog);
+    await logSessionAudit(sessionId, req.mode, driftMetrics, fallbackEvents, auditLog);
 
     console.log(`[SessionGenerator] Generated ${selectedItems.length}/${req.totalItems} items. Drift: ${avgDrift.toFixed(2)}. Fallbacks: ${fallbackEvents.length}`);
     fallbackEvents.forEach(fe => {

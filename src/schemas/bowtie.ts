@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ContentSchema, MetadataSchema, RationaleUnion } from './shared';
+import { ContentSchema, MetadataSchema, RationaleUnion, PedagogySchema } from './shared';
 
 const OptionSchema = z.object({
     id: z.string(),
@@ -10,13 +10,15 @@ const OptionSchema = z.object({
 export const BowTieItemSchema = z.object({
     id: z.string().uuid().optional().default(() => crypto.randomUUID()),
     type: z.literal('bow-tie'),
+    typeId: z.string().default('bow-tie'),
     prompt: z.string().optional(), // Often the prompt is fixed header "Complete the diagram..."
 
     content: ContentSchema,
 
     rationale: RationaleUnion,
 
-    metadata: MetadataSchema.optional(),
+    metadata: MetadataSchema,
+    pedagogy: PedagogySchema,
 
     structure: z.object({
         actions: z.array(OptionSchema).refine(

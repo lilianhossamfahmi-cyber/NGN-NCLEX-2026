@@ -4,7 +4,9 @@ import {
     MatrixItemSchema,
     OrderedResponseSchema,
     DropClozeItemSchema,
-    OptionBasedItemSchema,
+    SingleResponseItemSchema,
+    MultipleResponseItemSchema,
+    TrendItemSchema,
     HotSpotItemSchema
 } from './standard';
 import { BowTieItemSchema } from './bowtie';
@@ -18,14 +20,16 @@ import { CaseStudySchema } from './case-study';
  * This is the source of truth for the JSON Schema generator and 
  * the compiled Ajv validator in Phase 2.
  */
-export const MasterQuestionItemSchema = z.union([
+export const MasterQuestionItemSchema = z.discriminatedUnion("type", [
     CaseStudySchema,
     BowTieItemSchema,
     MatrixItemSchema,
     HighlightItemSchema,
     DropClozeItemSchema,
     OrderedResponseSchema,
-    OptionBasedItemSchema, // Covers single-response, multiple-response, trend
+    SingleResponseItemSchema,
+    MultipleResponseItemSchema,
+    TrendItemSchema,
     CalculationItemSchema,
     HotSpotItemSchema
 ]).describe("Canonical NCSBN Next-Gen Question Item");

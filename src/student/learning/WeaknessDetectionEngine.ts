@@ -4,7 +4,7 @@
  * Analyzes student performance to identify critical weaknesses and prescription drills.
  */
 
-import { StudentMetricsData } from '../../hooks/useStudentMetrics';
+import { DashboardData } from '../../types/student-schema';
 
 export interface DetectedWeakness {
     id: string;
@@ -32,7 +32,7 @@ export class WeaknessDetectionEngine {
     /**
      * Analyze Metrics and Detect Weaknesses
      */
-    static analyze(metrics: StudentMetricsData): DetectedWeakness[] {
+    static analyze(metrics: DashboardData): DetectedWeakness[] {
         const weaknesses: DetectedWeakness[] = [];
         const { stats } = metrics;
 
@@ -57,7 +57,7 @@ export class WeaknessDetectionEngine {
         }
 
         // 2. Check Domain Weaknesses (< 70%)
-        Object.entries(stats.domains).forEach(([domain, score]) => {
+        Object.entries(stats.domains).forEach(([domain, score]: [string, number]) => {
             if (score < 70) {
                 weaknesses.push({
                     id: `domain_${domain}`,
@@ -79,7 +79,7 @@ export class WeaknessDetectionEngine {
         });
 
         // 3. Check CJMM Step Weaknesses (< 65%)
-        Object.entries(stats.cjmm).forEach(([step, score]) => {
+        Object.entries(stats.cjmm).forEach(([step, score]: [string, number]) => {
             if (score < 65) {
                 weaknesses.push({
                     id: `cjmm_${step}`,

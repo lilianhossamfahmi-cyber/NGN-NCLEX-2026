@@ -312,6 +312,7 @@ export const DataSanitizer = {
                     labs.push({
                         test: parts[0].replace(/<[^>]+>/g, ''),
                         value: parts[1].replace(/<[^>]+>/g, ''),
+                        unit: "", // Added
                         ref: "N/A",
                         flag: "",
                         category: DataSanitizer.detectLabCategory(parts[0])

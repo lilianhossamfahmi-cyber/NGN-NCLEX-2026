@@ -43,7 +43,7 @@ export interface ItemManager {
     /**
      * Grades a user's answer based on NCSBN specific rules (e.g. +/- scoring).
      */
-    grade(userAnswer: any, correctContent: any): GradingResult;
+    grade(userAnswer: any, item: any): GradingResult;
 
     /**
      * (Future) Converts this item into a different format if possible.

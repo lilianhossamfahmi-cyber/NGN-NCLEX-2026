@@ -1,5 +1,8 @@
+import { trackEvent } from './analyticsService';
 import { getGenAI } from '../config/apiConfig';
 import { MasterQuestionItem } from '../types/master-schema';
+import { classifyMutation, type SanitizeResult } from '../utils/mutationClassifier';
+import { logRepairEvent } from './repairAuditService';
 
 /**
  * ULTRA FIXER SERVICE
@@ -14,7 +17,7 @@ export const ultraFixerService = {
         item: MasterQuestionItem,
         instruction: string,
         mode: 'surgical' | 'structural'
-    ): Promise<MasterQuestionItem> {
+    ): Promise<SanitizeResult> {
 
         // 1. Identify Golden Prompt to inject
         const itemType = item.typeId || (item as any).type || 'multiple-choice';
@@ -58,8 +61,8 @@ export const ultraFixerService = {
             if (!genAI) throw new Error("Generative AI not initialized. Check your API Key.");
 
             const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
+            const aiResult = await model.generateContent(prompt);
+            const response = await aiResult.response;
             const text = response.text();
 
             // Extract JSON
@@ -69,7 +72,17 @@ export const ultraFixerService = {
             let fixedItem = JSON.parse(jsonMatch[0]);
 
             // 4. ATOMIC SANITIZATION (The Vice-Versa Logic)
-            return this.sanitizeOutput(item, fixedItem);
+            const sanitizeResult = this.sanitizeOutput(item, fixedItem);
+            await logRepairEvent(item, sanitizeResult, 'ultraFixer');
+
+            trackEvent('REPAIR_EXECUTED', {
+                item_id: item.id,
+                mutation_class: sanitizeResult.mutationClass,
+                action: sanitizeResult.action,
+                changed_paths_count: sanitizeResult.changedPaths?.length || 0
+            });
+
+            return sanitizeResult;
 
         } catch (err) {
             console.error("UltraFixer Service Error:", err);
@@ -84,7 +97,7 @@ export const ultraFixerService = {
         item: MasterQuestionItem,
         selection: string,
         instruction: string
-    ): Promise<MasterQuestionItem> {
+    ): Promise<SanitizeResult> {
         const prompt = `
             ROLE: Surgical NGN Editor
             CONTEXT: You are modifying ONLY A SPECIFIC CLIP from an NGN item.
@@ -113,7 +126,9 @@ export const ultraFixerService = {
             const jsonMatch = text.match(/\{[\s\S]*\}/);
             if (!jsonMatch) throw new Error("AI failed to return valid JSON.");
 
-            return this.sanitizeOutput(item, JSON.parse(jsonMatch[0]));
+            const sanitizeResult = this.sanitizeOutput(item, JSON.parse(jsonMatch[0]));
+            await logRepairEvent(item, sanitizeResult, 'ultraFixer-partial');
+            return sanitizeResult;
         } catch (err) {
             console.error("Partial Execute Error:", err);
             throw err;
@@ -123,26 +138,73 @@ export const ultraFixerService = {
     /**
      * Atomic Sanitizer: Ensures the AI output never breaks the DB.
      */
-    sanitizeOutput(original: MasterQuestionItem, fixed: any): MasterQuestionItem {
-        const now = new Date().toISOString();
-
-        const sanitized: any = {
-            ...original, // Base from original to keep core fields
-            ...fixed,     // Overlay AI changes
-            id: original.id, // FORCE ID PRESERVATION
-            updated_at: now
+    sanitizeOutput(
+        original: MasterQuestionItem,
+        repaired: MasterQuestionItem
+    ): SanitizeResult {
+        // Construct the full object by merging original and AI output
+        // This ensures all required fields (authorId, createdAt, etc.) are preserved
+        // but overridden by AI if provided.
+        const patched: MasterQuestionItem = {
+            ...original,
+            ...repaired,
+            metadata: {
+                ...original.metadata,
+                ...(repaired.metadata || {})
+            }
         };
 
+        const { mutationClass, changedPaths } = classifyMutation(original, patched);
+
+        // GUARD: Published items with structural changes get forked
+        if (original.metadata?.status === 'published' && mutationClass === 'STRUCTURAL') {
+            console.warn('[PUBLISH_GUARD] Structural mutation on published item. Forking new UUID.', {
+                originalId: original.id,
+                changedPaths,
+            });
+            return {
+                action: 'FORK_NEW_ITEM',
+                mutationClass,
+                changedPaths,
+                newItem: {
+                    ...patched,
+                    id: crypto.randomUUID(),
+                    metadata: {
+                        ...patched.metadata,
+                        status: 'draft',
+                        contentVersion: 1,
+                        supersedesId: original.id,
+                        repairNotes: (original.metadata?.repairNotes || []).concat(
+                            `Forked from published item due to structural changes: ${changedPaths.join(', ')}`
+                        )
+                    } as any,
+                },
+                retireOriginalId: original.id,
+            };
+        }
+
+        // Cosmetic repair on published item: bump version
+        if (original.metadata?.status === 'published' && mutationClass === 'COSMETIC') {
+            patched.metadata = {
+                ...patched.metadata,
+                contentVersion: (original.metadata.contentVersion || 1) + 1,
+            };
+        }
+
+        // Preserve original ID for non-forked updates
+        patched.id = original.id;
+
+        // Preserve status if missing
+        if (!patched.metadata.status) {
+            patched.metadata.status = (original.metadata.status || 'draft').toLowerCase() as any;
+        }
+
         // Ensure NOT NULL columns have defaults
-        if (!sanitized.metadata) sanitized.metadata = {};
-        if (!sanitized.metadata.status) sanitized.metadata.status = (original.metadata?.status || 'draft').toLowerCase();
+        patched.clinical_focus = (patched.metadata.topic || patched.pedagogy?.clinicalFocus || original.clinical_focus || 'General');
+        patched.client_needs = (patched.metadata.clientNeeds || original.client_needs || 'Physiological Integrity');
+        patched.cjmm_step = (patched.metadata.cjmmStep || original.cjmm_step || 'Analyze Cues');
 
-        // Safety for Postgres constraints
-        sanitized.clinical_focus = (fixed.metadata?.topic || fixed.pedagogy?.clinicalFocus || (original as any).clinical_focus || 'General');
-        sanitized.client_needs = (fixed.metadata?.clientNeeds || (original as any).client_needs || 'Physiological Integrity');
-        sanitized.cjmm_step = (fixed.metadata?.cjmmStep || (original as any).cjmm_step || 'Analyze Cues');
-
-        return sanitized as MasterQuestionItem;
+        return { action: 'UPDATE_IN_PLACE', newItem: patched, mutationClass, changedPaths };
     },
 
     /**

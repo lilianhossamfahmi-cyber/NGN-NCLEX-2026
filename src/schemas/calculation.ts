@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ContentSchema, MetadataSchema, RationaleUnion, TextSchema } from './shared';
+import { ContentSchema, MetadataSchema, RationaleUnion, TextSchema, PedagogySchema } from './shared';
 
 // --- CONFIGURATION SCHEMA ---
 // Specific fields for Calculation Items
@@ -25,6 +25,7 @@ export const CalculationItemSchema = z.object({
 
     // Core Identity
     type: z.literal('calculation'),
+    typeId: z.string().default('calculation'),
 
     // The Prompt (Stem)
     prompt: TextSchema.refine(
@@ -39,7 +40,8 @@ export const CalculationItemSchema = z.object({
     rationale: RationaleUnion,
 
     // Metadata
-    metadata: MetadataSchema.optional(),
+    metadata: MetadataSchema,
+    pedagogy: PedagogySchema,
 
     // Flattened Calculation Props (Merged from Config)
     correctValue: z.number().nullable().optional(),

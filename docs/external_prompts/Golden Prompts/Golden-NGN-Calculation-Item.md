@@ -47,6 +47,11 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
 - **Prompt Text:** MUST be a complete clinical sentence, not just "Calculate X".
    - **Bad:** "Calculate the rate."
    - **Good:** "Based on the provider's order for [Drug] and the client's weight, calculate the infusion rate in mL/hr. Round to the nearest whole number."
+- **Structured Metadata:** You MUST include a `calculationMethod` object in the content root with:
+   - `formula`: The latex or text formula used.
+   - `roundTo`: "whole", "tenth", "hundredth".
+   - `tolerance`: Numeric tolerance (e.g., 0.1).
+   - `unit`: The final unit.
 
 ---
 
@@ -214,6 +219,12 @@ DIFFICULTY LEVEL: [LEVEL] (Target Score Range: [SCORE])
       "clientNeeds": "Physiological Integrity",
       "cjmmStep": "Take Action",
       "targetScore": [SCORE]
+    },
+    "calculationMethod": {
+      "formula": "Volume (mL) / Time (hr) = Rate (mL/hr)",
+      "roundTo": "whole",
+      "tolerance": 0.5,
+      "unit": "mL/hr"
     },
     "clinicalData": {
       "patientInfo": {

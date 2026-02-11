@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ContentSchema, MetadataSchema, RationaleUnion } from './shared';
+import { ContentSchema, MetadataSchema, RationaleUnion, PedagogySchema } from './shared';
 // Import item schemas for the screens
 import {
     HighlightItemSchema,
@@ -17,12 +17,13 @@ const CaseStudyScreenItemSchema = z.union([
     OrderedResponseSchema.passthrough(),
     DropClozeItemSchema.passthrough(),
     BowTieItemSchema.passthrough(),
-    OptionBasedItemSchema.passthrough() // Covers multiple-response (Screen 6)
+    OptionBasedItemSchema // Covers multiple-response (Screen 6)
 ]);
 
 export const CaseStudySchema = z.object({
     id: z.string().uuid().optional().default(() => crypto.randomUUID()),
     type: z.literal('case-study'),
+    typeId: z.string().default('case-study'),
     prompt: z.string().optional(), // Often implicit
 
     // Global Content (Scenario, Vitals, History)
@@ -30,7 +31,8 @@ export const CaseStudySchema = z.object({
 
     rationale: RationaleUnion.optional(), // Global rationale for the whole case
 
-    metadata: MetadataSchema.optional(),
+    metadata: MetadataSchema,
+    pedagogy: PedagogySchema,
 
     structure: z.object({
         type: z.literal('case-study').optional(),

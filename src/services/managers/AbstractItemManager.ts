@@ -129,7 +129,7 @@ export abstract class AbstractItemManager implements ItemManager {
 
     abstract formatForDisplay(item: MasterQuestionItem): any;
 
-    abstract grade(userAnswer: any, correctContent: any): GradingResult;
+    abstract grade(userAnswer: any, item: any): GradingResult;
 
     /**
      * Helper: Standardizes Score Calculation (0-1).

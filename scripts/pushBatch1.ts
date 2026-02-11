@@ -2,17 +2,21 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { saveBatchToBank } from '../src/services/itemApiService.ts';
+import { MasterQuestionItem } from '../src/types/master-schema';
 
-const batch1 = [
+const batch1: MasterQuestionItem[] = [
     {
         "id": "Cardiology-Trend-7E4A2K",
         "typeId": "trend",
+        "type": "trend",
         "metadata": {
             "title": "Clinical Progression of Acute Heart Failure with Pulmonary Edema",
             "authorId": "AI-Expert-Writer",
             "createdAt": "2026-01-23T11:05:00Z",
+            "updatedAt": "2026-01-23T11:05:00Z",
             "status": "published",
             "sourceOrigin": "ai",
+            "sourceReferences": [],
             "qualityScore": 95,
             "hasStudentPreview": true
         },
@@ -71,12 +75,15 @@ const batch1 = [
     {
         "id": "Cardiology-Trend-A43B9D",
         "typeId": "trend",
+        "type": "trend",
         "metadata": {
             "title": "Unstable Angina Progressing to NSTEMI",
             "authorId": "AI-Expert-Writer",
             "createdAt": "2026-01-23T11:06:00Z",
+            "updatedAt": "2026-01-23T11:06:00Z",
             "status": "published",
             "sourceOrigin": "ai",
+            "sourceReferences": [],
             "qualityScore": 92,
             "hasStudentPreview": true
         },
@@ -104,7 +111,8 @@ const batch1 = [
                     { "test": "Troponin I", "value": "0.02", "flag": "N", "ref": "<0.04", "unit": "ng/mL", "time": "1215" },
                     { "test": "Troponin I", "value": "0.45", "flag": "H", "ref": "<0.04", "unit": "ng/mL", "time": "1415" }
                 ],
-                "orders": [{ "order": "Heparin Bolus", "dose": "5000 units", "route": "IV", "freq": "Once", "status": "Active", "indication": "ACS Management" }]
+                "orders": [{ "order": "Heparin Bolus", "dose": "5000 units", "route": "IV", "freq": "Once", "status": "Active", "indication": "ACS Management" }],
+                "radiology": []
             },
             "structure": {
                 "type": "trend",
@@ -123,12 +131,15 @@ const batch1 = [
     {
         "id": "Cardiology-Trend-B92F1X",
         "typeId": "trend",
+        "type": "trend",
         "metadata": {
             "title": "Post-Cardiac Surgery Tamponade Trend",
             "authorId": "AI-Expert-Writer",
             "createdAt": "2026-01-23T11:07:00Z",
+            "updatedAt": "2026-01-23T11:07:00Z",
             "status": "published",
             "sourceOrigin": "ai",
+            "sourceReferences": [],
             "qualityScore": 98,
             "hasStudentPreview": true
         },
@@ -147,11 +158,13 @@ const batch1 = [
                     { "time": "1500", "author": "RN Night", "note": "Chest tube output 10mL. Heart sounds noted as 'distant'." }
                 ],
                 "vitals": [
-                    { "time": "1300", "hr": 88, "bp": "118/74", "o2": "98" },
-                    { "time": "1400", "hr": 102, "bp": "104/82", "o2": "97" },
-                    { "time": "1500", "hr": 126, "bp": "88/76", "o2": "95" }
+                    { "time": "1300", "tempF": "98.2", "hr": 88, "bp": "118/74", "rr": 18, "o2": "98", "o2_device": "RA", "pain": 2 },
+                    { "time": "1400", "tempF": "98.4", "hr": 102, "bp": "104/82", "rr": 20, "o2": "97", "o2_device": "RA", "pain": 3 },
+                    { "time": "1500", "tempF": "98.6", "hr": 126, "bp": "88/76", "rr": 24, "o2": "95", "o2_device": "RA", "pain": 4 }
                 ],
-                "orders": [{ "order": "Pericardiocentesis Kit", "status": "Active", "indication": "Suspected Tamponade" }]
+                "labs": [{ "test": "Hgb", "value": "8.4", "flag": "L", "ref": "12-16", "unit": "g/dL" }],
+                "orders": [{ "order": "Pericardiocentesis Kit", "status": "Active", "indication": "Suspected Tamponade" }],
+                "radiology": []
             },
             "structure": {
                 "type": "trend",
@@ -170,17 +183,37 @@ const batch1 = [
     {
         "id": "Cardiology-Trend-X11Z09",
         "typeId": "trend",
-        "metadata": { "title": "Septic Shock in Post-MI Patient", "status": "published", "qualityScore": 94 },
+        "type": "trend",
+        "metadata": {
+            "title": "Septic Shock in Post-MI Patient",
+            "authorId": "AI-Expert-Writer",
+            "createdAt": "2026-01-23T11:08:00Z",
+            "updatedAt": "2026-01-23T11:08:00Z",
+            "status": "published",
+            "sourceOrigin": "ai",
+            "sourceReferences": [],
+            "qualityScore": 94,
+            "hasStudentPreview": true
+        },
+        "pedagogy": { "difficultyLevel": 4, "clinicalFocus": "Cardiology", "cjmmPhase": "Analyze Cues" },
         "content": {
             "clinicalData": {
+                "patientInfo": { "name": "W.F.", "age": 69, "gender": "Male" },
                 "vitals": [
-                    { "time": "0900", "tempF": "99.8", "hr": 82, "bp": "112/68", "o2": "94" },
-                    { "time": "1100", "tempF": "100.9", "hr": 104, "bp": "102/60", "o2": "93" },
-                    { "time": "1300", "tempF": "102.4", "hr": 128, "bp": "82/44", "o2": "89" }
+                    { "time": "0900", "tempF": "99.8", "hr": 82, "bp": "112/68", "rr": 18, "o2": "94", "o2_device": "RA", "pain": 1 },
+                    { "time": "1100", "tempF": "100.9", "hr": 104, "bp": "102/60", "rr": 22, "o2": "93", "o2_device": "RA", "pain": 2 },
+                    { "time": "1300", "tempF": "102.4", "hr": 128, "bp": "82/44", "rr": 28, "o2": "89", "o2_device": "RA", "pain": 3 }
                 ],
-                "labs": [{ "test": "MAP", "value": "57", "flag": "L", "ref": ">65", "time": "1300" }]
+                "labs": [
+                    { "test": "MAP", "value": "57", "flag": "L", "ref": ">65", "unit": "mmHg", "time": "1300" },
+                    { "test": "WBC", "value": "18.5", "flag": "H", "ref": "4.5-11.0", "unit": "10^3/uL", "time": "1300" }
+                ],
+                "history": [],
+                "radiology": [],
+                "orders": []
             },
             "structure": {
+                "type": "trend",
                 "prompt": "Evaluate the clinical trend. Which find indicates the client is now in septic shock?",
                 "options": [
                     { "id": "o3", "text": "MAP falling to 57 mmHg", "isCorrect": true },
@@ -193,20 +226,37 @@ const batch1 = [
     {
         "id": "Cardiology-Trend-Q77R5T",
         "typeId": "trend",
-        "metadata": { "title": "Digoxin Toxicity with Heart Block", "status": "published", "qualityScore": 96 },
+        "type": "trend",
+        "metadata": {
+            "title": "Digoxin Toxicity with Heart Block",
+            "authorId": "AI-Expert-Writer",
+            "createdAt": "2026-01-23T11:09:00Z",
+            "updatedAt": "2026-01-23T11:09:00Z",
+            "status": "published",
+            "sourceOrigin": "ai",
+            "sourceReferences": [],
+            "qualityScore": 96,
+            "hasStudentPreview": true
+        },
+        "pedagogy": { "difficultyLevel": 3, "clinicalFocus": "Cardiology", "cjmmPhase": "Analyze Cues" },
         "content": {
             "clinicalData": {
+                "patientInfo": { "name": "G.L.", "age": 82, "gender": "Female" },
                 "vitals": [
-                    { "time": "0800", "hr": 72, "bp": "112/64" },
-                    { "time": "0900", "hr": 58, "bp": "104/60" },
-                    { "time": "1000", "hr": 34, "bp": "82/48" }
+                    { "time": "0800", "tempF": "98.4", "hr": 72, "bp": "112/64", "rr": 16, "o2": "97", "o2_device": "RA", "pain": 1 },
+                    { "time": "0900", "tempF": "98.5", "hr": 58, "bp": "104/60", "rr": 18, "o2": "96", "o2_device": "RA", "pain": 2 },
+                    { "time": "1000", "tempF": "98.6", "hr": 34, "bp": "82/48", "rr": 20, "o2": "95", "o2_device": "RA", "pain": 2 }
                 ],
                 "labs": [
-                    { "test": "Potassium", "value": "2.9", "flag": "L" },
-                    { "test": "Digoxin", "value": "3.4", "flag": "H" }
-                ]
+                    { "test": "Potassium", "value": "2.9", "flag": "L", "ref": "3.5-5.0", "unit": "mEq/L" },
+                    { "test": "Digoxin", "value": "3.4", "flag": "H", "ref": "0.5-2.0", "unit": "ng/mL" }
+                ],
+                "history": [],
+                "radiology": [],
+                "orders": []
             },
             "structure": {
+                "type": "trend",
                 "prompt": "Which electrolyte abnormality increases the risk for this trend?",
                 "options": [
                     { "id": "o1", "text": "Hypokalemia (2.9 mEq/L)", "isCorrect": true },
@@ -219,17 +269,34 @@ const batch1 = [
     {
         "id": "Cardiology-Trend-H8K2L4",
         "typeId": "trend",
-        "metadata": { "title": "Hypertensive Emergency with Early Encephalopathy", "status": "published", "qualityScore": 96 },
+        "type": "trend",
+        "metadata": {
+            "title": "Hypertensive Emergency with Early Encephalopathy",
+            "authorId": "AI-Expert-Writer",
+            "createdAt": "2026-01-23T11:10:00Z",
+            "updatedAt": "2026-01-23T11:10:00Z",
+            "status": "published",
+            "sourceOrigin": "ai",
+            "sourceReferences": [],
+            "qualityScore": 96,
+            "hasStudentPreview": true
+        },
+        "pedagogy": { "difficultyLevel": 5, "clinicalFocus": "Cardiology", "cjmmPhase": "Prioritize Actions" },
         "content": {
             "clinicalData": {
+                "patientInfo": { "name": "T.W.", "age": 55, "gender": "Male" },
                 "vitals": [
-                    { "time": "1400", "bp": "198/112" },
-                    { "time": "1445", "bp": "212/120" },
-                    { "time": "1530", "bp": "230/132" }
+                    { "time": "1400", "tempF": "98.4", "hr": 88, "bp": "198/112", "rr": 20, "o2": "96", "o2_device": "RA", "pain": 7 },
+                    { "time": "1445", "tempF": "98.5", "hr": 96, "bp": "212/120", "rr": 22, "o2": "95", "o2_device": "RA", "pain": 8 },
+                    { "time": "1530", "tempF": "98.6", "hr": 108, "bp": "230/132", "rr": 24, "o2": "94", "o2_device": "RA", "pain": 10 }
                 ],
-                "history": [{ "time": "1530", "note": "Client now intermittently confused. Vision worsens." }]
+                "history": [{ "time": "1530", "note": "Client now intermittently confused. Vision worsens." }],
+                "labs": [{ "test": "Creatinine", "value": "2.4", "flag": "H", "ref": "0.7-1.3", "unit": "mg/dL" }],
+                "radiology": [],
+                "orders": []
             },
             "structure": {
+                "type": "trend",
                 "prompt": "Which findings distinguish this as a Hypertensive Emergency?",
                 "options": [
                     { "id": "o2", "text": "New onset of intermittent confusion", "isCorrect": true },
@@ -242,17 +309,34 @@ const batch1 = [
     {
         "id": "Cardiology-Trend-P4N9M2",
         "typeId": "trend",
-        "metadata": { "title": "Aortic Dissection Progression", "status": "published", "qualityScore": 98 },
+        "type": "trend",
+        "metadata": {
+            "title": "Aortic Dissection Progression",
+            "authorId": "AI-Expert-Writer",
+            "createdAt": "2026-01-23T11:11:00Z",
+            "updatedAt": "2026-01-23T11:11:00Z",
+            "status": "published",
+            "sourceOrigin": "ai",
+            "sourceReferences": [],
+            "qualityScore": 98,
+            "hasStudentPreview": true
+        },
+        "pedagogy": { "difficultyLevel": 5, "clinicalFocus": "Cardiology", "cjmmPhase": "Analyze Cues" },
         "content": {
             "clinicalData": {
+                "patientInfo": { "name": "M.R.", "age": 64, "gender": "Male" },
                 "vitals": [
-                    { "time": "2100", "bp": "180/94", "pain": 10 },
-                    { "time": "2130", "bp": "162/88", "pain": 10 },
-                    { "time": "2200", "bp": "94/56", "pain": 10 }
+                    { "time": "2100", "tempF": "98.4", "hr": 102, "bp": "180/94", "rr": 22, "o2": "94", "o2_device": "RA", "pain": 10 },
+                    { "time": "2130", "tempF": "98.5", "hr": 118, "bp": "162/88", "rr": 24, "o2": "92", "o2_device": "RA", "pain": 10 },
+                    { "time": "2200", "tempF": "98.6", "hr": 128, "bp": "94/56", "rr": 28, "o2": "90", "o2_device": "RA", "pain": 10 }
                 ],
-                "history": [{ "time": "2200", "note": "Pain migrated to lumbar area. R radial pulse now +1, L radial +3." }]
+                "history": [{ "time": "2200", "note": "Pain migrated to lumbar area. R radial pulse now +1, L radial +3." }],
+                "labs": [{ "test": "D-Dimer", "value": "5800", "flag": "H", "ref": "<500", "unit": "ng/mL" }],
+                "radiology": [],
+                "orders": []
             },
             "structure": {
+                "type": "trend",
                 "prompt": "Which two findings are pathognomonic for progressing aortic dissection?",
                 "options": [
                     { "id": "o1", "text": "Migrating 'tearing' pain", "isCorrect": true },
@@ -265,17 +349,34 @@ const batch1 = [
     {
         "id": "Cardiology-Trend-W3Q7Z8",
         "typeId": "trend",
-        "metadata": { "title": "Post-MI Ventricular Septal Rupture", "status": "published", "qualityScore": 97 },
+        "type": "trend",
+        "metadata": {
+            "title": "Post-MI Ventricular Septal Rupture",
+            "authorId": "AI-Expert-Writer",
+            "createdAt": "2026-01-23T11:12:00Z",
+            "updatedAt": "2026-01-23T11:12:00Z",
+            "status": "published",
+            "sourceOrigin": "ai",
+            "sourceReferences": [],
+            "qualityScore": 97,
+            "hasStudentPreview": true
+        },
+        "pedagogy": { "difficultyLevel": 5, "clinicalFocus": "Cardiology", "cjmmPhase": "Analyze Cues" },
         "content": {
             "clinicalData": {
+                "patientInfo": { "name": "Q.Z.", "age": 71, "gender": "Female" },
                 "vitals": [
-                    { "time": "0800", "hr": 78, "bp": "118/74" },
-                    { "time": "0900", "hr": 92, "bp": "104/68" },
-                    { "time": "1000", "hr": 118, "bp": "82/42" }
+                    { "time": "0800", "tempF": "98.4", "hr": 78, "bp": "118/74", "rr": 18, "o2": "96", "o2_device": "RA", "pain": 3 },
+                    { "time": "0900", "tempF": "98.5", "hr": 92, "bp": "104/68", "rr": 22, "o2": "94", "o2_device": "RA", "pain": 4 },
+                    { "time": "1000", "tempF": "98.6", "hr": 118, "bp": "82/42", "rr": 28, "o2": "90", "o2_device": "RA", "pain": 5 }
                 ],
-                "history": [{ "time": "1000", "note": "New loud, harsh holosystolic murmur at left lower sternal border." }]
+                "history": [{ "time": "1000", "note": "New loud, harsh holosystolic murmur at left lower sternal border." }],
+                "labs": [{ "test": "SvO2", "value": "82", "flag": "H", "ref": "60-75", "unit": "%" }],
+                "radiology": [],
+                "orders": []
             },
             "structure": {
+                "type": "trend",
                 "prompt": "Which findings distinguish this as VSR rather than Papillary Muscle Rupture?",
                 "options": [
                     { "id": "o1", "text": "Step-up in mixed venous oxygen saturation (SvO2)", "isCorrect": true },
@@ -288,17 +389,34 @@ const batch1 = [
     {
         "id": "Cardiology-Trend-K5H1L9",
         "typeId": "trend",
-        "metadata": { "title": "Amiodarone-Induced Thyrotoxicosis", "status": "published", "qualityScore": 95 },
+        "type": "trend",
+        "metadata": {
+            "title": "Amiodarone-Induced Thyrotoxicosis",
+            "authorId": "AI-Expert-Writer",
+            "createdAt": "2026-01-23T11:13:00Z",
+            "updatedAt": "2026-01-23T11:13:00Z",
+            "status": "published",
+            "sourceOrigin": "ai",
+            "sourceReferences": [],
+            "qualityScore": 95,
+            "hasStudentPreview": true
+        },
+        "pedagogy": { "difficultyLevel": 4, "clinicalFocus": "Cardiology", "cjmmPhase": "Prioritize Actions" },
         "content": {
             "clinicalData": {
+                "patientInfo": { "name": "H.L.", "age": 62, "gender": "Male" },
                 "vitals": [
-                    { "time": "0800", "tempF": "99.1", "hr": 112 },
-                    { "time": "1000", "tempF": "100.2", "hr": 124 },
-                    { "time": "1200", "tempF": "101.8", "hr": 142 }
+                    { "time": "0800", "tempF": "99.1", "hr": 112, "bp": "138/84", "rr": 20, "o2": "96", "o2_device": "RA", "pain": 2 },
+                    { "time": "1000", "tempF": "100.2", "hr": 124, "bp": "122/76", "rr": 24, "o2": "94", "o2_device": "RA", "pain": 3 },
+                    { "time": "1200", "tempF": "101.8", "hr": 142, "bp": "108/60", "rr": 28, "o2": "92", "o2_device": "RA", "pain": 4 }
                 ],
-                "labs": [{ "test": "TSH", "value": "0.01", "flag": "L" }]
+                "labs": [{ "test": "TSH", "value": "0.01", "flag": "L", "ref": "0.4-4.0", "unit": "uIU/mL" }],
+                "history": [],
+                "radiology": [],
+                "orders": []
             },
             "structure": {
+                "type": "trend",
                 "prompt": "Which characteristic of Amiodarone causes this complication?",
                 "options": [
                     { "id": "o1", "text": "High iodine content (37%)", "isCorrect": true },
@@ -311,20 +429,37 @@ const batch1 = [
     {
         "id": "Cardiology-Trend-M2N8R3",
         "typeId": "trend",
-        "metadata": { "title": "BNP Correlation in HF Trend", "status": "published", "qualityScore": 92 },
+        "type": "trend",
+        "metadata": {
+            "title": "BNP Correlation in HF Trend",
+            "authorId": "AI-Expert-Writer",
+            "createdAt": "2026-01-23T11:14:00Z",
+            "updatedAt": "2026-01-23T11:14:00Z",
+            "status": "published",
+            "sourceOrigin": "ai",
+            "sourceReferences": [],
+            "qualityScore": 92,
+            "hasStudentPreview": true
+        },
+        "pedagogy": { "difficultyLevel": 3, "clinicalFocus": "Cardiology", "cjmmPhase": "Prioritize Actions" },
         "content": {
             "clinicalData": {
+                "patientInfo": { "name": "N.R.", "age": 59, "gender": "Female" },
                 "vitals": [
-                    { "time": "0800", "bp": "148/92", "o2": "91" },
-                    { "time": "1400", "bp": "122/74", "o2": "95" },
-                    { "time": "2000", "bp": "114/68", "o2": "97" }
+                    { "time": "0800", "tempF": "98.4", "hr": 92, "bp": "148/92", "rr": 24, "o2": "91", "o2_device": "2L NC", "pain": 2 },
+                    { "time": "1400", "tempF": "98.5", "hr": 84, "bp": "122/74", "rr": 18, "o2": "95", "o2_device": "2L NC", "pain": 1 },
+                    { "time": "2000", "tempF": "98.6", "hr": 78, "bp": "114/68", "rr": 16, "o2": "97", "o2_device": "RA", "pain": 0 }
                 ],
                 "labs": [
-                    { "test": "BNP", "value": "2400", "time": "0800" },
-                    { "test": "BNP", "value": "900", "time": "2000" }
-                ]
+                    { "test": "BNP", "value": "2400", "flag": "H", "ref": "<100", "unit": "pg/mL", "time": "0800" },
+                    { "test": "BNP", "value": "900", "flag": "H", "ref": "<100", "unit": "pg/mL", "time": "2000" }
+                ],
+                "history": [],
+                "radiology": [],
+                "orders": []
             },
             "structure": {
+                "type": "trend",
                 "prompt": "Which findings indicate therapy is reducing preload?",
                 "options": [
                     { "id": "o1", "text": "Decrease in BNP from 2400 to 900", "isCorrect": true },

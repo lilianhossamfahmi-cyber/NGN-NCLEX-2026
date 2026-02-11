@@ -1,5 +1,4 @@
-import { WellnessExercise, WellnessSession, WellnessDashboardMetrics } from '../../types/phase-6-5-schema';
-import { v4 as uuidv4 } from 'uuid';
+import { WellnessExercise, WellnessDashboardMetrics } from '../../types/phase-6-5-schema';
 
 // --- CONSTANT: WELLNESS EXERCISES LIBRARY ---
 export const WELLNESS_EXERCISES: WellnessExercise[] = [
